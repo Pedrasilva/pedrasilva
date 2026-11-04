@@ -36,6 +36,9 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     let saleAllowed=false;
     if(b1){
       if(!data.projectId)return [];
+      const {data:visible,error:visibleError}=await supabase.rpc('pm_b1_projects',{_project:data.projectId});
+      if(visibleError)throw visibleError;
+      if(!visible?.length)return [];
       const {data:areas,error}=await supabase.rpc('pm_project_viewer_areas',{_project:data.projectId});
       if(error)throw error;
       const flags=areas as unknown as {budget_cost:boolean;financials:boolean};

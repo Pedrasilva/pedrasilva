@@ -30,6 +30,9 @@ import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
 import { retainerCostRate, retainerCostAmount } from "@/lib/projects/retainer-cost";
+import {readB1Rows,useB1CacheScope} from '@/lib/projects/b1-projection';
+import {useProjectB1State} from '@/lib/projects/use-project-access';
+import {useDefaultResourceRates,effectiveSaleRate} from '@/lib/projects/use-default-rates';
 
 function retainerEuros(value: number): string {
   return Number.isFinite(value) ? euros(value) : "—";
@@ -39,6 +42,7 @@ interface Props {
   stages: StageWithAllocations[];
   byStage: Map<string, StageBudgetControl> | undefined;
   showFinancials: boolean;
+  projectId?:string;
 }
 
 interface DirectStageAgg {
@@ -54,11 +58,28 @@ interface DirectStageAgg {
  * monthly rows so open-logged hours show up alongside allocation-based
  * ones without touching use-stage-budget-control.
  */
-function useDirectRetainerEntries(childIds: string[]) {
+function useDirectRetainerEntries(childIds: string[],projectId?:string) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["retainer-direct-entries", [...childIds].sort().join(",")],
+    queryKey: ["retainer-direct-entries", [...childIds].sort().join(","),projectId,...scope],
     enabled: childIds.length > 0,
     queryFn: async (): Promise<Map<string, DirectStageAgg>> => {
+      if(projectId){
+        const stages=await readB1Rows<{id:string;allocations:{tasks?:{id:string}[]}[]}>('stages',projectId);
+        const taskStage=new Map(stages.flatMap(s=>s.allocations.flatMap(a=>(a.tasks??[]).map(task=>[task.id,s.id] as const))));
+        const entries=await readB1Rows<{pm_stage_id:string|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null;sale_rate_snapshot:number|null}>('entries',projectId);
+        const out=new Map<string,DirectStageAgg>();
+        for(const e of entries){
+          const id=e.pm_stage_id??(e.task_id?taskStage.get(e.task_id):undefined);
+          if(!id||!childIds.includes(id))continue;
+          const row=out.get(id)??{hours:0,cost:0,sale:0};
+          row.cost+=retainerCostAmount(e.hours,e.cost_rate_snapshot);
+          if(e.task_id)row.taskHours=(row.taskHours??0)+e.hours;
+          else{row.hours+=e.hours;if(e.billable)row.sale+=e.hours*Number(e.sale_rate_snapshot??NaN);}
+          out.set(id,row);
+        }
+        return out;
+      }
       const { data, error } = await supabase
         .from("pm_time_entries")
         .select("pm_stage_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
@@ -194,12 +215,15 @@ function statusFor(
   return "green";
 }
 
-export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props) {
+export function RetainerMonitorPanel({ stages, byStage, showFinancials,projectId }: Props) {
   const { t, i18n } = useTranslation("projects");
   const todayIso = new Date().toISOString().slice(0, 10);
   const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
-  const { data: resourcePricing } = useResourcePricing();
+  const b1=useProjectB1State();
+  const { data: legacyPricing } = useResourcePricing(!projectId||!b1.data);
+  const defaults=useDefaultResourceRates(projectId);
+  const resourcePricing=useMemo(()=>projectId&&b1.data?new Map(stages.flatMap(s=>s.allocations.map(a=>[a.resource.id,{costPerHour:NaN,salePerHour:effectiveSaleRate(a.resource.hourly_rate,a.resource.id,defaults.data,a.resource.hourly_rate_is_override??undefined),marginPct:NaN}] as const))):legacyPricing,[projectId,b1.data,stages,defaults.data,legacyPricing]);
 
 
   const childIds = useMemo(() => {
@@ -215,7 +239,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       })
       .map((s) => s.id);
   }, [stages]);
-  const { data: directByStage } = useDirectRetainerEntries(childIds);
+  const { data: directByStage } = useDirectRetainerEntries(childIds,projectId&&b1.data?projectId:undefined);
 
   const retainerStageIds = useMemo(() => {
     const parents = stages

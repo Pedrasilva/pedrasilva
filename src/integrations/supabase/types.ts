@@ -19030,6 +19030,25 @@ export type Database = {
         Args: { _kind: string; _project: string; _row: Json; _user: string }
         Returns: Json
       }
+      pm_b1_stage_hours: {
+        Args: { _project: string }
+        Returns: {
+          billable_hours: number
+          hours: number
+          month: string
+          non_billable_hours: number
+          stage_id: string
+        }[]
+      }
+      pm_b1_stage_locked_cost: {
+        Args: { _project: string }
+        Returns: {
+          month: string
+          snap_cost: number
+          stage_id: string
+          unsnap_hours: number
+        }[]
+      }
       pm_b1_stages: { Args: { _project?: string }; Returns: Json[] }
       pm_backfill_tatiana_internal: { Args: never; Returns: Json }
       pm_backoffice_salary_cost: {
@@ -19434,6 +19453,7 @@ export type Database = {
         Returns: Json
       }
       pm_unique_viewer_resource: { Args: never; Returns: string }
+      pm_validate_b1_fixture: { Args: never; Returns: Json }
       pm_validate_cutover_fixture: { Args: never; Returns: Json }
       pm_verify_tatiana_backfill: { Args: never; Returns: Json }
       pm_verify_week_publication: { Args: never; Returns: Json }

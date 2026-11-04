@@ -1,6 +1,7 @@
 import {useQuery,useMutation,useQueryClient} from '@tanstack/react-query';
 import {supabase} from '@/integrations/supabase/client';
 import type {ProjectViewerAreas} from './project-area-tabs';
+import {useAuth} from '@/hooks/use-auth';
 export function useProjectB1State(){
   return useQuery({queryKey:['pm-project-b1-active'],queryFn:async()=>{
     const {data,error}=await supabase.rpc('pm_project_b1_active');if(error)throw error;return !!data;
@@ -8,7 +9,8 @@ export function useProjectB1State(){
 }
 export function useProjectViewerAreas(projectId:string){
   const b1=useProjectB1State();
-  return useQuery({queryKey:['pm-project-viewer-areas',projectId,b1.data],queryFn:async()=>{
+  const {user}=useAuth();
+  return useQuery({queryKey:['pm-project-viewer-areas',projectId,b1.data,user?.id],staleTime:0,refetchInterval:30_000,queryFn:async()=>{
     const {data,error}=await supabase.rpc('pm_project_viewer_areas',{_project:projectId});if(error)throw error;
     return {...data as unknown as ProjectViewerAreas,b1Active:b1.data??false};
   }});

@@ -4,30 +4,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { LivePaymentItem, LiveStage } from "@/lib/projects/contract-diff";
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
 export function useLivePlanForDiff(projectId: string | undefined) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["pm-live-plan-for-diff", projectId],
+    queryKey: ["pm-live-plan-for-diff", projectId,...scope],
     enabled: !!projectId,
     queryFn: async (): Promise<{ stages: LiveStage[]; payments: LivePaymentItem[] }> => {
-      const [{ data: stages, error: sErr }, { data: payments, error: pErr }] =
+      if(!projectId)return {stages:[],payments:[]};
+      const [stages, { data: payments, error: pErr }] =
         await Promise.all([
-          db
-            .from("pm_stages")
-            .select("id, name, parent_stage_id, start_date, end_date, budget, sort_order")
-            .eq("project_id", projectId!)
-            .is("archived_at", null)
-            .order("sort_order", { ascending: true }),
+          readB1Rows<LiveStage>('stages',projectId),
           db
             .from("pm_payment_schedule_items")
             .select("id, label, stage_id, amount_value, expected_invoice_date, billing_status")
-            .eq("project_id", projectId!)
+            .eq("project_id", projectId)
             .order("sort_order", { ascending: true }),
         ]);
-      if (sErr) throw new Error(sErr.message);
       if (pErr) throw new Error(pErr.message);
       return {
         stages: (stages ?? []) as LiveStage[],

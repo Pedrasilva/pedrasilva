@@ -1437,7 +1437,7 @@ export function GanttChart({
                     : undefined;
                   return (
                   <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
-                  {!actuals && !isSupplierBar && !isClientBar && (
+                  {!actuals && !isSupplierBar && !isClientBar && (adapter?.mode==='quote'||showFinancials) && (
                     <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                       <div
                         className="h-full transition-all"
@@ -1554,7 +1554,7 @@ export function GanttChart({
                         </div>
                         )}
                       </div>
-                      <Popover>
+                      {(adapter?.mode==='quote'||showFinancials) && <Popover>
                         <PopoverTrigger asChild>
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
@@ -1616,7 +1616,7 @@ export function GanttChart({
                             </div>
                           </div>
                         </PopoverContent>
-                      </Popover>
+                      </Popover>}
                       
                     </div>
 

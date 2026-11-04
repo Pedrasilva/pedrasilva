@@ -17,9 +17,10 @@ export type TeamPricingAverages = {
   sampleSize: number;
 };
 
-export function useTeamPricingAverages() {
+export function useTeamPricingAverages(enabled=true) {
   return useQuery<TeamPricingAverages>({
     queryKey: ["team-pricing-averages"],
+    enabled,
     queryFn: async () => {
       const [collabRes, snapRes, boRes] = await Promise.all([
         supabase

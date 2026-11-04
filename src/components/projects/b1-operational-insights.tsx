@@ -1,6 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {readB1Rows} from '@/lib/projects/b1-projection';
+import {readB1Rows,useB1CacheScope} from '@/lib/projects/b1-projection';
 import type {StageWithAllocations} from '@/lib/projects/types';
 import type {ProjectViewerAreas} from '@/lib/projects/project-area-tabs';
 import {supabase} from '@/integrations/supabase/client';
@@ -9,10 +9,11 @@ import {buildStageNumberMap,sortStagesByWbs} from '@/lib/quotes/stage-numbering'
 
 export function B1OperationalInsights({projectId,stages,areas,retainer=false}:{projectId:string;stages:StageWithAllocations[];areas?:ProjectViewerAreas;retainer?:boolean}){
   const {t,i18n}=useTranslation('projects');
-  const summary=useQuery({queryKey:['pm-b1-operational-summary',projectId],queryFn:async()=>{
-    const {data,error}=await supabase.rpc('pm_project_stage_hours',{p_project_id:projectId});if(error)throw error;return data??[];
+  const scope=useB1CacheScope();
+  const summary=useQuery({queryKey:['pm-b1-operational-summary',projectId,...scope],queryFn:async()=>{
+    const {data,error}=await supabase.rpc('pm_b1_stage_hours',{_project:projectId});if(error)throw error;return data??[];
   }});
-  const entries=useQuery({queryKey:['pm-b1-operational-cost',projectId],queryFn:()=>readB1Rows<{pm_stage_id:string|null;quote_stage_id:string|null;task_id:string|null;hours:number;cost_rate_snapshot:number|null}>('entries',projectId)});
+  const entries=useQuery({queryKey:['pm-b1-operational-cost',projectId,...scope],queryFn:()=>readB1Rows<{pm_stage_id:string|null;quote_stage_id:string|null;task_id:string|null;hours:number;cost_rate_snapshot:number|null}>('entries',projectId)});
   const number=new Intl.NumberFormat(i18n.language,{maximumFractionDigits:1});
   const money=new Intl.NumberFormat(i18n.language,{style:'currency',currency:'EUR'});
   const labels=buildStageNumberMap(stages);

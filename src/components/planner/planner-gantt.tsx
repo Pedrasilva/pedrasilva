@@ -1280,7 +1280,7 @@ function OperationalScheduleAdapter({
   const { t } = useTranslation(["projects", "crm"]);
   const b1=useProjectB1State();
   const areas=useProjectViewerAreas(projectId);
-  const canSeeFinancials=b1.data ? !!areas.data?.financials && !!areas.data?.budget_cost : requestedFinancials;
+  const canSeeFinancials=b1.data ? !!areas.data?.financials && !!areas.data?.budget_cost && !!areas.data?.expenses && !!areas.data?.supplier_fees : requestedFinancials;
   const [showActuals,setShowActuals] = useState(false);
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
@@ -1306,9 +1306,9 @@ function OperationalScheduleAdapter({
     deleteAllocation: canEdit ? liveAdapter.deleteAllocation : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
     setAllocationStatus: canEdit ? liveAdapter.setAllocationStatus : async () => { toast.error(t("gantt.readOnly.badge")); return null; },
   } : liveAdapter, [sourceQuoteId, liveAdapter, canEdit, t]);
-  const { data: teamAvg } = useTeamPricingAverages();
-  const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
-  const projectImpliedCostRate = teamAvg?.avgCostPerHour ?? 0;
+  const { data: teamAvg } = useTeamPricingAverages(!b1.data);
+  const projectImpliedHourRate = b1.data ? NaN : teamAvg?.avgSalePerHour ?? 0;
+  const projectImpliedCostRate = b1.data ? NaN : teamAvg?.avgCostPerHour ?? 0;
   const { data: invoices } = useProjectInvoices(projectId);
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();

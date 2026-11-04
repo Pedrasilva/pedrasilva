@@ -6,17 +6,18 @@ import { getWorkingCalendarHolidays } from "./gantt-utils";
 import { buildGanttActuals, type ActualActivity, type ActualStage, type StageActualAggregate } from "./gantt-actuals";
 import { PROJECT_SUMMARY_ID } from "./build-project-gantt-tree";
 import { useAuth } from "@/hooks/use-auth";
-import {readB1Rows} from './b1-projection';
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 type RawEntry = { id: string; user_id: string; entry_date: string; hours: number; cost_rate_snapshot?: number | null; task_id: string | null; pm_stage_id: string | null; quote_stage_id: string | null; entry_type: string };
 type RawStage = { id: string; parent_stage_id: string | null; budget: number; start_date: string; end_date: string; source_quote_stage_id: string | null; stage_kind: string | null };
 
 /** Existing RLS protects activity detail; privacy-safe RPCs reconcile older full months. */
 export function useGanttActuals(projectId: string, enabled: boolean, financials: boolean) {
+  const scope=useB1CacheScope();
   const today = toLocalISODate(new Date());
   const { user, viewAsUser, viewAsCollaboratorId } = useAuth();
   return useQuery({
-    queryKey: ["gantt-actuals", projectId, today, financials, user?.id, viewAsUser, viewAsCollaboratorId],
+    queryKey: ["gantt-actuals", projectId, today, financials, user?.id, viewAsUser, viewAsCollaboratorId,...scope],
     enabled: enabled && !!projectId,
     staleTime: 30_000,
     queryFn: async () => {
@@ -27,8 +28,8 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
         fetchAll<{id:string;stage_id:string;resource_id:string;start_date:string;end_date:string;hours_per_day:number;allocation_percentage:number|null;planning_removed_at:string|null;tasks:{id:string}[]|{id:string}|null}>(
           (a,b)=>supabase.from("pm_allocations").select("id,stage_id,resource_id,start_date,end_date,hours_per_day,allocation_percentage,planning_removed_at,tasks:pm_tasks(id)").in("stage_id",stageIds).order("id").range(a,b) as never),
         readB1Rows<{id:string;entry_date:string;stage_id:string|null;resource_id:string|null;collaborator_id:string|null;billable_hours:number|null;non_billable_hours:number|null;cost?:number|null}>('history',projectId),
-        supabase.rpc("pm_project_stage_hours",{p_project_id:projectId}),
-        financials ? supabase.rpc("pm_project_stage_locked_cost",{p_project_id:projectId}) : Promise.resolve({data:[],error:null}),
+        supabase.rpc("pm_b1_stage_hours",{_project:projectId}),
+        financials ? supabase.rpc("pm_b1_stage_locked_cost",{_project:projectId}) : Promise.resolve({data:[],error:null}),
       ]);
       if (summary.error) throw summary.error;
       if (locked.error) throw locked.error;

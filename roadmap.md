@@ -1,7 +1,7 @@
 ## Current request — 4 November 09:22 Phase B1 only
-- [ ] Write B1 plan before implementation; independent audited gate OFF, operational projections and B1 reader migration.
-- [ ] Read-only before/after matrix and named live checks; one disposable fixture, exact cleanup and independent zero.
-- [ ] B2 reachability inventory and B3 document/export/PDF map only; report evidence and stop before B1 activation.
+- [x] Write B1 plan before implementation; independent audited gate OFF, operational projections and B1 reader migration.
+- [x] Read-only effective matrix and named live checks; sequential disposable fixtures, exact cleanup and independent zero 10:28:24 UTC. Actual ON cutover not authorized; browser-only presentation simulation documented.
+- [x] B2 reachability inventory and B3 located document/export/PDF map only; remaining policy/caller verification documented. Stop before B1 activation pending Luis.
 
 ## Current request — 4 November 02:03 final mouse gestures
 - [x] Authenticated mouse create/cascade/delete dependency and approval-handle resize on one disposable converted project.
