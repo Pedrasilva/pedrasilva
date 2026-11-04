@@ -1,0 +1,15 @@
+{
+  "rowsBefore": 1176,
+  "rowsAfter": 1176,
+  "sort": "person, project, area, user_id, project_id",
+  "excludedReportOnlyAnnotations": [
+    "activation",
+    "b1_after",
+    "b1_before"
+  ],
+  "algorithm": "SHA-256 of UTF-8 JSON, keys sorted, compact separators",
+  "beforeHash": "13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339",
+  "afterHash": "13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339",
+  "differences": [],
+  "identical": true
+}
