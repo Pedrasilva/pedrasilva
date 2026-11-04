@@ -77,6 +77,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
       { to: "/finance/invoicing/clients", labelKey: "finance:sidebar.items.clients", icon: Users },
 
       { to: "/finance/invoicing/invoices", labelKey: "finance:sidebar.items.invoices", icon: FileText },
+      { to: "/finance/invoicing/to-issue", labelKey: "finance:issueQueue.title", icon: FileText },
       { to: "/finance/invoicing/receipts", labelKey: "finance:sidebar.items.receipts", icon: Send },
       { to: "/finance/invoicing/inflows", labelKey: "finance:sidebar.items.inflows", icon: Inbox },
     ],
