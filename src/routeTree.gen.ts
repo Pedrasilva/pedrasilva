@@ -132,6 +132,7 @@ import { Route as AppFinanceDataVatRatesRouteImport } from './routes/_app.financ
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
 import { Route as AppFinanceInvoicingClientsRouteImport } from './routes/_app.finance.invoicing.clients'
+import { Route as AppFinanceInvoicingExpensesToInvoiceRouteImport } from './routes/_app.finance.invoicing.expenses-to-invoice'
 import { Route as AppFinanceInvoicingInflowsRouteImport } from './routes/_app.finance.invoicing.inflows'
 import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
 import { Route as AppFinanceInvoicingReceiptsRouteImport } from './routes/_app.finance.invoicing.receipts'
@@ -144,6 +145,7 @@ import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.fi
 import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
 import { Route as AppFinancePaymentsReclassifyRouteImport } from './routes/_app.finance.payments.reclassify'
 import { Route as AppFinancePaymentsReviewQueueRouteImport } from './routes/_app.finance.payments.review-queue'
+import { Route as AppFinancePaymentsStaffReimbursementsRouteImport } from './routes/_app.finance.payments.staff-reimbursements'
 import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
 import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
@@ -825,6 +827,12 @@ const AppFinanceInvoicingClientsRoute =
     path: '/invoicing/clients',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceInvoicingExpensesToInvoiceRoute =
+  AppFinanceInvoicingExpensesToInvoiceRouteImport.update({
+    id: '/invoicing/expenses-to-invoice',
+    path: '/invoicing/expenses-to-invoice',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceInvoicingInflowsRoute =
   AppFinanceInvoicingInflowsRouteImport.update({
     id: '/invoicing/inflows',
@@ -894,6 +902,12 @@ const AppFinancePaymentsReviewQueueRoute =
   AppFinancePaymentsReviewQueueRouteImport.update({
     id: '/payments/review-queue',
     path: '/payments/review-queue',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsStaffReimbursementsRoute =
+  AppFinancePaymentsStaffReimbursementsRouteImport.update({
+    id: '/payments/staff-reimbursements',
+    path: '/payments/staff-reimbursements',
     getParentRoute: () => AppFinanceRoute,
   } as any)
 const AppFinancePaymentsSuppliersRoute =
@@ -1261,6 +1275,7 @@ export interface FileRoutesByFullPath {
   '/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/finance/invoicing/expenses-to-invoice': typeof AppFinanceInvoicingExpensesToInvoiceRoute
   '/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
@@ -1273,6 +1288,7 @@ export interface FileRoutesByFullPath {
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
+  '/finance/payments/staff-reimbursements': typeof AppFinancePaymentsStaffReimbursementsRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -1429,6 +1445,7 @@ export interface FileRoutesByTo {
   '/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/finance/invoicing/expenses-to-invoice': typeof AppFinanceInvoicingExpensesToInvoiceRoute
   '/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
@@ -1441,6 +1458,7 @@ export interface FileRoutesByTo {
   '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
+  '/finance/payments/staff-reimbursements': typeof AppFinancePaymentsStaffReimbursementsRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -1609,6 +1627,7 @@ export interface FileRoutesById {
   '/_app/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/_app/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/_app/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/_app/finance/invoicing/expenses-to-invoice': typeof AppFinanceInvoicingExpensesToInvoiceRoute
   '/_app/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/_app/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/_app/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
@@ -1621,6 +1640,7 @@ export interface FileRoutesById {
   '/_app/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/_app/finance/payments/reclassify': typeof AppFinancePaymentsReclassifyRoute
   '/_app/finance/payments/review-queue': typeof AppFinancePaymentsReviewQueueRoute
+  '/_app/finance/payments/staff-reimbursements': typeof AppFinancePaymentsStaffReimbursementsRoute
   '/_app/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/_app/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
@@ -1789,6 +1809,7 @@ export interface FileRouteTypes {
     | '/finance/data/vat-rates'
     | '/finance/documents/$documentId'
     | '/finance/invoicing/clients'
+    | '/finance/invoicing/expenses-to-invoice'
     | '/finance/invoicing/inflows'
     | '/finance/invoicing/invoices'
     | '/finance/invoicing/receipts'
@@ -1801,6 +1822,7 @@ export interface FileRouteTypes {
     | '/finance/payments/purchases'
     | '/finance/payments/reclassify'
     | '/finance/payments/review-queue'
+    | '/finance/payments/staff-reimbursements'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/finance/reports/forecast'
@@ -1957,6 +1979,7 @@ export interface FileRouteTypes {
     | '/finance/data/vat-rates'
     | '/finance/documents/$documentId'
     | '/finance/invoicing/clients'
+    | '/finance/invoicing/expenses-to-invoice'
     | '/finance/invoicing/inflows'
     | '/finance/invoicing/invoices'
     | '/finance/invoicing/receipts'
@@ -1969,6 +1992,7 @@ export interface FileRouteTypes {
     | '/finance/payments/purchases'
     | '/finance/payments/reclassify'
     | '/finance/payments/review-queue'
+    | '/finance/payments/staff-reimbursements'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/finance/reports/forecast'
@@ -2136,6 +2160,7 @@ export interface FileRouteTypes {
     | '/_app/finance/data/vat-rates'
     | '/_app/finance/documents/$documentId'
     | '/_app/finance/invoicing/clients'
+    | '/_app/finance/invoicing/expenses-to-invoice'
     | '/_app/finance/invoicing/inflows'
     | '/_app/finance/invoicing/invoices'
     | '/_app/finance/invoicing/receipts'
@@ -2148,6 +2173,7 @@ export interface FileRouteTypes {
     | '/_app/finance/payments/purchases'
     | '/_app/finance/payments/reclassify'
     | '/_app/finance/payments/review-queue'
+    | '/_app/finance/payments/staff-reimbursements'
     | '/_app/finance/payments/suppliers'
     | '/_app/finance/reports/cashflow'
     | '/_app/finance/reports/forecast'
@@ -3087,6 +3113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceInvoicingClientsRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/invoicing/expenses-to-invoice': {
+      id: '/_app/finance/invoicing/expenses-to-invoice'
+      path: '/invoicing/expenses-to-invoice'
+      fullPath: '/finance/invoicing/expenses-to-invoice'
+      preLoaderRoute: typeof AppFinanceInvoicingExpensesToInvoiceRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/invoicing/inflows': {
       id: '/_app/finance/invoicing/inflows'
       path: '/invoicing/inflows'
@@ -3169,6 +3202,13 @@ declare module '@tanstack/react-router' {
       path: '/payments/review-queue'
       fullPath: '/finance/payments/review-queue'
       preLoaderRoute: typeof AppFinancePaymentsReviewQueueRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/staff-reimbursements': {
+      id: '/_app/finance/payments/staff-reimbursements'
+      path: '/payments/staff-reimbursements'
+      fullPath: '/finance/payments/staff-reimbursements'
+      preLoaderRoute: typeof AppFinancePaymentsStaffReimbursementsRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/finance/payments/suppliers': {
@@ -3547,6 +3587,7 @@ interface AppFinanceRouteChildren {
   AppFinanceDataVatRatesRoute: typeof AppFinanceDataVatRatesRoute
   AppFinanceDocumentsDocumentIdRoute: typeof AppFinanceDocumentsDocumentIdRoute
   AppFinanceInvoicingClientsRoute: typeof AppFinanceInvoicingClientsRoute
+  AppFinanceInvoicingExpensesToInvoiceRoute: typeof AppFinanceInvoicingExpensesToInvoiceRoute
   AppFinanceInvoicingInflowsRoute: typeof AppFinanceInvoicingInflowsRoute
   AppFinanceInvoicingInvoicesRoute: typeof AppFinanceInvoicingInvoicesRoute
   AppFinanceInvoicingReceiptsRoute: typeof AppFinanceInvoicingReceiptsRoute
@@ -3559,6 +3600,7 @@ interface AppFinanceRouteChildren {
   AppFinancePaymentsPurchasesRoute: typeof AppFinancePaymentsPurchasesRoute
   AppFinancePaymentsReclassifyRoute: typeof AppFinancePaymentsReclassifyRoute
   AppFinancePaymentsReviewQueueRoute: typeof AppFinancePaymentsReviewQueueRoute
+  AppFinancePaymentsStaffReimbursementsRoute: typeof AppFinancePaymentsStaffReimbursementsRoute
   AppFinancePaymentsSuppliersRoute: typeof AppFinancePaymentsSuppliersRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
   AppFinanceReportsForecastRoute: typeof AppFinanceReportsForecastRoute
@@ -3593,6 +3635,8 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceDataVatRatesRoute: AppFinanceDataVatRatesRoute,
   AppFinanceDocumentsDocumentIdRoute: AppFinanceDocumentsDocumentIdRoute,
   AppFinanceInvoicingClientsRoute: AppFinanceInvoicingClientsRoute,
+  AppFinanceInvoicingExpensesToInvoiceRoute:
+    AppFinanceInvoicingExpensesToInvoiceRoute,
   AppFinanceInvoicingInflowsRoute: AppFinanceInvoicingInflowsRoute,
   AppFinanceInvoicingInvoicesRoute: AppFinanceInvoicingInvoicesRoute,
   AppFinanceInvoicingReceiptsRoute: AppFinanceInvoicingReceiptsRoute,
@@ -3605,6 +3649,8 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinancePaymentsPurchasesRoute: AppFinancePaymentsPurchasesRoute,
   AppFinancePaymentsReclassifyRoute: AppFinancePaymentsReclassifyRoute,
   AppFinancePaymentsReviewQueueRoute: AppFinancePaymentsReviewQueueRoute,
+  AppFinancePaymentsStaffReimbursementsRoute:
+    AppFinancePaymentsStaffReimbursementsRoute,
   AppFinancePaymentsSuppliersRoute: AppFinancePaymentsSuppliersRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
   AppFinanceReportsForecastRoute: AppFinanceReportsForecastRoute,
