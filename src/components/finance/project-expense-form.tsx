@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -14,12 +14,13 @@ import { readProjectExpenseReceipt } from '@/lib/finance/project-expense-queue.f
 import { supabase } from '@/integrations/supabase/client';
 import { receiptStoragePath } from '@/lib/projects/expense-from-receipt';
 import { Upload } from 'lucide-react';
+import { expenseFormValues, ExpenseReceiptFiles, type ExpenseIntake } from '@/lib/finance/expense-form-state';
 
 function ChoiceInput({ id, value, choices, onChange }: { id: string; value: string; choices: Choice[]; onChange: (s: string) => void }) {
   return <Select value={value || undefined} onValueChange={onChange}><SelectTrigger id={id}><SelectValue /></SelectTrigger><SelectContent>{choices.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent></Select>;
 }
 
-export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, finance = false, initialFile, intake }: { open: boolean; onOpenChange: (o: boolean) => void; projectId?: string; initial?: FlowExpense | null; finance?: boolean; initialFile?: File | null; intake?: { id: string; supplier: string | null; documentNumber: string | null; date: string | null; currency: string | null; amount: number | null; path: string | null } }) {
+export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, finance = false, initialFile, intake }: { open: boolean; onOpenChange: (o: boolean) => void; projectId?: string; initial?: FlowExpense | null; finance?: boolean; initialFile?: File | null; intake?: ExpenseIntake }) {
   const { t, i18n } = useTranslation(['finance', 'common', 'projects']);
   const qc = useQueryClient();
   const readReceipt = useServerFn(readProjectExpenseReceipt);
@@ -30,11 +31,20 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
   const [queueId, setQueueId] = useState<string | null>(null);
   const [intakeKey, setIntakeKey] = useState('');
   const [processedFile, setProcessedFile] = useState<File | null>(null);
-  useEffect(() => { if (open) { setQueueId(null); setIntakeKey(crypto.randomUUID()); setProcessedFile(null); } }, [open]);
-  useEffect(() => { if (open && intake) { setQueueId(intake.id); setValues(v => ({ ...v, supplier: intake.supplier ?? '', description: [intake.supplier, intake.documentNumber].filter(Boolean).join(' · '), documentNumber: intake.documentNumber ?? '', date: intake.date ?? '', currency: intake.currency ?? 'EUR', originalAmount: String(intake.amount ?? ''), receiptPath: intake.path ?? '' })); } }, [open, intake]);
-  useEffect(() => { if (open && initialFile && initialFile !== processedFile && directory.data?.myCollaborator && values.projectId) { setProcessedFile(initialFile); void upload(initialFile); } }, [open, initialFile, processedFile, directory.data, values.projectId]);
+  const receiptFiles = useRef(new ExpenseReceiptFiles());
+  const session = useRef<{ file: File; values: Record<string, string>; savedId: string | null; queueId: string | null; intakeKey: string } | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = session.current;
+    if (!initial && !intake && initialFile && previous?.file === initialFile && previous.values.projectId === projectId) {
+      setValues(previous.values); setSavedId(previous.savedId); setQueueId(previous.queueId); setIntakeKey(previous.intakeKey); setProcessedFile(initialFile);
+    } else {
+      setValues(expenseFormValues(initial, projectId, intake)); setSavedId(initial?.id ?? null); setQueueId(intake?.id ?? null); setIntakeKey(crypto.randomUUID()); setProcessedFile(null);
+    }
+  }, [open, initial, projectId, intake, initialFile]);
+  useEffect(() => { if (open && initialFile && processedFile === initialFile) session.current = { file: initialFile, values, savedId, queueId, intakeKey }; }, [open, initialFile, processedFile, values, savedId, queueId, intakeKey]);
+  useEffect(() => { if (open && !intake && initialFile && initialFile !== processedFile && directory.data?.myCollaborator && values.projectId) { setProcessedFile(initialFile); void upload(initialFile); } }, [open, intake, initialFile, processedFile, directory.data, values.projectId]);
   const set = (key: string, value: string) => setValues(v => ({ ...v, [key]: value }));
-  useEffect(() => { if (!open) return; setSavedId(initial?.id ?? null); setValues({ projectId: initial?.project_id ?? projectId ?? '', description: initial?.description ?? '', category: initial?.category ?? 'travel', date: initial?.incurred_at ?? new Date().toISOString().slice(0, 10), supplier: initial?.vendor ?? '', documentNumber: initial?.document_number ?? '', currency: initial?.original_currency ?? 'EUR', originalAmount: initial?.original_amount?.toString() ?? '', eurAmount: initial?.eur_amount?.toString() ?? '', exchangeDate: initial?.exchange_rate_date ?? '', exchangeSource: initial?.exchange_rate_source ?? '', exchangeEvidence: initial?.exchange_evidence ? JSON.stringify(initial.exchange_evidence) : '', paidBy: initial?.payment_source_type ?? 'personal', collaboratorId: initial?.reimburse_collaborator_id ?? '', cardId: initial?.payment_card_id ?? '', accountId: initial?.paid_from_account_id ?? '', rebillMode: initial?.rebill_mode ?? 'cost', markupPct: initial?.markup_pct?.toString() ?? '0', taxTreatment: initial?.tax_treatment ?? 'pending', vatRate: String((initial?.tax_parameters as { vatRate?: number } | null)?.vatRate ?? ''), notes: initial?.notes ?? '', receiptPath: initial?.receipt_path ?? '' }); }, [open, initial, projectId]);
   useEffect(() => { if (directory.data?.myCollaborator) setValues(v => ({ ...v, collaboratorId: v.collaboratorId || directory.data?.myCollaborator || '' })); }, [directory.data]);
   const money = (n: number | null) => n === null ? t('finance:expenseFlow.pending') : new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'EUR' }).format(n);
   const cost = values.currency === 'EUR' ? Number(values.originalAmount) || null : Number(values.eurAmount) || null;
@@ -56,11 +66,17 @@ export function ProjectExpenseForm({ open, onOpenChange, projectId, initial, fin
     if (!values.projectId || !collaborator) { toast.error(t('finance:expenseFlow.chooseProject')); return; }
     setBusy(true);
     try {
-      const path = receiptStoragePath(collaborator, values.projectId, file.name);
-      const up = await supabase.storage.from('benefit-receipts').upload(path, file, { upsert: false }); if (up.error) throw up.error;
+      let stored = receiptFiles.current.get(file, values.projectId);
+      if (!stored) {
+        const path = receiptStoragePath(collaborator, values.projectId, file.name);
+        const hash = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+        const up = await supabase.storage.from('benefit-receipts').upload(path, file, { upsert: false }); if (up.error) throw up.error;
+        stored = { path, hash: Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join('') };
+        receiptFiles.current.remember(file, values.projectId, stored);
+      }
+      const { path } = stored;
       set('receiptPath', path);
-      const hash = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
-      setIntakeKey(Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join(''));
+      setIntakeKey(stored.hash);
       const result = await readReceipt({ data: { projectId: values.projectId, storagePath: path } }); if (!result.ok) throw new Error(result.error);
       setQueueId(result.queueItemId ?? null);
       if (result.extracted) {
