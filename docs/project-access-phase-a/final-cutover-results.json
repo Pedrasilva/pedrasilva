@@ -33,16 +33,63 @@
         "pm_stage_supplier_costs": 0,
         "pm_project_contract_baseline": 1
       }
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "a07f12ad-5033-4c38-b26b-2077d6ffd55b",
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      },
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      }
+    },
+    {
+      "person": "Patricia",
+      "apiRows": {
+        "pm_invoices": 0,
+        "pm_payment_schedule_items": 0,
+        "pm_expenses": 0,
+        "pm_stage_supplier_costs": 0,
+        "pm_project_contract_baseline": 0
+      },
+      "tabsHidden": true
     }
   ],
   "activation": {
-    "revision": 15,
+    "revision": 17,
     "active": true
   },
   "fixtureRemoved": true,
-  "failure": "AssertionError: Rita tabs permission failed",
+  "failure": "TimeoutError: Locator.wait_for: Timeout 45000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Resumo\", exact=True) to be visible\n",
   "rollback": {
-    "revision": 16,
+    "revision": 18,
     "active": false
   },
   "realDataUnchanged": true,
