@@ -433,7 +433,8 @@
       "actions": "Actions",
       "type": "Type",
       "calculated": "Calculated balance",
-      "movements": "Reconciled"
+      "movements": "Reconciled",
+      "snapshotCheck": "Snapshot check"
     },
     "newSnapshot": "New balance snapshot",
     "newSnapshotTitle": "Add bank balance snapshot",
