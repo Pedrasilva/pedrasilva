@@ -1772,6 +1772,13 @@
       "when": 1793757177029,
       "tag": "0252_finance_project_expense_pending_lists",
       "breakpoints": true
+    },
+    {
+      "idx": 253,
+      "version": "7",
+      "when": 1793757300172,
+      "tag": "0253_expense_pending_missing_amount_guard",
+      "breakpoints": true
     }
   ]
 }
