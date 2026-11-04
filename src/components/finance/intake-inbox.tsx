@@ -266,7 +266,7 @@ export function IntakeInbox() {
           <Button variant="outline" size="sm" onClick={() => setExpenseOpen(true)}>{t('finance:expenseFlow.add')}</Button>
           <Button variant="outline" size="sm" onClick={() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })}>
             <RefreshCw className="h-4 w-4 mr-1.5" />
-            {t("common:actions.refresh", { defaultValue: "Refresh" })}
+            {t('common:refresh')}
           </Button>
           <IntakeUploadButton />
         </div>
