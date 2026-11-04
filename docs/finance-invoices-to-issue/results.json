@@ -1,0 +1,11 @@
+{
+  "patriciaDenied": true,
+  "teresaDenied": true,
+  "pmFinanceDenied": true,
+  "pmReadyUi": true,
+  "staleBlockedAndMoveWarning": true,
+  "issuedUiAndFrozen": true,
+  "directWriteDenied": true,
+  "allPassed": true,
+  "realDataUnchanged": true
+}
