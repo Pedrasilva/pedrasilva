@@ -1,3 +1,8 @@
+## Current request — 4 November 01:38 invoices to issue
+- [ ] Write plan in report before code; implement guarded confirmation/emission and Finance-only timing projection page.
+- [ ] Add warnings, groups, monthly forecast and EN/PT; no emails or real changes.
+- [ ] Test on one disposable project, clean exact fixtures and independently prove zero; screenshots/files in report.
+
 ## Current request — 4 November 01:21 scan issues
 - [x] Queue prefill reset fixed; disposable form save/readback and reopen passed; card-to-form click not automated.
 - [x] Dropped receipt retained on reopen: one real upload, same saved link/ID, no second expense; QA extraction seeded, no AI call.
