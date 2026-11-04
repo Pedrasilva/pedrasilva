@@ -11,13 +11,14 @@ import type {
 import { type StageDependency, type DepType } from "@/lib/projects/dependencies";
 import { changeGanttStage, changeGanttDependency, projectScopeForDependency } from "./gantt-schedule";
 import i18n from '@/i18n';
-import { readB1Rows } from './b1-projection';
+import { readB1Rows,useB1CacheScope } from './b1-projection';
 
 // ---------- PROJECTS ----------
 
 export function useProjects(b1Projection=false) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["pm-projects",b1Projection],
+    queryKey: ["pm-projects",b1Projection,...scope],
     queryFn: async (): Promise<Project[]> => {
       if(b1Projection)return readB1Rows<Project>('projects');
       const {data,error}=await supabase.from('pm_projects').select('*').eq('finance_only',false).order('created_at',{ascending:false});
@@ -87,9 +88,10 @@ export function useUpdateProject() {
 // ---------- PROJECT DETAIL (stages + allocations) ----------
 
 export function useProjectDetail(projectId: string, opts?: { includeCancelled?: boolean }) {
+  const scope=useB1CacheScope();
   const includeCancelled = opts?.includeCancelled ?? false;
   return useQuery({
-    queryKey: ["pm-project", projectId, includeCancelled],
+    queryKey: ["pm-project", projectId, includeCancelled,...scope],
     queryFn: async (): Promise<{ project: Project; stages: StageWithAllocations[] }> => {
       const [projects, stages] = await Promise.all([
         readB1Rows<Project>('projects',projectId),readB1Rows<StageWithAllocations>('stages',projectId),
@@ -114,9 +116,10 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
 }
 
 export function useAllStages(opts?: { includeCancelled?: boolean;b1Projection?:boolean }) {
+  const scope=useB1CacheScope();
   const includeCancelled = opts?.includeCancelled ?? false;
   return useQuery({
-    queryKey: ["pm-stages-all", includeCancelled,opts?.b1Projection??false],
+    queryKey: ["pm-stages-all", includeCancelled,opts?.b1Projection??false,...scope],
     queryFn: async (): Promise<StageWithAllocations[]> => {
       const legacy=opts?.b1Projection ? null : await supabase.from('pm_stages').select('*, allocations:pm_allocations(*, resource:pm_resources(*))').order('sort_order',{ascending:true});
       if(legacy?.error)throw legacy.error;
@@ -388,8 +391,9 @@ export function useDeleteDependency() {
 // ---------- RESOURCES ----------
 
 export function useResources(projectId?:string,b1Projection=false) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["pm-resources",projectId,b1Projection],
+    queryKey: ["pm-resources",projectId,b1Projection,...scope],
     queryFn: async (): Promise<Resource[]> => {
       if(projectId||b1Projection)return readB1Rows<Resource>('resources',projectId);
       const {data,error}=await supabase.from('pm_resources').select('*').order('name',{ascending:true});
