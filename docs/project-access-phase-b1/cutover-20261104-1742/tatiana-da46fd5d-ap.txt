@@ -1,0 +1,176 @@
+CRM / Vendas
+Projetos
+Finanças
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+T
+Todos os projetos
+Clinica Mint II
+ATIVO
+Origem: proposta convertida
+SMILEPROVIDER, LDA
+·
+1 jun – 23 jul 2027
+· 261d
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+SMILEPROVIDER, LDA
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+1 jun 2026
+Fim
+23 jul 2027
+Restante
+261d
+EQUIPA
+GESTOR
+RS
+USO DO ORÇAMENTO
+1812 € / 30 980 €
+6%
+LUCRO
+1274 €
+4%
+NOTAS
+
+Created from approved proposal
+
+Avenças
+Nova fase de avença
+Monitor da avença — [6] Assistência Técnica à Obra
+4 meses
+Registar horas
+Mensalidade: €1,320
+Horas incluídas/mês: —(atribua recursos para derivar as horas a partir da mensalidade)
+Horas usadas: 0 h
+Custo: €0
+Venda: €0
+Variação acumulada: +0 h
+0 abaixo · 0 acima
+APR 2027
+MAY 2027
+MAY 2027
+JUN 2027
+Horas incluídas/mês
+Dentro do previsto
+Compensado
+Excedido
+MÊS	MENSALIDADE	USADAS / INCLUÍDAS	CUSTO	CUSTO TOTAL	VENDA	VARIAÇÃO	MÉDIA MÓVEL 3M	ESTADO
+▸Apr 2027	€1,320	0 h / 0 h	—	—	—	—	—	FUTURO
+▸May 2027	€1,320	0 h / 0 h	—	—	—	—	—	FUTURO
+▸May 2027	€1,320	0 h / 0 h	—	—	—	—	—	FUTURO
+▸Jun 2027	€1,320	0 h / 0 h	—	—	—	—	—	FUTURO
+Total	€5,280	0 h / 0 h	€0	€0	€0	+0 h		
+
+A mensalidade é fixa. As horas incluídas = mensalidade ÷ preço médio de venda da equipa que presta a avença. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado.
+
+Controlo de orçamento
+
+As folhas de horas consomem orçamento. O Gantt planeia o que resta.
+
+CONSUMO REAL
+€1,764
+59h registadas · custo = valor/hora × horas
+ORÇAMENTO RESTANTE
+€34,496
+Orçamento original − custo real
+VALOR/HORA MÉDIO DA EQUIPA
+—
+Ponderado pelas horas planeadas
+HORAS ESTIMADAS RESTANTES
+—
+Não é possível estimar horas — sem valor/hora da equipa
+PLANEADO EM FRENTE
+€0
+0h em alocações futuras
+PROJEÇÃO DESVIO
+€34,496
+Restante − planeado em frente
+POR FASE
+FASE	REAL	RESTANTE	VALOR/HORA MÉDIO	HORAS EST.	PLANEADO	DESVIO
+
+[6] Assistência Técnica à Obra
+	€0
+0 h
+	€5,280	—	—	€0
+0 h
+	€5,280
+
+[1] Programa Base / Conceito
+	€1,764
+59 h
+	€2,186	—	—	€0
+0 h
+	€2,186
+
+Análise e aprovação (cliente)
+	€0
+0 h
+	€0	—	—	€0
+0 h
+	€0
+
+[2] Estudo Prévio
+	€0
+0 h
+	€9,450	—	—	€0
+0 h
+	€9,450
+
+Análise e aprovação (cliente)
+	€0
+0 h
+	€0	—	—	€0
+0 h
+	€0
+
+[4] Projeto de Execução
+	€0
+0 h
+	€12,300	—	—	€0
+0 h
+	€12,300
+
+2026-11 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2026-12 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2027-01 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2027-02 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320

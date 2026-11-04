@@ -1,0 +1,104 @@
+CRM / Vendas
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+I
+Todos os projetos
+2502 Uralchem IV
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+2 jun – 12 mar 2027
+· 128d
+·
+RC
++2
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+2 jun 2026
+Fim
+12 mar 2027
+Restante
+128d
+EQUIPA
+ALOCADOS
+RC
+PR
+USO DO ORÇAMENTO
+42 022 € / 421 300 €
+10%
+LUCRO
+—
+NaN%
+NOTAS
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Avenças
+Nova fase de avença
+Controlo de orçamento
+
+As folhas de horas consomem orçamento. O Gantt planeia o que resta.
+
+CONSUMO REAL
+€42,022
+1200h registadas · custo = valor/hora × horas
+ORÇAMENTO RESTANTE
+€379,278
+Orçamento original − custo real
+VALOR/HORA MÉDIO DA EQUIPA
+€32/h
+Ponderado pelas horas planeadas
+HORAS ESTIMADAS RESTANTES
+11720h
+Restante ÷ valor/hora médio
+PLANEADO EM FRENTE
+€0
+0h em alocações futuras
+PROJEÇÃO DESVIO
+€379,278
+Restante − planeado em frente
+POR FASE
+FASE	REAL	RESTANTE	VALOR/HORA MÉDIO	HORAS EST.	PLANEADO	DESVIO
+
+F1 - Programme Definition
+	€3,316
+97 h
+	€19,184	€33/h	589h	€0
+0 h
+	€19,184
+
+F2 - Concept Design
+	€38,706
+1103 h
+	€121,294	€32/h	3750h	€0
+0 h
+	€121,294
+
+F3 - Developed Design
+	€0
+0 h
+	€238,800	—	—	€0
+0 h
+	€238,800

@@ -1,0 +1,112 @@
+CRM / Sales
+Projects
+Finance
+Team / HR
+Time
+Tasks
+Schedule
+9+
+L
+All projects
+2502 Uralchem IV
+ACTIVE
+Origin: converted proposal
+No client
+·
+2 Jun – 12 Mar 2027
+· 128d
+·
+RC
++2
+Activate
+Pause
+Close out
+Archive
+Delete project
+Overview
+Insights
+Retainer
+Approvals
+Notes
+Expenses
+Project billing
+Architecture
+Suppliers
+Incoming
+Outgoing
+Payment schedule
+Financial summary
+CLIENT
+No client
+PROJECT DETAILS
+Status
+Active
+Start
+2 Jun 2026
+End
+12 Mar 2027
+Remaining
+128d
+TEAM
+ALLOCATED
+RC
+PR
+Manage team
+BUDGET USAGE
+€42,022 / €421,300
+10%
+PROFIT
+€31,517
+7%
+NOTES
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Retainers
+New retainer stage
+Budget control
+
+Timesheets consume budget. The Gantt plans what remains.
+
+ACTUAL USED
+€42,022
+1200h logged · cost from rate × hours
+REMAINING BUDGET
+€379,278
+Original budget − actual cost
+AVG TEAM RATE
+€32/h
+Weighted by planned hours
+ESTIMATED HOURS REMAINING
+11720h
+Remaining ÷ avg rate
+PLANNED AHEAD
+€0
+0h future allocations
+PROJECTED OVER/UNDER
+€379,278
+Remaining − planned ahead
+PER STAGE
+STAGE	ACTUAL	REMAINING	AVG RATE	EST. HOURS	PLANNED AHEAD	OVER/UNDER
+
+F1 - Programme Definition
+	€3,316
+97 h
+	€19,184	€33/h	589h	€0
+0 h
+	€19,184
+
+F2 - Concept Design
+	€38,706
+1103 h
+	€121,294	€32/h	3750h	€0
+0 h
+	€121,294
+
+F3 - Developed Design
+	€0
+0 h
+	€238,800	—	—	€0
+0 h
+	€238,800
