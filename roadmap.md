@@ -1,3 +1,8 @@
+## Current request — 4 November 01:51 expense lists
+- [ ] Document existing project expense recording before code; reuse fields and guarded allocations.
+- [ ] Build client rebilling/staff owed lists, audited actions, receipt links and item 3 project hint; EN/PT.
+- [ ] Disposable verification, exact cleanup/independent zero, screenshots/report; stop and await Luis, no Phase B.
+
 ## Current request — 4 November 01:38 invoices to issue
 - [x] Plan written before code; guarded confirmation/emission and Finance-only timing page implemented.
 - [x] Warnings, groups, monthly forecast and EN/PT verified; no emails or real changes.
