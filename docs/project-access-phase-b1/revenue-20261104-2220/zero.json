@@ -1,0 +1,17 @@
+[
+  {
+    "evidence": {
+      "access": 0,
+      "allocation": 0,
+      "audits": 0,
+      "checkedAt": "2026-11-04T22:40:08.114783+00:00",
+      "entry": 0,
+      "latestGate": false,
+      "latestRevision": 4,
+      "project": 0,
+      "stage": 0,
+      "task": 0,
+      "team": 0
+    }
+  }
+]

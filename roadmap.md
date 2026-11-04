@@ -1,6 +1,7 @@
 ## Current request — 4 November 22:20 B1 revenue, no cutover
-- [ ] Trace and fix authorized Financial revenue for Overview/header/Insights; verify disposable all-ON PM revenue/cost/margin and exact cleanup/zero.
-- [ ] Record Rita Mint/Uralchem before/after without activating B1; report and await Luis; no B2.
+- [x] Traced legacy invoker resource enumeration returning Rita 0/Luis 16; added authorized Financial projection and OFF review; disposable all-ON PM has numeric revenue/cost/margin, rollback and independent zero 22:40:08.
+- [x] Rita Mint/Uralchem before/after review screenshots and limitations recorded; 23 tests/build OK; B1 OFF revision 4, no real data changes and no B2.
+- [ ] B1 cutover and remaining live ON checks wait for Luis's new approval; not authorized in this request.
 
 ## Current request — 4 November 18:14 B1 margin fix and one retry
 - [x] Reproduced legacy locked-cost denial and null snapshot propagation; corrected B1 summary reader and finite margin guards; 24 tests/build passed.
