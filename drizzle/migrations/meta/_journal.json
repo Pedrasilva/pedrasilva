@@ -1821,6 +1821,13 @@
       "when": 1793787987783,
       "tag": "0259_project_b1_mixed_fields_and_summaries",
       "breakpoints": true
+    },
+    {
+      "idx": 260,
+      "version": "7",
+      "when": 1793831650284,
+      "tag": "0260_project_b1_financial_resource_enumeration",
+      "breakpoints": true
     }
   ]
 }

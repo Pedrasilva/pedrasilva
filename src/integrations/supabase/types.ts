@@ -19010,6 +19010,10 @@ export type Database = {
         }[]
       }
       pm_b1_entries: { Args: { _project: string }; Returns: Json[] }
+      pm_b1_financial_resources: {
+        Args: { _preview?: boolean; _project: string }
+        Returns: Json[]
+      }
       pm_b1_history: { Args: { _project?: string }; Returns: Json[] }
       pm_b1_preview_own: { Args: { _project: string }; Returns: Json }
       pm_b1_projects: { Args: { _project?: string }; Returns: Json[] }
