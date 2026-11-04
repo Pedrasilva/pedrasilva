@@ -1,3 +1,9 @@
+## Current request — 4 November 01:21 scan issues
+- [ ] Fix queue receipt prefill/reset and verify with disposable scan data.
+- [ ] Reuse uploaded receipt when reopening Add expense; verify upload count and saved link.
+- [ ] Add missing EN/PT keys, list affected screens, verify before/after screenshots.
+- [ ] Run regressions, prove fixture zero and report files/evidence in docs/scan-issues-report.md.
+
 ## Current request — 4 November 01:11 Item 1 tests only
 - [ ] Dependency adapter create/update/delete passed in three rendered contexts; mouse creation and approval resize did not persist. Tests-only boundary: no code fixes; interactive verification remains failed/unconfirmed, recorded in report.
 - [x] Source fixture DATE 3→4 January 2000 did not change project stages; temporary fixture unlock required clearing reverse quote link while project.quote_id remained. Final repeated evidence includes no-op caveat.
