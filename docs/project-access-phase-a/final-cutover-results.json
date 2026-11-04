@@ -1,12 +1,21 @@
 {
-  "checks": [],
+  "checks": [
+    {
+      "person": "Disposable PM",
+      "attachment": {
+        "bytes": 0,
+        "error": "Object not found"
+      },
+      "expectedAllowed": true
+    }
+  ],
   "activation": {
-    "revision": 7,
+    "revision": 9,
     "active": true
   },
-  "failure": "",
+  "failure": "AssertionError: Attachment permission failure: Disposable PM",
   "rollback": {
-    "revision": 8,
+    "revision": 10,
     "active": false
   },
   "realDataUnchanged": true,
