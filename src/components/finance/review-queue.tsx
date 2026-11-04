@@ -360,7 +360,7 @@ export function ReviewQueue({ side = "received" }: { side?: "received" | "issued
             onClick={() => qc.invalidateQueries({ queryKey: ["finance", "review-queue"] })}
           >
             <RefreshCw className="h-4 w-4 mr-1.5" />
-            {t("common:actions.refresh", { defaultValue: "Refresh" })}
+            {t('common:refresh')}
           </Button>
           <input
             ref={fileRef}

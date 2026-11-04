@@ -484,11 +484,11 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
                       <TableCell className="text-xs">
                         {p.bank_transaction_id ? (
                           <Badge variant="secondary">
-                            {t("finance:payments.matched")}
+                          {t("finance:documents.payments.matched")}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">
-                            {t("finance:payments.manual")}
+                          {t("finance:documents.payments.manual")}
                           </span>
                         )}
                       </TableCell>

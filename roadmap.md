@@ -1,3 +1,9 @@
+## Current request — 4 November 01:21 scan issues
+- [x] Queue prefill reset fixed; disposable form save/readback and reopen passed; card-to-form click not automated.
+- [x] Dropped receipt retained on reopen: one real upload, same saved link/ID, no second expense; QA extraction seeded, no AI call.
+- [x] EN/PT missing keys and wrong paths corrected; screens/fallbacks/false positives listed; synthetic panel before/after screenshots captured.
+- [x] 18 tests and i18n checks passed; exact fixture cleanup mirrored; independent zero 01:34:28 UTC, Phase A ON; docs/scan-issues-report.md records scope and limits.
+
 ## Current request — 4 November 01:11 Item 1 tests only
 - [ ] Dependency adapter create/update/delete passed in three rendered contexts; mouse creation and approval resize did not persist. Tests-only boundary: no code fixes; interactive verification remains failed/unconfirmed, recorded in report.
 - [x] Source fixture DATE 3→4 January 2000 did not change project stages; temporary fixture unlock required clearing reverse quote link while project.quote_id remained. Final repeated evidence includes no-op caveat.

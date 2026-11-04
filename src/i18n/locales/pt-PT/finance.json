@@ -433,7 +433,8 @@
       "actions": "Acções",
       "type": "Tipo",
       "calculated": "Saldo calculado",
-      "movements": "Reconciliados"
+      "movements": "Reconciliados",
+      "snapshotCheck": "Verificação do snapshot"
     },
     "newSnapshot": "Novo snapshot de saldo",
     "newSnapshotTitle": "Adicionar snapshot de saldo bancário",
