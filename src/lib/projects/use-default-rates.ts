@@ -60,8 +60,8 @@ export function effectiveSaleRate(
   isOverride?: boolean,
 ): number {
   const m = Number(manualRate ?? 0);
-  if(manualRate!=null&&!Number.isFinite(m))return NaN;
   const hrDefault = defaults?.get(resourceId)?.sale ?? 0;
+  if(manualRate!=null&&!Number.isFinite(m))return Number.isFinite(hrDefault) && hrDefault > 0 ? hrDefault : NaN;
   if (isOverride === false) return hrDefault;
   if (isOverride === true) return m > 0 ? m : hrDefault;
   if (m > 0) return m;
@@ -77,8 +77,8 @@ export function effectiveCostRate(
   isOverride?: boolean,
 ): number {
   const m = Number(manualCost ?? 0);
-  if(manualCost!=null&&!Number.isFinite(m))return NaN;
   const hrDefault = defaults?.get(resourceId)?.cost ?? 0;
+  if(manualCost!=null&&!Number.isFinite(m))return Number.isFinite(hrDefault) && hrDefault > 0 ? hrDefault : NaN;
   if (isOverride === false) return hrDefault;
   if (isOverride === true) return m > 0 ? m : hrDefault;
   if (m > 0) return m;
