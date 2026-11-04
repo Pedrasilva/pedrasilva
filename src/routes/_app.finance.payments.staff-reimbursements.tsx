@@ -1,0 +1,4 @@
+import {createFileRoute} from '@tanstack/react-router';
+import {ExpensePendingLists} from '@/components/finance/expense-pending-lists';
+import {expensePendingOptions} from '@/lib/finance/use-expense-pending-lists';
+export const Route=createFileRoute('/_app/finance/payments/staff-reimbursements')({head:()=>({meta:[{title:'Reembolsos em dívida — PSA Hub'},{name:'description',content:'Despesas pagas pessoalmente e reembolsos pendentes por colaborador.'},{property:'og:title',content:'Reembolsos em dívida — PSA Hub'},{property:'og:description',content:'Reembolsos de despesas de projeto por colaborador.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(expensePendingOptions()),component:()=> <ExpensePendingLists kind="staff"/>});

@@ -1,0 +1,4 @@
+import {createFileRoute} from '@tanstack/react-router';
+import {ExpensePendingLists} from '@/components/finance/expense-pending-lists';
+import {expensePendingOptions} from '@/lib/finance/use-expense-pending-lists';
+export const Route=createFileRoute('/_app/finance/invoicing/expenses-to-invoice')({head:()=>({meta:[{title:'Despesas por faturar aos clientes — PSA Hub'},{name:'description',content:'Despesas refaturáveis pendentes por projeto e cliente.'},{property:'og:title',content:'Despesas por faturar — PSA Hub'},{property:'og:description',content:'Saldos e recibos de despesas refaturáveis autorizadas.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(expensePendingOptions()),component:()=> <ExpensePendingLists kind="clients"/>});
