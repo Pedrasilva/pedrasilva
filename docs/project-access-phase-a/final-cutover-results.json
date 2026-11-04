@@ -80,18 +80,38 @@
         "pm_project_contract_baseline": 0
       },
       "tabsHidden": true
+    },
+    {
+      "person": "admin",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "tatiana",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "irene",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
+    },
+    {
+      "person": "ricardo",
+      "allProjects": 21,
+      "fourAreas": true,
+      "financialRowsMatchAdmin": true
     }
   ],
   "activation": {
-    "revision": 17,
+    "revision": 19,
     "active": true
   },
   "fixtureRemoved": true,
-  "failure": "TimeoutError: Locator.wait_for: Timeout 45000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Resumo\", exact=True) to be visible\n",
-  "rollback": {
-    "revision": 18,
-    "active": false
-  },
+  "allPassed": true,
   "realDataUnchanged": true,
-  "finalActive": false
+  "finalActive": true
 }
