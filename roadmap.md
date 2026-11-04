@@ -1,7 +1,7 @@
 ## Current request — 4 November 02:03 final mouse gestures
-- [ ] Authenticated mouse create/cascade/delete dependency and approval-handle resize on one disposable converted project.
-- [ ] Mouse dependency create/delete in disposable proposal builder; diagnose/fix/retest failures.
-- [ ] Before/after dates, screenshots, exact cleanup/independent zero appended to Gantt report; stop and await Luis.
+- [x] Authenticated mouse create/cascade/delete dependency and approval-handle resize on one disposable converted project.
+- [x] Mouse dependency create/delete in disposable builder; corrected content-origin hit testing and retested.
+- [x] Dates/screenshots appended to Gantt report; independent zero 02:11:44 UTC. Stop and await Luis.
 
 ## Current request — 4 November 01:51 expense lists
 - [x] Existing recording documented before code; no new fields, existing references/obligations/allocations reused.
