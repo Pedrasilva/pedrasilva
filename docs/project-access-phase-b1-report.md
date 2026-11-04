@@ -1,5 +1,12 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Autorização de corte 4 novembro, 17:36 UTC — interrompida antes de ativar
+- Leitura autenticada administrativa de `pm_project_b1_preview`: hash atual **`1cf42c8ef49c1f1e67b132dfa5ea185d`**, diferente do hash aprovado **`020f61e7f8cab09c838d2ac25bd4e7bc`**. Conforme instrução de Luis, não foi chamada a ação de ativação.
+- Estado lido: **B1 OFF**, **Fase A ON**. Sem rollback necessário: B1 nunca foi ativado neste pedido. Nenhuma escrita de dados reais ou fixture criada.
+- Comparação por `(user_id, project_id, area)` com `matrix-before-after.json`: **1 176 → 1 176 linhas; zero linhas adicionadas/removidas; zero alterações em qualquer campo da matriz**. A sequência de linhas difere da cópia guardada. A implementação de `pm_project_access_matrix` usa `jsonb_agg` sem `ORDER BY`, enquanto o hash calcula o texto do array, portanto é sensível à ordem. Isto identifica uma fragilidade do cálculo, não uma alteração comprovada de permissões; não se alterou o cálculo nem se substituiu a aprovação.
+- Evidência: `project-access-phase-b1/cutover-20261104-1736/current-matrix.json` e `matrix-diff.json`. Não foram feitos ensaios ON de páginas, inspetores, Gantt ou anexos nem edição descartável: a condição prévia de Luis falhou. A captura de preflight ficou em carregamento e não é usada como prova de resultado visual.
+- Paragem solicitada cumprida; aguardar Luis antes de qualquer nova tentativa. B2 não iniciado.
+
 ## Plano aprovado para construir, não para ativar
 1. Preservar Fase A ON e criar gate B1 independente, inicialmente OFF, com alteração administrativa auditada e aprovação de matriz separada.
 2. Adicionar projeções operacionais autorizadas para os leitores B1: projetos/fases/alocações/horas/recursos e evidência da proposta convertida. Dados operacionais permanecem disponíveis; contrato/venda por Financials, custos/snapshots/orçamento por Budget, despesas por Expenses, fornecedores por Suppliers. Não modificar dados históricos ou permissões reais.

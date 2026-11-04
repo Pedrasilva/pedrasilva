@@ -1,3 +1,8 @@
+## Current request — 4 November 17:36 B1 cutover authorization
+- [x] Recalculate official matrix hash: `1cf42c8ef49c1f1e67b132dfa5ea185d`, different from approved `020f61e7f8cab09c838d2ac25bd4e7bc`; stop before activation as instructed.
+- [x] Compare all 1,176 saved/current rows by person/project/area: no added, removed or changed fields; ordering differs, aggregation has no ORDER BY. Report evidence; B1 OFF, Phase A ON, no fixtures or real-data writes.
+- [ ] ON checks and disposable operational-edit test blocked by hash mismatch; wait for Luis, no B2.
+
 ## Current request — 4 November 09:22 Phase B1 only
 - [x] Write B1 plan before implementation; independent audited gate OFF, operational projections and B1 reader migration.
 - [x] Read-only effective matrix and named live checks; sequential disposable fixtures, exact cleanup and independent zero 10:28:24 UTC. Actual ON cutover not authorized; browser-only presentation simulation documented.
