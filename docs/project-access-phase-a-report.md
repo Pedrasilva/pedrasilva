@@ -183,3 +183,18 @@ Revisão dos separadores irmãos: Financial/Architecture/Incoming/Financial summ
 [Resultados, horários e hashes](project-access-phase-a/repair-live-results.json). Comparação integral antes/depois das dez tabelas incluídas: **igual**, incluindo projetos/fases/alocações/horas/prestações/faturas/despesas/equipa/acessos/capacidades. A comparação não é um dump integral de toda a base; só auditorias de ativação/reversão adicionadas pela ação. Zero QA projetos e propostas às **00:21:40 UTC**; nenhuma fixture persistente criada nesta repetição.
 
 **Pendência para próxima ativação:** indicar um anexo real já acessível legitimamente a Rita, ou aprovar um teste de anexo exclusivamente numa cópia descartável; repetir as quatro sessões globais e os checks de anexo. Até lá OFF. Fase B não iniciada, plano apenas. Correção fonte: detalhe projeto, project-billing-tab, project-billing-access e testes; sem nova migração nesta correção.
+
+## Fecho autorizado — 4 novembro 2026, 00:54 UTC
+
+**Fase A ON**, revisão auditada **19**, ativação às **00:52:47 UTC**; leitura independente às **00:54:47 UTC** confirma ON. As tentativas 15/17 foram revertidas por seletores prematuros/idioma, não por falhas de permissão: a captura mostrava ainda «A carregar projeto…». A execução final aguardou o separador real carregado.
+
+- Anexo exclusivamente descartável: PM Financial ON recebeu **124 bytes**; Patricia autenticada diretamente recebeu **Object not found**, zero bytes, sem ser adicionada à equipa.
+- Rita/Mint: seis separadores autorizados presentes; API devolveu oito prestações e um baseline. Rita/Uralchem e Rita/support Mastercard all-OFF: cinco leitores financeiros devolveram zero; Faturação oculta. Patricia: mesmos cinco leitores zero e separadores ocultos.
+- Luis, Tatiana, Irene e Ricardo Conceição: quatro sessões autenticadas, quatro áreas ON nos **21 projetos**, contagens financeiras iguais à referência administrativa.
+- Comparação antes/depois das tabelas incluídas na automação: **realDataUnchanged=true**. Não constitui dump de toda a base nem revisão funcional Finance; os checks Finance recusados não foram retomados. A fatura real de 6 000 € não foi usada como fixture nem alterada.
+- Fixture removida, incluindo identidade temporária. Leitura independente: **auth=0, collaborators=0, resources=0, projects=0, documents=0, files=0** no âmbito QA Phase A consultado. Recursos e referências legítimos preservados.
+- Nove testes de regras Billing/separadores passaram; último sinal da aplicação: **build OK**. Migração 0247 de leitura de anexos idêntica nos dois diretórios.
+
+Evidência: `project-access-phase-a/final-live-results.json`, capturas `final-rita-*`, `final-patricia-off.png`, `final-global-*`, `final-attachment-*`; automação `scripts/test-project-phase-a-final-e2e.py`. Matriz auditada final: **1 320 combinações**, incluindo a fixture já removida no momento do teste. Rollback auditado continua disponível.
+
+**Fase B continua plano apenas.** Permanecem os leitores mistos/globais e as exposições já inventariadas; este resultado não certifica isolamento financeiro completo. Captura Irene evidencia ainda apresentação `NaN €` no lucro, não corrigida nem investigada como teste Finance nesta entrega.
