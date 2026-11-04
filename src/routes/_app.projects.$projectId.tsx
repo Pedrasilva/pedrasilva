@@ -60,6 +60,7 @@ import { ProjectClientField, useProjectClientName } from "@/components/projects/
 import { ProjectTeamCard } from "@/components/projects/project-team-card";
 import { useProjectViewerAreas,useProjectB1State } from '@/lib/projects/use-project-access';
 import {readB1Rows} from '@/lib/projects/b1-projection';
+import {B1OperationalInsights} from '@/components/projects/b1-operational-insights';
 import { canOpenProjectTab } from '@/lib/projects/project-area-tabs';
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
@@ -954,7 +955,7 @@ function ProjectDetail() {
               </div>
             )}
 
-            {tab === "ap" && (
+            {tab === "ap" && (!b1.data || canSeeIntegrated) && (
               <div className="mt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-muted-foreground"> {t("projects:detail.ui.retainers")} </h3>
@@ -1167,7 +1168,7 @@ function ProjectDetail() {
 
 
 
-            {tab === "insights" && canSeeFinancials && (
+            {tab === "insights" && canSeeIntegrated && (
               <div className="mt-4">
                 <ProjectPursuitCard
                   projectId={projectId}
@@ -1177,6 +1178,7 @@ function ProjectDetail() {
                 />
               </div>
             )}
+            {b1.data && !canSeeIntegrated && (tab==='insights'||tab==='ap') && <B1OperationalInsights projectId={projectId} stages={stages} areas={viewerAreas.data} retainer={tab==='ap'} />}
             {tab === "insights" && (!b1.data || canSeeIntegrated) && (
               <InsightsPanel
                 projectId={projectId}

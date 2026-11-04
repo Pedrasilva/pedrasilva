@@ -8,7 +8,7 @@ export function useProjectB1State(){
 }
 export function useProjectViewerAreas(projectId:string){
   const b1=useProjectB1State();
-  return useQuery({queryKey:['pm-project-viewer-areas',projectId],queryFn:async()=>{
+  return useQuery({queryKey:['pm-project-viewer-areas',projectId,b1.data],queryFn:async()=>{
     const {data,error}=await supabase.rpc('pm_project_viewer_areas',{_project:projectId});if(error)throw error;
     return {...data as unknown as ProjectViewerAreas,b1Active:b1.data??false};
   }});

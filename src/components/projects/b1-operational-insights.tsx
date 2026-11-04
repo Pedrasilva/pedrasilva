@@ -5,7 +5,7 @@ import type {StageWithAllocations} from '@/lib/projects/types';
 import type {ProjectViewerAreas} from '@/lib/projects/project-area-tabs';
 import {supabase} from '@/integrations/supabase/client';
 import {allocationHours} from '@/lib/projects/gantt-utils';
-import {stageNumberMap,sortStagesWbs} from '@/lib/quotes/stage-numbering';
+import {buildStageNumberMap,sortStagesByWbs} from '@/lib/quotes/stage-numbering';
 
 export function B1OperationalInsights({projectId,stages,areas,retainer=false}:{projectId:string;stages:StageWithAllocations[];areas?:ProjectViewerAreas;retainer?:boolean}){
   const {t,i18n}=useTranslation('projects');
@@ -15,11 +15,11 @@ export function B1OperationalInsights({projectId,stages,areas,retainer=false}:{p
   const entries=useQuery({queryKey:['pm-b1-operational-cost',projectId],queryFn:()=>readB1Rows<{pm_stage_id:string|null;quote_stage_id:string|null;task_id:string|null;hours:number;cost_rate_snapshot:number|null}>('entries',projectId)});
   const number=new Intl.NumberFormat(i18n.language,{maximumFractionDigits:1});
   const money=new Intl.NumberFormat(i18n.language,{style:'currency',currency:'EUR'});
-  const labels=stageNumberMap(stages);
-  const selected=sortStagesWbs(stages).filter(s=>!retainer||s.stage_kind.startsWith('retainer'));
+  const labels=buildStageNumberMap(stages);
+  const selected=sortStagesByWbs(stages).filter(s=>!retainer||s.stage_kind.startsWith('retainer'));
   return <div className="overflow-auto"><table className="w-full text-sm"><thead><tr className="border-b border-border text-left">
     <th className="py-3">{t('gantt.projectSummary')}</th><th>{t('detail.ui.usedPlannedHours')}</th>
-    {areas?.financials&&<th>{t('detail.ui.earnedRevenue')}</th>}
+    {areas?.financials&&<th>{t('gantt.inspector.budget')}</th>}
     {areas?.budget_cost&&<th>{t('detail.ui.actualCost')}</th>}
   </tr></thead><tbody>{selected.map(stage=>{
     const logged=(summary.data??[]).filter(r=>r.stage_id===stage.id).reduce((n,r)=>n+Number(r.hours),0);

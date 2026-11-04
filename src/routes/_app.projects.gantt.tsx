@@ -79,7 +79,7 @@ function GlobalGanttPage() {
     canV2("projects.edit_planning", "all") ||
     canV2("projects.edit_planning", "assigned");
   const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning });
-  const { data: defaultRates } = useDefaultResourceRates();
+  const { data: defaultRates } = useDefaultResourceRates(undefined,true);
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
   const navigate = useNavigate();
