@@ -1,0 +1,1 @@
+DO $$ DECLARE d text; BEGIN SELECT pg_get_functiondef('public.pm_validate_b1_revenue_fixture()'::regprocedure) INTO d; d:=replace(d,'INSERT INTO public.pm_tasks(id,allocation_id,name) VALUES(task,al,''[QA DISPOSABLE] B1 revenue'');','SELECT id INTO task FROM public.pm_tasks WHERE allocation_id=al;'); EXECUTE d; END $$;
