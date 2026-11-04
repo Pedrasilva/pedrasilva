@@ -1,0 +1,165 @@
+CRM / Sales
+Projects
+Finance
+Team / HR
+Time
+Tasks
+Schedule
+9+
+L
+All projects
+2502 Uralchem IV
+ACTIVE
+Origin: converted proposal
+No client
+·
+2 Jun – 12 Mar 2027
+· 128d
+·
+RC
++2
+Activate
+Pause
+Close out
+Archive
+Delete project
+Overview
+Insights
+Retainer
+Approvals
+Notes
+Expenses
+Project billing
+Architecture
+Suppliers
+Incoming
+Outgoing
+Payment schedule
+Financial summary
+CLIENT
+No client
+PROJECT DETAILS
+Status
+Active
+Start
+2 Jun 2026
+End
+12 Mar 2027
+Remaining
+128d
+TEAM
+ALLOCATED
+RC
+PR
+Manage team
+BUDGET USAGE
+€42,022 / €421,300
+10%
+PROFIT
+€31,517
+7%
+NOTES
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Pre-contract (pursuit)
+0h00 · €0
+No CRM lead linked
+Link a lead
+
+Hours logged on this project's lead before it was won, at each person's cost rate. Included in the project's total cost.
+
+SCOPE
+Whole project
+1 F1 - Programme Definition
+2 F2 - Concept Design
+3 F3 - Developed Design
+ACTIVITIES VS. HOURS
+Jun 2026
+Jul 2026
+Aug 2026
+Sep 2026
+Oct 2026
+0
+1
+2
+3
+4
+Activities
+0
+90
+180
+270
+360
+Hours
+ActivitiesHours
+
+Jun 2026
+
+REVENUE
+Actual Revenue: €73,539 (127%)
+Planned sale value: €57,832 (100%)
+Actual = billable hours × sale rate. Planned = total allocated hours × sale rate.
+
+Earned value includes current sale prices where no saved price exists
+
+PROFITABILITY
+CURRENT MARGIN:
+€31,517
+43%
+ESTIMATED MARGIN AT COMPLETION:
+€31,517
+43%
+BILLABLE
+1200.1 h
+NON-BILLABLE
+0 h
+TOTAL LOGGED
+1200.1 h
+FINANCIALS
+	SERVICES	SUPPLIERS	EXPENSES	TOTAL
+Budget	€421,300	€0	€0	€421,300
+Value	€73,539	€0	€0	€73,539
+Cost	€42,022	€0	€49,127	€91,149
+Profit	€31,517
+7%
+	€0	-€49,127	-€17,610
+-4%
+
+Invoiced	€0	€0	€0	€0
+WORK
+REMAINING PLAN
+0h
+View tasks
+HOURS CONSUMED
+24%
+WORK DONE
+RC
+112h 0m
+439h 55m
+PR
+50h 30m
+121h 30m
+55h 11m
+251h 0m
+138h 0m
+RS
+6h 0m
+AD
+26h 0m
+BUDGET
+RC
+57%
+57%
+PR
+57%
+57%
+57%
+57%
+0%
+RS
+0%
+AD
+0%
+90

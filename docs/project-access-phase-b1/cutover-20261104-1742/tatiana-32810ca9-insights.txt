@@ -1,0 +1,158 @@
+CRM / Vendas
+Projetos
+Finanças
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+T
+Todos os projetos
+2502 Uralchem IV
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+2 jun – 12 mar 2027
+· 128d
+·
+RC
++2
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+2 jun 2026
+Fim
+12 mar 2027
+Restante
+128d
+EQUIPA
+ALOCADOS
+RC
+PR
+USO DO ORÇAMENTO
+42 022 € / 421 300 €
+10%
+LUCRO
+31 517 €
+7%
+NOTAS
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Pré-contrato (angariação)
+0h00 · 0 €
+Sem lead do CRM ligado
+Ligar um lead
+
+Horas registadas no lead deste projeto antes de ser ganho, ao custo/hora de cada pessoa. Incluídas no custo total do projeto.
+
+ÂMBITO
+Todo o projeto
+1 F1 - Programme Definition
+2 F2 - Concept Design
+3 F3 - Developed Design
+ATIVIDADES E HORAS
+jun 2026
+jul 2026
+ago 2026
+set 2026
+out 2026
+0
+1
+2
+3
+4
+Atividades
+0
+90
+180
+270
+360
+Horas
+AtividadesHoras
+
+jun 2026
+
+RECEITA
+Receita real: 73 539 € (127%)
+Valor de venda planeado: 57 832 € (100%)
+Real = horas faturáveis × preço de venda horário. Planeado = total de horas alocadas × preço de venda horário.
+
+O valor ganho inclui preços de venda atuais quando não existe preço guardado
+
+RENTABILIDADE
+MARGEM ATUAL:
+31 517 €
+43%
+MARGEM ESTIMADA NA CONCLUSÃO:
+31 517 €
+43%
+FATURÁVEL
+1200.1 h
+NÃO FATURÁVEL
+0 h
+TOTAL DE HORAS REGISTADAS
+1200.1 h
+FINANCEIRO
+	SERVIÇOS	FORNECEDORES	DESPESAS	TOTAL
+Orçamento	421 300 €	0 €	0 €	421 300 €
+Valor	73 539 €	0 €	0 €	73 539 €
+Custo	42 022 €	0 €	49 127 €	91 149 €
+Lucro	31 517 €
+7%
+	0 €	-49 127 €	-17 610 €
+-4%
+
+Faturado	0 €	0 €	0 €	0 €
+TRABALHO
+SALDO DO PLANO
+0h
+Ver tarefas
+HORAS CONSUMIDAS
+24%
+TRABALHO CONCLUÍDO
+RC
+112h 0m
+439h 55m
+PR
+50h 30m
+121h 30m
+55h 11m
+251h 0m
+138h 0m
+RS
+6h 0m
+AD
+26h 0m
+ORÇAMENTO
+RC
+57%
+57%
+PR
+57%
+57%
+57%
+57%
+0%
+RS
+0%
+AD
+0%
+90

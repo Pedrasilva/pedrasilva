@@ -1,0 +1,305 @@
+{
+  "checks": [
+    {
+      "person": "rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "patricia",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "bernardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": false,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "admin",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "tatiana",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "irene",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "overview",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "insights",
+      "allowed": true,
+      "passed": true
+    },
+    {
+      "person": "ricardo",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "surface": "ap",
+      "allowed": true,
+      "passed": true
+    }
+  ],
+  "activation": {
+    "active": true,
+    "revision": 1
+  },
+  "remaining": "Inspector, global Gantt, attachment and disposable edit not yet run",
+  "finalB1": true,
+  "phaseA": true
+}

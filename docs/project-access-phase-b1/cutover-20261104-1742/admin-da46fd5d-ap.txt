@@ -1,0 +1,183 @@
+CRM / Sales
+Projects
+Finance
+Team / HR
+Time
+Tasks
+Schedule
+9+
+L
+All projects
+Clinica Mint II
+ACTIVE
+Origin: converted proposal
+SMILEPROVIDER, LDA
+·
+1 Jun – 23 Jul 2027
+· 261d
+Activate
+Pause
+Close out
+Archive
+Delete project
+Overview
+Insights
+Retainer
+Approvals
+Notes
+Expenses
+Project billing
+Architecture
+Suppliers
+Incoming
+Outgoing
+Payment schedule
+Financial summary
+CLIENT
+SMILEPROVIDER, LDA
+PROJECT DETAILS
+Status
+Active
+Start
+1 Jun 2026
+End
+23 Jul 2027
+Remaining
+261d
+TEAM
+MANAGER
+RS
+Manage team
+BUDGET USAGE
+€1,812 / €30,980
+6%
+PROFIT
+€1,274
+4%
+NOTES
+
+Created from approved proposal
+
+Retainers
+New retainer stage
+Retainer monitor — [6] Assistência Técnica à Obra
+4 months
+Log hours
+Monthly fee: €1,320
+Included hours/mo: —(assign resources to derive hours from the monthly fee)
+Hours used: 0 h
+Cost: €0
+Sale: €0
+Cumulative variance: +0 h
+0 under · 0 over
+APR 2027
+MAY 2027
+MAY 2027
+JUN 2027
+Included hours/mo
+On track
+Absorbed
+Over run
+MONTH	FEE	USED / INCLUDED	COST	TOTAL COST	SALE	VARIANCE	ROLLING 3M AVG	STATUS
+▸Apr 2027	€1,320	0 h / 0 h	—	—	—	—	—	UPCOMING
+▸May 2027	€1,320	0 h / 0 h	—	—	—	—	—	UPCOMING
+▸May 2027	€1,320	0 h / 0 h	—	—	—	—	—	UPCOMING
+▸Jun 2027	€1,320	0 h / 0 h	—	—	—	—	—	UPCOMING
+Total	€5,280	0 h / 0 h	€0	€0	€0	+0 h		
+
+Fee is fixed every month. Included hours = fee ÷ blended sale rate of the team actually delivering the retainer. Busy months are absorbed by quieter ones — amber = single busy month covered by the 3-month rolling average; red = sustained over-run.
+
+Budget control
+
+Timesheets consume budget. The Gantt plans what remains.
+
+ACTUAL USED
+€1,764
+59h logged · cost from rate × hours
+REMAINING BUDGET
+€34,496
+Original budget − actual cost
+AVG TEAM RATE
+—
+Weighted by planned hours
+ESTIMATED HOURS REMAINING
+—
+Cannot estimate hours — no team rate available
+PLANNED AHEAD
+€0
+0h future allocations
+PROJECTED OVER/UNDER
+€34,496
+Remaining − planned ahead
+PER STAGE
+STAGE	ACTUAL	REMAINING	AVG RATE	EST. HOURS	PLANNED AHEAD	OVER/UNDER
+
+[6] Assistência Técnica à Obra
+	€0
+0 h
+	€5,280	—	—	€0
+0 h
+	€5,280
+
+[1] Programa Base / Conceito
+	€1,764
+59 h
+	€2,186	—	—	€0
+0 h
+	€2,186
+
+Análise e aprovação (cliente)
+	€0
+0 h
+	€0	—	—	€0
+0 h
+	€0
+
+[2] Estudo Prévio
+	€0
+0 h
+	€9,450	—	—	€0
+0 h
+	€9,450
+
+Análise e aprovação (cliente)
+	€0
+0 h
+	€0	—	—	€0
+0 h
+	€0
+
+[4] Projeto de Execução
+	€0
+0 h
+	€12,300	—	—	€0
+0 h
+	€12,300
+
+2026-11 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2026-12 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2027-01 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320
+
+2027-02 — [6] Assistência Técnica à Obra
+	€0
+0 h
+	€1,320	—	—	€0
+0 h
+	€1,320

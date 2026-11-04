@@ -1,6 +1,7 @@
 ## Current request — 4 November 17:42 order-independent B1 cutover
-- [ ] Compare sorted full-content matrices and canonical hashes; activate only if all 1,176 rows match.
-- [ ] Audited activation, immediate live ON checks and rollback on any failure; disposable operational edit/cleanup/independent zero; report and stop, no B2.
+- [x] Sorted full-content matrices match all 1,176 rows; identical SHA-256 `13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339`; audited activation revision 1.
+- [x] Real ON page/projection checks and screenshots; visual Mint profit `NaN%` failure triggered immediate audited rollback revision 2. B1 OFF, Phase A ON; report and stop, no B2.
+- [ ] Remaining inspector/global Gantt/attachment/disposable edit checks blocked by failed cutover; await Luis. No fixture created, exact-name zero confirmed.
 
 ## Current request — 4 November 17:36 B1 cutover authorization
 - [x] Recalculate official matrix hash: `1cf42c8ef49c1f1e67b132dfa5ea185d`, different from approved `020f61e7f8cab09c838d2ac25bd4e7bc`; stop before activation as instructed.
