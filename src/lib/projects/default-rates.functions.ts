@@ -23,14 +23,15 @@ const PROJECT_DEFAULT_MARGIN = 0.75;
 
 export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input?: {projectId?: string}) => input ?? {})
+  .inputValidator((input?: {projectId?: string;b1Projection?:boolean}) => input ?? {})
   .handler(async ({ context, data }): Promise<DefaultRateEntry[]> => {
     // Access gate: cost rates are salary-derived and must never be exposed
     // to regular collaborators. Admins, finance, and PMs with the
     // projects.financials permission may read them.
     const { supabase, userId } = context;
-    const {data:b1,error:b1Error}=await supabase.rpc('pm_project_b1_active');
+    const {data:b1State,error:b1Error}=await supabase.rpc('pm_project_b1_active');
     if(b1Error)throw b1Error;
+    const b1=b1State&&(!!data.projectId||!!data.b1Projection);
     let budgetAllowed=false;
     let saleAllowed=false;
     if(b1){

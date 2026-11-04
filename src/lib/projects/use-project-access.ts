@@ -7,9 +7,10 @@ export function useProjectB1State(){
   },staleTime:0,refetchInterval:30_000});
 }
 export function useProjectViewerAreas(projectId:string){
-  return useQuery({queryKey:['pm-project-viewer-areas',projectId],queryFn:async()=>{
+  const b1=useProjectB1State();
+  return useQuery({queryKey:['pm-project-viewer-areas',projectId,b1.data],queryFn:async()=>{
     const {data,error}=await supabase.rpc('pm_project_viewer_areas',{_project:projectId});if(error)throw error;
-    return data as unknown as ProjectViewerAreas;
+    return {...data as unknown as ProjectViewerAreas,b1Active:b1.data??false};
   }});
 }
 export const PROJECT_ACCESS_AREAS=['financials','budget_cost','expenses','supplier_fees'] as const;

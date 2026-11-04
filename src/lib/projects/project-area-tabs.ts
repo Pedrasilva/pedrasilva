@@ -1,5 +1,5 @@
 export type ProjectArea = 'financials' | 'budget_cost' | 'expenses' | 'supplier_fees';
-export type ProjectViewerAreas = { active: boolean } & Record<ProjectArea, boolean>;
+export type ProjectViewerAreas = { active: boolean;b1Active?:boolean } & Record<ProjectArea, boolean>;
 const TAB_AREAS: Record<string, ProjectArea[]> = {
   billing: ['financials'], financial: ['financials'], architecture: ['financials'], incoming: ['financials'],
   financialSummary: ['financials'], paymentSchedule: ['financials', 'supplier_fees'],
@@ -7,6 +7,7 @@ const TAB_AREAS: Record<string, ProjectArea[]> = {
   rates: ['budget_cost'], insights: ['budget_cost'], ap: ['budget_cost'],
 };
 export function canOpenProjectTab(tab: string, access?: ProjectViewerAreas) {
+  if(access?.b1Active && (tab==='insights'||tab==='ap'))return true;
   if (!access) return !TAB_AREAS[tab];
   if (!access.active) return true;
   return (TAB_AREAS[tab] ?? []).every(area => access[area]);
