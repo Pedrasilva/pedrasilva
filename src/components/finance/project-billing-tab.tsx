@@ -16,7 +16,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ import { useHasPermission } from '@/hooks/use-permissions';
 import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
 import { useFinanceAccess } from '@/hooks/use-finance-access';
 import { canMutateProjectBilling } from '@/lib/finance/project-billing-access';
+import { downloadProjectAttachment } from '@/lib/finance/project-attachment';
+import { toast } from '@/lib/toast';
 
 const DASH = "—";
 
@@ -559,6 +561,22 @@ function DocumentsSection({
                         >
                           {d.document_number || d.external_reference || DASH}
                         </Link>
+                        {d.file_path && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t('common:download')}
+                            title={t('common:download')}
+                            onClick={() => {
+                              if (!d.file_path) return;
+                              void downloadProjectAttachment(d.file_path).catch((error: unknown) => {
+                                toast.error(error instanceof Error ? error.message : t('finance:attachments.openFailed'));
+                              });
+                            }}
+                          >
+                            <Download />
+                          </Button>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs">
                         {t(`finance:documents.type.${d.doc_type}`, d.doc_type)}
