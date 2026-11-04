@@ -1,6 +1,7 @@
 ## Current request — 4 November 18:14 B1 margin fix and one retry
-- [ ] Diagnose missing Mint input, fix every B1 profit/margin surface, add all-ON/partial/all-OFF/zero-revenue tests.
-- [ ] One audited retry with complete live checks, rollback on any failure; one disposable project/edit/attachment, exact cleanup and independent zero; report and stop, no B2.
+- [x] Reproduced legacy locked-cost denial and null snapshot propagation; corrected B1 summary reader and finite margin guards; 24 tests/build passed.
+- [x] Single audited retry revision 3; Rita cost restored but authorized revenue/profit still unavailable; immediate rollback revision 4. B1 OFF, Phase A ON; report and stop, no B2.
+- [ ] Full earned-revenue cause/fix and remaining live inspector/global/attachment/edit checks blocked by failed single retry; wait for Luis. No fixture created and no real data changes.
 
 ## Current request — 4 November 17:42 order-independent B1 cutover
 - [x] Sorted full-content matrices match all 1,176 rows; identical SHA-256 `13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339`; audited activation revision 1.
