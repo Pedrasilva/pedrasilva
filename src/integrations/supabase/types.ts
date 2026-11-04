@@ -19458,6 +19458,7 @@ export type Database = {
       }
       pm_unique_viewer_resource: { Args: never; Returns: string }
       pm_validate_b1_fixture: { Args: never; Returns: Json }
+      pm_validate_b1_revenue_fixture: { Args: never; Returns: Json }
       pm_validate_cutover_fixture: { Args: never; Returns: Json }
       pm_verify_tatiana_backfill: { Args: never; Returns: Json }
       pm_verify_week_publication: { Args: never; Returns: Json }
