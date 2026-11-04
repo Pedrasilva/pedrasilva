@@ -1,3 +1,7 @@
+## Current request — 4 November 17:42 order-independent B1 cutover
+- [ ] Compare sorted full-content matrices and canonical hashes; activate only if all 1,176 rows match.
+- [ ] Audited activation, immediate live ON checks and rollback on any failure; disposable operational edit/cleanup/independent zero; report and stop, no B2.
+
 ## Current request — 4 November 17:36 B1 cutover authorization
 - [x] Recalculate official matrix hash: `1cf42c8ef49c1f1e67b132dfa5ea185d`, different from approved `020f61e7f8cab09c838d2ac25bd4e7bc`; stop before activation as instructed.
 - [x] Compare all 1,176 saved/current rows by person/project/area: no added, removed or changed fields; ordering differs, aggregation has no ORDER BY. Report evidence; B1 OFF, Phase A ON, no fixtures or real-data writes.
