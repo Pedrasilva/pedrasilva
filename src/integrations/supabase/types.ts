@@ -19021,6 +19021,10 @@ export type Database = {
         Returns: Json
       }
       pm_b1_resources: { Args: { _project?: string }; Returns: Json[] }
+      pm_b1_review_redaction: {
+        Args: { _kind: string; _project: string; _row: Json; _user: string }
+        Returns: Json
+      }
       pm_b1_stages: { Args: { _project?: string }; Returns: Json[] }
       pm_backfill_tatiana_internal: { Args: never; Returns: Json }
       pm_backoffice_salary_cost: {
