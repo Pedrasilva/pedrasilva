@@ -8,7 +8,6 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
@@ -24,11 +23,24 @@ const PROJECT_DEFAULT_MARGIN = 0.75;
 
 export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<DefaultRateEntry[]> => {
+  .inputValidator((input?: {projectId?: string}) => input ?? {})
+  .handler(async ({ context, data }): Promise<DefaultRateEntry[]> => {
     // Access gate: cost rates are salary-derived and must never be exposed
     // to regular collaborators. Admins, finance, and PMs with the
     // projects.financials permission may read them.
     const { supabase, userId } = context;
+    const {data:b1,error:b1Error}=await supabase.rpc('pm_project_b1_active');
+    if(b1Error)throw b1Error;
+    let budgetAllowed=false;
+    let saleAllowed=false;
+    if(b1){
+      if(!data.projectId)return [];
+      const {data:areas,error}=await supabase.rpc('pm_project_viewer_areas',{_project:data.projectId});
+      if(error)throw error;
+      const flags=areas as unknown as {budget_cost:boolean;financials:boolean};
+      budgetAllowed=flags.budget_cost;saleAllowed=flags.financials;
+      if(!budgetAllowed&&!saleAllowed)return [];
+    }
     const [{ data: isAdmin }, { data: hasFinance }, { data: hasProjFin }] = await Promise.all([
       supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
       supabase.rpc("has_permission", { _user_id: userId, _key: "finance.dashboard" }),
@@ -37,10 +49,11 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     // No financials access: return an empty set instead of throwing. Throwing a
     // raw Response across the RPC boundary surfaces as `Error: [object Response]`
     // and blanks the page for every non-financial user.
-    if (!isAdmin && !hasFinance && !hasProjFin) {
+    if (!b1 && !isAdmin && !hasFinance && !hasProjFin) {
       return [];
     }
 
+    const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
     const [collabs, snaps, bo, resources] = await Promise.all([
       supabaseAdmin.from("collaborators").select("*").is("archived_at", null),
       supabaseAdmin
@@ -161,7 +174,9 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     for (const link of links) {
       if (!link.collaborator_id) continue;
       const def = byCollabRate.get(link.collaborator_id);
-      if (def) out.push({ resource_id: link.id, ...def });
+      if (def) out.push({ resource_id: link.id, ...def,
+        ...(b1?{cost:budgetAllowed?def.cost:NaN,sale:saleAllowed?def.sale:NaN,sale100:saleAllowed?def.sale100:NaN}:{}),
+      });
     }
     return out;
   });

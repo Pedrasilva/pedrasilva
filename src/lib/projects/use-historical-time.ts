@@ -15,6 +15,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {readB1Rows} from './b1-projection';
 
 export interface HistoricalProjectTotals {
   loggedHours: number;
@@ -54,8 +55,8 @@ function aggregate(
     sources.add(r.source_system);
     billable += Number(r.billable_hours ?? 0);
     nonBillable += Number(r.non_billable_hours ?? 0);
-    cost += Number(r.cost ?? 0);
-    amount += Number(r.amount ?? 0);
+    cost += r.cost==null?NaN:Number(r.cost);
+    amount += r.amount==null?NaN:Number(r.amount);
   }
   return {
     loggedHours: billable + nonBillable,
@@ -74,11 +75,7 @@ export function useHistoricalProjectTotals(projectId: string | undefined) {
     queryKey: ["historical-time-totals", projectId],
     enabled: !!projectId,
     queryFn: async (): Promise<HistoricalProjectTotals> => {
-      const { data, error } = await supabase
-        .from("historical_time_entries")
-        .select("source_system, billable_hours, non_billable_hours, cost, amount")
-        .eq("project_id", projectId!);
-      if (error) throw error;
+      const data = await readB1Rows<Parameters<typeof aggregate>[0][number]>('history',projectId);
       return aggregate(data ?? []);
     },
   });
@@ -89,11 +86,7 @@ export function useHistoricalProjectTotalsMap() {
   return useQuery({
     queryKey: ["historical-time-totals-map"],
     queryFn: async (): Promise<Map<string, HistoricalProjectTotals>> => {
-      const { data, error } = await supabase
-        .from("historical_time_entries")
-        .select("project_id, source_system, billable_hours, non_billable_hours, cost, amount")
-        .not("project_id", "is", null);
-      if (error) throw error;
+      const data = await readB1Rows<Parameters<typeof aggregate>[0][number]&{project_id:string|null}>('history');
       const byProject = new Map<string, typeof data>();
       for (const r of data ?? []) {
         if (!r.project_id) continue;

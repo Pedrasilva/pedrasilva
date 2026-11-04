@@ -39,6 +39,7 @@ import {
 
 type DefaultRatesMap = Map<string, DefaultRateInfo> | undefined;
 import { allocationHours } from "@/lib/projects/gantt-utils";
+import {readB1Rows} from './b1-projection';
 
 export interface StageBudgetControl {
   stage_id: string;
@@ -353,19 +354,10 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
     queryKey: ["stage-budget-control", projectId, defaultRates ? defaultRates.size : 0],
     enabled: !!projectId,
     queryFn: async () => {
-      const [{ data: stagesRaw, error: sErr }, { data: histRaw }] = await Promise.all([
-        supabase
-          .from("pm_stages")
-          .select(
-            "id, budget, allocations:pm_allocations(id, planning_removed_at, start_date, end_date, hours_per_day, resource:pm_resources(id, hourly_rate, cost_rate))",
-          )
-          .eq("project_id", projectId),
-        supabase
-          .from("historical_time_entries")
-          .select("source_system, billable_hours, non_billable_hours, cost, amount, stage_id")
-          .eq("project_id", projectId),
+      const [stagesRaw,histRaw] = await Promise.all([
+        readB1Rows<import('./types').StageWithAllocations>('stages',projectId),
+        readB1Rows<{source_system:string;billable_hours:number|null;non_billable_hours:number|null;cost:number|null;amount:number|null;stage_id:string|null}>('history',projectId),
       ]);
-      if (sErr) throw sErr;
 
       type RawAlloc = {
         id: string;
@@ -427,10 +419,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         const taskIds = Array.from(taskToAlloc.keys());
         if (taskIds.length > 0) {
           const { data: ents } = await supabase
-            .from("pm_time_entries")
-            .select("task_id, hours, billable, cost_rate_snapshot")
-            .eq("entry_type", "project")
-            .in("task_id", taskIds);
+            .rpc('pm_b1_entries',{_project:projectId});
           entries = ((ents ?? []) as Array<{ task_id: string; hours: number; billable: boolean; cost_rate_snapshot: number | string | null }>).map((e) => ({
             task_id: e.task_id,
             hours: Number(e.hours),
@@ -460,8 +449,8 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         sources.add(r.source_system);
         const b = Number(r.billable_hours ?? 0);
         const n = Number(r.non_billable_hours ?? 0);
-        const c = Number(r.cost ?? 0);
-        const a = Number(r.amount ?? 0);
+        const c = r.cost==null?NaN:Number(r.cost);
+        const a = r.amount==null?NaN:Number(r.amount);
         impB += b;
         impN += n;
         impC += c;
