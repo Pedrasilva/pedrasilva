@@ -1,11 +1,11 @@
 # Fase B — isolamento financeiro completo por projeto (plano apenas)
 
 ## Estado e limites
-A tentativa de Fase A foi revertida após Faturação não aparecer para Rita na Mint; corte OFF. Este plano não autoriza nova ativação nem altera dados reais. A correção de Faturação e repetição dos checks da Fase A são pré-requisitos separados. Nenhuma implementação da Fase B nesta entrega.
+A correção de Faturação passou na sessão Rita ON; a nova tentativa foi revertida por não existir anexo de fatura ligado à Mint para testar Rita legitimamente. Corte OFF. Este plano não autoriza nova ativação nem altera dados reais. Nenhuma implementação da Fase B nesta entrega.
 
 ## 1. Fechar a Fase A antes de avançar
-- Permitir leitura da Faturação do próprio projeto por Financials, sem abrir módulo Finance nem conceder editar, emitir, pagar ou alterar valores.
-- Repetir Rita Mint/Uralchem, Patricia, membro all-OFF, quatro capacidades globais e anexo real permitido/negado; comparar matriz/dados e reverter imediatamente perante falha.
+- Preservar a correção já verificada: Faturação por Financials, sem abrir módulo Finance nem conceder editar, emitir, pagar ou alterar valores.
+- Resolver o teste de anexo sem alterar dados reais: identificar ficheiro já autorizado para Rita ou obter aprovação para teste numa cópia descartável. Repetir quatro sessões globais e anexo permitido/negado, além dos checks Rita/Patricia/all-OFF já exercidos; comparar matriz/dados e reverter imediatamente perante falha.
 - Manter ação auditada e rollback prontos. Não inferir sucesso de zero linhas quando não existe evidência de linhas reais.
 
 ## 2. Leituras operacionais sem valores negados

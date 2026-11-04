@@ -1,7 +1,8 @@
 ## Current request — 3 November 23:28 Phase A repair and renewed GO
-- [ ] Fix Billing project Financials read access without Finance module; retain Finance-only edit/issue and review sibling tabs.
-- [ ] Rerun isolated ON including Billing, then live cutover/user/attachment checks; immediate rollback on any failure, no project-data changes.
-- [ ] Report screenshots/data comparison/zero; Phase B plan only after Phase A outcome.
+- [x] Billing follows project Financials; Finance + fiscal permission still gate creation/upload/editor. Sibling tabs reviewed; legacy mixed Overview billed columns remain Phase B.
+- [x] 121 isolated database checks and 12 rule tests pass; live Rita Billing/other tabs, Uralchem deny, Patricia and Rita Mastercard all-OFF API zero verified; rollback at 00:21:16, unchanged project data.
+- [ ] Renewed cutover blocked: no existing invoice attachment linked to Rita's authorized Mint project; need legitimate attachment or approved disposable-copy attachment test. Four global sessions and attachment allow/deny remain unverified after stop.
+- [x] Report/screenshots/hashes and zero QA projects/quotes 00:21:40; Phase B plan only, not started.
 
 ## Current request — 3 November 22:15 Phase A GO
 - [x] Prepared admin-only audited matrix-hash cutover/rollback; activated 22:20:51, immediate rollback 22:21:06 after Rita Billing missing; gate OFF. No project data changed.
