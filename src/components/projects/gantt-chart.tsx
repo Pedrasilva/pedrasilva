@@ -919,7 +919,6 @@ export function GanttChart({
         />
       )}
     <div
-      ref={canvasRef}
       className="relative select-none"
       style={{ ["--day-width" as string]: `${dayWidth}px`, width: totalDays * dayWidth }}
       onPointerMove={onPointerMove}
@@ -1113,7 +1112,7 @@ export function GanttChart({
         </div>
       )}
 
-      <div className="relative gantt-canvas-bg gantt-week-marker" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
+      <div ref={canvasRef} className="relative gantt-canvas-bg gantt-week-marker" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
         {months.map((m, i) => (
           <div
             key={`mb-${i}`}
