@@ -10948,6 +10948,7 @@ export type Database = {
       pm_payment_date_audit: {
         Row: {
           actor: string
+          actor_was_project_manager: boolean | null
           after_values: Json
           before_values: Json
           changed_at: string
@@ -10958,6 +10959,7 @@ export type Database = {
         }
         Insert: {
           actor: string
+          actor_was_project_manager?: boolean | null
           after_values: Json
           before_values: Json
           changed_at?: string
@@ -10968,6 +10970,7 @@ export type Database = {
         }
         Update: {
           actor?: string
+          actor_was_project_manager?: boolean | null
           after_values?: Json
           before_values?: Json
           changed_at?: string

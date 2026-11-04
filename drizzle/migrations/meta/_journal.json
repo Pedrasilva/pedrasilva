@@ -1744,6 +1744,13 @@
       "when": 1793756467377,
       "tag": "0248_incoming_invoice_readiness_and_issue",
       "breakpoints": true
+    },
+    {
+      "idx": 249,
+      "version": "7",
+      "when": 1793756625252,
+      "tag": "0249_invoice_workflow_direct_write_boundary",
+      "breakpoints": true
     }
   ]
 }
