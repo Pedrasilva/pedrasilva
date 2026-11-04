@@ -1,0 +1,14 @@
+{
+  "checks": [],
+  "activation": {
+    "revision": 7,
+    "active": true
+  },
+  "failure": "",
+  "rollback": {
+    "revision": 8,
+    "active": false
+  },
+  "realDataUnchanged": true,
+  "finalActive": false
+}
