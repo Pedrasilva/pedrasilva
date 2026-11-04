@@ -115,3 +115,26 @@ Após Tiny → Small, Auth, base de dados e Auth→DB responderam; PgBouncer ati
 Limpeza integral confirmada às 20:28:01 UTC: projeto `7285f0ca-778b-4c7f-af69-c3f9c52b5941`, proposta `a31c8078-6624-4dd8-8cae-247a8a574f63`, oportunidade `36e71f1e-6b3b-42b5-abab-8d3063df94b2` e documento `a340b50f-fc23-4078-af4b-2ed128509508` eliminados com dependências, numa transação. Primeira tentativa falhou por FK de snapshot e foi anulada; segunda respeitou a ordem projeto → quote → documento → oportunidade.
 `[QA DISPOSABLE] No proposal Gantt` não existia. Leitura posterior: **projects=0, proposals=0, opportunities=0, allocations=0, old_document=0**. Nenhum dado Mint alterado.
 Esta execução seguiu a ordem expressa limpeza → item 2 → item 5 Fase A. Os ensaios antigos de gestos de dependências e DATE na proposta convertida não foram repetidos nesta execução e continuam não verificados.
+
+## Item 1 — testes restantes, 4 novembro 2026, 01:11–01:20 UTC
+
+**Só testes e documentação; sem alterações à aplicação, migrações ou dados reais. Fase A continua ON.** Criados projeto sem proposta `ae9b540e-0a9e-43a7-9f49-82871544995e` e proposta sintética descartável `4c093cff-b4c2-45e9-b2da-481f8978d52f`, convertida pelo RPC normal após snapshot aceite, originando projeto `31b1e6e9-a5e7-47e6-a743-d428374a4999`. Cada contexto tinha Design A → aprovação cliente → Design B. Não é uma cópia integral da Mint; usa apenas a empresa já existente como ligação e fases novas. Numeração explícita QA, sem consumir número comercial; sem recursos, horas ou pagamentos novos.
+
+### Dependências — ações persistentes passaram; gestos não certificados
+Nos três ecrãs (projeto sem proposta, projeto convertido e builder da proposta convertida), a ação partilhada `changeGanttDependency('project', scope, ...)` criou FS de Design A para aprovação; alterou o sucessor para Design B e lag para +2; eliminou a ligação. Leituras `pm_gantt_state` confirmaram 1 → 1 alterada → 0; Gantt recarregado com capturas. O builder convertido utiliza corretamente IDs operacionais, não escreve dependências da proposta.
+
+**Limite importante:** a criação por arrasto exterior foi tentada duas vezes e não produziu ligação. Foi usada depois a ação do adaptador invocada no navegador, não o gesto de utilizador. Logo, os resultados não certificam criar/mover/apagar por todos os controlos visuais, nem dependências de uma proposta ainda não convertida. Nenhuma correção de código efetuada por ser pedido de testes apenas.
+
+### Aprovação — verificação falhou
+A pega `data-stage-resize-end` foi arrastada nos três ecrãs; a leitura persistente manteve **20 novembro 2026**, em vez de prolongar a aprovação. As pegas existem e a barra está desenhada, mas **não se confirma que o redimensionamento continua funcional** nesta sessão. Não atribuir a causa à aplicação sem distinguir gesto/escala/estado do navegador. Resultados guardados com `approvalGestureChanged=false`; não substituídos por uma chamada direta bem-sucedida.
+
+### DATE da proposta de origem
+A fase sintética foi criada com início **3 janeiro 2000** e atualizada para **4 janeiro 2000**. O bloqueio normal inicialmente devolveu `QUOTE_LOCKED_CONVERTED`. Só na fixture, foi necessário limpar temporariamente `pm_project_id`, `locked_project_id`, `locked_at`, `is_locked` e usar estado draft para impedir o autolock; o projeto conservou `quote_id`, pelo que a exclusão de sincronização continuou aplicável. A ligação/estado foram restaurados após o UPDATE. As linhas integrais de `pm_stages` do projeto convertido permaneceram idênticas antes/depois. A última repetição gravada em `date-results.json` já lê 4 janeiro e é um UPDATE sem mudança; não apresentá-la como a prova exclusiva de 3→4. O teste cobre a exclusão por `pm_projects.quote_id`, não todas as combinações dos dois vínculos.
+
+### Mint Overview — PT e EN a 1050 × 1800
+Capturas reais só de leitura: **Estado/Status Ativo/Active**, **Início/Start 1 junho 2026**, **Fim/End 23 julho 2027**, **Restante/Remaining 261d** presentes no painel, sem sobreposição ou valores comprimidos. A troca de idioma foi apenas na instância do navegador, sem guardar preferência do colaborador. Mantidos os dados reais e custos; não executados checks Finance recusados.
+
+### Limpeza e resultado final
+Snapshot dos registos QA antes de apagar; zero alocações e fases criadas sem tarefas/horas. Eliminados os dois projetos, a proposta, documento e snapshots por IDs exatos. Leitura independente **01:20:04 UTC**: projetos=0, proposta=0, fases operacionais=0, quote_stages=0, quote_dependencies=0, documento=0, snapshots=0; gate=true. Não foram criados ficheiros Storage.
+
+**23 testes existentes passaram**, mas não tornam os gestos falhados em PASS. Evidência: `docs/one-project-gantt/item1-20261104/` (capturas PT/EN, três contextos, ações, DATE e snapshot de limpeza). **Item 1 fica parcialmente verificado:** falta confirmar os gestos de dependência e redimensionamento de aprovação; não foi alterado código para os corrigir.

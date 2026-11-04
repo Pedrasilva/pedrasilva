@@ -1,3 +1,8 @@
+## Current request — 4 November 01:11 Item 1 tests only
+- [ ] Dependency adapter create/update/delete passed in three rendered contexts; mouse creation and approval resize did not persist. Tests-only boundary: no code fixes; interactive verification remains failed/unconfirmed, recorded in report.
+- [x] Source fixture DATE 3→4 January 2000 did not change project stages; temporary fixture unlock required clearing reverse quote link while project.quote_id remained. Final repeated evidence includes no-op caveat.
+- [x] Mint details PT/EN 1050×1800 captured; two projects/quote/document/snapshots removed, independent zero 01:20:04; 23 tests passed and report appended. Phase A remains ON; no real data edits.
+
 ## Current request — 4 November 00:55 attachment-first renewed GO
 - [x] Project Billing direct download added; invoice/receipt download + signed URL 39 bytes for PM Financial-only, zero for Patricia/Teresa. No privileged fallback or policy widening.
 - [x] Disposable project/two documents/files removed after snapshot; independent project/document/team/access/stage/Storage zero at 01:10:09. No new identity/resource/collaborator; scoped real-data equality confirmed.
