@@ -1765,6 +1765,27 @@
       "when": 1793756910184,
       "tag": "0251_invoice_timing_today_and_stage_tree",
       "breakpoints": true
+    },
+    {
+      "idx": 252,
+      "version": "7",
+      "when": 1793757177029,
+      "tag": "0252_finance_project_expense_pending_lists",
+      "breakpoints": true
+    },
+    {
+      "idx": 253,
+      "version": "7",
+      "when": 1793757300172,
+      "tag": "0253_expense_pending_missing_amount_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 254,
+      "version": "7",
+      "when": 1793757386012,
+      "tag": "0254_expense_manual_reference_function_locals",
+      "breakpoints": true
     }
   ]
 }

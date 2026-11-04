@@ -1,0 +1,7 @@
+import {queryOptions,useMutation,useQueryClient} from '@tanstack/react-query';
+import {invoiceRpc} from './use-invoices-to-issue';
+import {supabase} from '@/integrations/supabase/client';
+import type {PendingExpense} from './expense-pending-lists';
+export const expensePendingOptions=()=>queryOptions({queryKey:['finance','expense-pending-lists'],queryFn:async()=>await invoiceRpc('fin_project_expense_lists') as {rows:PendingExpense[];today:string},staleTime:0});
+export function useMarkExpense(){const qc=useQueryClient();return useMutation({mutationFn:async(x:{id:string;kind:'clients'|'staff';number?:string;date?:string})=>x.kind==='clients'?invoiceRpc('fin_mark_expense_invoiced',{_expense:x.id,_number:x.number}):invoiceRpc('fin_mark_expense_reimbursed',{_expense:x.id,_date:x.date}),onSuccess:async()=>{await Promise.all([qc.invalidateQueries({queryKey:['finance']}),qc.invalidateQueries({queryKey:['expense-flow']}),qc.invalidateQueries({queryKey:['project-expenses']})]);}});}
+export async function downloadExpenseReceipt(row:PendingExpense){if(!row.receipt_path)return;const {data,error}=await supabase.storage.from(row.receipt_bucket).download(row.receipt_path);if(error||!data)throw error??new Error('Attachment unavailable');const url=URL.createObjectURL(data);const link=document.createElement('a');link.href=url;link.download=row.receipt_path.split('/').pop()??'receipt';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}

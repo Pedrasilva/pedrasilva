@@ -1,3 +1,8 @@
+## Current request — 4 November 01:51 expense lists
+- [x] Existing recording documented before code; no new fields, existing references/obligations/allocations reused.
+- [x] Finance client/staff pending lists, audited manual marks, receipt download and Expenses-scoped item 3 hint; EN/PT.
+- [x] Disposable UI/RPC checks passed, exact cleanup/independent zero 02:02:06 UTC; report/screenshots saved. Stop and await Luis; no Phase B.
+
 ## Current request — 4 November 01:38 invoices to issue
 - [x] Plan written before code; guarded confirmation/emission and Finance-only timing page implemented.
 - [x] Warnings, groups, monthly forecast and EN/PT verified; no emails or real changes.

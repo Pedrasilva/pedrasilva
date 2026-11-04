@@ -65,6 +65,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
       { to: "/finance/payments/suppliers", labelKey: "finance:sidebar.items.suppliers", icon: Truck },
       { to: "/finance/payments/purchases", labelKey: "finance:sidebar.items.purchases", icon: Receipt },
       { to: "/finance/payments/expenses", labelKey: "finance:sidebar.items.expenses", icon: Wallet },
+      { to: "/finance/payments/staff-reimbursements", labelKey: "finance:expenseLists.staffTitle", icon: Wallet },
       { to: "/finance/payments/outflows", labelKey: "finance:sidebar.items.outflows", icon: ArrowDownToLine },
       { to: "/finance/payments/cards", labelKey: "finance:sidebar.items.cards", icon: CreditCard },
       { to: "/finance/payments/duplicates", labelKey: "finance:sidebar.items.duplicates", icon: CopyCheck },
@@ -78,6 +79,7 @@ export const FINANCE_NAV_GROUPS: FinanceNavGroup[] = [
 
       { to: "/finance/invoicing/invoices", labelKey: "finance:sidebar.items.invoices", icon: FileText },
       { to: "/finance/invoicing/to-issue", labelKey: "finance:issueQueue.title", icon: FileText },
+      { to: "/finance/invoicing/expenses-to-invoice", labelKey: "finance:expenseLists.clientsTitle", icon: Receipt },
       { to: "/finance/invoicing/receipts", labelKey: "finance:sidebar.items.receipts", icon: Send },
       { to: "/finance/invoicing/inflows", labelKey: "finance:sidebar.items.inflows", icon: Inbox },
     ],
