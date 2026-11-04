@@ -1,4 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
+import {useProjectB1State} from './use-project-access';
+import {useAuth} from '@/hooks/use-auth';
+
+/** Include caller and gate revision in every B1 reader cache. */
+export function useB1CacheScope(){
+  const gate=useProjectB1State();
+  const {user}=useAuth();
+  return [user?.id,gate.data];
+}
 
 /** Caller-scoped RPC. Never fetch raw rows as a fallback. */
 export async function readB1Rows<T>(kind: 'projects' | 'stages' | 'resources' | 'entries' | 'history', projectId?: string): Promise<T[]> {

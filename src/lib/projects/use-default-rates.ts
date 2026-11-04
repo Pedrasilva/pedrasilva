@@ -13,6 +13,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getPmDefaultResourceRates } from "./default-rates.functions";
+import {useB1CacheScope} from './b1-projection';
 
 export const PROJECT_DEFAULT_MARGIN = 0.75;
 
@@ -27,9 +28,10 @@ export type DefaultRateInfo = {
 // the derived €/h on the resource list, so the computation runs on the server
 // (elevated) and only returns aggregated per-resource numbers.
 export function useDefaultResourceRates(projectId?:string,b1Projection=false) {
+  const scope=useB1CacheScope();
   const fetchRates = useServerFn(getPmDefaultResourceRates);
   return useQuery({
-    queryKey: ["pm-default-rates-from-hr",projectId,b1Projection],
+    queryKey: ["pm-default-rates-from-hr",projectId,b1Projection,...scope],
     queryFn: async (): Promise<Map<string, DefaultRateInfo>> => {
       const rows = await fetchRates({data:{projectId,b1Projection}});
       const byResource = new Map<string, DefaultRateInfo>();
@@ -58,6 +60,7 @@ export function effectiveSaleRate(
   isOverride?: boolean,
 ): number {
   const m = Number(manualRate ?? 0);
+  if(manualRate!=null&&!Number.isFinite(m))return NaN;
   const hrDefault = defaults?.get(resourceId)?.sale ?? 0;
   if (isOverride === false) return hrDefault;
   if (isOverride === true) return m > 0 ? m : hrDefault;
@@ -74,6 +77,7 @@ export function effectiveCostRate(
   isOverride?: boolean,
 ): number {
   const m = Number(manualCost ?? 0);
+  if(manualCost!=null&&!Number.isFinite(m))return NaN;
   const hrDefault = defaults?.get(resourceId)?.cost ?? 0;
   if (isOverride === false) return hrDefault;
   if (isOverride === true) return m > 0 ? m : hrDefault;

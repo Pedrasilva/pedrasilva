@@ -229,8 +229,9 @@ function ProjectDetail() {
   const canSeeFinancials=b1.data ? !!viewerAreas.data?.financials && !!viewerAreas.data?.budget_cost : legacyFinancials;
   const canSeeIntegrated=b1.data ? canSeeFinancials && !!viewerAreas.data?.expenses && !!viewerAreas.data?.supplier_fees : canSeeFinancials;
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
-  const { data: teamAvg } = useTeamPricingAverages();
-  const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
+  const { data: teamAvg } = useTeamPricingAverages(!b1.data);
+  const allowedSales=Array.from(defaultRates?.values()??[]).map(r=>r.sale).filter(Number.isFinite);
+  const avgSaleRate = b1.data ? (allowedSales.length?allowedSales.reduce((n,r)=>n+r,0)/allowedSales.length:NaN) : teamAvg?.avgSalePerHour ?? 0;
   const entryFiguresQ = useProjectEntryFigures(projectId, data?.stages, resources, defaultRates, canSeeFinancials);
 
   useRecordRecentlyViewed({
