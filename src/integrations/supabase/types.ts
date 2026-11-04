@@ -18043,6 +18043,14 @@ export type Database = {
         Args: { _company_id: string }
         Returns: string
       }
+      fin_mark_expense_invoiced: {
+        Args: { _expense: string; _number: string }
+        Returns: Json
+      }
+      fin_mark_expense_reimbursed: {
+        Args: { _date: string; _expense: string }
+        Returns: Json
+      }
       fin_mark_incoming_issued: {
         Args: { _date: string; _item: string; _number: string }
         Returns: Json
@@ -18077,6 +18085,7 @@ export type Database = {
         Returns: undefined
       }
       fin_period_window: { Args: { _period_id: string }; Returns: Json }
+      fin_project_expense_lists: { Args: never; Returns: Json }
       fin_psa_reclassify_v1: { Args: never; Returns: Json }
       fin_pt_nif_valid: { Args: { _nif: string }; Returns: boolean }
       fin_queue_bank_paid_with: {
