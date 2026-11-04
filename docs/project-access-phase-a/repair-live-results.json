@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      }
+    }
+  ],
+  "activation": {
+    "revision": 3,
+    "active": true
+  },
+  "failure": "Billing still hidden",
+  "rollback": {
+    "revision": 4,
+    "active": false
+  },
+  "unchanged": true,
+  "hashes": {
+    "pm_projects": {
+      "before": "3ce205ebb81d7c5d963136a30992923091e5b66cf33230a3e8bbf4112aa3509f",
+      "after": "3ce205ebb81d7c5d963136a30992923091e5b66cf33230a3e8bbf4112aa3509f",
+      "count": 21
+    },
+    "pm_stages": {
+      "before": "9712af3d5e12790b4d66e83af95e041ee0ddd54a91c0059c74848574f34f7ae8",
+      "after": "9712af3d5e12790b4d66e83af95e041ee0ddd54a91c0059c74848574f34f7ae8",
+      "count": 118
+    },
+    "pm_allocations": {
+      "before": "f105ed9ce7fec07638ff900f732e0cd875105ce9302b55a9b72934e42f5cd609",
+      "after": "f105ed9ce7fec07638ff900f732e0cd875105ce9302b55a9b72934e42f5cd609",
+      "count": 109
+    },
+    "pm_time_entries": {
+      "before": "20f3eccd75d5f8b88059a94aa1da3a4202bae78a6b7fc98c705428c98a8f6366",
+      "after": "20f3eccd75d5f8b88059a94aa1da3a4202bae78a6b7fc98c705428c98a8f6366",
+      "count": 1000
+    },
+    "pm_payment_schedule_items": {
+      "before": "b7ef815a687107cc2b1803be05f312ea35ca663cff976b2890f77a3ebdb89a41",
+      "after": "b7ef815a687107cc2b1803be05f312ea35ca663cff976b2890f77a3ebdb89a41",
+      "count": 118
+    },
+    "pm_invoices": {
+      "before": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "after": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "count": 0
+    },
+    "pm_expenses": {
+      "before": "aeb32427fe59250217396ac5277e8d92a4a008e4dd6239d86ee45b886839fcfc",
+      "after": "aeb32427fe59250217396ac5277e8d92a4a008e4dd6239d86ee45b886839fcfc",
+      "count": 13
+    },
+    "pm_project_person_access": {
+      "before": "bf433d10f9198539596357535df2270c120e3fa24df85e58ebeffc1bac1ebcfd",
+      "after": "bf433d10f9198539596357535df2270c120e3fa24df85e58ebeffc1bac1ebcfd",
+      "count": 1
+    },
+    "pm_project_team": {
+      "before": "c2f0d236c8dc80d6661485e6f43fe0c8ce37ac164203fbd49f051923f4f43ad0",
+      "after": "c2f0d236c8dc80d6661485e6f43fe0c8ce37ac164203fbd49f051923f4f43ad0",
+      "count": 8
+    },
+    "pm_global_financial_capabilities": {
+      "before": "086a9ec48bccc250427ea854780ea33632c1924847256c184034a2bf711a278f",
+      "after": "086a9ec48bccc250427ea854780ea33632c1924847256c184034a2bf711a278f",
+      "count": 4
+    }
+  }
+}
