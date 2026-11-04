@@ -15,7 +15,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {readB1Rows} from './b1-projection';
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 export interface HistoricalProjectTotals {
   loggedHours: number;
@@ -71,8 +71,9 @@ function aggregate(
 
 /** Per-project aggregate for ONE project. */
 export function useHistoricalProjectTotals(projectId: string | undefined) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["historical-time-totals", projectId],
+    queryKey: ["historical-time-totals", projectId,...scope],
     enabled: !!projectId,
     queryFn: async (): Promise<HistoricalProjectTotals> => {
       const data = await readB1Rows<Parameters<typeof aggregate>[0][number]>('history',projectId);
@@ -83,8 +84,9 @@ export function useHistoricalProjectTotals(projectId: string | undefined) {
 
 /** Per-project map across ALL projects — for list/dashboard views. */
 export function useHistoricalProjectTotalsMap() {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["historical-time-totals-map"],
+    queryKey: ["historical-time-totals-map",...scope],
     queryFn: async (): Promise<Map<string, HistoricalProjectTotals>> => {
       const data = await readB1Rows<Parameters<typeof aggregate>[0][number]&{project_id:string|null}>('history');
       const byProject = new Map<string, typeof data>();

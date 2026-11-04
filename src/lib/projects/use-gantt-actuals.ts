@@ -6,17 +6,18 @@ import { getWorkingCalendarHolidays } from "./gantt-utils";
 import { buildGanttActuals, type ActualActivity, type ActualStage, type StageActualAggregate } from "./gantt-actuals";
 import { PROJECT_SUMMARY_ID } from "./build-project-gantt-tree";
 import { useAuth } from "@/hooks/use-auth";
-import {readB1Rows} from './b1-projection';
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 type RawEntry = { id: string; user_id: string; entry_date: string; hours: number; cost_rate_snapshot?: number | null; task_id: string | null; pm_stage_id: string | null; quote_stage_id: string | null; entry_type: string };
 type RawStage = { id: string; parent_stage_id: string | null; budget: number; start_date: string; end_date: string; source_quote_stage_id: string | null; stage_kind: string | null };
 
 /** Existing RLS protects activity detail; privacy-safe RPCs reconcile older full months. */
 export function useGanttActuals(projectId: string, enabled: boolean, financials: boolean) {
+  const scope=useB1CacheScope();
   const today = toLocalISODate(new Date());
   const { user, viewAsUser, viewAsCollaboratorId } = useAuth();
   return useQuery({
-    queryKey: ["gantt-actuals", projectId, today, financials, user?.id, viewAsUser, viewAsCollaboratorId],
+    queryKey: ["gantt-actuals", projectId, today, financials, user?.id, viewAsUser, viewAsCollaboratorId,...scope],
     enabled: enabled && !!projectId,
     staleTime: 30_000,
     queryFn: async () => {

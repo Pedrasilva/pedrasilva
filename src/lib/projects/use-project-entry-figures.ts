@@ -4,11 +4,12 @@ import { fetchAll } from '@/lib/reports/use-hours-logged';
 import { effectiveRates, type DefaultRateInfo } from './use-default-rates';
 import { loggedEntryFigures, type FinancialEntry } from './financial-calculation';
 import type { StageWithAllocations, Resource } from './types';
-import {readB1Rows} from './b1-projection';
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 export function useProjectEntryFigures(projectId: string, stages: StageWithAllocations[] | undefined, resources: Resource[] | undefined, defaults: Map<string, DefaultRateInfo> | undefined, enabled: boolean) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ['pm-project-entry-figures', projectId, stages, resources, defaults],
+    queryKey: ['pm-project-entry-figures', projectId, stages, resources, defaults,...scope],
     enabled: enabled && !!stages && !!resources && !!defaults,
     queryFn: async () => {
       const stageIds = (stages ?? []).map(s => s.id);

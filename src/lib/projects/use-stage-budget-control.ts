@@ -39,7 +39,7 @@ import {
 
 type DefaultRatesMap = Map<string, DefaultRateInfo> | undefined;
 import { allocationHours } from "@/lib/projects/gantt-utils";
-import {readB1Rows} from './b1-projection';
+import {readB1Rows,useB1CacheScope} from './b1-projection';
 
 export interface StageBudgetControl {
   stage_id: string;
@@ -350,8 +350,9 @@ export interface UseStageBudgetControlArgs {
 }
 
 export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudgetControlArgs) {
+  const scope=useB1CacheScope();
   return useQuery({
-    queryKey: ["stage-budget-control", projectId, defaultRates ? defaultRates.size : 0],
+    queryKey: ["stage-budget-control", projectId, defaultRates,...scope],
     enabled: !!projectId,
     queryFn: async () => {
       const [stagesRaw,histRaw] = await Promise.all([
@@ -372,7 +373,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
       const stages: StageLite[] = ((stagesRaw ?? []) as RawStage[]).map((s) => ({
         id: s.id,
         budget: Number(s.budget),
-        allocations: (s.allocations ?? []).map((a) => ({
+        allocations: (s.allocations ?? []).filter(a=>!!a.resource).map((a) => ({
           id: a.id,
           start_date: a.start_date,
           end_date: a.end_date,
