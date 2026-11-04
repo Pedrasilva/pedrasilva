@@ -1628,15 +1628,15 @@
   },
   "expenses": {
     "drop": {
-      "emptyTitle": "$t(forecast.expenses.drop.emptyTitle)",
-      "emptyHint": "$t(forecast.expenses.drop.emptyHint)",
-      "release": "$t(forecast.expenses.drop.release)",
-      "processing": "$t(forecast.expenses.drop.processing)",
-      "added_one": "$t(forecast.expenses.drop.added_one)",
-      "added_other": "$t(forecast.expenses.drop.added_other)",
-      "unread_one": "$t(forecast.expenses.drop.unread_one)",
-      "unread_other": "$t(forecast.expenses.drop.unread_other)",
-      "failed": "$t(forecast.expenses.drop.failed)"
+      "emptyTitle": "$t(projects:forecast.expenses.drop.emptyTitle)",
+      "emptyHint": "$t(projects:forecast.expenses.drop.emptyHint)",
+      "release": "$t(projects:forecast.expenses.drop.release)",
+      "processing": "$t(projects:forecast.expenses.drop.processing)",
+      "added_one": "$t(projects:forecast.expenses.drop.added_one)",
+      "added_other": "$t(projects:forecast.expenses.drop.added_other)",
+      "unread_one": "$t(projects:forecast.expenses.drop.unread_one)",
+      "unread_other": "$t(projects:forecast.expenses.drop.unread_other)",
+      "failed": "$t(projects:forecast.expenses.drop.failed)"
     },
     "title": "Expenses",
     "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
