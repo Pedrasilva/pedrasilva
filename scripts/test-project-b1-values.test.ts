@@ -1,9 +1,12 @@
 import {describe,it,expect} from 'vitest';
-import {permittedNumber,permittedMargin} from '../src/lib/projects/b1-projection';
+import {permittedNumber,permittedMargin,unavailableNumbers} from '../src/lib/projects/b1-projection';
 describe('B1 financial projection rules',()=>{
   it('never represents a hidden value as zero',()=>{
     expect(Number.isNaN(permittedNumber(6000,false))).toBe(true);
     expect(permittedNumber(0,true)).toBe(0);
+    const row=unavailableNumbers({budget:null,allocations:[{resource:{cost_rate:null}}]});
+    expect(Number.isNaN(row.budget)).toBe(true);
+    expect(Number.isNaN(row.allocations[0]?.resource.cost_rate)).toBe(true);
   });
   it('requires every contributing area for margins',()=>{
     for(let denied=0;denied<4;denied++){
