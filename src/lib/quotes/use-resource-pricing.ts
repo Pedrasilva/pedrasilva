@@ -24,9 +24,10 @@ export interface ResourcePricing {
   marginPct: number;
 }
 
-export function useResourcePricing() {
+export function useResourcePricing(enabled=true) {
   return useQuery<Map<string, ResourcePricing>>({
     queryKey: ["resource-pricing", "per-resource"],
+    enabled,
     queryFn: async () => {
       const [resourcesRes, collabRes, snapRes, boRes] = await Promise.all([
         supabase.from("pm_resources").select("id, collaborator_id, hourly_rate, hourly_rate_is_override"),

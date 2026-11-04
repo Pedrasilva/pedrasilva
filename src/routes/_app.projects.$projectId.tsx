@@ -966,6 +966,7 @@ function ProjectDetail() {
                   />
                 </div>
                 <RetainerMonitorPanel
+                  projectId={projectId}
                   stages={stages}
                   byStage={budgetControl?.byStage}
                   showFinancials={canSeeFinancials}
