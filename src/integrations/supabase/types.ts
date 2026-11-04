@@ -19062,6 +19062,10 @@ export type Database = {
         Args: { _bucket: string; _name: string }
         Returns: boolean
       }
+      pm_phase_a_financial_file_grant: {
+        Args: { _bucket: string; _name: string }
+        Returns: boolean
+      }
       pm_phase_a_queue_gate: {
         Args: { _direction: string; _expense: string; _project: string }
         Returns: boolean
