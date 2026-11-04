@@ -1,0 +1,1 @@
+DO $patch$ DECLARE s text; BEGIN s:=pg_get_functiondef('public.pe_action(text,jsonb)'::regprocedure);IF position('IF e.invoiced_at IS NOT NULL' in s)=0 THEN RAISE EXCEPTION 'Missing manual marker guards';END IF;s:=replace(s,'IF e.invoiced_at IS NOT NULL','IF v_expense.invoiced_at IS NOT NULL');EXECUTE s;END $patch$;

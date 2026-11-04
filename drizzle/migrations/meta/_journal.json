@@ -1779,6 +1779,13 @@
       "when": 1793757300172,
       "tag": "0253_expense_pending_missing_amount_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 254,
+      "version": "7",
+      "when": 1793757386012,
+      "tag": "0254_expense_manual_reference_function_locals",
+      "breakpoints": true
     }
   ]
 }
