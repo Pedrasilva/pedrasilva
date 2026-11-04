@@ -11313,6 +11313,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pm_project_b1_cutover_audit: {
+        Row: {
+          actor: string
+          after_active: boolean
+          before_active: boolean
+          changed_at: string
+          matrix_hash: string
+          reason: string
+          revision: number
+        }
+        Insert: {
+          actor: string
+          after_active: boolean
+          before_active: boolean
+          changed_at?: string
+          matrix_hash: string
+          reason: string
+          revision?: never
+        }
+        Update: {
+          actor?: string
+          after_active?: boolean
+          before_active?: boolean
+          changed_at?: string
+          matrix_hash?: string
+          reason?: string
+          revision?: never
+        }
+        Relationships: []
+      }
       pm_project_commercial_baselines: {
         Row: {
           baseline_json: Json
@@ -18979,6 +19009,19 @@ export type Database = {
           project_id: string
         }[]
       }
+      pm_b1_entries: { Args: { _project: string }; Returns: Json[] }
+      pm_b1_history: { Args: { _project?: string }; Returns: Json[] }
+      pm_b1_projects: { Args: { _project?: string }; Returns: Json[] }
+      pm_b1_redact: {
+        Args: { _kind: string; _project: string; _row: Json }
+        Returns: Json
+      }
+      pm_b1_resource: {
+        Args: { _project: string; _resource: string }
+        Returns: Json
+      }
+      pm_b1_resources: { Args: { _project?: string }; Returns: Json[] }
+      pm_b1_stages: { Args: { _project?: string }; Returns: Json[] }
       pm_backfill_tatiana_internal: { Args: never; Returns: Json }
       pm_backoffice_salary_cost: {
         Args: { _date: string; _user_id: string }
@@ -19028,6 +19071,15 @@ export type Database = {
         Returns: Json
       }
       pm_change_project_access_cutover: {
+        Args: {
+          _enabled: boolean
+          _expected: boolean
+          _matrix_hash: string
+          _reason: string
+        }
+        Returns: Json
+      }
+      pm_change_project_b1_cutover: {
         Args: {
           _enabled: boolean
           _expected: boolean
@@ -19220,6 +19272,8 @@ export type Database = {
         Args: { _area: string; _project: string; _user: string }
         Returns: boolean
       }
+      pm_project_b1_active: { Args: never; Returns: boolean }
+      pm_project_b1_preview: { Args: never; Returns: Json }
       pm_project_has_retainer: {
         Args: { _project_id: string }
         Returns: boolean

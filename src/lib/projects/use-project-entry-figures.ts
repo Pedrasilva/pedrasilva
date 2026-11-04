@@ -4,6 +4,7 @@ import { fetchAll } from '@/lib/reports/use-hours-logged';
 import { effectiveRates, type DefaultRateInfo } from './use-default-rates';
 import { loggedEntryFigures, type FinancialEntry } from './financial-calculation';
 import type { StageWithAllocations, Resource } from './types';
+import {readB1Rows} from './b1-projection';
 
 export function useProjectEntryFigures(projectId: string, stages: StageWithAllocations[] | undefined, resources: Resource[] | undefined, defaults: Map<string, DefaultRateInfo> | undefined, enabled: boolean) {
   return useQuery({
@@ -19,7 +20,7 @@ export function useProjectEntryFigures(projectId: string, stages: StageWithAlloc
       if (taskStages.size) clauses.push(`task_id.in.(${[...taskStages.keys()].join(',')})`);
       if (quoteStages.size) clauses.push(`quote_stage_id.in.(${[...quoteStages.keys()].join(',')})`);
       const [entries, mapping] = await Promise.all([
-        fetchAll<FinancialEntry & { id: string; user_id: string; entry_date: string; quote_stage_id: string | null }>((a,b) => supabase.from('pm_time_entries').select('id,user_id,entry_date,task_id,pm_stage_id,quote_stage_id,hours,billable,entry_type,cost_rate_snapshot,sale_rate_snapshot').eq('entry_type','project').or(clauses.join(',')).order('id').range(a,b) as never),
+        readB1Rows<FinancialEntry & { id: string; user_id: string; entry_date: string; quote_stage_id: string | null }>('entries',projectId),
         supabase.rpc('pm_list_user_resource_map'),
       ]);
       if (mapping.error) throw mapping.error;

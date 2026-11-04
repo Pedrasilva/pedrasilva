@@ -135,8 +135,9 @@ function GlobalGanttPage() {
     for (const s of allStages) {
       const cur = m.get(s.project_id) ?? { cost: 0, budget: 0 };
       cur.budget += Number(s.budget);
+      if(s.budget==null)cur.budget=NaN;
       for (const a of s.allocations) {
-        const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
+        const costRate = a.resource.cost_rate==null ? NaN : effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
         cur.cost += allocationCost({
           start_date: a.start_date,
           end_date: a.end_date,
@@ -417,5 +418,6 @@ function GlobalGanttPage() {
 }
 
 function euros(value: number): string {
+  if(!Number.isFinite(value))return '—';
   return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
 }

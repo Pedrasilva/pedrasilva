@@ -26,12 +26,12 @@ export type DefaultRateInfo = {
 // because they contain personal salary data. Non-admin PMs still need to see
 // the derived €/h on the resource list, so the computation runs on the server
 // (elevated) and only returns aggregated per-resource numbers.
-export function useDefaultResourceRates() {
+export function useDefaultResourceRates(projectId?:string) {
   const fetchRates = useServerFn(getPmDefaultResourceRates);
   return useQuery({
-    queryKey: ["pm-default-rates-from-hr"],
+    queryKey: ["pm-default-rates-from-hr",projectId],
     queryFn: async (): Promise<Map<string, DefaultRateInfo>> => {
-      const rows = await fetchRates();
+      const rows = await fetchRates({data:{projectId}});
       const byResource = new Map<string, DefaultRateInfo>();
       for (const r of rows) {
         byResource.set(r.resource_id, {

@@ -58,13 +58,14 @@ interface Props {
   /** When true, all editing controls are disabled / hidden. */
   readOnly?: boolean;
   planningOnly?: boolean;
+  financialVisible?: boolean;
 }
 
-export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false, planningOnly = false }: Props) {
+export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false, planningOnly = false, financialVisible = true }: Props) {
   const { t } = useTranslation(["projects"]);
 
   const depsQ = useStageDependencies();
-  const { data: allResources } = useResources();
+  const { data: allResources } = useResources(projectId);
   const updateStage = useUpdateStage();
   const updateStageCascade = useUpdateStageWithCascade();
   const deleteStage = useDeleteStage();
@@ -402,7 +403,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
               }} />
           </div>}
 
-          <div className="space-y-1">
+          {financialVisible && <div className="space-y-1">
             <Label className="text-xs">
               {t("projects:gantt.inspector.budget", { defaultValue: "Budget" })}
             </Label>
@@ -431,9 +432,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                 defaultValue: "Fee allocated to this stage. Drives profit and over/under tracking.",
               })}
             </p>
-          </div>
-
-
+          </div>}
 
           <div className="space-y-1">
             <Label className="text-xs">{t("projects:gantt.inspector.color", { defaultValue: "Color" })}</Label>

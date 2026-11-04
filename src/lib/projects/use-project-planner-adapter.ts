@@ -36,6 +36,7 @@ import {
 export interface ProjectPlannerAdapterOptions {
   /** When true, all mutation methods become no-ops that toast a notice. */
   readOnly?: boolean;
+  projectId?: string;
 }
 
 export function useProjectPlannerAdapter(
@@ -54,7 +55,7 @@ export function useProjectPlannerAdapter(
   const createDep = useCreateDependency();
   const updateDep = useUpdateDependency();
   const deleteDep = useDeleteDependency();
-  const { data: defaultRates } = useDefaultResourceRates();
+  const { data: defaultRates } = useDefaultResourceRates(opts.projectId);
 
   const readOnly = !!opts.readOnly;
   const invalidateSchedule = async () => {
