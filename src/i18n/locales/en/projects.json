@@ -653,6 +653,7 @@
     }
   },
   "gantt": {
+    "milestones": { "laneLabel": "Payments" },
     "convertedMappingBlocked": "Editing blocked: no unique live record could be found for {{names}}. The proposal has not been changed.",
     "actuals": {
       "difference": "Difference",
@@ -719,6 +720,15 @@
       "overload_other": "Overload: peak of <strong>{{peak}}h/day</strong> (limit {{limit}}h) on {{days}} days."
     },
     "stage": {
+        "financialsAction": "Show financials",
+        "fin": {
+          "cost": "$t(glossary:financial.cost)",
+          "sale": "Sale value",
+          "margin": "$t(glossary:financial.margin)",
+          "budget": "Defined budget",
+          "resources": "Allocated resources",
+          "vsBudget": "Budget versus resources"
+        },
       "overByAmount": "over by {{amount}}",
       "deleteConfirm": "Delete stage \"{{name}}\"?",
       "deleteAction": "Delete stage",
@@ -1342,6 +1352,17 @@
       "daysSuffix_other": "{{count}} days"
     },
     "expenses": {
+    "drop": {
+      "emptyTitle": "No expenses yet — drag receipts here or click to add",
+      "emptyHint": "Each receipt becomes a draft expense filled in from the receipt.",
+      "release": "Drop receipts to add them as drafts",
+      "processing": "Reading receipt {{done}} of {{total}}…",
+      "added_one": "{{count}} receipt added as a draft",
+      "added_other": "{{count}} receipts added as drafts",
+      "unread_one": "{{count}} receipt couldn't be read — draft created with the receipt attached",
+      "unread_other": "{{count}} receipts couldn't be read — drafts created with the receipt attached",
+      "failed": "Couldn't add: {{names}}"
+    },
       "title": "Expenses",
       "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
       "addButton": "Add expense",
