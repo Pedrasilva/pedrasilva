@@ -1,5 +1,38 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Receita autorizada — 4 novembro, 22:20 UTC; sem novo corte
+**B1 permanece OFF, revisão 4; Fase A permanece ON. Não foi chamada qualquer ação de corte.**
+
+### Origem exata e causa
+- Contrato: `pm_projects.sold_fee`/`sold_internal_fee` e `pm_project_contract_baseline.total_fee` são **30 980 €** em Mint; `useProjectDetail` recebe o projeto de `pm_b1_projects`. O orçamento operacional de Overview/cabeçalho é a soma de `pm_stages.budget`, excluindo os filhos `retainer_month`; Insights usa também o baseline imutável para a divisão interna/externa. Estes valores já chegavam a Rita. Não substituir receita gerada pelo preço integral do contrato.
+- Receita gerada: Overview e cabeçalho usam `stageActuals` → `useProjectEntryFigures` → `loggedEntryFigures`; Insights recebe exatamente os mesmos totais. As 12 entradas/58,5 horas de Ricardo Cabrita não têm `sale_rate_snapshot`; o fallback normal é o preço efetivo autorizado do autor, **52,75 €/h**, derivado pelo leitor existente de preços. Custo fica nos snapshots históricos, **1 763,775 €**.
+- Diferença reproduzida em sessões reais: `pm_b1_resources` devolvia **0 recursos para Rita / 16 para Luis**, mesmo tendo Rita quatro áreas ON em Mint. Enumerava IDs através de `pm_resources_public`, uma vista `security_invoker=on` sujeita ao SELECT legado dos preços. Assim o wrapper autorizado `pm_b1_resource` nem chegava a ser chamado para Rita; faltava o recurso do autor e a receita propagava indisponibilidade. Não era ausência do contrato, divisão por zero nem uma alteração das áreas.
+- Correção: `pm_b1_financial_resources` enumera após verificar PSA staff + acesso operacional ao projeto e aplica a mesma redação por áreas a preços de venda/custo. `pm_b1_resources` usa esta projeção para projeto quando B1 está ativo. A revisão explícita usa as mesmas áreas com B1 OFF; `getPmDefaultResourceRates` respeita `b1Projection` também nessa revisão. Sem expor salários, sem fallback cliente privilegiado, sem escrever snapshots/preços/contratos.
+
+### Antes/depois para Rita, antes de qualquer corte
+| Projeto / valor | Antes B1 | Depois, revisão autorizada com gate real OFF |
+|---|---|---|
+| Mint contrato | 30 980 € | 30 980 €, inalterado |
+| Mint receita gerada | — | **3 085,875 €** (UI 3 086 €) |
+| Mint custo histórico | 1 763,775 € | **1 763,775 €**, inalterado |
+| Mint lucro / margem | — / — | **1 322,10 € / 42,8436%** (UI 1 322 € / 43%) |
+| Uralchem contrato/receita/custo/lucro | Ocultos na apresentação B1 | **Continuam ocultos**, fases e horas visíveis; nenhum zero financeiro substituto |
+
+Capturas Overview/cabeçalho/Insights usam **revisão isolada no navegador**, não ativação do gate: respostas da projeção própria e preços são lidas do servidor com as áreas reais; flag de apresentação B1 e resumo de custo são adaptados apenas no executor. O resumo de custo da captura é reconciliado com os snapshots legados autorizados de Mint. Portanto estas capturas demonstram o antes/depois pré-corte solicitado, **não certificam o corte live ON**. O antes reproduz a enumeração vazia; o depois usa a nova projeção. Uralchem não monta os cálculos financeiros. O ensaio de extração com B1 OFF não é uma certificação de isolamento dos leitores legados B2.
+
+![Rita Mint antes](project-access-phase-b1/revenue-20261104-2220/rita-mint-overview-before.png)
+![Rita Mint depois](project-access-phase-b1/revenue-20261104-2220/rita-mint-overview-after.png)
+![Rita Mint Insights depois](project-access-phase-b1/revenue-20261104-2220/rita-mint-insights-after.png)
+![Rita Uralchem depois](project-access-phase-b1/revenue-20261104-2220/rita-uralchem-overview-after.png)
+
+### Teste descartável e ficheiros
+- Um projeto transacional descartável, Rita como manager com quatro switches ON e uma atividade de 8 horas de outro autor; o trigger normal grava o custo. Resultado: contrato **1 000 €**, receita **422 €**, custo **241,20 €**, lucro **180,80 €**, margem **42,8436%**. Cálculo usa as funções reais e a projeção retornada com identidade PM dentro do ensaio protegido administrativo; não é uma sessão browser PM num projeto persistente. Todo o projeto/equipa/acessos/alocação/atividade/horas foi revertido na mesma subtransação.
+- Duas primeiras execuções foram recusadas pelos guards normais (horas diretas apenas avença; atividade já criada automaticamente). Ambas transações reverteram integralmente. O teste final reutiliza a atividade automática e passou; nenhum guard foi desativado.
+- Zero independente **22:40:08 UTC**: projeto/fase/alocação/atividade/horas/equipa/acessos/auditoria da fixture = **0**; B1 **OFF**, revisão **4**. `zero.json`, `fixture.json`, `fixture-figures.json`, `figures.json` e capturas/textos estão em `project-access-phase-b1/revenue-20261104-2220/`. Nenhuma identidade ou recurso QA foi criado; nenhum projeto real foi escrito.
+- **23 testes passam**: all-ON com snapshot de venda ausente, partial, all-OFF e receita zero/ausente mais regressões financeiras; build OK às 22:39:54 UTC. EN/PT não mudou (sem novo texto UI).
+- Ficheiros: `src/lib/projects/default-rates.functions.ts`, `scripts/test-b1-revenue.test.ts`, migrações **0260–0263** idênticas em `drizzle/migrations` e `supabase/migrations`, este relatório/evidências e `roadmap.md`. As duas migrações finais ajustam somente o executor descartável; 0260 é a correção produtiva. Tipos regenerados pela plataforma. A nova regra técnica não foi adicionada ao root AGENTS devido ao limite de tamanho; a regra existente de projeções B1 continua aplicável.
+- **Paragem:** sem novo corte até aprovação de Luis; B2/B3 não iniciados. A autorização do próximo corte e os checks live ON restantes continuam pendentes, não são substituídos por esta revisão.
+
 ## Correção e única nova tentativa — 4 novembro, 18:14 UTC
 - **Diagnóstico reproduzido antes da correção:** Rita tem as quatro áreas ON em Mint; lê 12 entradas/58,5 horas, mas o leitor legado `pm_project_stage_locked_cost` devolve zero linhas para ela, enquanto a sessão administrativa recebe quatro linhas mensais e **1 763,775 €** de snapshots. As 12 entradas não têm `sale_rate_snapshot`. A transformação B1 de null em NaN fazia estas ausências parecerem preços negados, impedindo o fallback permitido. Não há prova de uma despesa ou fornecedor real apagado ou alterado.
 - Correções: página passa a usar `pm_b1_stage_hours`/`pm_b1_stage_locked_cost` quando B1 está ON, com cache por pessoa/gate; entradas autorizadas recuperam o fallback normal quando falta snapshot (avenças continuam sem estimativas de custo); preços derivados positivos e autorizados podem suprir um campo manual ausente. Margens usam guardas partilhadas de receita/lucro finitos e receita positiva, no sidebar/rail, Insights, tabela e popover Gantt (também global); avenças deixam de apresentar 0% para receita zero. Nenhuma permissão foi alargada nem snapshot escrito.
