@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -71,13 +72,21 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
   const { data: livePlan } = useLivePlanForDiff(projectId);
 
   const stageRows = useMemo(
-    () => (baseline && livePlan ? diffStages(baseline.stages, livePlan.stages) : []),
+    () => (baseline && livePlan ? diffStages(baseline.stages, livePlan.stages).sort((a,b) => compareStageDisplay(a.baseline ?? a.live ?? {id:a.key,name:""}, b.baseline ?? b.live ?? {id:b.key,name:""})) : []),
     [baseline, livePlan],
   );
   const paymentRows = useMemo(
     () =>
       baseline && livePlan
-        ? diffPayments(baseline.payments, livePlan.payments, livePlan.stages)
+        ? (() => {
+            const rows = diffPayments(baseline.payments, livePlan.payments, livePlan.stages);
+            return sortStageLinkedRows(rows.map(row => ({
+              ...row,
+              stage_id: row.live?.stage_id,
+              stage_name: row.baseline?.stage_name,
+              sort_order: row.baseline?.sort_order,
+            })), livePlan.stages);
+          })()
         : [],
     [baseline, livePlan],
   );

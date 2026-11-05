@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import uiI18n from "@/i18n/index";
 /**
  * Financial Summary tab — read-only rollup for the quote.
@@ -377,7 +378,7 @@ function buildArchTree(
   const sortRec = (nodes: ArchNode[]) => {
     nodes.sort(
       (a, b) =>
-        (a.stage.sort_order ?? 0) - (b.stage.sort_order ?? 0) ||
+        compareStageDisplay(a.stage,b.stage) ||
         (a.stage.start_date ?? "").localeCompare(b.stage.start_date ?? ""),
     );
     nodes.forEach((n) => sortRec(n.children));

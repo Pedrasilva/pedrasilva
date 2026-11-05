@@ -1,3 +1,4 @@
+import { sortStagesByWbs, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Pencil,Save,X,RotateCcw,CheckCheck} from 'lucide-react';
@@ -33,7 +34,7 @@ export function ProjectIncomingPayments({projectId}:{projectId:string}) {
     <div className="overflow-x-auto"><Table><TableHeader><TableRow>
       <TableHead>{t('common:description')}</TableHead><TableHead>{t('glossary:entity.stage')}</TableHead><TableHead>{t('glossary:financial.value')}</TableHead>
       <TableHead>{t('projects:incomingTiming.invoiceDate')}</TableHead><TableHead>{t('projects:incomingTiming.paymentDate')}</TableHead><TableHead>{t('projects:incomingTiming.contractDate')}</TableHead><TableHead>{t('projects:incomingTiming.slippage')}</TableHead><TableHead>{t('common:status')}</TableHead><TableHead />
-    </TableRow></TableHeader><TableBody>{query.data?.rows.map(row=><TableRow key={row.id}>
+    </TableRow></TableHeader><TableBody>{sortStageLinkedRows(query.data?.rows??[],query.data?.stages??[]).map(row=><TableRow key={row.id}>
       <TableCell className="min-w-52"><div>{row.label}</div>{row.problems.map(problem=><div key={problem} className="text-xs text-muted-foreground">{t(`projects:incomingTiming.problems.${problem}`)}</div>)}</TableCell>
       <TableCell className="min-w-40">{row.stage_name?formatStageLabel({id:row.stage_id??'',name:row.stage_name},stageNumbers.get(row.stage_id??'')):t(`projects:incomingTiming.triggers.${row.trigger_type}`)}{row.resolved_month_index!==null&&<div className="text-xs text-muted-foreground">{t('projects:incomingTiming.constructionMonth',{number:row.resolved_month_index+1})}</div>}</TableCell>
       <TableCell className="whitespace-nowrap tabular-nums">{money(Number(row.amount_value))}</TableCell><TableCell className="whitespace-nowrap">{date(row.planned_invoice_date)}{row.planned_invoice_date_override&&<Badge variant="outline">{t('projects:incomingTiming.override')}</Badge>}</TableCell>
@@ -48,7 +49,7 @@ export function ProjectIncomingPayments({projectId}:{projectId:string}) {
       <label className="text-sm">{t('projects:incomingTiming.invoiceOverride')}<Input type="date" value={invoice} onChange={e=>setInvoice(e.target.value)}/></label>
       <label className="text-sm">{t('projects:incomingTiming.paymentOverride')}<Input type="date" value={payment} onChange={e=>setPayment(e.target.value)}/></label>
       <label className="text-sm">{t('projects:incomingTiming.trigger')}<Select value={trigger} onValueChange={setTrigger}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['project_start','stage_start','stage_end','manual_date','monthly'].map(value=><SelectItem key={value} value={value}>{t(`projects:incomingTiming.triggers.${value}`)}</SelectItem>)}</SelectContent></Select></label>
-      <label className="text-sm">{t('glossary:entity.stage')}<Select value={stage||'none'} onValueChange={value=>setStage(value==='none'?'':value)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">{t('projects:incomingTiming.undefined')}</SelectItem>{query.data?.stages.map(s=><SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent></Select></label>
+      <label className="text-sm">{t('glossary:entity.stage')}<Select value={stage||'none'} onValueChange={value=>setStage(value==='none'?'':value)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">{t('projects:incomingTiming.undefined')}</SelectItem>{sortStagesByWbs(query.data?.stages??[]).map(s=><SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent></Select></label>
       </div><Input aria-label={t('projects:incomingTiming.reason')} placeholder={t('projects:incomingTiming.reason')} value={reason} onChange={e=>setReason(e.target.value)}/>
       <div className="flex gap-2"><Button disabled={!reason.trim()||change.isPending} onClick={()=>save()}><Save className="mr-2 size-4"/>{t('common:save')}</Button><Button variant="outline" disabled={!reason.trim()||change.isPending} onClick={()=>save(true)}><RotateCcw className="mr-2 size-4"/>{t('projects:incomingTiming.clearOverride')}</Button><Button variant="ghost" size="icon" aria-label={t('common:cancel')} onClick={()=>setEditing(null)}><X className="size-4"/></Button></div>
     </div>}

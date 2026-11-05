@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
  * Quote-owned stages — mirror of pm_stages but linked to fee_proposals.
  * Phase A schema; hooks added in Phase B without touching the Gantt UI.
@@ -28,7 +29,7 @@ export function useQuoteStages(quoteId: string | undefined) {
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);
-      return (data ?? []) as QuoteStage[];
+      return sortStagesByWbs((data ?? []) as QuoteStage[]);
     },
   });
 }

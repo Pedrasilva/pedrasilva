@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -68,7 +69,7 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {stages.map((s) => (
+                    {sortStagesByWbs(stages).map((s) => (
                       <tr key={s.id} className="border-t">
                         <td className="px-2 py-1">{s.name}</td>
                         <td className="px-2 py-1">{fmtDate(s.start_date)}</td>
@@ -97,7 +98,7 @@ export function ContractBaselineCard({ projectId }: { projectId: string }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map((p) => (
+                    {sortStageLinkedRows(payments).map((p) => (
                       <tr key={p.id} className="border-t">
                         <td className="px-2 py-1">{p.label}</td>
                         <td className="px-2 py-1">{p.stage_name ?? "—"}</td>

@@ -1,3 +1,4 @@
+import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import uiI18n from "@/i18n/index";
 /**
  * Quote planner inspector — right-hand drawer that edits the selected stage.
@@ -136,7 +137,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     return allStages
       .filter((s) => s.id !== stageId && !existing.has(s.id) && !descendants.has(s.id))
       .slice()
-      .sort((a, b) => compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
+      .sort((a, b) => Number(isConstructionStage(a))-Number(isConstructionStage(b)) || compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
   }, [allStages, deps, predecessors, stageId, wbsMap]);
 
   const successorOptions = useMemo(() => {
@@ -155,7 +156,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     return allStages
       .filter((s) => s.id !== stageId && !existing.has(s.id) && !ancestors.has(s.id))
       .slice()
-      .sort((a, b) => compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
+      .sort((a, b) => Number(isConstructionStage(a))-Number(isConstructionStage(b)) || compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
   }, [allStages, deps, successors, stageId, wbsMap]);
 
 

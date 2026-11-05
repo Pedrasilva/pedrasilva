@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import i18n from "@/i18n/index";
 /**
  * PlannerGantt — unified planner wrapper around the shared GanttChart.
@@ -463,9 +464,10 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       childrenByParent.set(pid, arr);
     }
     for (const arr of childrenByParent.values()) {
-      arr.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      arr.sort(compareStageDisplay);
     }
 
+    const numbers = buildStageNumberMap(all);
     const ordered: S[] = [];
     const hier = new Map<string, GanttHierarchyNode>();
 
@@ -487,7 +489,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       const role = roleOf(node);
       hier.set(node.id, {
         depth,
-        wbs,
+        wbs: numbers.get(node.id) ?? wbs,
         hasChildren: kids.length > 0,
         // A row is a "summary" if it actually has children — applies to
         // any role, including supplier_phase parents nested under groups.

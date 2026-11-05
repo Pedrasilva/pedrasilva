@@ -1,3 +1,4 @@
+import { sortStagesByWbs, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
  * Live Quote data resolver for the PSA Proposal Composer.
  *
@@ -62,6 +63,8 @@ export interface LiveStage {
   stageRole: string | null;
   parentStageId: string | null;
   sortOrder: number | null;
+  stageKind?: string | null;
+  billingModel?: string | null;
   resources: LiveStageResource[];
 }
 
@@ -477,7 +480,7 @@ export async function fetchLiveQuoteSnapshot(
       // Also resolve supplier names for stage-level assignments (pm_suppliers
       // for supplier_id, companies for supplier_company_id).
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const stagesArr0 = (stages ?? []) as any[];
+      const stagesArr0 = sortStagesByWbs((stages ?? []) as any[]);
       const stageCompanyIds = Array.from(
         new Set(
           stagesArr0.map((s) => s.supplier_company_id).filter(Boolean),
@@ -765,7 +768,7 @@ export async function fetchLiveQuoteSnapshot(
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
       const orderKeys: string[] = [];
-      for (const it of inflows) {
+      for (const it of sortStageLinkedRows(inflows, stagesArr0)) {
         const d = dateFor(it);
         // Each distinct billing event gets its own invoice row: down payments,
         // stage-start, stage-end, split, monthly slices etc. Grouping by month
@@ -988,7 +991,7 @@ export async function fetchLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stages: (() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const stageArr = (stages ?? []) as any[];
+          const stageArr = sortStagesByWbs((stages ?? []) as any[]);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const byId = new Map<string, any>(stageArr.map((s) => [s.id, s]));
           // Walk ancestors to find the closest supplier assignment; return
@@ -1055,6 +1058,8 @@ export async function fetchLiveQuoteSnapshot(
               stageRole: (s as { stage_role?: string | null }).stage_role ?? null,
               parentStageId: s.parent_stage_id ?? null,
               sortOrder: s.sort_order ?? null,
+              stageKind: s.stage_kind ?? null,
+              billingModel: s.billing_model ?? null,
               resources: Array.from(
                 (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
               )
@@ -1089,7 +1094,7 @@ export async function fetchLiveQuoteSnapshot(
           // Build siteTrips with pre-computed costs. Stage duration comes
           // from the stage date range (working days ≈ (end - start) / 30.44).
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const stageArrFinal = (stages ?? []) as any[];
+          const stageArrFinal = sortStagesByWbs((stages ?? []) as any[]);
           const stageByIdLocal = new Map<string, { id: string; name: string; start_date: string | null; end_date: string | null; parent_stage_id: string | null; sort_order: number | null }>();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           stageArrFinal.forEach((s: any) => stageByIdLocal.set(s.id, s));
