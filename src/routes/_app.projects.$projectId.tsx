@@ -1,3 +1,4 @@
+import { numberStages, buildStageNumberMap, compareStageDisplay, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { financialResult, completionForecast, plannedAllocationFigures, marginPercentage, marginLabel } from "@/lib/projects/financial-calculation";
@@ -1873,15 +1874,8 @@ function MilestonesTable({
                 arr.push(s);
                 childrenOf.set(key, arr);
               }
-              // Stable sort children by sort_order then name.
-              for (const arr of childrenOf.values()) {
-                arr.sort((a, b) => {
-                  const ao = Number((a as { sort_order?: number }).sort_order ?? 0);
-                  const bo = Number((b as { sort_order?: number }).sort_order ?? 0);
-                  if (ao !== bo) return ao - bo;
-                  return a.name.localeCompare(b.name);
-                });
-              }
+              const numbers = buildStageNumberMap(filtered);
+              for (const arr of childrenOf.values()) arr.sort(compareStageDisplay);
 
               const descendantsOf = (id: string): Row[] => {
                 const out: Row[] = [];
@@ -1918,6 +1912,7 @@ function MilestonesTable({
               const rows: ReactElement[] = [];
 
               const renderStage = (s: Row, depth: number, label: string) => {
+                label = numbers.get(s.id) ?? label;
                 const hasChildren = (childrenOf.get(s.id) ?? []).length > 0;
                 const isOpen = expanded.has(s.id);
                 const isActive = s.allocations.length > 0;
@@ -2336,33 +2331,9 @@ function InsightsPanel({
 
   // Build a flat picker list with an indent per nesting level and Gantt-style
   // numbering, sorted by depth-first walk on parent_stage_id / sort_order.
-  const stageOptions = useMemo(() => {
-    const byParent = new Map<string | null, Stage[]>();
-    for (const s of stages) {
-      const key = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
-      const bucket = byParent.get(key) ?? [];
-      bucket.push(s);
-      byParent.set(key, bucket);
-    }
-    for (const bucket of byParent.values()) {
-      bucket.sort(
-        (a, b) =>
-          Number((a as { sort_order?: number | null }).sort_order ?? 0) -
-          Number((b as { sort_order?: number | null }).sort_order ?? 0),
-      );
-    }
-    const out: { id: string; label: string; depth: number }[] = [];
-    const walk = (parent: string | null, depth: number, prefix: string) => {
-      const children = byParent.get(parent) ?? [];
-      children.forEach((s, i) => {
-        const num = prefix ? `${prefix}.${i + 1}` : `${i + 1}`;
-        out.push({ id: s.id, label: `${num} ${s.name}`, depth });
-        walk(s.id, depth + 1, num);
-      });
-    };
-    walk(null, 0, "");
-    return out;
-  }, [stages]);
+  const stageOptions = useMemo(() => numberStages(stages).map(({stage,number,depth}) => ({
+    id:stage.id,label:formatStageLabel(stage,number),depth,
+  })), [stages]);
 
   // Resolve a stage + its descendants → the set of stage IDs to aggregate over.
   const scopeStageIds = useMemo(() => {

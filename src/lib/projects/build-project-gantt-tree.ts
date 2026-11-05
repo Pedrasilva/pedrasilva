@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
  * Build the outline-column hierarchy + rolled-up summary stages for the
  * project Gantt, mirroring the structure PlannerGantt builds for quotes.
@@ -41,9 +42,10 @@ export function buildProjectGanttTree(
     childrenByParent.set(pid, arr);
   }
   for (const arr of childrenByParent.values()) {
-    arr.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    arr.sort(compareStageDisplay);
   }
 
+  const numbers = buildStageNumberMap(regular);
   const ordered: StageWithAllocations[] = [];
   const hier = new Map<string, GanttHierarchyNode>();
 
@@ -51,7 +53,7 @@ export function buildProjectGanttTree(
     const kids = childrenByParent.get(node.id) ?? [];
     hier.set(node.id, {
       depth,
-      wbs,
+      wbs: numbers.get(node.id) ?? wbs,
       hasChildren: kids.length > 0,
       isSummary: kids.length > 0,
       role: node.stage_role === "client" ? "client" : node.stage_role === "supplier_group" || node.stage_role === "supplier_phase" ? node.stage_role : "architecture",

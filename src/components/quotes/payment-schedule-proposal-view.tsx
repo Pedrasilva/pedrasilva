@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { PaymentContractNote } from "./payment-contract-note";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -289,12 +290,7 @@ export function PaymentScheduleProposalView({
   // Include every inflow — project_start items (down payments / Adjudicação)
   // must appear in the invoice grid so the schedule follows the full Gantt
   // chronology from day zero, not just from the first monthly stage.
-  const inflows = items
-    .filter((it) => (it.direction ?? "inflow") === "inflow")
-    .slice()
-    .sort((a, b) => {
-      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-    });
+  const inflows = sortStageLinkedRows(items.filter((it) => (it.direction ?? "inflow") === "inflow"), stages);
 
   const inflowTotal = inflows.reduce(
     (s, it) => s + netAmount(it, totalFee, stageFees),
@@ -478,11 +474,7 @@ export function PaymentScheduleProposalView({
         };
 
         const compareStages = (a: StageNode, b: StageNode): number => {
-          const as = effectiveSpan(a);
-          const bs = effectiveSpan(b);
-          if (as.start !== bs.start) return as.start < bs.start ? -1 : 1;
-          if (as.end !== bs.end) return as.end < bs.end ? -1 : 1;
-          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          return compareStageDisplay(a,b);
         };
         // Contract sections exclude optional stages entirely. Optional trees
         // are rendered in their own section below and don't count towards
@@ -1100,14 +1092,14 @@ export function PaymentScheduleProposalView({
                 </CardHeader>
                 <CardContent className="pt-3">
                   <PaymentSubTable
-                    rows={rows.slice().sort((a, b) => {
+                    rows={sortStageLinkedRows(rows.slice().sort((a, b) => {
                       const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
                       const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
                       const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";
                       const db = b.expected_invoice_date ?? sb?.end ?? "9999-12-31";
                       if (da !== db) return da < db ? -1 : 1;
                       return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-                    })}
+                    }), stages)}
                     totalFee={totalFee}
                     stageFees={stageFees}
                     defaultVatRate={defaultVatRate}

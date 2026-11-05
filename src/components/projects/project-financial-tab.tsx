@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/index";
 /**
@@ -91,15 +92,15 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
           .order("sort_order", { ascending: true }),
         supabase
           .from("pm_stages")
-          .select("id, name")
+          .select("id, name, sort_order, parent_stage_id, stage_kind, billing_model")
           .eq("project_id", projectId)
           .order("sort_order", { ascending: true }),
       ]);
       if (itemsQ.error) throw itemsQ.error;
       if (stagesQ.error) throw stagesQ.error;
       return {
-        items: ((itemsQ.data ?? []) as unknown) as Row[],
-        stages: ((stagesQ.data ?? []) as unknown) as Stage[],
+        items: sortStageLinkedRows(((itemsQ.data ?? []) as unknown) as Row[], ((stagesQ.data ?? []) as unknown) as Stage[]),
+        stages: sortStagesByWbs(((stagesQ.data ?? []) as unknown) as Stage[]),
       };
     },
   });

@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import uiI18n from "@/i18n/index";
 /**
  * Quote Payment Schedule tab — planned forecast payments.
@@ -187,7 +188,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const upsert = useUpsertQuotePaymentItem(quoteId);
   const remove = useDeleteQuotePaymentItem(quoteId);
   const applyGen = useApplyPaymentGenerator(quoteId);
-  const items = itemsQ.data ?? [];
+  const items = sortStageLinkedRows(itemsQ.data ?? [], stagesQ.data ?? []);
   const quoteBuildSettings = (quoteQ.data?.quote_build_settings ?? {}) as {
     downPaymentEnabled?: boolean;
     downPaymentPercent?: number;

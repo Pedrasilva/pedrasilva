@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type {
@@ -109,7 +110,7 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
         ? sanitized
         : sanitized.filter((s) => (s as { status?: string }).status !== "cancelled");
       if (!project) throw new Error('Project not found');
-      return { project, stages: filtered };
+      return { project, stages: sortStagesByWbs(filtered) };
     },
     enabled: !!projectId,
   });

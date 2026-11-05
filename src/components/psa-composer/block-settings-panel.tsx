@@ -1,3 +1,4 @@
+import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import { SOURCE_UI_KEYS, RELEVANCE_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -138,7 +139,7 @@ export function BlockSettingsPanel({
     }));
     const numMap = buildStageNumberMap(numberable);
     return [...raw]
-      .sort((a, b) => compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
+      .sort((a, b) => Number(isConstructionStage(a))-Number(isConstructionStage(b)) || compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
       .map((s) => ({ stage: s, number: numMap.get(s.id) }));
   })();
 

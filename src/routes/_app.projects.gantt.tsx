@@ -1,3 +1,4 @@
+import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
@@ -109,6 +110,7 @@ function GlobalGanttPage() {
       arr.push({ ...s, projectId: s.project_id });
       map.set(s.project_id, arr);
     }
+    for (const [id, rows] of map) map.set(id, sortStagesByWbs(rows));
     return map;
   }, [allStages, filteredProjects]);
 
