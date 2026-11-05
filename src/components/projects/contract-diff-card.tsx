@@ -78,7 +78,15 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
   const paymentRows = useMemo(
     () =>
       baseline && livePlan
-        ? diffPayments(baseline.payments, livePlan.payments, livePlan.stages)
+        ? (() => {
+            const rows = diffPayments(baseline.payments, livePlan.payments, livePlan.stages);
+            return sortStageLinkedRows(rows.map(row => ({
+              ...row,
+              stage_id: row.live?.stage_id,
+              stage_name: row.baseline?.stage_name,
+              sort_order: row.baseline?.sort_order ?? row.live?.sort_order,
+            })), livePlan.stages);
+          })()
         : [],
     [baseline, livePlan],
   );
