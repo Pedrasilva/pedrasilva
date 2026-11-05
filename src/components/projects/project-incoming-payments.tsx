@@ -1,4 +1,4 @@
-import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
+import { sortStagesByWbs, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Pencil,Save,X,RotateCcw,CheckCheck} from 'lucide-react';

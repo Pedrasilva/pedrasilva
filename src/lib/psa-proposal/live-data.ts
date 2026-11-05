@@ -991,7 +991,7 @@ export async function fetchLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stages: (() => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const stageArr = (stages ?? []) as any[];
+          const stageArr = sortStagesByWbs((stages ?? []) as any[]);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const byId = new Map<string, any>(stageArr.map((s) => [s.id, s]));
           // Walk ancestors to find the closest supplier assignment; return
