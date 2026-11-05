@@ -84,7 +84,7 @@ export function ContractDiffCard({ projectId }: { projectId: string }) {
               ...row,
               stage_id: row.live?.stage_id,
               stage_name: row.baseline?.stage_name,
-              sort_order: row.baseline?.sort_order ?? row.live?.sort_order,
+              sort_order: row.baseline?.sort_order,
             })), livePlan.stages);
           })()
         : [],
