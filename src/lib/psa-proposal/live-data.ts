@@ -1094,7 +1094,7 @@ export async function fetchLiveQuoteSnapshot(
           // Build siteTrips with pre-computed costs. Stage duration comes
           // from the stage date range (working days ≈ (end - start) / 30.44).
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const stageArrFinal = (stages ?? []) as any[];
+          const stageArrFinal = sortStagesByWbs((stages ?? []) as any[]);
           const stageByIdLocal = new Map<string, { id: string; name: string; start_date: string | null; end_date: string | null; parent_stage_id: string | null; sort_order: number | null }>();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           stageArrFinal.forEach((s: any) => stageByIdLocal.set(s.id, s));
