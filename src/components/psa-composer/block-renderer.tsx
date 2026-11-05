@@ -1,3 +1,4 @@
+import { compareStageDisplay, isConstructionStage, sortStagesByWbs } from "@/lib/quotes/stage-numbering";
 import { ProposalImageEditorHint } from "./document-editor-hints";
 import uiI18n from "@/i18n/index";
 import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-proposal/relative-programme";
@@ -206,7 +207,7 @@ function StageRows({ stages }: { stages: LiveStage[] }) {
   useTranslation();
   return (
     <>
-      {stages.map((s) => (
+      {sortStagesByWbs(stages.map(s=>({...s,sort_order:s.sortOrder,parent_stage_id:s.parentStageId}))).map((s) => (
         <tr key={s.id} className="border-b border-zinc-100">
           <td className="py-1">{s.name}</td>
           <td className="py-1 text-right">{formatCurrencyEUR(s.fee)}</td>
@@ -377,7 +378,9 @@ export function BlockBody({
 
   // Self stages only — PSA-facing tables must exclude supplier rows. The
   // consultants block is the place where suppliers appear.
-  const selfStages = (live?.stages ?? []).filter((s) => s.isSelf);
+  const displayStage = (s: LiveStage) => ({...s, sort_order:s.sortOrder, parent_stage_id:s.parentStageId});
+  const stageDisplayOrder = (a: LiveStage,b: LiveStage) => compareStageDisplay(displayStage(a),displayStage(b));
+  const selfStages = sortStagesByWbs((live?.stages ?? []).map(displayStage)).filter((s) => s.isSelf);
 
   function fallback(blockType: string) {
     const dict = lang === "en" ? DEFAULT_TEXT_EN : DEFAULT_TEXT_PT;
@@ -740,12 +743,7 @@ export function BlockBody({
 
       const startKey = (s: (typeof selfStages)[number]) =>
         rollupDates(s.id).start ?? s.startDate ?? "";
-      const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
-        const ak = startKey(a);
-        const bk = startKey(b);
-        if (ak !== bk) return ak < bk ? -1 : 1;
-        return 0;
-      };
+      const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => stageDisplayOrder(a,b);
       for (const [, arr] of kidsOf) arr.sort(sortFn);
       const roots = selfStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
@@ -1065,12 +1063,7 @@ export function BlockBody({
         kidsOf.set(p, arr);
       }
       const startKey = (s: (typeof feeStages)[number]) => s.startDate ?? "";
-      const sortFn = (a: (typeof feeStages)[number], b: (typeof feeStages)[number]) => {
-        const ak = startKey(a);
-        const bk = startKey(b);
-        if (ak !== bk) return ak < bk ? -1 : 1;
-        return 0;
-      };
+      const sortFn = (a: (typeof feeStages)[number], b: (typeof feeStages)[number]) => stageDisplayOrder(a,b);
       for (const [, arr] of kidsOf) arr.sort(sortFn);
       const roots = feeStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
@@ -1195,12 +1188,7 @@ export function BlockBody({
         kidsOf.set(p, arr);
       }
       const startKey = (s: LiveStage) => s.startDate ?? "";
-      const sortFn = (a: LiveStage, b: LiveStage) => {
-        const ak = startKey(a);
-        const bk = startKey(b);
-        if (ak !== bk) return ak < bk ? -1 : 1;
-        return 0;
-      };
+      const sortFn = (a: LiveStage, b: LiveStage) => stageDisplayOrder(a,b);
       for (const [, arr] of kidsOf) arr.sort(sortFn);
       const roots = supplierStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
@@ -1297,12 +1285,7 @@ export function BlockBody({
         kidsOf.set(p, arr);
       }
       const startKey = (s: LiveStage) => s.startDate ?? "";
-      const sortFn = (a: LiveStage, b: LiveStage) => {
-        const ak = startKey(a);
-        const bk = startKey(b);
-        if (ak !== bk) return ak < bk ? -1 : 1;
-        return 0;
-      };
+      const sortFn = (a: LiveStage, b: LiveStage) => stageDisplayOrder(a,b);
       for (const [, arr] of kidsOf) arr.sort(sortFn);
       const selectedRootId = (block.source_ref as { stage_id?: string } | undefined)?.stage_id;
       const roots = optionalStages
@@ -1643,6 +1626,8 @@ export function BlockBody({
         for (const n of r.resourceNames ?? []) b.resourceNames.add(n);
       }
       const stageRollup = Array.from(buckets.values()).sort((a, b) => {
+        const tail = Number(isConstructionStage(a)) - Number(isConstructionStage(b));
+        if(tail) return tail;
         const av = a.stageNumber ?? "\uffff";
         const bv = b.stageNumber ?? "\uffff";
         return av.localeCompare(bv, undefined, { numeric: true, sensitivity: "base" });
@@ -2000,10 +1985,7 @@ export function BlockBody({
         (s as { endDate: string }).endDate = r.end;
       }
       const sortFnB = (a: (typeof datedStages)[number], b: (typeof datedStages)[number]) => {
-        const ak = a.startDate ?? "";
-        const bk = b.startDate ?? "";
-        if (ak !== bk) return ak < bk ? -1 : 1;
-        return 0;
+        return stageDisplayOrder(a,b);
       };
       for (const [, arr] of kidsOfB) arr.sort(sortFnB);
       const rootsB = datedStages
