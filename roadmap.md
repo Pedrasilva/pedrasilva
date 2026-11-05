@@ -1,3 +1,7 @@
+## Current request — 5 November stage display order
+- [ ] Shared display-only construction/retainer-last order across project, Gantt, payments, baseline and proposal/document lists; preserve existing numbering and all data.
+- [ ] Read-only Mint before/after screenshots, one disposable project test, exact cleanup and independent zero; report every changed screen. B1 remains OFF.
+
 ## Current request — 4 November 22:20 B1 revenue, no cutover
 - [x] Traced legacy invoker resource enumeration returning Rita 0/Luis 16; added authorized Financial projection and OFF review; disposable all-ON PM has numeric revenue/cost/margin, rollback and independent zero 22:40:08.
 - [x] Rita Mint/Uralchem before/after review screenshots and limitations recorded; 23 tests/build OK; B1 OFF revision 4, no real data changes and no B2.
