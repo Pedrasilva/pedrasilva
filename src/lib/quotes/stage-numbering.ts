@@ -16,6 +16,8 @@ export interface NumberableStage {
   name: string;
   sort_order?: number | null;
   parent_stage_id?: string | null;
+  stage_kind?: string | null;
+  billing_model?: string | null;
 }
 
 export interface NumberedStage<T extends NumberableStage> {
@@ -58,7 +60,9 @@ export function numberStages<T extends NumberableStage>(stages: T[]): NumberedSt
     });
   };
   walk(null, []);
-  return out;
+  // Number first, reorder second: presentation must never renumber evidence.
+  const last = constructionStageIds(stages);
+  return out.sort((a, b) => Number(last.has(a.stage.id)) - Number(last.has(b.stage.id)));
 }
 
 /** Convenience: map of stage id → dotted WBS number. */
@@ -100,7 +104,56 @@ export function compareWbsNumbers(a: string | undefined, b: string | undefined):
  * Non-mutating; returns a new array.
  */
 export function sortStagesByWbs<T extends NumberableStage>(stages: T[]): T[] {
-  const map = buildStageNumberMap(stages);
-  return [...stages].sort((a, b) => compareWbsNumbers(map.get(a.id), map.get(b.id)));
+  return numberStages(stages).map(n => n.stage);
+}
+
+/** Narrow legacy-label fallback for projections/snapshots without kind fields. */
+export function isConstructionStage(stage: {
+  name?: string | null; stage_name?: string | null; stageName?: string | null;
+  stage_kind?: string | null; stageKind?: string | null;
+  billing_model?: string | null; billingModel?: string | null;
+} | null | undefined): boolean {
+  if (!stage) return false;
+  if ((stage.stage_kind ?? stage.stageKind ?? '').startsWith('retainer') ||
+      (stage.billing_model ?? stage.billingModel) === 'retainer') return true;
+  const name = (stage.name ?? stage.stage_name ?? stage.stageName ?? '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return /assistencia\s+tecnica\s+(?:a\s+)?obra|technical\s+assistance\s+(?:to\s+)?(?:construction|on\s+site)|construction\s+(?:stage\s+)?(?:technical\s+)?assistance|\bretainer\b|\bavenca\b/.test(name);
+}
+
+export function constructionStageIds<T extends NumberableStage>(stages: T[]): Set<string> {
+  const ids = new Set(stages.filter(isConstructionStage).map(s => s.id));
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const s of stages) if (s.parent_stage_id && ids.has(s.parent_stage_id) && !ids.has(s.id)) {
+      ids.add(s.id); changed = true;
+    }
+  }
+  return ids;
+}
+
+/** Sibling presentation comparator; numbering continues to use raw sort_order. */
+export function compareStageDisplay(a: NumberableStage, b: NumberableStage): number {
+  return Number(isConstructionStage(a)) - Number(isConstructionStage(b)) ||
+    (a.sort_order ?? 0) - (b.sort_order ?? 0);
+}
+
+/** Payment rows keep their values and within-stage instalment order untouched. */
+export function sortStageLinkedRows<T extends {
+  stage_id?: string | null; stage_name?: string | null; stageName?: string | null;
+  name?: string | null; sort_order?: number | null;
+}>(rows: T[], stages: NumberableStage[] = []): T[] {
+  const ordered = sortStagesByWbs(stages);
+  const rank = new Map(ordered.map((s, i) => [s.id, i]));
+  const last = constructionStageIds(stages);
+  return [...rows].sort((a, b) => {
+    const tail = (r: T) => Number(!!r.stage_id && last.has(r.stage_id) || isConstructionStage(r));
+    const delta = tail(a) - tail(b);
+    if (delta) return delta;
+    const ar = a.stage_id ? rank.get(a.stage_id) : undefined;
+    const br = b.stage_id ? rank.get(b.stage_id) : undefined;
+    return ar !== undefined && br !== undefined ? ar - br || (a.sort_order ?? 0) - (b.sort_order ?? 0) : 0;
+  });
 }
 
