@@ -44,8 +44,8 @@ USO DO ORÇAMENTO
 1812 € / 30 980 €
 6%
 LUCRO
-—
-—
+1274 €
+41%
 NOTAS
 
 Created from approved proposal
@@ -62,21 +62,21 @@ Texto normal = real · itálico cinzento = planeado (alocações) · – = zero
 MARCOS E TAREFAS	ESTADO	CUSTO (REAL FACE AO ORÇAMENTO)	RECEITA (GERADA)	LUCRO / MARGEM	HORAS REGISTADAS / PLANEADAS	INÍCIO PREVISTO	CONCLUSÃO PREVISTA	AÇÕES
 
 2. [1] Programa Base / Conceito
-Sem responsável
+Sem responsável · 64,6 h por alocar
 	
 Ativo
 	
 1764 € / 3950 €
 45%
 	
-—
+3086 €
 	
-—
-AINDA SEM RECEITA
+1322 €
++42,8% de margem
 	
 58h 30m
 /
-—
+64h 34m
 	1 jun	30 nov	
 
 
@@ -99,7 +99,7 @@ AINDA SEM RECEITA
 
 
 4. [2] Estudo Prévio
-Sem responsável
+Sem responsável · 154,5 h por alocar
 	
 Planeado
 	
@@ -113,7 +113,7 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+154h 29m
 	10 dez	7 jan	
 
 
@@ -136,7 +136,7 @@ AINDA SEM RECEITA
 
 
 6. [4] Projeto de Execução
-Sem responsável
+Sem responsável · 201,1 h por alocar
 	
 Planeado
 	
@@ -150,7 +150,7 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+201h 4m
 	15 jan	18 fev	
 
 
@@ -169,12 +169,12 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+172h 37m
 	5 abr	23 jul	
 
 
 1.1. 2026-11 — [6] Assistência Técnica à Obra
-Sem responsável
+Sem responsável · 21,6 h por alocar
 	
 Planeado
 	
@@ -188,12 +188,12 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+21h 35m
 	5 abr	3 mai	
 
 
 1.2. 2026-12 — [6] Assistência Técnica à Obra
-Sem responsável
+Sem responsável · 21,6 h por alocar
 	
 Planeado
 	
@@ -207,12 +207,12 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+21h 35m
 	4 mai	25 mai	
 
 
 1.3. 2027-01 — [6] Assistência Técnica à Obra
-Sem responsável
+Sem responsável · 21,6 h por alocar
 	
 Planeado
 	
@@ -226,12 +226,12 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+21h 35m
 	26 mai	24 jun	
 
 
 1.4. 2027-02 — [6] Assistência Técnica à Obra
-Sem responsável
+Sem responsável · 21,6 h por alocar
 	
 Planeado
 	
@@ -245,7 +245,7 @@ AINDA SEM RECEITA
 	
 –
 /
-—
+21h 35m
 	28 jun	23 jul	
 Referência contratual
 2680 · 30 980,00 € · registo fixo 03/11/2026
