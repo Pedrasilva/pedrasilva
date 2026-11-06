@@ -1,3 +1,8 @@
+## Current request — 6 November 17:06 global Gantt repair
+- [ ] Hide denied project financial values across headers, bars, outline and popovers; test allowed-only aggregation.
+- [ ] One disposable all-OFF/all-ON project, cleanup and independent zero.
+- [ ] Order-independent matrix comparison and one audited B1 retry; Rita, Patricia, Tatiana live checks; immediate rollback on failure. Report and stop, no B2.
+
 ## Current request — 6 November 12:58 B1 short cutover
 - [x] Complete 1,176-row order-independent comparison identical; audited activation revision 5 with approved reason.
 - [x] Rita Mint 3086/1812/1274/41% and operational-only Uralchem passed; Patricia project pages passed, global Gantt showed forbidden zero costs; immediate rollback revision 6 OFF, Phase A ON. Report/screenshots saved; stop, no B2.

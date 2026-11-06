@@ -871,6 +871,7 @@ export function GanttChart({
           relative={relative}
           actuals={actuals}
           actualFinancials={!!showFinancials}
+          financialVisible={adapter?.mode === 'quote' || !!showFinancials}
           visibleStages={stages}
           hierarchy={hierarchy}
           collapsed={collapsed ?? new Set()}
@@ -1491,7 +1492,7 @@ export function GanttChart({
                           <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd, relative ? NO_HOLIDAYS : undefined)}{" "}{t("gantt.wdShort")}
                           </span>
-                          {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
+                          {(adapter?.mode === 'quote' || showFinancials) && isSupplierBar && Number(stage.budget ?? 0) > 0 && (
                             <span className="ml-auto shrink-0 rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
                               {euros(Number(stage.budget))}
                             </span>
@@ -1500,7 +1501,7 @@ export function GanttChart({
 
 
                         {actuals && hoursAreImplied && displayHours>0 && <span className="text-[10px] text-muted-foreground">≈{Math.round(displayHours)} {i18n.t("common:units.hoursDot")} {t("gantt.actuals.estimate")}</span>}
-                        {!actuals && !isSupplierBar && !isClientBar && (
+                        {!actuals && !isSupplierBar && !isClientBar && (adapter?.mode === 'quote' || showFinancials) && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
