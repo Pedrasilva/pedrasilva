@@ -31,3 +31,9 @@ export function projectActualTotals(input: {
   const profit = revenue - cost;
   return { revenue, cost, profit, marginPct: marginPercentage(revenue, profit, input.allowedParts) };
 }
+
+/** Server rate gating: with B1 ON, rates follow only the caller's project areas (same rule for every caller). */
+export function applyB1RateAccess<T extends { cost: number; sale: number; sale100: number }>(def: T, b1: boolean, budgetAllowed: boolean, saleAllowed: boolean): T {
+  if (!b1) return def;
+  return { ...def, cost: budgetAllowed ? def.cost : NaN, sale: saleAllowed ? def.sale : NaN, sale100: saleAllowed ? def.sale100 : NaN };
+}

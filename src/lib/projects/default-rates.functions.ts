@@ -11,6 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
+import { applyB1RateAccess } from "./project-actual-totals";
 
 export type DefaultRateEntry = {
   resource_id: string;
@@ -182,9 +183,7 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     for (const link of links) {
       if (!link.collaborator_id) continue;
       const def = byCollabRate.get(link.collaborator_id);
-      if (def) out.push({ resource_id: link.id, ...def,
-        ...(b1?{cost:budgetAllowed?def.cost:NaN,sale:saleAllowed?def.sale:NaN,sale100:saleAllowed?def.sale100:NaN}:{}),
-      });
+      if (def) out.push({ resource_id: link.id, ...applyB1RateAccess(def, b1, budgetAllowed, saleAllowed) });
     }
     return out;
   });
