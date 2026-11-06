@@ -9,6 +9,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useProjectB1State } from "./use-project-access";
+import { useAuth } from "@/hooks/use-auth";
 import { effectiveCostRate, type DefaultRateInfo } from "@/lib/projects/use-default-rates";
 
 export const PURSUIT_CATEGORY = "Pursuit";
@@ -44,21 +46,24 @@ export type PursuitTotalRow = {
 };
 
 /** Pursuit totals per project × resource. Empty for people without project-financials access. */
-export function usePursuitTotals(projectIds: string[] | null, enabled = true) {
+export function usePursuitTotals(projectIds: string[] | null, enabled = true, operationalB1 = false) {
+  const gate = useProjectB1State();
+  const { user } = useAuth();
+  const b1 = operationalB1 && !!gate.data;
   return useQuery({
-    queryKey: ["pm-pursuit-totals", projectIds],
+    queryKey: ["pm-pursuit-totals", projectIds, user?.id, b1],
     enabled,
     queryFn: async (): Promise<PursuitTotalRow[]> => {
-      const { data, error } = await supabase.rpc("pm_project_pursuit_totals", {
+      const { data, error } = b1 && projectIds?.length === 1 ? await supabase.rpc("pm_b1_pursuit", {_project: projectIds[0]}) : await supabase.rpc("pm_project_pursuit_totals", {
         _project_ids: projectIds ?? undefined,
       } as never);
       if (error) throw error;
       return ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
         project_id: String(r.project_id),
         resource_id: (r.resource_id as string | null) ?? null,
-        hours: Number(r.hours ?? 0),
-        snapshot_cost: Number(r.snapshot_cost ?? 0),
-        hours_without_snapshot: Number(r.hours_without_snapshot ?? 0),
+        hours: r.hours === null ? NaN : Number(r.hours ?? 0),
+        snapshot_cost: r.snapshot_cost === null ? NaN : Number(r.snapshot_cost ?? 0),
+        hours_without_snapshot: r.hours_without_snapshot === null ? NaN : Number(r.hours_without_snapshot ?? 0),
       }));
     },
   });

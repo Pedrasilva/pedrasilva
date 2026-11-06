@@ -1,3 +1,8 @@
+## Current request — 6 November pre-B1 fixes
+- [ ] Details at 800/1050/1400, contextual status actions, real Phase A banner.
+- [ ] Budget-scoped pursuit cost, Rita/Luis exact comparison with B1 OFF.
+- [ ] Verify/fix three QA findings and consolidate screenshots/results in one report.
+
 ## Current request — 5 November stage display order
 - [x] Shared display-only construction/retainer-last order across project, Gantt, payments, baseline and proposal/document lists; original numbering/data preserved. Renderer coverage and verification limits in docs/stage-display-order-report.md.
 - [x] Read-only Mint before/after screenshots, disposable project test, exact cleanup and fresh-session independent zero; screens listed in report. B1 remains OFF.

@@ -769,5 +769,12 @@
     "invalidFormat": "Formato inválido. Utilize JPG, PNG ou WEBP.",
     "tooLarge": "Ficheiro demasiado grande (máximo de 5 MB)."
   },
-  "taxNumberSuffix": " · NIF {{value}}"
+  "taxNumberSuffix": " · NIF {{value}}",
+  "users": "Utilizadores",
+  "searchPlaceholder": "Procurar…",
+  "filterPlaceholder": "Filtrar…",
+  "noResults": "Sem resultados",
+  "view": "Ver",
+  "failed": "Falhou",
+  "ok": "OK"
 }

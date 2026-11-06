@@ -178,5 +178,8 @@
     "usage": "Por vezes 'utilização', por vezes 'capacidade usada'.",
     "rate": "Distinguir sempre 'Valor de Custo' ou 'Valor de Venda'.",
     "fee": "Termo legal/comercial PT mantido em EN."
+  },
+  "proposalRole": {
+    "unassigned": "Não atribuído"
   }
 }

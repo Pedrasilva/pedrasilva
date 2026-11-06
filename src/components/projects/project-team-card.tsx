@@ -158,7 +158,7 @@ export function ProjectTeamCard({
           </DialogHeader>
 
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">{t('projects:projectAccess.pending')}</p>
+            {preview.data?.active === false && <p className="text-sm text-muted-foreground">{t('projects:projectAccess.pending')}</p>}
             <Input aria-label={t('projects:projectAccess.reason')} placeholder={t('projects:projectAccess.reason')} value={reason} onChange={e=>setReason(e.target.value)}/>
             <div className="flex flex-wrap items-end gap-2">
               <div className="min-w-[180px] flex-1">

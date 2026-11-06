@@ -122,6 +122,7 @@ export function ProjectExpensesSection({ projectId, canEdit, privileged = false 
     setDialogOpen(true);
   }
   function handleAdd() {
+    setDroppedFile(null);
     setFlowOpen(true);
   }
   async function handleDelete() {

@@ -30,13 +30,37 @@
     "expectedIncoming": "Recebimentos previstos (sem IVA)",
     "undatedForecast_one": "{{count}} prestação sem data prevista de pagamento, excluída da previsão.",
     "undatedForecast_other": "{{count}} prestações sem data prevista de pagamento, excluídas da previsão.",
-    "confirmationStates": {"confirmed": "Confirmado pelo gestor", "pending": "Por confirmar", "stale": "Confirmação a rever"},
-    "status": {"planned": "Planeado", "due": "A vencer", "confirmed": "Confirmado pelo gestor", "issued": "Emitido", "paid": "Pago", "cancelled": "Cancelado"},
-    "groups": {"overdue": "Em atraso", "thisWeek": "Esta semana", "next14Days": "Próximos 14 dias", "laterThisMonth": "Mais tarde este mês", "later": "Mais tarde", "undefined": "Data por definir", "issued": "Emitidos", "paid": "Pagos", "cancelled": "Cancelados"},
+    "confirmationStates": {
+      "confirmed": "Confirmado pelo gestor",
+      "pending": "Por confirmar",
+      "stale": "Confirmação a rever"
+    },
+    "status": {
+      "planned": "Planeado",
+      "due": "A vencer",
+      "confirmed": "Confirmado pelo gestor",
+      "issued": "Emitido",
+      "paid": "Pago",
+      "cancelled": "Cancelado"
+    },
+    "groups": {
+      "overdue": "Em atraso",
+      "thisWeek": "Esta semana",
+      "next14Days": "Próximos 14 dias",
+      "laterThisMonth": "Mais tarde este mês",
+      "later": "Mais tarde",
+      "undefined": "Data por definir",
+      "issued": "Emitidos",
+      "paid": "Pagos",
+      "cancelled": "Cancelados"
+    },
     "warnings": {
-      "overdue_one": "{{count}} prestação em atraso por emitir", "overdue_other": "{{count}} prestações em atraso por emitir",
-      "unconfirmed_one": "{{count}} prestação a vencer até 14 dias sem confirmação do gestor", "unconfirmed_other": "{{count}} prestações a vencer até 14 dias sem confirmação do gestor",
-      "moved_one": "{{count}} prestação com datas alteradas pelo gestor desde segunda-feira", "moved_other": "{{count}} prestações com datas alteradas pelo gestor desde segunda-feira"
+      "overdue_one": "{{count}} prestação em atraso por emitir",
+      "overdue_other": "{{count}} prestações em atraso por emitir",
+      "unconfirmed_one": "{{count}} prestação a vencer até 14 dias sem confirmação do gestor",
+      "unconfirmed_other": "{{count}} prestações a vencer até 14 dias sem confirmação do gestor",
+      "moved_one": "{{count}} prestação com datas alteradas pelo gestor desde segunda-feira",
+      "moved_other": "{{count}} prestações com datas alteradas pelo gestor desde segunda-feira"
     }
   },
   "knownBank": {
@@ -2968,5 +2992,9 @@
     "matchBankHint": "A liquidação é registada na conciliação bancária, ligada à transferência de saída efetiva.",
     "chooseProject": "Escolha um projeto antes de carregar o comprovativo.",
     "projectLabel": "Projeto"
+  },
+  "payments": {
+    "matched": "Conciliado",
+    "manual": "Manual"
   }
 }
