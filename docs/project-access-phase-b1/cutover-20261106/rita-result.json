@@ -1,0 +1,65 @@
+{
+  "matrixRows": 1176,
+  "hash": "13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339",
+  "activation": {
+    "active": true,
+    "revision": 5
+  },
+  "checks": [
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "tab": "overview",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "tab": "insights",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": true,
+        "financials": true,
+        "budget_cost": true,
+        "supplier_fees": true
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "tab": "overview",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    },
+    {
+      "person": "Rita",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "tab": "insights",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    }
+  ],
+  "passed": true,
+  "finalB1Active": true,
+  "phaseAActive": true
+}
