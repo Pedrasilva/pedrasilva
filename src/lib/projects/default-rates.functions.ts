@@ -11,6 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
+import { applyB1RateAccess } from "./project-actual-totals";
 
 export type DefaultRateEntry = {
   resource_id: string;
@@ -28,7 +29,10 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     // Access gate: cost rates are salary-derived and must never be exposed
     // to regular collaborators. Admins, finance, and PMs with the
     // projects.financials permission may read them.
-    const { supabase, userId } = context;
+    const { userId } = context;
+    // Same caller-scoped client as gate ON; a preview marker is forwarded so preview and ON share one path.
+    const { withB1PreviewHeader } = await import('./b1-preview.server');
+    const supabase = withB1PreviewHeader(context.supabase);
     const {data:b1State,error:b1Error}=await supabase.rpc('pm_project_b1_active');
     if(b1Error)throw b1Error;
     // Explicit review uses the same caller-scoped areas without changing the gate.
@@ -179,9 +183,7 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     for (const link of links) {
       if (!link.collaborator_id) continue;
       const def = byCollabRate.get(link.collaborator_id);
-      if (def) out.push({ resource_id: link.id, ...def,
-        ...(b1?{cost:budgetAllowed?def.cost:NaN,sale:saleAllowed?def.sale:NaN,sale100:saleAllowed?def.sale100:NaN}:{}),
-      });
+      if (def) out.push({ resource_id: link.id, ...applyB1RateAccess(def, b1, budgetAllowed, saleAllowed) });
     }
     return out;
   });

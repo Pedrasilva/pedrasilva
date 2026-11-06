@@ -61,6 +61,7 @@ import { ProjectClientField, useProjectClientName } from "@/components/projects/
 import { ProjectTeamCard } from "@/components/projects/project-team-card";
 import { useProjectViewerAreas,useProjectB1State } from '@/lib/projects/use-project-access';
 import {readB1Rows} from '@/lib/projects/b1-projection';
+import { projectActualTotals, stageActualsFrom } from '@/lib/projects/project-actual-totals';
 import {B1OperationalInsights} from '@/components/projects/b1-operational-insights';
 import { canOpenProjectTab } from '@/lib/projects/project-area-tabs';
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
@@ -270,7 +271,8 @@ function ProjectDetail() {
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
   // Pre-contract (pursuit) hours on this project's CRM lead — folded into cost.
-  const { data: pursuitRows } = usePursuitTotals([projectId], b1.data ? !!viewerAreas.data?.budget_cost : canSeeFinancials, true);
+  const pursuitEnabled = b1.data ? !!viewerAreas.data?.budget_cost : canSeeFinancials;
+  const { data: pursuitRows } = usePursuitTotals([projectId], pursuitEnabled, true);
   const pursuit = useMemo(
     () =>
       pursuitByProject(
@@ -510,17 +512,11 @@ function ProjectDetail() {
 
   // Actuals follow the author, independently of bookings. Reconcile restricted
   // RLS coverage with existing privacy-safe totals; do not invent sale rates.
-  const stageActuals = (stageId: string) => {
-    const entries = (entryFiguresQ.data ?? []).filter(e => e.stageId === stageId);
-    const logged = stageLoggedHours(stageId);
-    const rawHours = entries.reduce((n,e) => n + e.hours, 0);
-    const complete = Math.abs(logged - rawHours) < 0.005;
-    const snapCost = timeRows?.reduce((n,r) => n + (r.stage_id === stageId ? r.snapCost : 0), 0) ?? 0;
-    const missing = timeRows?.reduce((n,r) => n + (r.stage_id === stageId ? r.unsnapHours : 0), 0) ?? 0;
-    const cost = complete ? entries.reduce((n,e) => n + e.cost,0) : missing === 0 ? snapCost : NaN;
-    const revenue = complete ? entries.reduce((n,e) => n + e.value,0) : NaN;
-    return { revenue, cost, profit: financialResult(revenue,cost).profit };
-  };
+  // Until every source has loaded, figures are incomplete, never zero.
+  const figuresReady = timeRows !== undefined && historical !== undefined
+    && (!canSeeFinancials || entryFiguresQ.data !== undefined)
+    && (!pursuitEnabled || pursuitRows !== undefined);
+  const stageActuals = (stageId: string) => stageActualsFrom(stageId, figuresReady, timeRows, entryFiguresQ.data);
   const stageActualRevenue = (stageId: string) => stageActuals(stageId).revenue;
   const stageActualCost = (stageId: string) => stageActuals(stageId).cost;
 
@@ -533,22 +529,13 @@ function ProjectDetail() {
     (acc, s) => acc + stagePlannedHours(s.id),
     0,
   );
-  const actuals = stages.reduce(
-    (acc, s) => {
-      const a = stageActuals(s.id);
-      acc.revenue += a.revenue;
-      acc.cost += a.cost;
-      return acc;
-    },
-    { revenue: 0, cost: 0 },
-  );
-  // Imported historical entries (e.g. Accelo) are not bound to allocations,
-  // so we add them at the project-total level only — never per-stage and never
-  // into editable timesheets. Idempotency on (source_system, external_id)
-  // prevents double counting on re-imports; live timesheet rows are never
-  // mirrored into historical_time_entries, so the same hour cannot appear twice.
-  const actualRevenue = actuals.revenue + hist.amount;
-  const actualCost = actuals.cost + hist.cost + pursuit.cost;
+  // Same pure path as the B1 parity test (scripts/test-b1-gate-on-parity.*).
+  const actualTotals = projectActualTotals({
+    stageIds: stages.map(s => s.id), ready: figuresReady, timeRows, entries: entryFiguresQ.data,
+    historical: hist, pursuitCost: pursuit.cost,
+  });
+  const actualRevenue = actualTotals.revenue;
+  const actualCost = actualTotals.cost;
   const actualProfit = actualRevenue - actualCost;
   const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
   const budgetOver = actualCost > totalBudget && totalBudget > 0;
