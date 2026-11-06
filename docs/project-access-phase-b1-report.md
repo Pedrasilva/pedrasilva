@@ -1,5 +1,23 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Corte curto autorizado — 6 novembro 2026, pedido 12:58 UTC
+**Resultado final: B1 OFF, revisão 6; Fase A ON, revisão 27. Rollback imediato ao primeiro check falhado.**
+
+- Matriz comparada novamente na sessão administrativa, ordenada por pessoa/projeto/área e IDs: **1 176 → 1 176 linhas, zero diferenças de conteúdo**. SHA-256 de ambas: `13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339`. Evidência: `cutover-20261106/comparison.json` e `current-sorted.json`.
+- Ativação pela ação auditada existente `pm_change_project_b1_cutover`, motivo exato **`Approved by Luis 2026-11-06`**, revisão **5**, às **15:52:55.714070 UTC**. Cada sessão confirmou B1 realmente ON; não houve interceção, simulação ou override de respostas.
+- **Rita PASS:** Mint Overview/cabeçalho e Insights mostram receita **3 086 €**, custo **1 812 €**, lucro **1 274 €**, margem **41%**, incluindo o custo de angariação de **48 €** apresentado separadamente e incluído no total. Uralchem mantém fases, horas e datas, sem moeda ou zeros financeiros substitutos em Overview/Insights. Capturas inspecionadas visualmente, além de asserções no texto.
+- **Patricia páginas PASS:** Mint e Uralchem, Overview e Insights, quatro áreas OFF, fases/datas/horas disponíveis, nenhum valor monetário.
+- **Patricia Gantt global FAIL:** cabeçalho Mint mostra **`0 € / —`** e barras de fases mostram **`€0 / —`** apesar de todas as áreas OFF. A captura confirma uma substituição indevida de custos ocultos por zero; não é prova de que custos reais tenham sido transmitidos. O mesmo padrão aparece em outras fases do Gantt.
+- Causa localizada sem alterar código neste pedido: `src/routes/_app.projects.gantt.tsx`, `costsByProject`, inicia custo em zero e só o invalida ao percorrer alocações com preço negado; fases sem alocações deixam esse zero no agregado. `src/lib/projects/build-project-gantt-tree.ts` também transforma budgets ausentes em zero nos rollups (`Number(node.budget ?? 0) || 0`). A superfície ainda renderiza indicadores financeiros globais sem uma decisão de acesso completa por projeto. Estes caminhos precisam preservar indisponibilidade e ocultar os indicadores negados antes de uma nova autorização.
+- **Rollback imediato**, revisão **6**, às **15:58:38.704658 UTC**, motivo `Immediate B1 rollback — Patricia global Gantt financial figure visible`. A própria ação retornou OFF e uma leitura independente da auditoria confirmou OFF; Fase A continua ON/revisão 27.
+- **Tatiana não testada:** o pedido determina parar ao primeiro check falhado; não se declara preservação live ON de Tatiana nesta tentativa. Não houve repetição ou novo corte após o rollback.
+- Nenhum projeto, proposta, fase, data, montante, equipa, acesso ou snapshot real foi escrito; nenhuma fixture foi criada ou eliminada. Apenas as duas transições auditadas B1 foram executadas. Sem migração nem alteração de aplicação. Sessões temporárias foram usadas para Rita e Patricia; nenhuma conta criada. Build observado OK às 15:58:40 UTC.
+- Ficheiros alterados: este relatório, evidências em `docs/project-access-phase-b1/cutover-20261106/` e `roadmap.md`. **Paragem cumprida; B2 não iniciado.**
+
+![Rita Mint: valores corretos com B1 ON](project-access-phase-b1/cutover-20261106/rita-da46fd5d-insights.png)
+![Rita Uralchem: operacional com B1 ON](project-access-phase-b1/cutover-20261106/rita-32810ca9-overview.png)
+![Patricia Gantt global: zero financeiro indevido, motivo do rollback](project-access-phase-b1/cutover-20261106/patricia-global-gantt.png)
+
 ## Receita autorizada — 4 novembro, 22:20 UTC; sem novo corte
 **B1 permanece OFF, revisão 4; Fase A permanece ON. Não foi chamada qualquer ação de corte.**
 

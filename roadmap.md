@@ -1,6 +1,7 @@
 ## Current request — 6 November 12:58 B1 short cutover
-- [ ] Compare complete matrix content independently of order; stop on differences.
-- [ ] Audited activation, live Rita/Patricia/Tatiana checks, immediate rollback on failure; report and stop, no B2.
+- [x] Complete 1,176-row order-independent comparison identical; audited activation revision 5 with approved reason.
+- [x] Rita Mint 3086/1812/1274/41% and operational-only Uralchem passed; Patricia project pages passed, global Gantt showed forbidden zero costs; immediate rollback revision 6 OFF, Phase A ON. Report/screenshots saved; stop, no B2.
+- [ ] Tatiana live ON check blocked by first failed check and mandatory rollback; requires new authorization after global Gantt unavailable-value repair.
 
 ## Current request — 6 November pre-B1 fixes
 - [x] Details reproduced overflowing at 800; 800/1050/1400 verified, contextual status actions, Phase A ON banner absent.
