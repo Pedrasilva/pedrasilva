@@ -133,6 +133,7 @@ function durDays(start?: string | null, end?: string | null): number {
 }
 
 export function GanttOutlineColumn({
+  financialVisible: propsFinancialVisible = true,
   relative=false,
   actuals,
   actualFinancials=false,
