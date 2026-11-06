@@ -1,0 +1,47 @@
+CRM / Vendas
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+P
+Todos os projetos
+Clinica Mint II
+ATIVO
+Origem: proposta convertida
+SMILEPROVIDER, LDA
+·
+1 jun – 23 jul 2027
+· 259d
+Resumo
+Análises
+Avença
+Notas
+CLIENTE
+SMILEPROVIDER, LDA
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+1 jun 2026
+Fim
+23 jul 2027
+Restante
+259d
+EQUIPA
+GESTOR
+RS
+APOIO
+RC
+Projeto	Horas registadas / planeadas
+2 [1] Programa Base / Conceito	58,5 / 0
+3 Análise e aprovação (cliente)	0 / 0
+4 [2] Estudo Prévio	0 / 0
+5 Análise e aprovação (cliente)	0 / 0
+6 [4] Projeto de Execução	0 / 0
+1 [6] Assistência Técnica à Obra	0 / 0
+1.1 2026-11 — [6] Assistência Técnica à Obra	0 / 0
+1.2 2026-12 — [6] Assistência Técnica à Obra	0 / 0
+1.3 2027-01 — [6] Assistência Técnica à Obra	0 / 0
+1.4 2027-02 — [6] Assistência Técnica à Obra	0 / 0
