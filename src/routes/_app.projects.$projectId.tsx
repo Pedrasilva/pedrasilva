@@ -722,7 +722,7 @@ function ProjectDetail() {
         {/* Body layout — collapsible left rail (240px) across all tabs, slim rail (44px) when collapsed. */}
         <div
           className={cn(
-            "mt-3 grid gap-4",
+            "mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4",
             sidebarOpen
               ? "lg:grid-cols-[240px_minmax(0,1fr)]"
               : "lg:grid-cols-[44px_minmax(0,1fr)]",
@@ -730,7 +730,7 @@ function ProjectDetail() {
         >
           <aside
             className={cn(
-              "lg:sticky lg:top-4 lg:self-start",
+              "min-w-0 lg:sticky lg:top-4 lg:self-start",
               sidebarOpen
                 ? "rounded-xl border border-border bg-card shadow-sm"
                 : "hidden lg:flex lg:flex-col lg:items-center lg:gap-2 lg:rounded-xl lg:border lg:border-border lg:bg-card lg:p-1.5 lg:shadow-sm",
@@ -1372,39 +1372,39 @@ function StatusToggle({
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
-      <Button
+      {current !== "active" && (<Button
         size="sm"
-        variant={current === "active" ? "default" : "ghost"}
+        variant="ghost"
         className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("active")}
       >
         <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.activate")}
-      </Button>
-      <Button
+      </Button>)}
+      {current !== "paused" && (<Button
         size="sm"
-        variant={current === "paused" ? "default" : "ghost"}
+        variant="ghost"
         className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("paused")}
       >
         <Pause className="h-3.5 w-3.5" /> {t("projects:detail.actions.pause")}
-      </Button>
-      <Button
+      </Button>)}
+      {current !== "closing" && (<Button
         size="sm"
-        variant={current === "closing" ? "default" : "ghost"}
+        variant="ghost"
         className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("closing")}
       >
         <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.close")}
-      </Button>
+      </Button>)}
 
-      <Button
+      {current !== "archived" && (<Button
         size="sm"
-        variant={current === "archived" ? "default" : "ghost"}
+        variant="ghost"
         className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("archived")}
       >
         <XCircle className="h-3.5 w-3.5" /> {t("projects:detail.actions.archive")}
-      </Button>
+      </Button>)}
     </div>
   );
 }
@@ -1428,9 +1428,9 @@ function SidebarSection({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-1 text-sm">
-      <span className="min-w-0 text-muted-foreground text-xs">{label}</span>
-      <span className="shrink-0 text-right font-medium">{value}</span>
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1 py-1 text-sm">
+      <span className="min-w-0 break-words text-muted-foreground text-xs">{label}</span>
+      <span className="min-w-0 break-words font-medium">{value}</span>
     </div>
   );
 }

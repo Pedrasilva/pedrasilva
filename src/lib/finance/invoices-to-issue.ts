@@ -1,5 +1,5 @@
 import type {IncomingTimingRow} from '@/lib/projects/payment-timing';
-import {buildStageNumberMap,formatStageLabel,type NumberableStage} from '@/lib/quotes/stage-numbering';
+import {buildStageNumberMap,formatStageLabel,isConstructionStage,type NumberableStage} from '@/lib/quotes/stage-numbering';
 
 export type InvoiceWorkflow = {confirmed_at:string|null; confirmed_by:string|null; note:string|null; confirmation_current:boolean; invoice_number:string|null; issue_date:string|null};
 export type IssueRow = IncomingTimingRow & {project_name:string; client_name:string|null; workflow:InvoiceWorkflow; pm_date_moves:number;project_stages?:NumberableStage[]};
@@ -33,4 +33,8 @@ export function monthlyIncoming(rows:IssueRow[]){
     const month=row.planned_payment_date.slice(0,7);months.set(month,(months.get(month)??0)+Number(row.amount_value));
   }
   return {months:[...months].sort(([a],[b])=>a.localeCompare(b)).map(([month,amount])=>({month,amount})),undated};
+}
+/** Cross-project urgency stays chronological; construction last only breaks equal-date ties. */
+export function sortInvoiceQueue(rows: IssueRow[]): IssueRow[] {
+  return [...rows].sort((a,b) => (a.planned_invoice_date ?? "9999").localeCompare(b.planned_invoice_date ?? "9999") || Number(isConstructionStage(a.project_stages?.find(s=>s.id===a.stage_id) ?? {id:a.stage_id??"",name:a.stage_name??""})) - Number(isConstructionStage(b.project_stages?.find(s=>s.id===b.stage_id) ?? {id:b.stage_id??"",name:b.stage_name??""})) || a.project_id.localeCompare(b.project_id) || (a.sort_order??0)-(b.sort_order??0));
 }
