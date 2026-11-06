@@ -1,5 +1,31 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Gantt global: correção e tentativa única — 6 novembro 17:06 UTC
+**Resultado final: B1 OFF/revisão 8; Fase A ON. A tentativa foi interrompida no primeiro check e não foi repetida. B2 não iniciado.**
+
+### Correção
+- A falha anterior estava comprovada na captura de Patricia (`0 € / —` e `€0 / —`). Cabeçalhos financeiros globais agora exigem Financials + Budget autorizados no projeto, incluindo estado de acesso carregado; sem autorização são omitidos. Fases sem alocações não fabricam zero quando o custo está negado.
+- Barras, indicadores de consumo/excesso, orçamento do outline, popover financeiro, preço/custo de alocação e tooltip de marcos respeitam a decisão financeira do projeto. Os controlos operacionais permanecem disponíveis. Rollups de orçamento preservam ausência em folhas, pais e resumo do projeto; não convertem null/NaN em zero.
+- O Gantt atual não tem um total monetário transversal a vários projetos: cada cabeçalho soma apenas fases daquele projeto autorizado. Testou-se também o primitivo de soma autorizada (1000 + 200, excluindo 9999 negados = 1200; todos negados = indisponível), sem acrescentar uma nova barra de totais.
+- Ficheiros: `src/routes/_app.projects.gantt.tsx`, `src/components/projects/gantt-chart.tsx`, `src/components/projects/gantt-outline-column.tsx`, `src/lib/projects/build-project-gantt-tree.ts`, novo `src/lib/projects/gantt-financial-visibility.ts`, `scripts/test-gantt-financial-visibility.test.ts`, regra em `src/lib/projects/AGENTS.md`, `roadmap.md` e este relatório. Nenhuma migração/escrita de dados reais.
+
+### Cópia descartável antes do corte
+- Um projeto `[QA DISPOSABLE] B1 global Gantt 20261106-1716`, ID `33560505-a08e-4317-8202-b728e0a0a3e9`, uma fase de orçamento 1000 EUR, Rita manager quatro ON e Patricia support quatro OFF. Nenhuma nova identidade, recurso, hora, snapshot ou alocação.
+- Sessões autenticadas próprias: projeção proposta lida do servidor com as áreas reais. Para testar a apresentação antes do corte, o navegador mostrou apenas essa cópia e simulou a flag B1 ON; **não se confunde esta revisão com uma certificação live ON**. Rita viu orçamento 1000 e custo genuinamente zero (sem alocações); Patricia não viu moeda, orçamento ou indicadores financeiros. Capturas inspecionadas visualmente.
+- Snapshot e referências verificados antes de eliminar apenas a fase/projeto exatos. Leitura independente confirmou projeto=0, fases=0, equipa=0 e acessos=0; não havia alocações/horas antes da eliminação. Auditoria das concessões descartáveis preservada.
+- 40 testes passaram na primeira execução (8 novos + 29 scheduling + 3 B1 values), mais 15 no recheck incluindo receita B1. Último estado observado da compilação: OK.
+
+### Tentativa live ON e rollback
+- Matriz integral ordenada por `(user_id, project_id, area)`: **1176 linhas, zero diferenças de conteúdo** contra a matriz anterior. Hash SHA-256 `2a8091b4da9164a9b8c2acbdd825dfaad92d54988a1d30b774d0f7b7ec506a41` usa essa ordenação explícita; a mudança do hash em relação ao relatório anterior não é mudança de conteúdo (a igualdade de todos os objetos foi verificada).
+- Ação administrativa auditada `pm_change_project_b1_cutover`, motivo `Approved by Luis 2026-11-06`: revisão **7 ON às 17:29:18.739324 UTC**. Nesta etapa não houve interceção/simulação de respostas; Rita confirmou gate real ON.
+- **Primeiro check falhou em Rita/Mint Overview:** captura mostrou custo agregado apenas **48 EUR**, lucro **-48 EUR**, receita indisponível e margem `—`, em vez de **3086 /1812 /1274 /41%**; também mostrou equipa/cliente ausentes. Não foi uma repetição da exposição do Gantt a Patricia. A causa imediata observável foi a ausência dos totais de entradas/custos na renderização; não se atribui uma causa técnica definitiva nem se afirma alteração de dados. O executor aguardou cinco segundos; não foi feita outra ativação para investigar.
+- **Rollback imediato revisão 8 OFF às 17:29:34.170592 UTC**, confirmado por leitura independente da auditoria. Rita/Uralchem, Patricia, Tatiana e Gantt global live ON não foram concluídos: paragem obrigatória ao primeiro erro. A correção do Gantt está testada na cópia/revisão OFF, mas **a certificação live ON continua pendente**.
+- Evidências em `project-access-phase-b1/global-gantt-20261106/`: projeções/capturas descartáveis, snapshot de limpeza, leituras zero, matriz/comparação, captura/texto do primeiro check e transições auditadas. Nada foi escrito em projetos reais; apenas concessões da cópia eliminada e ON/OFF auditados.
+
+![Cópia: Patricia sem valores financeiros](project-access-phase-b1/global-gantt-20261106/fixture-patricia.png)
+![Cópia: Rita com orçamento autorizado](project-access-phase-b1/global-gantt-20261106/fixture-rita.png)
+![Primeiro check Rita/Mint que provocou rollback](project-access-phase-b1/global-gantt-20261106/live-rita-mint-overview.png)
+
 ## Corte curto autorizado — 6 novembro 2026, pedido 12:58 UTC
 **Resultado final: B1 OFF, revisão 6; Fase A ON, revisão 27. Rollback imediato ao primeiro check falhado.**
 
