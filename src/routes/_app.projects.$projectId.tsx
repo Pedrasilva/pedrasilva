@@ -270,7 +270,8 @@ function ProjectDetail() {
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
   // Pre-contract (pursuit) hours on this project's CRM lead — folded into cost.
-  const { data: pursuitRows } = usePursuitTotals([projectId], b1.data ? !!viewerAreas.data?.budget_cost : canSeeFinancials, true);
+  const pursuitEnabled = b1.data ? !!viewerAreas.data?.budget_cost : canSeeFinancials;
+  const { data: pursuitRows } = usePursuitTotals([projectId], pursuitEnabled, true);
   const pursuit = useMemo(
     () =>
       pursuitByProject(
@@ -510,7 +511,12 @@ function ProjectDetail() {
 
   // Actuals follow the author, independently of bookings. Reconcile restricted
   // RLS coverage with existing privacy-safe totals; do not invent sale rates.
+  // Until every source has loaded, figures are incomplete, never zero.
+  const figuresReady = timeRows !== undefined && historical !== undefined
+    && (!canSeeFinancials || entryFiguresQ.data !== undefined)
+    && (!pursuitEnabled || pursuitRows !== undefined);
   const stageActuals = (stageId: string) => {
+    if (!figuresReady) return { revenue: NaN, cost: NaN, profit: NaN };
     const entries = (entryFiguresQ.data ?? []).filter(e => e.stageId === stageId);
     const logged = stageLoggedHours(stageId);
     const rawHours = entries.reduce((n,e) => n + e.hours, 0);
