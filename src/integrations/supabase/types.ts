@@ -19324,7 +19324,10 @@ export type Database = {
         Returns: boolean
       }
       pm_project_b1_active: { Args: never; Returns: boolean }
+      pm_project_b1_gate_state: { Args: never; Returns: Json }
+      pm_project_b1_header_preview: { Args: never; Returns: boolean }
       pm_project_b1_preview: { Args: never; Returns: Json }
+      pm_project_b1_recorded_active: { Args: never; Returns: boolean }
       pm_project_has_retainer: {
         Args: { _project_id: string }
         Returns: boolean
