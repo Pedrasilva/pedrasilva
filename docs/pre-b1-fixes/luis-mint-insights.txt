@@ -1,0 +1,145 @@
+CRM / Sales
+Projects
+Finance
+Team / HR
+Time
+Tasks
+Schedule
+9+
+L
+All projects
+Clinica Mint II
+ACTIVE
+Origin: converted proposal
+SMILEPROVIDER, LDA
+·
+1 Jun – 23 Jul 2027
+· 259d
+Pause
+Close out
+Archive
+Delete project
+Overview
+Insights
+Retainer
+Approvals
+Notes
+Expenses
+Project billing
+Architecture
+Suppliers
+Incoming
+Outgoing
+Payment schedule
+Financial summary
+CLIENT
+SMILEPROVIDER, LDA
+PROJECT DETAILS
+Status
+Active
+Start
+1 Jun 2026
+End
+23 Jul 2027
+Remaining
+259d
+TEAM
+MANAGER
+RS
+SUPPORT
+RC
+Manage team
+BUDGET USAGE
+€1,812 / €30,980
+6%
+PROFIT
+€1,274
+41%
+NOTES
+
+Created from approved proposal
+
+Pre-contract (pursuit)
+1h00 · €48
+From lead: Clinica Mint II
+Change lead
+
+Hours logged on this project's lead before it was won, at each person's cost rate. Included in the project's total cost.
+
+SCOPE
+Whole project
+2 [1] Programa Base / Conceito
+3 Análise e aprovação (cliente)
+4 [2] Estudo Prévio
+5 Análise e aprovação (cliente)
+6 [4] Projeto de Execução
+1 [6] Assistência Técnica à Obra
+  1.1 2026-11 — [6] Assistência Técnica à Obra
+  1.2 2026-12 — [6] Assistência Técnica à Obra
+  1.3 2027-01 — [6] Assistência Técnica à Obra
+  1.4 2027-02 — [6] Assistência Técnica à Obra
+ACTIVITIES VS. HOURS
+Jul 2026
+Aug 2026
+Oct 2026
+Nov 2026
+0
+1
+2
+3
+4
+Activities
+0
+10
+20
+30
+40
+Hours
+ActivitiesHours
+
+Jul 2026
+
+REVENUE
+Actual Revenue: €3,086 (100%)
+Planned sale value: €3,086 (100%)
+Actual = billable hours × sale rate. Planned = total allocated hours × sale rate.
+
+Earned value includes current sale prices where no saved price exists
+
+PROFITABILITY
+CURRENT MARGIN:
+€1,274
+41%
+ESTIMATED MARGIN AT COMPLETION:
+€1,274
+41%
+BILLABLE
+58.5 h
+NON-BILLABLE
+0 h
+TOTAL LOGGED
+58.5 h
+FINANCIALS
+	SERVICES	SUPPLIERS	EXPENSES	TOTAL
+Budget	€30,980	€0	€0	€30,980
+Value	€3,086	€0	€0	€3,086
+Cost	€1,812	€0	€0	€1,812
+Profit	€1,274
+41%
+	€0	€0	€1,274
+41%
+
+Invoiced	€0	€0	€0	€0
+WORK
+REMAINING PLAN
+0h
+View tasks
+HOURS CONSUMED
+11%
+WORK DONE
+RC
+58h 30m
+BUDGET
+RC
+0%
+10

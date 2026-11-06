@@ -1,0 +1,40 @@
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+R
+Todos os projetos
+2502 Uralchem IV
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+2 jun – 12 mar 2027
+· 126d
+Resumo
+Análises
+Avença
+Notas
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+2 jun 2026
+Fim
+12 mar 2027
+Restante
+126d
+EQUIPA
+Sem equipa ainda
+NOTAS
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Projeto	Horas registadas / planeadas
+1 F1 - Programme Definition	109,8 / 0
+2 F2 - Concept Design	1104,8 / 0
+3 F3 - Developed Design	0 / 0

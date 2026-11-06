@@ -19044,6 +19044,15 @@ export type Database = {
         Args: { _kind: string; _project: string; _row: Json; _user: string }
         Returns: Json
       }
+      pm_b1_review_stage_locked_cost: {
+        Args: { _project: string }
+        Returns: {
+          month: string
+          snap_cost: number
+          stage_id: string
+          unsnap_hours: number
+        }[]
+      }
       pm_b1_stage_hours: {
         Args: { _project: string }
         Returns: {

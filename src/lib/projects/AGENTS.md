@@ -1,6 +1,7 @@
 # Projects module rules
 
 - B1 operational readers use caller-scoped pm_b1 projections behind the independent audited B1 gate; legacy B2/B3 readers remain explicitly mapped, missing financial numbers propagate as unavailable and integrated margins require every contributing area. Why: staged rollout must not expose denied values or rewrite operational history.
+- Project-detail pursuit reads use the Budget-scoped B1 projection when B1 is active, retaining legacy consumers outside B1. Why: all-authorized project totals must include the same pre-contract costs without leaking denied Budget values.
 
 - Incoming dates use the guarded read-only operational timing resolver and audited date-only actions; frozen invoice/payment dates outrank manual overrides and live milestones, while contract comparison requires unique accepted-snapshot evidence. Why: Gantt edits must move forecasts without rewriting contractual or fiscal history.
 - Converted payment offsets use the strict database terms parser with explicit missing/unreadable review state; historical offset corrections use the admin-only reviewed action and exact non-offset row equality. Why: payment terms must not silently contradict forecasts or rewrite fiscal evidence.
