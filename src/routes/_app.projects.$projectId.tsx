@@ -270,7 +270,7 @@ function ProjectDetail() {
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
   // Pre-contract (pursuit) hours on this project's CRM lead — folded into cost.
-  const { data: pursuitRows } = usePursuitTotals([projectId], canSeeFinancials);
+  const { data: pursuitRows } = usePursuitTotals([projectId], b1.data ? !!viewerAreas.data?.budget_cost : canSeeFinancials, true);
   const pursuit = useMemo(
     () =>
       pursuitByProject(

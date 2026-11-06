@@ -36,5 +36,5 @@ export function monthlyIncoming(rows:IssueRow[]){
 }
 /** Cross-project urgency stays chronological; construction last only breaks equal-date ties. */
 export function sortInvoiceQueue(rows: IssueRow[]): IssueRow[] {
-  return [...rows].sort((a,b) => (a.planned_invoice_date ?? "9999").localeCompare(b.planned_invoice_date ?? "9999") || Number(isConstructionStage(a.project_stages?.find(s=>s.id===a.stage_id) ?? {id:a.stage_id??"",name:a.stage_name??""})) - Number(isConstructionStage(b.project_stages?.find(s=>s.id===b.stage_id) ?? {id:b.stage_id??"",name:b.stage_name??""})) || a.project_id.localeCompare(b.project_id) || (a.sort_order??0)-(b.sort_order??0));
+  return [...rows].sort((a,b) => (a.planned_invoice_date ?? "9999").localeCompare(b.planned_invoice_date ?? "9999") || Number(isConstructionStage(a.project_stages?.find(s=>s.id===a.stage_id) ?? {id:a.stage_id??"",name:a.stage_name??""})) - Number(isConstructionStage(b.project_stages?.find(s=>s.id===b.stage_id) ?? {id:b.stage_id??"",name:b.stage_name??""})) || a.project_id.localeCompare(b.project_id) || a.id.localeCompare(b.id));
 }
