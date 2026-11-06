@@ -1,0 +1,12 @@
+{
+  "checks": [],
+  "on": {
+    "active": true,
+    "revision": 7
+  },
+  "failure": "('rita', 'mint', 'overview', 'missing expected totals')",
+  "rollback": {
+    "active": false,
+    "revision": 8
+  }
+}

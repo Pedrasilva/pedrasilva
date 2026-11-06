@@ -1,0 +1,188 @@
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+R
+
+ATELIER
+
+Gantt global
+
+Todos os projetos Ativo num único Gantt. Arraste recursos do painel lateral para qualquer fase, ou mova uma alocação existente entre fases ou projetos pelo ícone à esquerda.
+
+Novo projeto
+Ativo
+1
+Em pausa
+0
+Arquivado
+0
+DIA
+SEMANA
+MÊS
+TRIMESTRE
+ANO
+28 px
+Recolher equipa
+Ecrã inteiro
+[QA DISPOSABLE] B1 global Gantt 20261106-1716
+1 fase
+
+0 € / 1000 €
+
+Adicionar fase
+Mostrar horas registadas
+#
+MARCOS E TAREFAS
+D.Ú.
+INÍCIO
+PRAZO
+0
+Projeto
+2
+09/11/2026
+10/11/2026
+1
+[QA DISPOSABLE] Design
+2
+09/11/2026
+10/11/2026
+Inserir fase
+NOVEMBRO 2026
+DEZEMBRO 2026
+S
+2
+T
+3
+Q
+4
+Q
+5
+S
+6
+S
+7
+D
+8
+S
+9
+T
+10
+Q
+11
+Q
+12
+S
+13
+S
+14
+D
+15
+S
+16
+T
+17
+Q
+18
+Q
+19
+S
+20
+S
+21
+D
+22
+S
+23
+T
+24
+Q
+25
+Q
+26
+S
+27
+S
+28
+D
+29
+S
+30
+T
+1
+Q
+2
+Q
+3
+S
+4
+S
+5
+D
+6
+S
+7
+T
+8
+Q
+9
+Q
+10
+S
+11
+S
+12
+D
+13
+S
+14
+T
+15
+Q
+16
+Q
+17
+S
+18
+S
+19
+D
+20
+S
+21
+T
+22
+Q
+23
+Q
+24
+S
+25
+S
+26
+D
+27
+S
+28
+T
+29
+Q
+30
+Q
+31
+Hoje
+PROJETO
+[QA DISPOSABLE] Design
+2 d.ú.
+€0
+/
+€1,000
+
+ARRASTE PARA UMA FASE
+
+Recursos da equipa
+
+Esta semana · nov 2 – nov 8
+
+Sem membros ativos na equipa. Adicione ou ative alguém no separador Equipa para começar a alocar.

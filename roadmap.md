@@ -1,7 +1,8 @@
 ## Current request — 6 November 17:06 global Gantt repair
-- [ ] Hide denied project financial values across headers, bars, outline and popovers; test allowed-only aggregation.
-- [ ] One disposable all-OFF/all-ON project, cleanup and independent zero.
-- [ ] Order-independent matrix comparison and one audited B1 retry; Rita, Patricia, Tatiana live checks; immediate rollback on failure. Report and stop, no B2.
+- [x] Hide denied project financial values across headers, bars, outline and popovers; 40 tests passed, allowed-only aggregation covered.
+- [x] One disposable all-OFF/all-ON project in OFF-gate presentation review, cleanup and independent zero; evidence saved.
+- [x] Order-independent 1176-row equality and one audited B1 retry revision 7; first Rita Mint Overview showed only 48 cost/-48 profit, immediate rollback revision 8 OFF. Report and stop, no B2.
+- [ ] Remaining live checks blocked by mandatory rollback on Rita/Mint totals failure; requires new authorization, no further retry in this request.
 
 ## Current request — 6 November 12:58 B1 short cutover
 - [x] Complete 1,176-row order-independent comparison identical; audited activation revision 5 with approved reason.
