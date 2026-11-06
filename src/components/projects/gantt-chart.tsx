@@ -1097,7 +1097,7 @@ export function GanttChart({
                   <TooltipContent side="top" className="text-xs">
                     <div className="font-semibold">{m.label}</div>
                     <div className="font-mono">
-                      {euros(m.amount)} ·{" "}
+                      {(adapter?.mode === 'quote' || showFinancials) && <>{euros(m.amount)} ·{" "}</>}
                       {format(parseISO(m.date), "d MMM yyyy", { locale: dateLocale })}
                     </div>
                     {m.status && (
@@ -1825,7 +1825,7 @@ export function GanttChart({
                                       </>
                                     );
                                   })()}
-                                  <span>{euros(cost)}</span>
+                                  {(adapter?.mode === 'quote' || showFinancials) && <span>{euros(cost)}</span>}
                                 </div>
                               </div>
 
@@ -1889,10 +1889,10 @@ export function GanttChart({
                                 <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
                                 <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day) })}</span>
-                                <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
+                                {(adapter?.mode === 'quote' || showFinancials) && <><span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
                                 <span className="font-mono">{euros(costRate)} {i18n.t("common:units.perHour")} </span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>
-                                <span className="font-mono font-semibold">{euros(cost)}</span>
+                                <span className="font-mono font-semibold">{euros(cost)}</span></>}
                               </div>
                               {isOver && (
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-destructive/10 p-1.5 text-[11px] text-destructive">
