@@ -178,5 +178,8 @@
     "usage": "Sometimes 'utilization', sometimes 'capacity used'. Distinguish ratio vs absolute hours.",
     "rate": "Always disambiguate as 'Cost Rate' or 'Sale Rate'.",
     "fee": "PT-only legal/business term retained even in EN UI per Portuguese practice."
+  },
+  "proposalRole": {
+    "unassigned": "Unassigned"
   }
 }
