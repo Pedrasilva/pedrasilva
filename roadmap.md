@@ -1,3 +1,7 @@
+## Current request — 6 November 12:58 B1 short cutover
+- [ ] Compare complete matrix content independently of order; stop on differences.
+- [ ] Audited activation, live Rita/Patricia/Tatiana checks, immediate rollback on failure; report and stop, no B2.
+
 ## Current request — 6 November pre-B1 fixes
 - [x] Details reproduced overflowing at 800; 800/1050/1400 verified, contextual status actions, Phase A ON banner absent.
 - [x] Budget-scoped pursuit projection and own-session OFF review: Rita/Luis 3086 revenue /1812 cost /1274 profit /41%; B1 stays OFF.
