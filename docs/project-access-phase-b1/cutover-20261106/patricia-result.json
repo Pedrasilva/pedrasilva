@@ -1,0 +1,65 @@
+{
+  "matrixRows": 1176,
+  "hash": "13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339",
+  "checks": [
+    {
+      "person": "Patricia",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "tab": "overview",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    },
+    {
+      "person": "Patricia",
+      "project": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+      "tab": "insights",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    },
+    {
+      "person": "Patricia",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "tab": "overview",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    },
+    {
+      "person": "Patricia",
+      "project": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+      "tab": "insights",
+      "passed": true,
+      "areas": {
+        "active": true,
+        "expenses": false,
+        "financials": false,
+        "budget_cost": false,
+        "supplier_fees": false
+      }
+    }
+  ],
+  "failure": "Patricia global Gantt financial figure visible",
+  "rollback": {
+    "active": false,
+    "revision": 6
+  },
+  "finalB1Active": false,
+  "phaseAActive": true
+}
