@@ -15,6 +15,7 @@ import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructi
  * is treated as the "architecture" role for the outline column.
  */
 import type { StageWithAllocations } from "@/lib/projects/types";
+import { visibleGanttNumber } from './gantt-financial-visibility';
 import type {
   StageWithProject,
   GanttHierarchyNode,
@@ -71,7 +72,7 @@ export function buildProjectGanttTree(
   const computeRollup = (node: StageWithAllocations): { start: string; end: string; budget: number } => {
     const kids = childrenByParent.get(node.id) ?? [];
     if (kids.length === 0) {
-      return { start: node.start_date, end: node.end_date, budget: Number(node.budget ?? 0) || 0 };
+      return { start: node.start_date, end: node.end_date, budget: visibleGanttNumber(node.budget, true) };
     }
     let minStart = "";
     let maxEnd = "";
@@ -114,7 +115,7 @@ export function buildProjectGanttTree(
       start_date: minStart,
       end_date: maxEnd,
       color: "#0f172a",
-      budget: roots.reduce((sum, r) => sum + (rollup.get(r.id)?.budget ?? (Number(r.budget ?? 0) || 0)), 0),
+      budget: roots.reduce((sum, r) => sum + (rollup.get(r.id)?.budget ?? visibleGanttNumber(r.budget, true)), 0),
       sort_order: -1,
       parent_stage_id: null,
       allocations: [],

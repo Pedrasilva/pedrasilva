@@ -43,6 +43,8 @@ import {
 } from "lucide-react";
 import { toast } from '@/lib/toast';
 import type { Project } from "@/lib/projects/types";
+import { useProjectB1State, useProjectViewerAreas } from '@/lib/projects/use-project-access';
+import { ganttProjectFigures } from '@/lib/projects/gantt-financial-visibility';
 
 export const Route = createFileRoute("/_app/projects/gantt")({
   head: () => ({ meta: [{ title: "Global project Gantt — PSA Hub" }, { name: "description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Global project Gantt — PSA Hub" }, { property: "og:description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -333,12 +335,7 @@ function GlobalGanttPage() {
                             )}
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <p className="font-mono text-xs">
-                                <span className={over ? "font-semibold text-destructive" : ""}>{euros(c.cost)}</span>
-                                <span className="text-muted-foreground"> / {euros(c.budget)}</span>
-                              </p>
-                            </div>
+                            <ProjectFinancialSummary projectId={p.id} stages={stages} rates={defaultRates} legacy={c} />
                             <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
                               {STATUS_TABS.map(({ id, Icon, label }) => (
                                 <button
@@ -422,4 +419,13 @@ function GlobalGanttPage() {
 function euros(value: number): string {
   if(!Number.isFinite(value))return '—';
   return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+}
+
+function ProjectFinancialSummary({ projectId, stages, rates, legacy }: { projectId: string; stages: StageWithProject[]; rates: Parameters<typeof ganttProjectFigures>[2]; legacy: { cost: number; budget: number } }) {
+  const b1 = useProjectB1State();
+  const areas = useProjectViewerAreas(projectId);
+  const allowed = b1.data === false || (b1.data === true && !!areas.data?.financials && !!areas.data?.budget_cost);
+  if (!allowed) return null;
+  const c = b1.data ? ganttProjectFigures(stages, allowed, rates) : legacy;
+  return <div className="text-right"><p className="font-mono text-xs"><span className={c.cost > c.budget ? 'font-semibold text-destructive' : ''}>{euros(c.cost)}</span><span className="text-muted-foreground"> / {euros(c.budget)}</span></p></div>;
 }

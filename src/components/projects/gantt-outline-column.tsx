@@ -56,6 +56,7 @@ export interface StageBoundsUpdate {
 }
 
 interface Props {
+  financialVisible?: boolean;
   relative?:boolean;
   actuals?: GanttActuals;
   actualFinancials?: boolean;
@@ -132,6 +133,7 @@ function durDays(start?: string | null, end?: string | null): number {
 }
 
 export function GanttOutlineColumn({
+  financialVisible: propsFinancialVisible = true,
   relative=false,
   actuals,
   actualFinancials=false,
@@ -172,7 +174,7 @@ export function GanttOutlineColumn({
   const showDur = width >= base + COL.dur;
   const showStart = showDur && width >= base + COL.dur + COL.start;
   const showDue = showStart && width >= base + COL.dur + COL.start + COL.due;
-  const showBudget = showDue && width >= base + COL.dur + COL.start + COL.due + COL.budget;
+  const showBudget = propsFinancialVisible && showDue && width >= base + COL.dur + COL.start + COL.due + COL.budget;
   const showDep = showBudget && width >= base + COL.dur + COL.start + COL.due + COL.budget + COL.dep;
 
   const fixedTotal =
@@ -417,7 +419,7 @@ export function GanttOutlineColumn({
                 {showBudget && (
                   <div style={{ width: COL.budget }} className="shrink-0 text-right">
                     <BudgetCell
-                      value={Number(stage.budget ?? 0)}
+                      value={stage.budget == null ? NaN : Number(stage.budget)}
                       summary={isSummary || hasChildren}
                       editable={!!onUpdateStageBudget && !isSummary && !hasChildren}
                       onCommit={async (n) => {

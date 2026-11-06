@@ -871,6 +871,7 @@ export function GanttChart({
           relative={relative}
           actuals={actuals}
           actualFinancials={!!showFinancials}
+          financialVisible={adapter?.mode === 'quote' || !!showFinancials}
           visibleStages={stages}
           hierarchy={hierarchy}
           collapsed={collapsed ?? new Set()}
@@ -1096,7 +1097,7 @@ export function GanttChart({
                   <TooltipContent side="top" className="text-xs">
                     <div className="font-semibold">{m.label}</div>
                     <div className="font-mono">
-                      {euros(m.amount)} ·{" "}
+                      {(adapter?.mode === 'quote' || showFinancials) && <>{euros(m.amount)} ·{" "}</>}
                       {format(parseISO(m.date), "d MMM yyyy", { locale: dateLocale })}
                     </div>
                     {m.status && (
@@ -1491,7 +1492,7 @@ export function GanttChart({
                           <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd, relative ? NO_HOLIDAYS : undefined)}{" "}{t("gantt.wdShort")}
                           </span>
-                          {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
+                          {(adapter?.mode === 'quote' || showFinancials) && isSupplierBar && Number(stage.budget ?? 0) > 0 && (
                             <span className="ml-auto shrink-0 rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
                               {euros(Number(stage.budget))}
                             </span>
@@ -1500,7 +1501,7 @@ export function GanttChart({
 
 
                         {actuals && hoursAreImplied && displayHours>0 && <span className="text-[10px] text-muted-foreground">≈{Math.round(displayHours)} {i18n.t("common:units.hoursDot")} {t("gantt.actuals.estimate")}</span>}
-                        {!actuals && !isSupplierBar && !isClientBar && (
+                        {!actuals && !isSupplierBar && !isClientBar && (adapter?.mode === 'quote' || showFinancials) && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
@@ -1824,7 +1825,7 @@ export function GanttChart({
                                       </>
                                     );
                                   })()}
-                                  <span>{euros(cost)}</span>
+                                  {(adapter?.mode === 'quote' || showFinancials) && <span>{euros(cost)}</span>}
                                 </div>
                               </div>
 
@@ -1888,10 +1889,10 @@ export function GanttChart({
                                 <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE, relative ? NO_HOLIDAYS : undefined) })}</span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
                                 <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE, effortHolidays) * Number(a.hours_per_day) })}</span>
-                                <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
+                                {(adapter?.mode === 'quote' || showFinancials) && <><span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
                                 <span className="font-mono">{euros(costRate)} {i18n.t("common:units.perHour")} </span>
                                 <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>
-                                <span className="font-mono font-semibold">{euros(cost)}</span>
+                                <span className="font-mono font-semibold">{euros(cost)}</span></>}
                               </div>
                               {isOver && (
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-destructive/10 p-1.5 text-[11px] text-destructive">

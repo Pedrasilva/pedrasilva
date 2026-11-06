@@ -1,5 +1,7 @@
 # Projects module rules
 
+- Global Gantt financial headers, outline, bars and popovers require caller-scoped project area approval; empty allocations never make a denied cost zero and rollups propagate missing budgets. Why: operational visibility must not manufacture financial values.
+
 - B1 operational readers use caller-scoped pm_b1 projections behind the independent audited B1 gate; legacy B2/B3 readers remain explicitly mapped, missing financial numbers propagate as unavailable and integrated margins require every contributing area. Why: staged rollout must not expose denied values or rewrite operational history.
 - Project-detail pursuit reads use the Budget-scoped B1 projection when B1 is active, retaining legacy consumers outside B1. Why: all-authorized project totals must include the same pre-contract costs without leaking denied Budget values.
 
