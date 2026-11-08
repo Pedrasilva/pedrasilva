@@ -1659,11 +1659,13 @@ Programa
 21
 01/06/2026
 01/07/2026
+João Almeida
 2
 Conceito
 67
 01/07/2026
 01/10/2026
+Irene Cunha
 Inserir fase
 MAIO 2026
 JUNHO 2026
@@ -1974,8 +1976,12 @@ Q
 PROJETO
 Programa
 21 d.ú.
+João Almeida
+0 h/dia
 Conceito
 67 d.ú.
+Irene Cunha
+0 h/dia
 2663 Alteração de loteamento - Ericeira
 · Rubén Calvo Rodriguez
 6 fases
@@ -2005,6 +2011,8 @@ Due Dilligence
 5
 17/08/2026
 21/08/2026
+Bernardo Nadais
+Luis Pedra Silva
 1.2
 Plano Geral
 10
@@ -2435,6 +2443,10 @@ PROJETO
 AVALIAÇÃO E VIABILIDADE
 Due Dilligence
 5 d.ú.
+Bernardo Nadais
+0 h/dia
+Luis Pedra Silva
+0 h/dia
 Plano Geral
 10 d.ú.
 Preparação PIP
@@ -3584,6 +3596,9 @@ Assistencia técnica
 148
 01/06/2026
 07/01/2027
+Francisco Oliveira
+João Almeida
+Irene Cunha
 Inserir fase
 MAIO 2026
 JUNHO 2026
@@ -4094,6 +4109,12 @@ Hoje
 PROJETO
 Assistencia técnica
 148 d.ú.
+Francisco Oliveira
+0 h/dia
+João Almeida
+0 h/dia
+Irene Cunha
+0 h/dia
 2609 Mastercard
 32 fases
 Adicionar fase
@@ -5591,25 +5612,11 @@ F1 - Programme Definition
 38
 02/06/2026
 27/07/2026
-Ricardo Cabrita
-João Almeida
-Bernardo Nadais
-Ricardo Conceição
 2
 F2 - Concept Design
 88
 01/07/2026
 02/11/2026
-Ricardo Conceição
-20%
-Luis Pedra Silva
-20%
-Patricia Reis
-30%
-Ricardo Cabrita
-75%
-Francisco Oliveira
-75%
 3
 F3 - Developed Design
 86
@@ -6255,29 +6262,8 @@ Hoje
 PROJETO
 F1 - Programme Definition
 38 d.ú.
-RC
-Ricardo Cabrita
-0 h/dia
-João Almeida
-6 h/dia
-Bernardo Nadais
-0 h/dia
-Ricardo Conceição
-0 h/dia
 F2 - Concept Design
 88 d.ú.
-Ricardo Conceição
-1.6 h/dia
-Luis Pedra Silva
-1 h/dia
-PR
-Patricia Reis
-2.4 h/dia
-RC
-Ricardo Cabrita
-6 h/dia
-Francisco Oliveira
-6 h/dia
 F3 - Developed Design
 86 d.ú.
 FS

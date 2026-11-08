@@ -65,14 +65,20 @@ TOTALS_JS = r"""
 """
 
 
+def norm(text: str) -> str:
+    # Locale formatting uses no-break/narrow spaces; compare on plain spaces.
+    return text.replace("\u00a0", " ").replace("\u202f", " ")
+
+
 def parse(text: str) -> dict:
-    def g(rx):
-        m = re.search(rx, text, re.I)
+    text = norm(text)
+    def g(rx, flags=re.I):
+        m = re.search(rx, text, flags)
         return m.group(1).strip() if m else None
     profit = g(r"\n(?:LUCRO|PROFIT)\s*\n([^\n]+\n[^\n]+)")
     p, mg = (profit.split("\n") + [None])[:2] if profit else (None, None)
     return {
-        "client": g(r"(?:CLIENTE|CLIENT)\s*\n([^\n]+)"),
+        "client": g(r"\n(?:CLIENTE|CLIENT)\n([^\n]+)", 0),
         "budget": g(r"(?:USO DO ORÇAMENTO|BUDGET USAGE)\s*\n([^\n]+)"),
         "profit": p and p.strip(), "margin": mg and mg.strip(),
         "revenue": g(r"(?:Receita real:|Actual Revenue:)\s*([^\n(]+)"),
@@ -83,6 +89,7 @@ def parse(text: str) -> dict:
 
 
 def judge(kind: str, v: dict, text: str) -> list[str]:
+    text = norm(text)
     fails = []
     if kind == "figures":
         for k in ("budget", "profit", "margin"):
