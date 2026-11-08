@@ -65,7 +65,7 @@ async def main():
   baseline=await export('current-copy')
   # Use the actual top control on the copied stage block. No real proposal IDs can be written.
   await toolbar.get_by_role('button',name='Edit',exact=True).click();stage=next(r for r in state['blocks'] if r['block_type']=='stage_item');await page.locator(f'[data-proposal-block-id="{stage["id"]}"]').first.click();panel=page.locator('#proposal-split-settings')
-  heading=panel.get_by_role('combobox',name='Heading level',exact=True);assert await heading.is_visible();await heading.click();await page.get_by_role('option',name='H2',exact=True).click();await ready();assert (next(r for r in state['blocks'] if r['id']==stage['id'])['content_rich']['headingLevel'])=='h2'
+  heading=panel.get_by_role('combobox',name='Heading level',exact=True);assert await heading.is_visible();await heading.click();await page.get_by_role('option',name='H2',exact=False).click();await ready();assert (next(r for r in state['blocks'] if r['id']==stage['id'])['content_rich']['headingLevel'])=='h2'
   await panel.screenshot(path=str(ROOT/'settings-heading.png'))
   scroll=panel.locator('[data-block-settings-scroll]');await scroll.evaluate('n=>n.scrollTop=n.scrollHeight');bottom=await scroll.evaluate('n=>({top:n.scrollTop,max:n.scrollHeight-n.clientHeight})');assert abs(bottom['top']-bottom['max'])<2,bottom
   await scroll.get_by_role('button',name='Delete',exact=True).click();assert await page.get_by_role('alertdialog').is_visible();await page.get_by_role('alertdialog').get_by_role('button',name='Cancel',exact=True).click()
