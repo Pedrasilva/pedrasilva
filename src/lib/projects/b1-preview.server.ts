@@ -6,12 +6,8 @@ import { getRequest } from '@tanstack/react-start/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
-export const B1_PREVIEW_HEADER = 'x-psa-b1-preview';
-
-/** Pure decision, shared with tests: forward only "on" from an admin with a bearer session. */
-export function shouldForwardB1Preview(marker: string | null | undefined, auth: string | null | undefined, isAdmin: boolean): boolean {
-  return marker === 'on' && !!auth?.startsWith('Bearer ') && isAdmin === true;
-}
+import { B1_PREVIEW_HEADER, shouldForwardB1Preview } from './b1-preview-marker';
+export { B1_PREVIEW_HEADER };
 
 export async function withB1PreviewHeader(fallback: SupabaseClient<Database>, userId: string): Promise<SupabaseClient<Database>> {
   const request = getRequest();
