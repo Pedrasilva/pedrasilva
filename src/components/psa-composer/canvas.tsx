@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BLOCK_UI_KEYS } from "./editor-labels";
 import { BlockBody } from "./block-renderer";
+import { blockHeadingLevel, computeSectionNumbers, type SectionTocEntry } from "@/lib/psa-proposal/heading-levels";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
@@ -81,8 +82,8 @@ function SortableRow({
   readOnly,
 }: {
   block: PsaProposalBlock;
-  chapter: number | null;
-  toc: { chapter: number; title: string }[];
+  chapter: string | null;
+  toc: SectionTocEntry[];
   selected: boolean;
   quoteIdHint: string | null;
   lang: ProposalLang;
@@ -160,7 +161,7 @@ function SortableRow({
     <div
       ref={setNodeRef}
       style={style}
-      id={chapter != null ? `chapter-${chapter}` : undefined}
+      id={chapter != null ? `chapter-${chapter.replace(/\./g, "-")}` : undefined}
       data-proposal-block-id={block.id}
       data-live-ready={liveReady ? "true" : "false"}
       data-proposal-block-type={block.block_type}
@@ -273,16 +274,7 @@ export function ComposerCanvas({
   const liveForToc = useLiveQuoteSnapshot(firstQuoteRef ?? quoteIdHint, lang).data;
 
   const { chapterByIndex, toc } = useMemo(() => {
-    let n = 0;
-    const idx: (number | null)[] = [];
-    const t: { chapter: number; title: string }[] = [];
-    for (const b of blocks) {
-      if (NON_NUMBERED.includes(b.block_type) || !b.is_visible) {
-        idx.push(null);
-        continue;
-      }
-      n += 1;
-      idx.push(n);
+    const tocTitle = (b: PsaProposalBlock) => {
       let title = (b.title ?? "").trim();
       if (b.block_type === "stage_item") {
         const stageId = (b.source_ref as { stage_id?: string } | undefined)?.stage_id;
@@ -295,10 +287,14 @@ export function ComposerCanvas({
       }
       // Strip trailing "(cópia)"/"(copy)" markers from duplicated blocks.
       title = title.replace(/\s*\((?:cópia|copia|copy)\)\s*$/i, "").trim();
-      if (!title) title = b.block_type;
-      t.push({ chapter: n, title });
-    }
-    return { chapterByIndex: idx, toc: t };
+      return title || b.block_type;
+    };
+    const { chapters, toc: t } = computeSectionNumbers(blocks, {
+      numbered: (b) => !NON_NUMBERED.includes(b.block_type) && b.is_visible,
+      level: blockHeadingLevel,
+      title: tocTitle,
+    });
+    return { chapterByIndex: chapters, toc: t };
   }, [blocks, liveForToc]);
 
   const firstPrintableId = useMemo(
