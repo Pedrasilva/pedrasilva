@@ -32,6 +32,7 @@ Capturas inspecionadas visualmente: Rita Mint Análises, Rita Uralchem Resumo, P
 - Nenhum projeto, proposta, fase, data, montante, equipa, snapshot ou ficheiro de cliente foi alterado. Nenhuma fixture ou conta foi criada. A única escrita de aplicação foi a transição auditada B1 autorizada; sessões temporárias autenticadas apenas para os checks.
 - Sem alterações de aplicação ou migrações nesta tarefa. Ficheiros atualizados: este relatório, evidências e `roadmap.md`.
 - Continuam fora deste corte, sem correção: nome do cliente ausente para Rita pela regra CRM/Finance e orçamento 36 260 € no Gantt global de Mint por soma dos meses da avença, já documentados. Não são novos desvios de B1.
+- Limite da comparação de Tatiana no Gantt: a disponibilidade financeira passou; não se declara igualdade integral do texto global com a captura antiga nem com Luis. A contagem monetária é 199 na captura atual, 178 na antiga e 161 no controlo atual de Luis, com diferenças de linhas de colaboradores/alocações. Estes controlos estão guardados em `tatiana-global-parity.json` e `luis-global-gantt-control.*`; não constituem um teste de igualdade por fase. Os totais de Mint/Uralchem de Tatiana coincidem exatamente com as provas anteriores.
 - Paragem cumprida; aguardar Luis, **sem B2**.
 
 
