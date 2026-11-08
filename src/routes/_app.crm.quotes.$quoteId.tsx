@@ -537,7 +537,7 @@ function QuoteDetail() {
         onValueChange={setActiveTab}
         className={cn("w-full", step === "publish" && "hidden")}
       >
-        <TabsList className={cn("no-print", step === "content" && "hidden")}>
+        <TabsList className="no-print">
           {/* Planning (Gantt + stages) leads — the estimate is built here and
               the calculator sits right after it. External services and Payment
               schedule are project-only. */}
@@ -573,8 +573,9 @@ function QuoteDetail() {
           {visibleTabs.includes("financial") && (
             <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
           )}
-          {/* Proposal tab trigger hidden — content step renders the proposal
-              builder directly without a redundant tab. */}
+          {visibleTabs.includes("proposal") && (
+            <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
