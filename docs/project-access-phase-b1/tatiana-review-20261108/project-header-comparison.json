@@ -1,0 +1,134 @@
+[
+  {
+    "project": "Clinica Mint II",
+    "off": {
+      "stages": "10",
+      "cost_budget": "0 € / 36 260 €"
+    },
+    "on": {
+      "stages": "10",
+      "cost_budget": "0 € / 36 260 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "· DLMC Oral Surgery Limited",
+    "off": {
+      "stages": "3",
+      "cost_budget": "0 € / 0 €"
+    },
+    "on": {
+      "stages": "3",
+      "cost_budget": "0 € / 0 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "· Associação Nossa Senhora Consoladora dos Aflitos",
+    "off": {
+      "stages": "2",
+      "cost_budget": "0 € / 0 €"
+    },
+    "on": {
+      "stages": "2",
+      "cost_budget": "0 € / 0 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "· Rubén Calvo Rodriguez",
+    "off": {
+      "stages": "6",
+      "cost_budget": "0 € / 9900 €"
+    },
+    "on": {
+      "stages": "6",
+      "cost_budget": "0 € / 9900 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "· Magnificent Fields - Lda",
+    "off": {
+      "stages": "5",
+      "cost_budget": "0 € / 23 050 €"
+    },
+    "on": {
+      "stages": "5",
+      "cost_budget": "0 € / 23 050 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "0434 Sérgio Varanda",
+    "off": {
+      "stages": "15",
+      "cost_budget": "0 € / 31 680 €"
+    },
+    "on": {
+      "stages": "15",
+      "cost_budget": "0 € / 31 680 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "2609 Mastercard",
+    "off": {
+      "stages": "32",
+      "cost_budget": "0 € / 485 500 €"
+    },
+    "on": {
+      "stages": "32",
+      "cost_budget": "0 € / 485 500 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "2502 Uralchem IV",
+    "off": {
+      "stages": "3",
+      "cost_budget": "0 € / 421 300 €"
+    },
+    "on": {
+      "stages": "3",
+      "cost_budget": "0 € / 421 300 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "· GROOVESNORE - INVESTIMENTOS IMOBILIÁRIOS, LDA",
+    "off": {
+      "stages": "20",
+      "cost_budget": "0 € / 47 520 €"
+    },
+    "on": {
+      "stages": "20",
+      "cost_budget": "0 € / 47 520 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "2521 Escritórios BCG",
+    "off": {
+      "stages": "10",
+      "cost_budget": "0 € / 181 850 €"
+    },
+    "on": {
+      "stages": "10",
+      "cost_budget": "0 € / 181 850 €"
+    },
+    "equal": true
+  },
+  {
+    "project": "2522 Escritórios Banco CTT - Atrium 2",
+    "off": {
+      "stages": "7",
+      "cost_budget": "0 € / 44 791 €"
+    },
+    "on": {
+      "stages": "7",
+      "cost_budget": "0 € / 44 791 €"
+    },
+    "equal": true
+  }
+]
