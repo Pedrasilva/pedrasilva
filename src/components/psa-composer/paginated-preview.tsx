@@ -3,6 +3,25 @@ import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 
+const inlinedImages = new Map<string, Promise<string>>();
+function inlineImage(url: string): Promise<string> {
+  if (url.startsWith("data:")) return Promise.resolve(url);
+  let pending = inlinedImages.get(url);
+  if (!pending) {
+    pending = fetch(url)
+      .then((response) => (response.ok ? response.blob() : Promise.reject(new Error("image"))))
+      .then((blob) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      }))
+      .catch(() => { inlinedImages.delete(url); return url; });
+    inlinedImages.set(url, pending);
+  }
+  return pending;
+}
+
 let paginationQueue: Promise<void> = Promise.resolve();
 type PagedListeners = { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
 
@@ -174,11 +193,15 @@ export function PaginatedPreview({
           clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
         );
         runningElements.forEach((element) => element.remove());
-        runningElements.forEach((element) => element.querySelectorAll("img").forEach((image) => {
-          image.setAttribute("src", new URL(image.getAttribute("src") ?? "", document.baseURI).href);
+        // Inline the letterhead image so every sheet and the print window paint
+        // it immediately, without waiting for a network fetch per page.
+        await Promise.all(runningElements.flatMap((element) => Array.from(element.querySelectorAll("img")).map(async (image) => {
+          const url = new URL(image.getAttribute("src") ?? "", document.baseURI).href;
+          image.setAttribute("src", await inlineImage(url));
           image.loading = "eager";
           image.decoding = "sync";
-        }));
+        })));
+        if (cancelled) return;
 
         const printRoot = document.createElement("div");
         printRoot.className = "proposal-print-area proposal-print-document proposal-paged-source";
