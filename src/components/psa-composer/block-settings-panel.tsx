@@ -188,7 +188,7 @@ export function BlockSettingsPanel({
       <div className="flex items-center justify-between gap-2">
         <Label className="text-xs">{uiI18n.t("common:proposalComposer.headingLevel.label")}</Label>
         <Select value={blockHeadingLevel(block)} onValueChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), headingLevel: v } } })}>
-          <SelectTrigger className="h-8 w-28 text-xs" aria-label={uiI18n.t("common:proposalComposer.headingLevel.label")}><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-8 w-36 text-xs" aria-label={uiI18n.t("common:proposalComposer.headingLevel.label")}><SelectValue /></SelectTrigger>
           <SelectContent>
             {BLOCK_HEADING_LEVELS.map((level) => <SelectItem key={level} value={level}>{uiI18n.t(`common:proposalComposer.headingLevel.${level}`)}</SelectItem>)}
           </SelectContent>

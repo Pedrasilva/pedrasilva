@@ -60,6 +60,8 @@ async def main():
   frame=page.frame_locator('.proposal-pagination-frame')
   metrics=await page.locator('.proposal-pagination-frame').evaluate('f=>[...f.contentDocument.querySelectorAll(".pagedjs_page")].map((p,i)=>{let r=p.getBoundingClientRect(),h=p.querySelector(".proposal-page-header").getBoundingClientRect(),ft=p.querySelector(".proposal-page-footer").getBoundingClientRect(),num=p.querySelector("[data-footer-page]").dataset.footerPage;return {page:i+1,width:r.width,height:r.height,headerTop:h.top-r.top,footerBottom:r.bottom-ft.bottom,footerInside:ft.top>r.top&&ft.bottom<r.bottom,number:num}})')
   assert all(m['footerInside'] and abs(m['height']-1122.52)<1 for m in metrics),metrics
+  bullets=await page.locator('.proposal-pagination-frame').evaluate('f=>[...f.contentDocument.querySelectorAll(".proposal-print-block:not([data-proposal-block-type=index]) ul,.proposal-print-block:not([data-proposal-block-type=index]) ol")].map(n=>({padding:parseFloat(getComputedStyle(n).paddingInlineStart),listLeft:n.getBoundingClientRect().left,itemLeft:n.firstElementChild?.getBoundingClientRect().left}))')
+  assert bullets and all(n['padding']>=15 and n['itemLeft']>n['listLeft'] for n in bullets),bullets
   indexpages=await page.locator('.proposal-pagination-frame').evaluate('f=>[...f.contentDocument.querySelectorAll(".pagedjs_page")].flatMap((p,i)=>p.querySelector("[data-proposal-block-type=index]")?[i+1]:[])');assert len(indexpages)==1,indexpages
   for n in [1,2,len(metrics)]:await frame.locator('.pagedjs_page').nth(n-1).screenshot(path=str(ROOT/f'page-{n}.png'))
   baseline=await export('current-copy')
@@ -67,7 +69,7 @@ async def main():
   await toolbar.get_by_role('button',name='Edit',exact=True).click();stage=next(r for r in state['blocks'] if r['block_type']=='stage_item');await page.locator(f'[data-proposal-block-id="{stage["id"]}"]').first.click();panel=page.locator('#proposal-split-settings')
   heading=panel.get_by_role('combobox',name='Heading level',exact=True);assert await heading.is_visible();await heading.click();await page.get_by_role('option',name='H2',exact=False).click();await ready();assert (next(r for r in state['blocks'] if r['id']==stage['id'])['content_rich']['headingLevel'])=='h2'
   await panel.screenshot(path=str(ROOT/'settings-heading.png'))
-  scroll=panel.locator('[data-block-settings-scroll]');await scroll.evaluate('n=>n.scrollTop=n.scrollHeight');bottom=await scroll.evaluate('n=>({top:n.scrollTop,max:n.scrollHeight-n.clientHeight})');assert abs(bottom['top']-bottom['max'])<2,bottom
+  scroll=panel.locator('[data-block-settings-scroll]');await scroll.evaluate('n=>n.scrollTop=n.scrollHeight');bottom=await scroll.evaluate('n=>({top:n.scrollTop,max:n.scrollHeight-n.clientHeight})');assert bottom['max']>0 and abs(bottom['top']-bottom['max'])<2,bottom
   await scroll.get_by_role('button',name='Delete',exact=True).click();assert await page.get_by_role('alertdialog').is_visible();await page.get_by_role('alertdialog').get_by_role('button',name='Cancel',exact=True).click()
   # Editorial nesting demonstration only: place five copied stage blocks immediately under section 3.
   stages=[r for r in state['blocks'] if r['block_type']=='stage_item'];others=[r for r in state['blocks'] if r['block_type']!='stage_item'];at=next(i for i,r in enumerate(others) if r['block_type']=='stage_list')+1
