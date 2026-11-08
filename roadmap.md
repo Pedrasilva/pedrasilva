@@ -1,3 +1,8 @@
+## Current request — 8 November 15:26 Tatiana Gantt diagnosis (B1 OFF)
+- [ ] Compare Tatiana OFF/ON evidence by project and column; distinguish loading, access and retainer double-count.
+- [ ] Fix confirmed display-only retainer double-count and run focused regression tests.
+- [ ] Recheck Rita, Patricia and Tatiana through admin-only review without activating B1; report limitations and stop, no B2.
+
 ## Current request — 8 November 15:08 authorized B1 cutover
 - [x] Recompared all 1176 matrix rows independently of ordering: zero content changes, canonical SHA-256 identical.
 - [x] One audited activation revision 9; 11 initial load-aware checks PASS, additional Tatiana global parity unconfirmed; conservative rollback revision 10 OFF, no retry.
