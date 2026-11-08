@@ -347,6 +347,9 @@ export async function printProposalDocument(
     const source = host.querySelector<HTMLElement>(".pagedjs_pages");
     if (!source) throw new Error("Proposal pages were not found");
     const clone = source.cloneNode(true) as HTMLElement;
+    // Every sheet is printed, including images outside the popup viewport.
+    // Lazy images otherwise never start loading while decode() waits forever.
+    clone.querySelectorAll<HTMLImageElement>('img').forEach((image) => { image.loading = 'eager'; });
     clone.querySelectorAll(".proposal-paged-block-selected").forEach((n) => n.classList.remove("proposal-paged-block-selected"));
     // Carry the exact committed page count into the isolated print document.
     const pageCount = source.querySelectorAll('.pagedjs_page').length;
