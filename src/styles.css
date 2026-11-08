@@ -1380,6 +1380,12 @@
 .psa-rich ul ul ul { list-style: square outside !important; }
 .psa-rich li { margin: 0.15rem 0; display: list-item; }
 
+/* Marker gutters stay inside the document column, including generated stage lists. */
+.proposal-print-document .proposal-print-block:not([data-proposal-block-type="index"]) :is(ul, ol):not(.proposal-generated-list) {
+  padding-inline-start: 1.5em;
+  margin-inline-start: 0;
+}
+
 /* Unresolved merge tokens — shown in the proposal preview as a subtle hint. */
 .psa-token-unresolved {
   background: #fef3c7;

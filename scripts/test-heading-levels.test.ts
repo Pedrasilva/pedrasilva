@@ -28,4 +28,9 @@ describe("block heading levels", () => {
   it("leaves an H2 before any H1 unnumbered", () => {
     expect(run([{ title: "A", level: "h2" }, { title: "B" }]).chapters).toEqual([null, "1"]);
   });
+  it("nests the five project stages under section 3", () => {
+    const r = run([{ title: "Sobre a PSA" }, { title: "Âmbito" }, { title: "Organização do Projeto e Fases" }, ...["Programa", "Estudo Prévio", "Licenciamento", "Projecto de Execução", "Assistência Técnica"].map(title => ({ title, level: "h2" as const }))]);
+    expect(r.chapters).toEqual(["1", "2", "3", "3.1", "3.2", "3.3", "3.4", "3.5"]);
+    expect(r.toc.slice(3).map(e => [e.chapter, e.title, e.level])).toEqual([["3.1", "Programa", 2], ["3.2", "Estudo Prévio", 2], ["3.3", "Licenciamento", 2], ["3.4", "Projecto de Execução", 2], ["3.5", "Assistência Técnica", 2]]);
+  });
 });

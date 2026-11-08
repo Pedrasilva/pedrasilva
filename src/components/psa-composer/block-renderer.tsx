@@ -566,7 +566,7 @@ function BlockBody({
       const renderNode = (s: LiveStage, depth: number): React.ReactNode => {
         const kids = byParent.get(s.id) ?? [];
         if (!kids.length) {
-          return <li key={s.id}>{stageLabel(s)}</li>;
+          return <ul key={s.id} className="list-disc"><li>{stageLabel(s)}</li></ul>;
         }
         const HeadingTag = depth === 0 ? "h3" : "h4";
         const headingCls =
