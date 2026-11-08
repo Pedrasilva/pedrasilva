@@ -1,3 +1,8 @@
+## Current request — 8 November 16:00 B1 global capability parity
+- [ ] Identify and fix B1 global rates/allocation restrictions for audited global financial viewers, without activating B1.
+- [ ] Extend and execute rolled-back gate-ON parity tests: Tatiana/Irene/Ricardo vs Luis across every project; Rita Mint parity; Patricia redaction.
+- [ ] Report exact cause, results and GO/NO-GO; verify B1 remains OFF, no real-data changes or B2.
+
 ## Current request — Proposal pagination Phase 1 approved, 8 November 15:32
 - [ ] Wire existing Paged.js preview and smart measurement, 300 ms debounce, A4 transform zoom, synchronized Edit/Split/Pages.
 - [ ] Keep-with-next and shared page furniture; PDF/revision printing exports generated sheets only.
