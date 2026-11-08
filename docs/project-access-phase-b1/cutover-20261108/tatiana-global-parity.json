@@ -1,0 +1,29 @@
+{
+  "luis_check": {
+    "who": "luis",
+    "page": "luis-global-gantt-control",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 23.7,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 161,
+      "zero_euro": 93
+    },
+    "preview_marker_sent": false
+  },
+  "tatiana_luis_money_sequence_equal": false,
+  "tatiana_money_count": 199,
+  "luis_money_count": 161
+}

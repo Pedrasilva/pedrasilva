@@ -1,0 +1,80 @@
+CRM / Vendas
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+P
+Todos os projetos
+2502 Uralchem IV
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+2 jun – 12 mar 2027
+· 124d
+·
+RC
++2
+Resumo
+Análises
+Avença
+Notas
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+2 jun 2026
+Fim
+12 mar 2027
+Restante
+124d
+EQUIPA
+ALOCADOS
+RC
+PR
+Estado
+Todos
+Ativo
+Sem alocação
+Editar planeamento
+Adicionar tarefa
+
+Texto normal = real · itálico cinzento = planeado (alocações) · – = zero
+
+MARCOS E TAREFAS	ESTADO	HORAS REGISTADAS / PLANEADAS	INÍCIO PREVISTO	CONCLUSÃO PREVISTA	AÇÕES
+
+1. F1 - Programme Definition
+4 alocações · 120,0 h acima do previsto
+	
+Ativo
+	
+109h 46m
+/
+120h 0m
+	2 jun	27 jul	
+
+
+2. F2 - Concept Design
+5 alocações · 901,0 h acima do previsto
+	
+Ativo
+	
+1104h 50m
+/
+901h 0m
+	1 jul	2 nov	
+
+
+3. F3 - Developed Design
+Sem responsável
+	
+Planeado
+	
+–
+/
+—
+	3 nov	12 mar	

@@ -1,0 +1,7 @@
+{
+  "all_passed": false,
+  "checks": 11,
+  "b1_left_on": false,
+  "initial_checks_passed": 11,
+  "final_reason": "Additional Tatiana global Gantt parity not confirmed; conservative rollback revision 10 OFF"
+}
