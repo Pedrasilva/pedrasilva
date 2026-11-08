@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  * historical view of a sent revision: all data comes from the frozen
  * snapshot and no mutation is ever issued.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from '@/lib/toast';
 import { ArrowLeft, FilePlus2, History } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -18,6 +18,9 @@ import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
 import { BlockLibraryPanel } from "./block-library-panel";
 import { BlockSettingsPanel } from "./block-settings-panel";
+import { PaginatedPreview } from "./paginated-preview";
+import { useSmartPagination } from "./use-smart-pagination";
+import { useIsFetching } from "@tanstack/react-query";
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
@@ -37,7 +40,46 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const reorder = useReorderBlocks(proposalId);
   const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [previewMode, setPreviewMode] = useState(false);
+  const [layout, setLayout] = useState<"edit" | "split" | "pages">("edit");
+  const previewMode = layout === "pages";
+  const setPreviewMode = (value: boolean | ((current: boolean) => boolean)) => setLayout((current) => (typeof value === "function" ? value(current === "pages") : value) ? "pages" : "edit");
+  const [zoom, setZoom] = useState("fit");
+  const [scale, setScale] = useState(1);
+  const sourceHostRef = useRef<HTMLDivElement | null>(null);
+  const pagePaneRef = useRef<HTMLDivElement | null>(null);
+  const [source, setSource] = useState<HTMLDivElement | null>(null);
+  const [revision, setRevision] = useState(0);
+  const observedEditRef = useRef("");
+  const fetching = useIsFetching();
+  const sourceRef = useRef<HTMLDivElement | null>(null);
+  useSmartPagination(sourceRef, revision);
+  const selectBlock = useCallback((id: string) => {
+    setSelectedId(id);
+    const node = Array.from(sourceHostRef.current?.querySelectorAll<HTMLElement>("[data-proposal-block-id]") ?? []).find((n) => n.dataset.proposalBlockId === id);
+    if (node && sourceHostRef.current?.classList.contains("proposal-editor-visible")) node.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, []);
+
+  useEffect(() => {
+    const host = sourceHostRef.current;
+    if (!host) return;
+    const documentNode = host.querySelector<HTMLDivElement>(".proposal-print-document");
+    setSource(documentNode); sourceRef.current = documentNode;
+    const observer = new MutationObserver((mutations) => {
+      if (mutations.some((m) => m.type !== "attributes" || (m.attributeName !== "style" && m.attributeName !== "class"))) {
+        const signature = host.innerHTML.replace(/style="[^"]*"/g, "").replace(/class="[^"]*"/g, "");
+        if (signature !== observedEditRef.current) { observedEditRef.current = signature; setRevision((n) => n + 1); }
+      }
+    });
+    observer.observe(host, { subtree: true, childList: true, characterData: true, attributes: true });
+    return () => observer.disconnect();
+  }, [proposal.data?.id]);
+
+  useEffect(() => {
+    const pane = pagePaneRef.current; if (!pane) return;
+    const updateScale = () => setScale(zoom === "fit" ? Math.min(1, Math.max(0.1, (pane.clientWidth - 48) / (210 * 96 / 25.4))) : Number(zoom));
+    const observer = new ResizeObserver(updateScale); observer.observe(pane); updateScale();
+    return () => observer.disconnect();
+  }, [zoom, layout, proposal.data?.id]);
   const canvasScrollerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -99,6 +141,14 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         previewMode={previewMode}
         onTogglePreview={() => setPreviewMode((v) => !v)}
       />
+      <div className="proposal-preview-toolbar flex shrink-0 items-center gap-3 border-b bg-background px-4 py-2 print:hidden">
+        <div role="group" aria-label={t("proposalComposer.pagination.layout")} className="flex gap-1">
+          {(["edit", "split", "pages"] as const).map((mode) => <Button key={mode} size="sm" variant={layout === mode ? "secondary" : "ghost"} onClick={() => setLayout(mode)}>{mode === "edit" ? t("edit") : t(`proposalComposer.pagination.${mode}`)}</Button>)}
+        </div>
+        <select aria-label={t("proposalComposer.pagination.zoom")} value={zoom} onChange={(e) => setZoom(e.target.value)} className="rounded border border-border bg-background p-1 text-sm">
+          <option value="fit">{t("proposalComposer.pagination.fitWidth")}</option><option value="0.75">75%</option><option value="1">100%</option>
+        </select>
+      </div>
       {previewMode && (
         <div className="proposal-preview-toolbar flex shrink-0 items-center border-b bg-background px-4 py-2">
           <Button
@@ -166,7 +216,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         )}
         <div
           ref={canvasScrollerRef}
-          className={`min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white ${isReadOnly ? "relative select-none" : ""}`}
+          className={`min-h-0 min-w-0 flex-1 overflow-auto bg-muted ${layout === "pages" ? "proposal-editor-hidden" : "proposal-editor-visible"} ${isReadOnly ? "relative select-none" : ""}`}
           onClickCapture={
             isReadOnly
               ? (e) => {
@@ -185,7 +235,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
               : undefined
           }
         >
-          <div className={isReadOnly ? "pointer-events-auto" : ""}>
+          <div ref={sourceHostRef} className="proposal-source-host">
             <ComposerCanvas
               proposalId={proposalId}
               blocks={items}
@@ -193,10 +243,18 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
               quoteIdHint={proposal.data.quote_id}
               styleSettings={proposal.data.style_settings}
               language={proposal.data.language}
-              previewMode={previewMode}
-              onSelect={setSelectedId}
+              previewMode={false}
+              readOnly={isReadOnly}
+              onSelect={selectBlock}
               onReorder={(next) => reorder.mutate(next)}
             />
+          </div>
+        </div>
+        <div ref={pagePaneRef} className={`min-h-0 min-w-0 flex-1 overflow-auto bg-muted ${layout === "edit" ? "proposal-pages-hidden" : ""}`}>
+          <div className="proposal-zoom-frame" style={{ zoom: 1, width: `${210 * 96 / 25.4 * scale}px`, margin: "0 auto" }}>
+            <div className="proposal-zoom-sheet" style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+              <PaginatedPreview source={source} invalidateKey={`${revision}:${fetching}:${JSON.stringify(proposal.data.style_settings)}`} selectedId={selectedId} onSelect={selectBlock} />
+            </div>
           </div>
         </div>
         {!isReadOnly && !previewMode && (

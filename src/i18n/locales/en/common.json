@@ -53,6 +53,12 @@
     "reference": "Proposal {{number}}",
     "revisionReference": "Proposal {{number}} rev. {{revision}}",
     "pagination": {
+      "split": "Split",
+      "pages": "Pages",
+      "fitWidth": "Fit width",
+      "zoom": "Zoom",
+      "keepWithNext": "Keep with next",
+      "layout": "Proposal layout",
       "loading": "Laying out proposal pages…",
       "error": "The proposal pages could not be generated. Try refreshing the preview.",
       "pdfLoading": "Preparing all PDF pages…",

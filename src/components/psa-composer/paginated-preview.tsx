@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
+
+let paginationQueue: Promise<void> = Promise.resolve();
 
 function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
@@ -34,10 +37,25 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
       @page proposal-document {
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
+        @top-center { content: ""; width: 100%; }
+        @bottom-left { content: ""; }
+        @bottom-right { content: counter(page); }
+
       }
       .proposal-paged-source,
       .proposal-paged-content { page: proposal-document; }
       .proposal-paged-content { display: flow-root; }
+      .proposal-paged-content .proposal-print-block { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+      .proposal-paged-content [data-visible-print="false"] { display: none !important; }
+      .proposal-paged-content [data-keep-with-next="true"] { break-after: avoid; }
+      .proposal-paged-content h1, .proposal-paged-content h2, .proposal-paged-content h3 { break-after: avoid; }
+      .proposal-paged-content [data-keep-with-next="false"] h1,
+      .proposal-paged-content [data-keep-with-next="false"] h2,
+      .proposal-paged-content [data-keep-with-next="false"] h3 { break-after: auto; }
+      .proposal-paged-content thead { display: table-header-group; }
+      .proposal-paged-content tbody tr { break-inside: avoid; }
+      .proposal-paged-source { width: auto !important; max-width: none !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; }
+
       .proposal-paged-content p {
         break-inside: auto;
         orphans: 2;
@@ -106,7 +124,6 @@ export function PaginatedPreview({
     if (!source || !target) return;
 
     let cancelled = false;
-    target.replaceChildren();
     setStatus("loading");
     onStatusChange?.("loading");
 
@@ -145,9 +162,7 @@ export function PaginatedPreview({
           firstPrintable.style.setProperty("break-before", "auto", "important");
           firstPrintable.style.setProperty("page-break-before", "auto", "important");
         }
-        // Paged.js currently creates a blank page for running/fixed elements.
-        // Remove page furniture from the fragmented flow and add a visual copy
-        // to each generated page box after pagination instead.
+        // Furniture lives in generated margin boxes, outside fragmented block flow.
         const runningElements = Array.from(
           clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
         );
@@ -184,7 +199,16 @@ export function PaginatedPreview({
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
           pageBox.setAttribute("style", source.getAttribute("style") ?? "");
-          runningElements.forEach((element) => pageBox.appendChild(element.cloneNode(true)));
+          runningElements.forEach((element) => {
+            const selector = element.classList.contains("proposal-page-header")
+              ? ".pagedjs_margin-top-center .pagedjs_margin-content"
+              : ".pagedjs_margin-bottom-left .pagedjs_margin-content";
+            const margin = pageBox.querySelector<HTMLElement>(selector);
+            if (margin) {
+              margin.classList.add("proposal-margin-furniture");
+              margin.appendChild(element.cloneNode(true));
+            }
+          });
           pageBox.closest<HTMLElement>(".pagedjs_page")?.setAttribute(
             "data-page-number",
             String(index + 1),
@@ -201,6 +225,7 @@ export function PaginatedPreview({
           throw new Error("Pagination did not produce a page container");
         }
         target.replaceChildren(completedPages.cloneNode(true));
+        target.dataset.pageCount = String(result.total);
         setStatus("ready");
         onStatusChange?.("ready");
       } catch (error) {
@@ -216,10 +241,10 @@ export function PaginatedPreview({
       }
     };
 
-    void render();
+    const timer = window.setTimeout(() => { paginationQueue = paginationQueue.then(async () => { if (!cancelled) await render(); }).catch(() => {}); }, REPAGINATION_DELAY_MS);
     return () => {
       cancelled = true;
-      target.replaceChildren();
+      window.clearTimeout(timer);
     };
   }, [source, invalidateKey, onStatusChange]);
 
@@ -232,6 +257,10 @@ export function PaginatedPreview({
         fragment.dataset.proposalBlockId === selectedId,
       );
     });
+    if (selectedId) {
+      const fragment = Array.from(target.querySelectorAll<HTMLElement>("[data-proposal-block-id]")).find((node) => node.dataset.proposalBlockId === selectedId);
+      fragment?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
   }, [selectedId, status]);
 
   return (
@@ -249,6 +278,7 @@ export function PaginatedPreview({
       <div
         ref={targetRef}
         className="proposal-paginated-preview"
+        data-pagination-status={status}
         aria-live="polite"
         onClick={(event) => {
           const element = event.target as HTMLElement;
