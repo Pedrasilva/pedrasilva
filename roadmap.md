@@ -1,3 +1,8 @@
+## Current request — 8 November 16:00 B1 global capability parity
+- [x] Identify and fix B1 global NULL-project resource/rate restrictions; allocation data is identical (114 total/86 active), visual collapse separately verified.
+- [x] Extend rolled-back gate-ON parity tests: 52 principal assertions + supplementary denials/active-row parity, Tatiana/Irene/Ricardo = Luis, Rita Mint parity, Patricia redaction.
+- [x] Report technical GO and verification limits; B1 remains OFF revision 10, no real-data changes or B2.
+
 ## Current request — Proposal pagination Phase 1 approved, 8 November 15:32
 - [ ] Wire existing Paged.js preview and smart measurement, 300 ms debounce, A4 transform zoom, synchronized Edit/Split/Pages.
 - [ ] Keep-with-next and shared page furniture; PDF/revision printing exports generated sheets only.

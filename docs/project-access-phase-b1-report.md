@@ -1,5 +1,34 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Correção dos preços globais e paridade — 8 novembro 2026, 16:00 UTC
+
+**GO técnico para a paridade dos dados B1; não é autorização de corte. B1 permanece OFF/revisão 10.** Fase A permanece ON. Não se alteraram projetos, propostas, alocações, equipa, switches, custos históricos ou auditoria de corte. B2 não iniciado.
+
+### Causa exata e correção
+- `pm_b1_resources(NULL)` → `pm_b1_resource(id,NULL)` → `pm_b1_redact(...,NULL)` → `pm_project_area_proposed(NULL,...)`. O último helper exige um projeto existente **antes** de avaliar admin/capacidade global, logo todos os preços ficam NULL, incluindo Luis. Não era uma regra específica contra Tatiana. Reprodução gate-ON revertida: Luis e Tatiana recebem 17 projetos, 118 fases, 114 alocações, 16 recursos, mas **zero preços globais numéricos**.
+- Outro bloqueio independente: `getPmDefaultResourceRates`, com `b1Projection=true` e sem projeto, devolvia `[]` antes de verificar a capacidade global. Afetava preços derivados usados nos totais planeados. Corrigido para verificar `pm_b1_global_financial_access()` como o chamador antes de carregar a fórmula existente; não há acesso novo a salários no navegador.
+- Migração **0268** acrescenta helper caller-only: pessoa PSA e admin **ou capacidade global auditada já existente**. Enumeração global de recursos e preços usa essa condição. Tatiana, Irene e Ricardo herdam os mesmos campos que Luis; não se usam nomes/IDs em autorização. Contextos por projeto continuam pelas áreas existentes. Não se mudou `pm_project_area_proposed`, permissões de escrita, Finance, entidades nem RLS de tabelas mistas.
+
+### Alocações: não há regra B1 a retirar essas linhas a Tatiana
+A reprodução autenticada e a comparação integral demonstram **114 alocações em ambas as sessões**, todas com recurso não nulo; **86 ativas** iguais para Luis/Tatiana/Irene/Ricardo. As linhas referidas em Bolshaya, Colares e Sérgio Varanda continuam ativas. O filtro `use-planner.ts` exclui apenas `resource=null` ou `planning_removed_at`; nenhuma das linhas ativas referidas é excluída nesse ensaio.
+
+O Gantt possui outro mecanismo, **apresentação recolhida**, que não depende do gate: `OperationalScheduleAdapter` guarda `project-gantt-res-collapsed:<projectId>`/marcadores `:seen:` em sessionStorage; `gantt-chart.tsx`/`gantt-outline-column.tsx` omitem as sublinhas quando recolhidas. Confirmado no navegador com admin preview efetivo ON: recolher/expandir Bolshaya mostra João Almeida, Luis e Rita, sem escrita operacional. A captura antiga não guardou esse estado, por isso não é possível provar retrospectivamente qual estado de recolhimento tinha; não se atribui uma exclusão financeira que o teste não reproduz. Não se alterou o comportamento de recolhimento.
+
+### Testes gate ON, transação revertida
+O teste usa `SET LOCAL ROLE authenticated` e os claims de cada pessoa; o gate só é substituído dentro da transação e a exceção final **PASS** força rollback. Nenhuma sessão externa vê ON, nenhuma revisão/auditoria é criada. A exceção esperada não é falha do ensaio.
+
+- **52 verificações PASS** na execução principal: JSON canónico recursivo (todos os campos, arrays internos de alocações/tasks e áreas) para Tatiana/Irene/Ricardo = Luis; **17 projetos, 118 fases, 16 recursos, 114 alocações**; preços confrontados também com os valores guardados, para evitar que quatro respostas igualmente redigidas produzam falso PASS.
+- Rita = Luis nos oito leitores Mint: projetos, fases, entradas, recursos, histórico, horas, custos bloqueados e pursuit; quatro áreas ON. Patricia: sem números financeiros nos leitores de Mint/Uralchem/global. Ensaio suplementar revertido: nenhuma capacidade/preço global nem preço nos recursos embutidos de alocações negadas para Patricia; quatro globais com 86 alocações ativas, 16 linhas de preços e zero recursos ausentes.
+- Testes de apresentação usam os helpers reais: Mint **3085,875 receita / 1811,765 custo / 1274,11 lucro / 41%**; arredondado **3086 / 1812 / 1274 / 41%**. Preços globais derivados têm teste de autorização permitido/negado e total de alocação sintética concreto; cálculos existentes não mudaram.
+- Navegador autenticado Luis/admin preview, esperando sinal de totais pronto + rede quieta: 16 recursos, preços visíveis, Mint **30 980 €** de orçamento, Bolshaya expandida com três pessoas, **zero erros de execução**. Não se fez passar marcador non-admin por admin: verificações de Tatiana/Irene/Ricardo são de dados reais como authenticated na transação, não capturas ON dessas sessões.
+- Capturas: `global-parity-20261108/admin-preview.png`, `bolshaya-expanded.png`. Dados/limitações: `browser-result.json`. Os 23 testes focados passaram antes do teste adicional de total de alocação; resultado final abaixo.
+- Resultado final: **24 testes automáticos PASS**, compilação OK; leitura independente confirma **B1 OFF/revisão 10**, Fase A ON e função do gate novamente baseada na auditoria, não em `SELECT true`.
+
+### Ficheiros
+`drizzle/migrations/0268_project_b1_global_resource_access.sql` e espelho byte-idêntico em `supabase/migrations`; `src/lib/projects/default-rates.functions.ts`; `src/lib/projects/b1-rate-scope.ts`; `src/lib/projects/AGENTS.md`; `scripts/test-b1-gate-on-parity.sql`; `scripts/test-b1-gate-on-parity.test.ts`; `roadmap.md`; este relatório/evidências. Tipos de dados regenerados automaticamente pela migração. Nenhuma fixture persistente criada: só leituras e transações revertidas; nada real para eliminar.
+
+**Recomendação:** GO para uma futura verificação de corte autorizada; a regressão dos preços globais foi corrigida e a paridade dos dados completos foi comprovada. Não se certifica comparação pixel-a-pixel de sessões non-admin ON nem a execução do cálculo salarial dentro da transação SQL (executa no servidor); o teste partilha a autorização/fórmula e valida os inputs e totais puros. B1 permanece OFF, parar e aguardar Luis.
+
 ## Diagnóstico de Tatiana e correção da avença — 8 novembro, 15:26 UTC (sem corte)
 
 **NO-GO: B1 OFF/revisão 10.** A duplicação de Mint foi corrigida apenas no cálculo de apresentação; não explica todas as diferenças de Tatiana. Não foram alterados dados, permissões, datas, snapshots ou gates; B2 não iniciado.

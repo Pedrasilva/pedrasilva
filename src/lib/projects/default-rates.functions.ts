@@ -12,6 +12,7 @@ import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary"
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 import { applyB1RateAccess } from "./project-actual-totals";
+import { b1RateScope } from './b1-rate-scope';
 
 export type DefaultRateEntry = {
   resource_id: string;
@@ -37,20 +38,26 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     if(b1Error)throw b1Error;
     // Explicit review uses the same caller-scoped areas without changing the gate.
     // A client-supplied b1Projection flag can never switch a per-project read to the ON path
-    // while the effective gate is OFF; without a project it only yields the empty global set.
+    // while the effective gate is OFF; global reads still require the audited capability.
     const b1=b1State ? (!!data.projectId||!!data.b1Projection) : (!!data.b1Projection&&!data.projectId);
     let budgetAllowed=false;
     let saleAllowed=false;
     if(b1){
-      if(!data.projectId)return [];
+      if(!data.projectId){
+        const {data:globalAllowed,error}=await supabase.rpc('pm_b1_global_financial_access');
+        if(error)throw error;
+        if(!globalAllowed)return [];
+        ({budgetAllowed,saleAllowed}=b1RateScope(undefined,true));
+      } else {
       const {data:visible,error:visibleError}=await supabase.rpc('pm_b1_projects',{_project:data.projectId});
       if(visibleError)throw visibleError;
       if(!visible?.length)return [];
       const {data:areas,error}=await supabase.rpc('pm_project_viewer_areas',{_project:data.projectId});
       if(error)throw error;
       const flags=areas as unknown as {budget_cost:boolean;financials:boolean};
-      budgetAllowed=flags.budget_cost;saleAllowed=flags.financials;
+      ({budgetAllowed,saleAllowed}=b1RateScope(data.projectId,false,flags));
       if(!budgetAllowed&&!saleAllowed)return [];
+      }
     }
     const [{ data: isAdmin }, { data: hasFinance }, { data: hasProjFin }] = await Promise.all([
       supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
