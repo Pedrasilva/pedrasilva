@@ -1,4 +1,5 @@
 import { keepBlockWithNext } from "@/lib/psa-proposal/page-layout";
+import { BLOCK_HEADING_LEVELS, blockHeadingLevel } from "@/lib/psa-proposal/heading-levels";
 import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import { SOURCE_UI_KEYS, RELEVANCE_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
@@ -1000,6 +1001,17 @@ export function BlockSettingsPanel({
             update.mutate({ id: block.id, patch: { is_locked: v } })
           }
         />
+      </div>
+      <div className="flex items-center justify-between gap-2 rounded-md border bg-background p-2">
+        <Label className="text-xs">{uiI18n.t("common:proposalComposer.headingLevel.label")}</Label>
+        <Select value={blockHeadingLevel(block)} onValueChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), headingLevel: v } } })}>
+          <SelectTrigger className="h-8 w-28 text-xs" aria-label={uiI18n.t("common:proposalComposer.headingLevel.label")}><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {BLOCK_HEADING_LEVELS.map((level) => (
+              <SelectItem key={level} value={level} className="text-xs">{uiI18n.t(`common:proposalComposer.headingLevel.${level}`)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
         <Label className="text-xs">{uiI18n.t("common:proposalComposer.pagination.keepWithNext")}</Label>

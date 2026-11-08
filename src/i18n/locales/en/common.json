@@ -65,6 +65,13 @@
       "pdfError": "The PDF preview could not be prepared.",
       "pdfTimeout": "PDF preparation took too long. Try again.",
       "backToBuilder": "Back to quote builder"
+    },
+    "headingLevel": {
+      "label": "Heading level",
+      "h1": "H1 · Section",
+      "h2": "H2 · Sub-section",
+      "h3": "H3 · Minor",
+      "none": "No heading"
     }
   },
   "companyPicker": {
