@@ -10,7 +10,8 @@ import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-propos
  * editor) when present, falling back to the legacy plain `content_rich.text`
  * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
-import React from "react";
+import React, { createContext, useContext } from "react";
+import { blockHeadingLevel, type BlockHeadingLevel, type SectionTocEntry } from "@/lib/psa-proposal/heading-levels";
 import { useTranslation } from "react-i18next";
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
@@ -94,10 +95,21 @@ function ProposalImageBlock({ block, lang }: { block: PsaProposalBlock; lang: Pr
 type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
+const HeadingLevelContext = createContext<BlockHeadingLevel>("h1");
+
 function H({ children }: { children: React.ReactNode }) {
   useTranslation();
+  const level = useContext(HeadingLevelContext);
+  if (level === "none") return null;
+  // H1 keeps the original section-heading markup so existing proposals are unchanged.
+  if (level === "h2") {
+    return <h3 data-heading-level="2" className="proposal-print-heading proposal-heading-l2 mb-2 font-semibold tracking-tight text-zinc-900">{children}</h3>;
+  }
+  if (level === "h3") {
+    return <h4 data-heading-level="3" className="proposal-print-heading proposal-heading-l3 mb-1.5 font-semibold tracking-tight text-zinc-900">{children}</h4>;
+  }
   return (
-    <h2 className="proposal-print-heading mb-3 text-lg font-semibold tracking-tight text-zinc-900">
+    <h2 data-heading-level="1" className="proposal-print-heading mb-3 text-lg font-semibold tracking-tight text-zinc-900">
       {children}
     </h2>
   );
@@ -319,7 +331,16 @@ function PhaseSummaryCard({
 }
 
 
-export function BlockBody({
+function BlockBodyWithHeading(props: Parameters<typeof BlockBody>[0]) {
+  return (
+    <HeadingLevelContext.Provider value={blockHeadingLevel(props.block)}>
+      <BlockBody {...props} />
+    </HeadingLevelContext.Provider>
+  );
+}
+export { BlockBodyWithHeading as BlockBody };
+
+function BlockBody({
   block,
   live,
   chapterNumber,
@@ -331,8 +352,8 @@ export function BlockBody({
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
-  chapterNumber: number | null;
-  toc?: { chapter: number; title: string }[];
+  chapterNumber: string | null;
+  toc?: SectionTocEntry[];
   editable?: boolean;
   onPatchContent?: (patch: Record<string, unknown>) => void;
   lang?: ProposalLang;
@@ -345,7 +366,7 @@ export function BlockBody({
   const html = (block.content_rich?.html as string | undefined) ?? "";
   const paragraphSpacing = block.content_rich?.paragraphSpacing as Spacing | undefined;
   const lineHeight = block.content_rich?.lineHeight as LineHeight | undefined;
-  const num = chapterNumber ? `${chapterNumber}. ` : "";
+  const num = chapterNumber ? (chapterNumber.includes(".") ? `${chapterNumber} ` : `${chapterNumber}. `) : "";
   const richHas = hasRichContent(html, text);
   const tokenMap = buildTokenMap(live);
   const tokenEntries = buildTokenPickerEntries(live);
@@ -478,22 +499,22 @@ export function BlockBody({
           {toc && toc.length ? (
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
               {toc.map((e) => (
-                <li key={e.chapter} className="flex items-baseline gap-2">
+                <li key={e.chapter} data-toc-level={e.level} className={e.level === 2 ? "ml-8 flex items-baseline gap-2" : "flex items-baseline gap-2"}>
                   <a
-                    href={`#chapter-${e.chapter}`}
+                    href={`#chapter-${e.chapter.replace(/\./g, "-")}`}
                     onClick={(ev) => {
                       // Only intercept in-browser navigation; keep the
                       // anchor href intact so Chrome's Save-as-PDF preserves
                       // it as a clickable internal link in the exported PDF.
                       if (typeof window !== "undefined" && !window.matchMedia("print").matches) {
                         ev.preventDefault();
-                        const el = document.getElementById(`chapter-${e.chapter}`);
+                        const el = document.getElementById(`chapter-${e.chapter.replace(/\./g, "-")}`);
                         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                       }
                     }}
                     className="proposal-toc-link flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit"
                   >
-                    <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
+                    <span className={e.level === 2 ? "tabular-nums w-8" : "font-medium tabular-nums w-6"}>{e.level === 2 ? e.chapter : `${e.chapter}.`}</span>
                     <span className="flex-1">{e.title}</span>
                   </a>
                 </li>
@@ -547,7 +568,7 @@ export function BlockBody({
         if (!kids.length) {
           return <li key={s.id}>{stageLabel(s)}</li>;
         }
-        const HeadingTag = depth === 0 ? "h2" : "h3";
+        const HeadingTag = depth === 0 ? "h3" : "h4";
         const headingCls =
           depth === 0
             ? "proposal-print-heading mb-1 text-base font-semibold tracking-tight text-zinc-900"

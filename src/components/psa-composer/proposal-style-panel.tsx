@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  * the whole proposal. Values are stored as JSON in psa_proposals.style_settings
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
-import { useRef } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -71,20 +71,34 @@ const ALIGNMENTS: { label: string; value: NonNullable<PsaProposalStyleSettings["
   { label: "crm:composer.typography.right", value: "right" },
 ];
 
+type StyleEditState = { latest: PsaProposalStyleSettings | null; timer: ReturnType<typeof setTimeout> | null; inFlight: number };
+const styleEdits = new Map<string, StyleEditState>();
+function styleEditState(id: string): StyleEditState {
+  let state = styleEdits.get(id);
+  if (!state) { state = { latest: null, timer: null, inFlight: 0 }; styleEdits.set(id, state); }
+  return state;
+}
+
 export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   useTranslation();
   const update = useUpdateProposal(proposal.id);
   const qc = useQueryClient();
   const s = proposal.style_settings ?? {};
-  const pendingRef = useRef<PsaProposalStyleSettings | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Edit state lives per proposal outside the component: the panel can remount
+  // while the paged view repaginates, and a refetch of an older save must not
+  // snap sliders (or the paged view) back mid-drag.
+  const edit = styleEditState(proposal.id);
+  useEffect(() => {
+    const latest = edit.latest;
+    if (!latest || JSON.stringify(latest) === JSON.stringify(proposal.style_settings ?? {})) return;
+    qc.setQueryData<PsaProposal | undefined>(["psa-proposal", proposal.id], (prev) => (prev ? { ...prev, style_settings: latest } : prev));
+  }, [proposal.style_settings, proposal.id, qc, edit]);
 
   function patch(next: Partial<PsaProposalStyleSettings>) {
-    // Merge onto latest pending (or current) settings to avoid overwrites
-    // between rapid slider ticks.
-    const base = pendingRef.current ?? s;
-    const merged = { ...base, ...next } as PsaProposalStyleSettings;
-    pendingRef.current = merged;
+    // Merge onto the newest local settings to avoid overwrites between ticks.
+    const merged = { ...(edit.latest ?? s), ...next } as PsaProposalStyleSettings;
+    edit.latest = merged;
+    void qc.cancelQueries({ queryKey: ["psa-proposal", proposal.id] });
 
     // Optimistic cache update so the canvas re-renders instantly.
     qc.setQueryData<PsaProposal | undefined>(
@@ -94,21 +108,30 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
 
     // Debounce the network write so dragging a slider doesn't fire a
     // request per tick.
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      const toSave = pendingRef.current;
-      pendingRef.current = null;
-      timerRef.current = null;
-      if (toSave) update.mutate({ style_settings: toSave } as Partial<PsaProposal>);
+    if (edit.timer) clearTimeout(edit.timer);
+    edit.timer = setTimeout(() => {
+      edit.timer = null;
+      const toSave = edit.latest;
+      if (!toSave) return;
+      edit.inFlight += 1;
+      void update.mutateAsync({ style_settings: toSave } as Partial<PsaProposal>).catch(() => {}).finally(() => {
+        edit.inFlight -= 1;
+        // Keep guarding until the last save has settled and its refetch landed.
+        window.setTimeout(() => {
+          if (edit.inFlight === 0 && !edit.timer) edit.latest = null;
+        }, 1500);
+      });
     }, 250);
   }
 
-  const bodySize = s.bodySize ?? 10.5;
-  const headingScale = s.headingScale ?? 1;
-  const marginTop = s.marginTop ?? 34;
-  const marginBottom = s.marginBottom ?? 32;
-  const marginLeft = s.marginLeft ?? 14;
-  const marginRight = s.marginRight ?? 14;
+  // Sliders read the newest local value so rapid ticks never compute from a stale save.
+  const v = edit.latest ?? s;
+  const bodySize = v.bodySize ?? 10.5;
+  const headingScale = v.headingScale ?? 1;
+  const marginTop = v.marginTop ?? 34;
+  const marginBottom = v.marginBottom ?? 32;
+  const marginLeft = v.marginLeft ?? 14;
+  const marginRight = v.marginRight ?? 14;
 
   return (
     <div className="flex flex-col gap-3">
