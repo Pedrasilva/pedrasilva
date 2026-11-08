@@ -8,7 +8,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip as UiTip, TooltipContent as UiTipContent, TooltipTrigger as UiTipTrigger } from "@/components/ui/tooltip";
-import { useQuery } from "@tanstack/react-query";
+import { useIsFetching, useQuery } from "@tanstack/react-query";
 import * as RC from "recharts";
 import {
   addDays,
@@ -193,6 +193,8 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const viewerAreas = useProjectViewerAreas(projectId);
   const b1=useProjectB1State();
+  // Loading signal for cutover checks: totals are final only when no query is fetching.
+  const fetchingCount = useIsFetching();
   const clientProjectQ = useProjectDetail(projectId);
   const resolvedClientName = useProjectClientName(clientProjectQ.data?.project.company_id, clientProjectQ.data?.project.client ?? null);
   const [showCancelled, setShowCancelled] = useState(false);
@@ -593,7 +595,7 @@ function ProjectDetail() {
 
   return (
     <AppShell active="projects">
-      <div className="w-full px-3 pt-3 sm:px-5 2xl:px-10">
+      <div className="w-full px-3 pt-3 sm:px-5 2xl:px-10" data-totals-ready={figuresReady && fetchingCount === 0 ? "true" : "false"}>
         <Link
           to="/projects"
           className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
