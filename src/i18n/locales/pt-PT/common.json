@@ -53,6 +53,12 @@
     "reference": "Proposta {{number}}",
     "revisionReference": "Proposta {{number}} rev. {{revision}}",
     "pagination": {
+      "split": "Dividido",
+      "pages": "Páginas",
+      "fitWidth": "Ajustar à largura",
+      "zoom": "Zoom",
+      "keepWithNext": "Manter com o seguinte",
+      "layout": "Vista da proposta",
       "loading": "A compor as páginas da proposta…",
       "error": "Não foi possível gerar as páginas da proposta. Tente atualizar a pré-visualização.",
       "pdfLoading": "A preparar todas as páginas do PDF…",

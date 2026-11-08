@@ -1,3 +1,4 @@
+import { keepBlockWithNext } from "@/lib/psa-proposal/page-layout";
 import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import { SOURCE_UI_KEYS, RELEVANCE_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
@@ -999,6 +1000,10 @@ export function BlockSettingsPanel({
             update.mutate({ id: block.id, patch: { is_locked: v } })
           }
         />
+      </div>
+      <div className="flex items-center justify-between rounded-md border bg-background p-2">
+        <Label className="text-xs">{uiI18n.t("common:proposalComposer.pagination.keepWithNext")}</Label>
+        <Switch checked={keepBlockWithNext(block)} onCheckedChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), keepWithNext: v } } })} />
       </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.breakBefore")} </Label>

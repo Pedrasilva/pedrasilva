@@ -15,6 +15,7 @@ import uiI18n from "@/i18n/index";
  */
 import { resolveBlockTitle } from "@/lib/psa-proposal/system-titles";
 import { useMemo } from "react";
+import { keepBlockWithNext } from "@/lib/psa-proposal/page-layout";
 import {
   DndContext,
   KeyboardSensor,
@@ -77,6 +78,7 @@ function SortableRow({
   onPatchContent,
   siblings,
   isFirstPrintable,
+  readOnly,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -88,6 +90,7 @@ function SortableRow({
   onPatchContent: (patch: Record<string, unknown>) => void;
   siblings: PsaProposalBlock[];
   isFirstPrintable: boolean;
+  readOnly: boolean;
 }) {
   useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -158,6 +161,7 @@ function SortableRow({
       id={chapter != null ? `chapter-${chapter}` : undefined}
       data-proposal-block-id={block.id}
       data-proposal-block-type={block.block_type}
+      data-keep-with-next={keepBlockWithNext(block) ? "true" : "false"}
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
@@ -208,7 +212,7 @@ function SortableRow({
         live={live}
         chapterNumber={chapter}
         toc={toc}
-        editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
+        editable={!readOnly && selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
         onPatchContent={onPatchContent}
         lang={lang}
         siblings={siblings}
@@ -228,6 +232,7 @@ export function ComposerCanvas({
   styleSettings,
   language,
   previewMode = false,
+  readOnly = false,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
@@ -238,6 +243,7 @@ export function ComposerCanvas({
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
   language?: string | null;
   previewMode?: boolean;
+  readOnly?: boolean;
 }) {
   useTranslation();
   const lang = resolveProposalLang(language);
@@ -386,6 +392,7 @@ export function ComposerCanvas({
                   }
                   siblings={blocks}
                   isFirstPrintable={b.id === firstPrintableId}
+                  readOnly={readOnly}
                 />
               ))}
 
