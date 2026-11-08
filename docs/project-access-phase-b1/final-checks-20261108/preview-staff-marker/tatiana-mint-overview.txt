@@ -1,0 +1,258 @@
+CRM / Vendas
+Projetos
+Finanças
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+T
+Todos os projetos
+Clinica Mint II
+ATIVO
+Origem: proposta convertida
+SMILEPROVIDER, LDA
+·
+1 jun – 23 jul 2027
+· 257d
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+SMILEPROVIDER, LDA
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+1 jun 2026
+Fim
+23 jul 2027
+Restante
+257d
+EQUIPA
+GESTOR
+RS
+APOIO
+RC
+USO DO ORÇAMENTO
+1812 € / 30 980 €
+6%
+LUCRO
+1274 €
+41%
+NOTAS
+
+Created from approved proposal
+
+Estado
+Todos
+Ativo
+Sem alocação
+Editar planeamento
+Adicionar tarefa
+
+Texto normal = real · itálico cinzento = planeado (alocações) · – = zero
+
+MARCOS E TAREFAS	ESTADO	CUSTO (REAL FACE AO ORÇAMENTO)	RECEITA (GERADA)	FATURADO (SEM IVA)	GANHO − FATURADO	LUCRO / MARGEM	HORAS REGISTADAS / PLANEADAS	INÍCIO PREVISTO	CONCLUSÃO PREVISTA	AÇÕES
+
+2. [1] Programa Base / Conceito
+Sem responsável · 64,6 h por alocar
+	
+Ativo
+	
+1764 € / 3950 €
+45%
+	
+3086 €
+	0 €	3086 €	
+1322 €
++42,8% de margem
+	
+58h 30m
+/
+64h 34m
+	1 jun	30 nov	
+
+
+3. Análise e aprovação (cliente)
+Sem responsável
+	
+Planeado
+	
+–SEM ORÇAMENTO
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+–
+	2 dez	9 dez	
+
+
+4. [2] Estudo Prévio
+Sem responsável · 154,5 h por alocar
+	
+Planeado
+	
+– / 9450 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+154h 29m
+	10 dez	7 jan	
+
+
+5. Análise e aprovação (cliente)
+Sem responsável
+	
+Planeado
+	
+–SEM ORÇAMENTO
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+–
+	8 jan	14 jan	
+
+
+6. [4] Projeto de Execução
+Sem responsável · 201,1 h por alocar
+	
+Planeado
+	
+– / 12 300 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+201h 4m
+	15 jan	18 fev	
+
+
+1. [6] Assistência Técnica à Obra
+4 subfases
+	
+Planeado
+	
+– / 10 560 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+172h 37m
+	5 abr	23 jul	
+
+
+1.1. 2026-11 — [6] Assistência Técnica à Obra
+Sem responsável · 21,6 h por alocar
+	
+Planeado
+	
+– / 1320 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+21h 35m
+	5 abr	3 mai	
+
+
+1.2. 2026-12 — [6] Assistência Técnica à Obra
+Sem responsável · 21,6 h por alocar
+	
+Planeado
+	
+– / 1320 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+21h 35m
+	4 mai	25 mai	
+
+
+1.3. 2027-01 — [6] Assistência Técnica à Obra
+Sem responsável · 21,6 h por alocar
+	
+Planeado
+	
+– / 1320 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+21h 35m
+	26 mai	24 jun	
+
+
+1.4. 2027-02 — [6] Assistência Técnica à Obra
+Sem responsável · 21,6 h por alocar
+	
+Planeado
+	
+– / 1320 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+21h 35m
+	28 jun	23 jul	
+Referência contratual
+2680 · 30 980,00 € · registo fixo 03/11/2026
+Só de leitura
+Comparar com o contrato
+10 etapas com diferenças (total: 10)
+Calculado

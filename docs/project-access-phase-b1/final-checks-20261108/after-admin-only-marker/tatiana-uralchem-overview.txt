@@ -1,0 +1,124 @@
+CRM / Vendas
+Projetos
+Finanças
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+T
+Todos os projetos
+2502 Uralchem IV
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+2 jun – 12 mar 2027
+· 124d
+·
+RC
++2
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+2 jun 2026
+Fim
+12 mar 2027
+Restante
+124d
+EQUIPA
+ALOCADOS
+RC
+PR
+USO DO ORÇAMENTO
+42 583 € / 421 300 €
+10%
+LUCRO
+31 938 €
+43%
+NOTAS
+
+Code: 2502
+Owner: c376256c-f61b-4e3c-98c8-a0ab3bc67ac3
+
+Estado
+Todos
+Ativo
+Sem alocação
+Editar planeamento
+Adicionar tarefa
+
+Texto normal = real · itálico cinzento = planeado (alocações) · – = zero
+
+MARCOS E TAREFAS	ESTADO	CUSTO (REAL FACE AO ORÇAMENTO)	RECEITA (GERADA)	FATURADO (SEM IVA)	GANHO − FATURADO	LUCRO / MARGEM	HORAS REGISTADAS / PLANEADAS	INÍCIO PREVISTO	CONCLUSÃO PREVISTA	AÇÕES
+
+1. F1 - Programme Definition
+4 alocações · 210,3 h por alocar
+	
+Ativo
+	
+3793 € / 22 500 €
+17%
+	
+6639 €
+	0 €	6639 €	
+2846 €
++42,9% de margem
+	
+109h 46m
+/
+120h 0m
+	2 jun	27 jul	
+
+
+2. F2 - Concept Design
+5 alocações · 1447,9 h por alocar
+	
+Ativo
+	
+38 790 € / 160 000 €
+24%
+	
+67 882 €
+	0 €	67 882 €	
+29 093 €
++42,9% de margem
+	
+1104h 50m
+/
+901h 0m
+	1 jul	2 nov	
+
+
+3. F3 - Developed Design
+Sem responsável · 3505,8 h por alocar
+	
+Planeado
+	
+– / 238 800 €
+0%
+	
+–
+	0 €	0 €	
+–
+AINDA SEM RECEITA
+	
+–
+/
+3505h 46m
+	3 nov	12 mar	

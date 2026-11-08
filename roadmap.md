@@ -1,3 +1,8 @@
+## Current request — 8 November 12:22 B1 final pre-cutover checks
+- [x] Preview marker admin-only + read-only (0267), server re-check, SQL/TS tests (non-admin → OFF).
+- [x] Explain 30 980 € (Mint budget) and "Sem cliente" (companies read policy); no changes.
+- [x] Load-aware cutover check script; preview runs for Rita, Patricia, Tatiana; GO/NO-GO in report. B1 OFF; wait for Luis; no B2.
+
 ## Current request — 8 November B1 preview parity (no cutover)
 - [x] Explain Rita live-ON 48/-48/— vs preview 1812/1274/41%: old preview used review readers; live capture was mid-load rendered as numbers.
 - [x] Preview now uses the identical gate-ON path (migration 0266); loading shows "—"; rolled-back SQL parity test PASS 21 checks + TS parity tests.
