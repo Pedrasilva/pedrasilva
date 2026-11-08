@@ -331,15 +331,16 @@ function PhaseSummaryCard({
 }
 
 
-export function BlockBody(props: Parameters<typeof BlockBodyContent>[0]) {
+function BlockBodyWithHeading(props: Parameters<typeof BlockBody>[0]) {
   return (
     <HeadingLevelContext.Provider value={blockHeadingLevel(props.block)}>
-      <BlockBodyContent {...props} />
+      <BlockBody {...props} />
     </HeadingLevelContext.Provider>
   );
 }
+export { BlockBodyWithHeading as BlockBody };
 
-function BlockBodyContent({
+function BlockBody({
   block,
   live,
   chapterNumber,
