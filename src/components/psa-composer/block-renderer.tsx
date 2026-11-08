@@ -10,7 +10,8 @@ import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-propos
  * editor) when present, falling back to the legacy plain `content_rich.text`
  * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
-import React from "react";
+import React, { createContext, useContext } from "react";
+import { blockHeadingLevel, type BlockHeadingLevel, type SectionTocEntry } from "@/lib/psa-proposal/heading-levels";
 import { useTranslation } from "react-i18next";
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
@@ -493,7 +494,7 @@ function BlockBodyContent({
     case "index":
       return (
         <div>
-          <HeadingLevelContext.Provider value="h1"><H>{L.index}</H></HeadingLevelContext.Provider>
+          <H>{L.index}</H>
           {toc && toc.length ? (
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
               {toc.map((e) => (
