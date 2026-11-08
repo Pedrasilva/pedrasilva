@@ -74,7 +74,7 @@ async def main():
   phs=await pdfpage.evaluate('('+HDR+')(document)'); assert all(h and h['sameLine'] and h['contactRightOfLogo'] for h in phs),phs
   printed=await pdfpage.locator('.pagedjs_page').evaluate_all(getblocks)
   assert screen==printed,(screen,printed)
-  await pdfpage.evaluate('Promise.all(Array.from(document.images).map(i=>i.complete?1:i.decode().catch(()=>0)))'); await pdfpage.wait_for_timeout(800)
+  await pdfpage.wait_for_timeout(2500); imgs=await pdfpage.evaluate('Array.from(document.images).slice(0,3).map(i=>[i.complete,i.naturalWidth])')
   await pdfpage.pdf(path=str(ROOT/'comparison.pdf'),prefer_css_page_size=True)
   info=subprocess.check_output(["pdfinfo",str(ROOT/"comparison.pdf")],text=True); physical=int(next(line.split(":")[1] for line in info.splitlines() if line.startswith("Pages:")))
   assert physical==len(screen),(physical,len(screen))
@@ -87,6 +87,6 @@ async def main():
   assert not errors,errors
   assert await page.locator('[data-pagedjs-inserted-styles]').count()==0
   (ROOT/'results.json').write_text(json.dumps({'fixture':COPY,'fixtureType':'browser-only proposal and blocks, live quote read-only','sizes':results,'preferenceReload':'PASS','screenPageCount':len(screen),'physicalPdfPageCount':physical,'screenFirstBlocks':screen,'printFirstBlocks':printed,'preserved':preserved,'blockedWrites':writes,'errors':errors,'cleanup':'browser context destroyed; no persisted fixture'},ensure_ascii=False,indent=2))
-  print(json.dumps({'sizes':results,'screenPages':len(screen),'physicalPdfPages':physical,'firstBlocks':screen,'preserved':preserved,'blockedWrites':writes,'errors':errors,'gaps':gaps,'headers':hs[:2],'pdfHeaders':phs[:2]},ensure_ascii=False))
+  print(json.dumps({'sizes':results,'screenPages':len(screen),'physicalPdfPages':physical,'firstBlocks':screen,'preserved':preserved,'blockedWrites':writes,'errors':errors,'gaps':gaps,'headers':hs[:2],'pdfHeaders':phs[:2],'pdfImgs':imgs},ensure_ascii=False))
   await c.close(); await b.close()
 asyncio.run(main())
