@@ -74,6 +74,7 @@ async def main():
   phs=await pdfpage.evaluate('('+HDR+')(document)'); assert all(h and h['sameLine'] and h['contactRightOfLogo'] for h in phs),phs
   printed=await pdfpage.locator('.pagedjs_page').evaluate_all(getblocks)
   assert screen==printed,(screen,printed)
+  await pdfpage.evaluate('Promise.all(Array.from(document.images).map(i=>i.complete?1:i.decode().catch(()=>0)))'); await pdfpage.wait_for_timeout(800)
   await pdfpage.pdf(path=str(ROOT/'comparison.pdf'),prefer_css_page_size=True)
   info=subprocess.check_output(["pdfinfo",str(ROOT/"comparison.pdf")],text=True); physical=int(next(line.split(":")[1] for line in info.splitlines() if line.startswith("Pages:")))
   assert physical==len(screen),(physical,len(screen))
