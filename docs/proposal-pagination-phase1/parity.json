@@ -77,12 +77,7 @@
     true,
     true
   ],
-  "errors": [
-    "Cannot read properties of null (reading 'getAttribute')",
-    "Cannot read properties of null (reading 'getAttribute')",
-    "Cannot read properties of null (reading 'getAttribute')",
-    "Cannot read properties of null (reading 'getAttribute')"
-  ],
+  "errors": [],
   "blocked_writes": [
     "psa_proposals",
     "psa_proposal_snapshots"

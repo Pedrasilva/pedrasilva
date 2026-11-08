@@ -184,7 +184,7 @@ export function PaginatedPreview({
         const { Previewer } = await import("pagedjs");
         if (cancelled) return;
         const previewer = new Previewer();
-        pagedInternals = previewer as unknown as typeof pagedInternals;
+        pagedInternals = previewer as unknown as { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
         // Render away from React's live target. In development/fast toggles an
         // effect cleanup can otherwise remove Paged.js' current page while its
         // async layout is still measuring it, causing the one-page/null crash.

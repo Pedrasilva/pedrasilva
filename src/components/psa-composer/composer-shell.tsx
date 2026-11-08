@@ -21,7 +21,6 @@ import { BlockSettingsPanel } from "./block-settings-panel";
 import { PaginatedPreview } from "./paginated-preview";
 import { useSmartPagination } from "./use-smart-pagination";
 import { useLiveQuoteSnapshot, resolveProposalLang } from '@/lib/psa-proposal/live-data';
-import { useIsFetching } from "@tanstack/react-query";
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
@@ -51,7 +50,6 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const [source, setSource] = useState<HTMLDivElement | null>(null);
   const [revision, setRevision] = useState(0);
   const observedEditRef = useRef("");
-  const fetching = useIsFetching();
   const liveQuery = useLiveQuoteSnapshot(proposal.data?.quote_id, resolveProposalLang(proposal.data?.language));
   const dataReady = !!proposal.data && blocks.isSuccess && !proposal.isFetching && !blocks.isFetching &&
     (!proposal.data.quote_id || (!!liveQuery.data && !liveQuery.isFetching && !liveQuery.isError));
