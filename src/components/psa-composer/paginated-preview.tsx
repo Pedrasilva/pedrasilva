@@ -258,8 +258,8 @@ export function PaginatedPreview({
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}
           /* Header furniture: identical to the editor letterhead on every sheet (screen and print). */
-          .proposal-paginated-preview .pagedjs_margin-top-center{grid-column:1 / -1!important;display:block!important;width:100%!important}
-          .proposal-paginated-preview .pagedjs_margin-top-center > .pagedjs_margin-content{display:block!important;width:100%!important;text-align:left!important}
+          .proposal-paginated-preview .pagedjs_margin-top-center{grid-column:1 / -1!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;height:100%!important}
+          .proposal-paginated-preview .pagedjs_margin-top-center > .pagedjs_margin-content{display:block!important;flex:1 1 100%!important;width:100%!important;text-align:left!important}
           .proposal-margin-furniture .proposal-page-header{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;justify-content:space-between!important;align-items:flex-start!important;width:100%!important;text-align:left!important}
           .proposal-margin-furniture .proposal-letterhead-brand{align-items:flex-start!important;margin:0!important}
           .proposal-margin-furniture .proposal-letterhead-contact{text-align:right!important;margin-left:auto!important}
