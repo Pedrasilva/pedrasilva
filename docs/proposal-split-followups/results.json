@@ -1,0 +1,164 @@
+{
+  "fixture": "4d79fff5-e246-4361-b249-f1a87c408fdb",
+  "fixtureType": "browser-only proposal and blocks, live quote read-only",
+  "sizes": [
+    {
+      "width": 1400,
+      "editor": 648,
+      "pages": 648,
+      "document": 616,
+      "overflow": false
+    },
+    {
+      "width": 1740,
+      "editor": 818,
+      "pages": 818,
+      "document": 786,
+      "overflow": false
+    }
+  ],
+  "preferenceReload": "PASS",
+  "screenPageCount": 11,
+  "physicalPdfPageCount": 11,
+  "screenFirstBlocks": [
+    {
+      "id": "3dcb58c4-e230-4c60-b057-74a5acd31f3e",
+      "type": "cover",
+      "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+    },
+    {
+      "id": "9c478fdc-d2cc-4d4a-b423-d0ec817e92d8",
+      "type": "index",
+      "text": "20. Considerações Gerais 21. Suspensão ou Rescisão 22. Exclusões"
+    },
+    {
+      "id": "126b7f89-f476-4d1e-8b32-9193f6daad51",
+      "type": "stage_item",
+      "text": "Âmbito e entregáveis"
+    },
+    {
+      "id": "954d37d9-b3e8-44bc-aa23-5db3d1145649",
+      "type": "stage_item",
+      "text": "Actividades Principais"
+    },
+    {
+      "id": "7e8aba2d-73d7-4715-9529-7fa8a639253b",
+      "type": "stage_item",
+      "text": "Resumo da Fase"
+    },
+    {
+      "id": "342ee2b8-51b8-4327-8687-90a403ff91fd",
+      "type": "stage_item",
+      "text": "Aprovação da Fase"
+    },
+    {
+      "id": "7df202cb-f0fa-47e0-8ad6-87143f606ba3",
+      "type": "stage_item",
+      "text": "Informação necessária do cliente"
+    },
+    {
+      "id": "932975a5-ca22-40b1-8e4f-2dfcb9e38844",
+      "type": "stage_item",
+      "text": "Informação necessária do cliente"
+    },
+    {
+      "id": "c49cfee4-91d8-466a-b132-1af836f74551",
+      "type": "construction_fee",
+      "text": "15. Honorários em Obra"
+    },
+    {
+      "id": "83231318-4d6a-40b1-8f3e-0baa1e88a80c",
+      "type": "additional_services",
+      "text": "Selecção de consultores fora do âmbito desta proposta Estudos ambientais, auditorias de acessibilidade e serviços de avaliação de risco Negociações com entidade"
+    },
+    {
+      "id": "4e255080-9217-49c7-86f4-1a210d368ea2",
+      "type": "exclusions",
+      "text": "22. Exclusões"
+    }
+  ],
+  "printFirstBlocks": [
+    {
+      "id": "3dcb58c4-e230-4c60-b057-74a5acd31f3e",
+      "type": "cover",
+      "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+    },
+    {
+      "id": "9c478fdc-d2cc-4d4a-b423-d0ec817e92d8",
+      "type": "index",
+      "text": "20. Considerações Gerais 21. Suspensão ou Rescisão 22. Exclusões"
+    },
+    {
+      "id": "126b7f89-f476-4d1e-8b32-9193f6daad51",
+      "type": "stage_item",
+      "text": "Âmbito e entregáveis"
+    },
+    {
+      "id": "954d37d9-b3e8-44bc-aa23-5db3d1145649",
+      "type": "stage_item",
+      "text": "Actividades Principais"
+    },
+    {
+      "id": "7e8aba2d-73d7-4715-9529-7fa8a639253b",
+      "type": "stage_item",
+      "text": "Resumo da Fase"
+    },
+    {
+      "id": "342ee2b8-51b8-4327-8687-90a403ff91fd",
+      "type": "stage_item",
+      "text": "Aprovação da Fase"
+    },
+    {
+      "id": "7df202cb-f0fa-47e0-8ad6-87143f606ba3",
+      "type": "stage_item",
+      "text": "Informação necessária do cliente"
+    },
+    {
+      "id": "932975a5-ca22-40b1-8e4f-2dfcb9e38844",
+      "type": "stage_item",
+      "text": "Informação necessária do cliente"
+    },
+    {
+      "id": "c49cfee4-91d8-466a-b132-1af836f74551",
+      "type": "construction_fee",
+      "text": "15. Honorários em Obra"
+    },
+    {
+      "id": "83231318-4d6a-40b1-8f3e-0baa1e88a80c",
+      "type": "additional_services",
+      "text": "Selecção de consultores fora do âmbito desta proposta Estudos ambientais, auditorias de acessibilidade e serviços de avaliação de risco Negociações com entidade"
+    },
+    {
+      "id": "4e255080-9217-49c7-86f4-1a210d368ea2",
+      "type": "exclusions",
+      "text": "22. Exclusões"
+    }
+  ],
+  "preserved": [
+    {
+      "path": "/rest/v1/psa_proposals",
+      "rows": 1,
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposals",
+      "rows": 1,
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposals",
+      "rows": 16,
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposal_blocks",
+      "rows": 27,
+      "equal": true
+    }
+  ],
+  "blockedWrites": [
+    "/rest/v1/psa_proposal_snapshots"
+  ],
+  "errors": [],
+  "cleanup": "browser context destroyed; no persisted fixture"
+}
