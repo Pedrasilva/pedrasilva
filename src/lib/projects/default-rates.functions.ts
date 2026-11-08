@@ -32,7 +32,7 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     const { userId } = context;
     // Same caller-scoped client as gate ON; a preview marker is forwarded so preview and ON share one path.
     const { withB1PreviewHeader } = await import('./b1-preview.server');
-    const supabase = withB1PreviewHeader(context.supabase);
+    const supabase = await withB1PreviewHeader(context.supabase, userId);
     const {data:b1State,error:b1Error}=await supabase.rpc('pm_project_b1_active');
     if(b1Error)throw b1Error;
     // Explicit review uses the same caller-scoped areas without changing the gate.
