@@ -10,10 +10,13 @@ import uiI18n from "@/i18n/index";
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from '@/lib/toast';
-import { ArrowLeft, FilePlus2, History } from "lucide-react";
+import { ArrowLeft, FilePlus2, History, PanelLeft, PanelRight, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/use-auth";
+import { parseSplitDrawers, splitDrawerStorageKey, type SplitDrawers } from "./split-drawers";
 import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
 import { BlockLibraryPanel } from "./block-library-panel";
@@ -34,6 +37,22 @@ import {
 export function ComposerShell({ proposalId }: { proposalId: string }) {
   const { t } = useTranslation("common");
   const historical = useHistoricalRevision();
+  const { user } = useAuth();
+  const [drawerPreference, setDrawerPreference] = useState<{ userId: string | null; drawers: SplitDrawers }>({ userId: null, drawers: { library: false, settings: false } });
+  const drawers = drawerPreference.userId === user?.id ? drawerPreference.drawers : { library: false, settings: false };
+  useEffect(() => {
+    if (!user?.id) return;
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(splitDrawerStorageKey(user.id)); } catch { /* Storage can be disabled. */ }
+    setDrawerPreference({ userId: user.id, drawers: parseSplitDrawers(saved) });
+  }, [user?.id]);
+  const setDrawer = (panel: keyof SplitDrawers, open: boolean) => {
+    const next = { ...drawers, [panel]: open };
+    setDrawerPreference({ userId: user?.id ?? null, drawers: next });
+    if (user?.id) {
+      try { localStorage.setItem(splitDrawerStorageKey(user.id), JSON.stringify(next)); } catch { /* Keep working without persistence. */ }
+    }
+  };
 
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
@@ -46,6 +65,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const setPreviewMode = (value: boolean | ((current: boolean) => boolean)) => setLayout((current) => (typeof value === "function" ? value(current === "pages") : value) ? "pages" : "edit");
   const [zoom, setZoom] = useState("fit");
   const [scale, setScale] = useState(1);
+  const [editorScale, setEditorScale] = useState(1);
   const sourceHostRef = useRef<HTMLDivElement | null>(null);
   const pagePaneRef = useRef<HTMLDivElement | null>(null);
   const [source, setSource] = useState<HTMLDivElement | null>(null);
@@ -83,6 +103,22 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     return () => observer.disconnect();
   }, [zoom, layout, proposal.data?.id]);
   const canvasScrollerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const pane = canvasScrollerRef.current;
+    if (!pane) return;
+    const fitEditor = () => setEditorScale(layout === "split" ? Math.min(1, Math.max(0.1, (pane.clientWidth - 32) / (210 * 96 / 25.4))) : 1);
+    const observer = new ResizeObserver(fitEditor);
+    observer.observe(pane); fitEditor();
+    return () => observer.disconnect();
+  }, [layout, proposal.data?.id]);
+  useEffect(() => {
+    if (layout !== "split") return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setDrawer("library", false); setDrawer("settings", false); }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [layout, drawerPreference]);
 
   useEffect(() => {
     if (!previewMode) return;
@@ -143,13 +179,20 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         previewMode={previewMode}
         onTogglePreview={() => setPreviewMode((v) => !v)}
       />
-      <div className="proposal-preview-toolbar flex shrink-0 items-center gap-3 border-b bg-background px-4 py-2 print:hidden">
+      <div className="proposal-preview-toolbar flex shrink-0 flex-wrap items-center gap-3 border-b bg-background px-4 py-2 print:hidden">
         <div role="group" aria-label={t("proposalComposer.pagination.layout")} className="flex gap-1">
           {(["edit", "split", "pages"] as const).map((mode) => <Button key={mode} size="sm" variant={layout === mode ? "secondary" : "ghost"} onClick={() => setLayout(mode)}>{mode === "edit" ? t("edit") : t(`proposalComposer.pagination.${mode}`)}</Button>)}
         </div>
         <select aria-label={t("proposalComposer.pagination.zoom")} value={zoom} onChange={(e) => setZoom(e.target.value)} className="rounded border border-border bg-background p-1 text-sm">
           <option value="fit">{t("proposalComposer.pagination.fitWidth")}</option><option value="0.75">75%</option><option value="1">100%</option>
         </select>
+        {layout === "split" && !isReadOnly && <div className="ml-auto flex gap-1">
+          {(["library", "settings"] as const).map((panel) => <Tooltip key={panel}>
+            <TooltipTrigger asChild><Button size="icon" variant={drawers[panel] ? "secondary" : "ghost"} aria-label={t(panel)} aria-expanded={drawers[panel]} aria-controls={`proposal-split-${panel}`} onClick={() => setDrawer(panel, !drawers[panel])}>
+              {panel === "library" ? <PanelLeft className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+            </Button></TooltipTrigger><TooltipContent>{t(panel)}</TooltipContent>
+          </Tooltip>)}
+        </div>}
       </div>
       {previewMode && (
         <div className="proposal-preview-toolbar flex shrink-0 items-center border-b bg-background px-4 py-2">
@@ -210,10 +253,13 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
         </div>
       )}
-      <div className="flex min-h-0 flex-1 overflow-hidden print:block">
+      <div className="relative flex min-h-0 flex-1 overflow-hidden print:block" data-composer-layout={layout}>
         {!isReadOnly && (
-          <div className="shrink-0 print:hidden">
+          <div id="proposal-split-library" hidden={layout === "split" && !drawers.library} className={layout === "split" ? "absolute inset-y-0 left-0 z-30 flex max-w-full flex-col border-r border-border bg-background shadow-lg print:hidden" : "shrink-0 print:hidden"}>
+            {layout === "split" && <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-1"><span className="text-sm font-medium">{t("library")}</span><Button size="icon" variant="ghost" aria-label={t("close")} onClick={() => setDrawer("library", false)}><X className="h-4 w-4" /></Button></div>}
+            <div className="min-h-0 flex-1 overflow-auto">
             <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
+            </div>
           </div>
         )}
         <div
@@ -228,7 +274,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
                   const editable = target.closest(
                     'input,textarea,select,[contenteditable="true"],button',
                   );
-                  if (editable) {
+            if (editable) {
                     e.preventDefault();
                     e.stopPropagation();
                     guardEdit();
@@ -237,7 +283,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
               : undefined
           }
         >
-          <div ref={sourceHostRef} className="proposal-source-host">
+          <div ref={sourceHostRef} className="proposal-source-host" style={{ zoom: editorScale }}>
             <ComposerCanvas
               proposalId={proposalId}
               blocks={items}
@@ -260,13 +306,16 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </div>
         </div>
         {!isReadOnly && (
-          <div className="shrink-0 print:hidden">
+          <div id="proposal-split-settings" hidden={layout === "split" && !drawers.settings} className={layout === "split" ? "absolute inset-y-0 right-0 z-30 flex max-w-full flex-col border-l border-border bg-background shadow-lg print:hidden" : "shrink-0 print:hidden"}>
+            {layout === "split" && <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-1"><span className="text-sm font-medium">{t("settings")}</span><Button size="icon" variant="ghost" aria-label={t("close")} onClick={() => setDrawer("settings", false)}><X className="h-4 w-4" /></Button></div>}
+            <div className="min-h-0 flex-1 overflow-auto">
             <BlockSettingsPanel
               proposalId={proposalId}
               proposal={proposal.data}
               quoteIdHint={proposal.data.quote_id}
               block={selected}
             />
+            </div>
           </div>
         )}
       </div>
