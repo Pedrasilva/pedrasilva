@@ -20,7 +20,8 @@ import { BlockLibraryPanel } from "./block-library-panel";
 import { BlockSettingsPanel } from "./block-settings-panel";
 import { PaginatedPreview } from "./paginated-preview";
 import { useSmartPagination } from "./use-smart-pagination";
-import { useIsFetching } from "@tanstack/react-query";
+import { useLiveQuoteSnapshot, resolveProposalLang } from '@/lib/psa-proposal/live-data';
+import { proposalPaginationReady } from '@/lib/psa-proposal/pagination-ready';
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
@@ -50,7 +51,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const [source, setSource] = useState<HTMLDivElement | null>(null);
   const [revision, setRevision] = useState(0);
   const observedEditRef = useRef("");
-  const fetching = useIsFetching();
+  const liveQuery = useLiveQuoteSnapshot(proposal.data?.quote_id, resolveProposalLang(proposal.data?.language));
+  const dataReady = proposalPaginationReady(proposal, blocks, liveQuery, !!proposal.data?.quote_id);
   const sourceRef = useRef<HTMLDivElement | null>(null);
   useSmartPagination(sourceRef, revision);
   const selectBlock = useCallback((id: string) => {
@@ -253,7 +255,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         <div ref={pagePaneRef} className={`min-h-0 min-w-0 flex-1 overflow-auto bg-muted ${layout === "edit" ? "proposal-pages-hidden" : ""}`}>
           <div className="proposal-zoom-frame" style={{ zoom: 1, width: `${210 * 96 / 25.4 * scale}px`, margin: "0 auto" }}>
             <div className="proposal-zoom-sheet" style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
-              <PaginatedPreview source={source} invalidateKey={`${revision}:${fetching}:${JSON.stringify(proposal.data.style_settings)}`} selectedId={selectedId} onSelect={selectBlock} />
+              <PaginatedPreview source={source} dataReady={dataReady} invalidateKey={`${revision}:${JSON.stringify(proposal.data.style_settings)}`} selectedId={selectedId} onSelect={selectBlock} />
             </div>
           </div>
         </div>

@@ -1,11 +1,11 @@
 {
-  "screen_pages": 5,
+  "screen_pages": 12,
   "pdf_pages": 12,
   "pages": [
     {
       "number": "1",
       "first": "bbbbbbbb-3333-4444-8888-000000000000",
-      "text": "Proposta de Honorários\nProjeto\n—\nÍndice\n1.\nSobre a PSA\n2.\nÂmbito e Descrição do Projeto\n3.\nOrganização do Projeto e Fases\n4.\nFase\n5.\nFase\n6.\nFase\n7.\nF"
+      "text": "Proposta de Honorários\nHotel Chiado\nProposta 26103 · 07/11/2026\nÍndice\n1.\nSobre a PSA\n2.\nÂmbito e Descrição do Projeto\n3.\nOrganização do Projeto e Fas"
     },
     {
       "number": "2",
@@ -14,24 +14,87 @@
     },
     {
       "number": "3",
-      "first": "bbbbbbbb-3333-4444-8888-000000000010",
-      "text": "8. Fase\n\nSelecione uma fase do orçamento no painel direito para preencher este bloco.\n\n9. Fase\n\nSelecione uma fase do orçamento no painel direito para"
+      "first": "bbbbbbbb-3333-4444-8888-000000000005",
+      "text": "Actividades Principais\n\nReunião inicial com o Cliente para identificar as alterações ao projecto entregue na CML\n\nApresentação de toda a equipa do pro"
     },
     {
       "number": "4",
-      "first": "bbbbbbbb-3333-4444-8888-000000000018",
-      "text": "uras são enviadas por email no prazo máximo de 48 horas após a sua emissão.\n\nO período de aprovação de cada fase é de 5 dias úteis após a entrega. Na "
+      "first": "bbbbbbbb-3333-4444-8888-000000000006",
+      "text": "Objetivo\n\nDesenvolver, a partir do Estudo Prévio aprovado, os elementos a submeter à CML e demais entidades para obtenção de todas as licenças necessá"
     },
     {
       "number": "5",
+      "first": "bbbbbbbb-3333-4444-8888-000000000007",
+      "text": "6. Estudo Prévio\nObjetivo\n\nRever e ajustar, em conjunto com o Rockwell Group, o projecto já entregue na Câmara Municipal de Lisboa, fixando o layout f"
+    },
+    {
+      "number": "6",
+      "first": "bbbbbbbb-3333-4444-8888-000000000007",
+      "text": "Resumo da Fase\nDuração\n2 meses\nHonorários\n24 180 €\nCiclos de revisão incluídos\n1 ciclo de revisão consolidado\n7. Estudo Prévio\nObjetivo\n\nRever e ajust"
+    },
+    {
+      "number": "7",
+      "first": "bbbbbbbb-3333-4444-8888-000000000008",
+      "text": "Aprovação da Fase\n\nO Cliente dispõe de 5 dias úteis após a entrega para aprovar a fase. Na ausência de resposta findo este prazo, a fase considera-se "
+    },
+    {
+      "number": "8",
+      "first": "bbbbbbbb-3333-4444-8888-000000000010",
+      "text": "Informação necessária do cliente\nEquipa de Gestão de Projecto (Project Management) seleccionada e operacional para lançar o concurso de obra, analisar"
+    },
+    {
+      "number": "9",
+      "first": "bbbbbbbb-3333-4444-8888-000000000011",
+      "text": "Informação necessária do cliente\nConcurso de obra por convite lançado pela equipa de Gestão de Projecto, com empresas de experiência adequada\nResultad"
+    },
+    {
+      "number": "10",
+      "first": "bbbbbbbb-3333-4444-8888-000000000016",
+      "text": "Assistência Técnica\t2200 €\t\nTotal Arquitetura\t\t158 840 €\n15. Honorários em Obra\n\nA Assistência Técnica à obra é facturada mensalmente, no valor de 2 2"
+    },
+    {
+      "number": "11",
+      "first": "bbbbbbbb-3333-4444-8888-000000000019",
+      "text": "FT 05\tMês 1 de obra\tAssistência Técnica — Mensalidade de Assistência Técnica (Mês 1 de obra)\t2200 €\t506 €\t2706 €\nTotal\t158 840 €\t36 533 €\t195 373 €\n18"
+    },
+    {
+      "number": "12",
       "first": "bbbbbbbb-3333-4444-8888-000000000023",
-      "text": "As condições aqui apresentadas regem-se pela legislação portuguesa aplicável. Qualquer alteração ao âmbito ou ao calendário será formalizada por escri"
+      "text": "O atelier encerra entre o Natal e o Ano Novo e nos feriados nacionais e locais de Lisboa; os prazos indicados serão ajustados em conformidade.\n\nAs con"
     }
   ],
-  "first_block_text_parity": [],
+  "first_block_text_parity": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
   "errors": [],
   "blocked_writes": [
     "psa_proposals",
     "psa_proposal_snapshots"
-  ]
+  ],
+  "exported_first_block_ids": [
+    "bbbbbbbb-3333-4444-8888-000000000000",
+    "bbbbbbbb-3333-4444-8888-000000000001",
+    "bbbbbbbb-3333-4444-8888-000000000005",
+    "bbbbbbbb-3333-4444-8888-000000000006",
+    "bbbbbbbb-3333-4444-8888-000000000007",
+    "bbbbbbbb-3333-4444-8888-000000000007",
+    "bbbbbbbb-3333-4444-8888-000000000008",
+    "bbbbbbbb-3333-4444-8888-000000000010",
+    "bbbbbbbb-3333-4444-8888-000000000011",
+    "bbbbbbbb-3333-4444-8888-000000000016",
+    "bbbbbbbb-3333-4444-8888-000000000019",
+    "bbbbbbbb-3333-4444-8888-000000000023"
+  ],
+  "first_block_ids_match": true
 }
