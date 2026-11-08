@@ -81,10 +81,15 @@ async def main():
   toc=await page.frame_locator('.proposal-pagination-frame').locator('[data-proposal-block-type=index]').inner_text()
   for number,title in [('3.1','Programa'),('3.2','Estudo Prévio'),('3.3','Licenciamento'),('3.4','Projecto de Execução'),('3.5','Assistência Técnica')]:assert number in toc and title in toc,(number,toc)
   await page.frame_locator('.proposal-pagination-frame').locator('[data-proposal-block-type=index]').screenshot(path=str(ROOT/'nested-index.png'));nested=await export('nested-copy')
+  # Show toggles are respected without changing the saved proposal.
+  state['proposal']['style_settings']={**(state['proposal'].get('style_settings') or {}),'showFooter':False}
+  await open_builder()
+  assert await page.frame_locator('.proposal-pagination-frame').locator('.proposal-page-footer').count()==0
+  assert await page.frame_locator('.proposal-pagination-frame').locator('[data-footer-page]').count()==0
   preserved=[]
   for url,before in original.items():
    response=await context.request.get(url,headers=headers[url]);after=await response.json();assert before==after,'Real source changed';preserved.append({'path':urlsplit(url).path,'equal':True})
   assert not errors,errors
-  result={'currentCopy':baseline,'nestedDemoCopy':nested,'footerMetrics':metrics,'indexPages':indexpages,'settingsScroll':bottom,'headingControl':'H2 saved and read back on browser copy','deleteConfirmation':'in-app dialog/cancel verified','sourcePreserved':preserved,'blockedWrites':writes,'errors':errors,'cleanup':'Browser-only fixture context destroyed; no persisted copy'}; (ROOT/'results.json').write_text(json.dumps(result,indent=2,ensure_ascii=False));print(json.dumps(result,ensure_ascii=False))
+  result={'currentCopy':baseline,'nestedDemoCopy':nested,'footerMetrics':metrics,'indexPages':indexpages,'settingsScroll':bottom,'bulletGutters':bullets,'footerToggleOff':'No footer or page number when disabled','headingControl':'H2 saved and read back on browser copy','deleteConfirmation':'in-app dialog/cancel verified','sourcePreserved':preserved,'blockedWrites':writes,'errors':errors,'cleanup':'Browser-only fixture context destroyed; no persisted copy'}; (ROOT/'results.json').write_text(json.dumps(result,indent=2,ensure_ascii=False));print(json.dumps({'screen':baseline['screenPages'],'pdf':baseline['pdfPages'],'nestedScreen':nested['screenPages'],'nestedPdf':nested['pdfPages'],'scroll':bottom,'errors':errors},ensure_ascii=False))
   await context.close();await browser.close()
 asyncio.run(main())
