@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { projectActualTotals, applyB1RateAccess, type ActualEntryFigure, type ActualTimeRow } from '../src/lib/projects/project-actual-totals';
 import { loggedEntryFigures, marginLabel } from '../src/lib/projects/financial-calculation';
+import { b1RateScope } from '../src/lib/projects/b1-rate-scope';
 
 // Gate-ON reader outputs are proven identical for Rita and Luis on Mint by the
 // rolled-back transaction in scripts/test-b1-gate-on-parity.sql (B1_PARITY_PASS).
@@ -48,5 +49,22 @@ describe('B1 gate ON: Patricia (all areas OFF) sees no figures', () => {
     expect(Number.isNaN(t.revenue)).toBe(true);
     expect(Number.isNaN(t.cost)).toBe(true);
     expect(marginLabel(t.marginPct)).toBe('—');
+  });
+});
+
+describe('B1 global financial capability rate scope', () => {
+  it('audited global capability preserves cost, sale and sale100 inputs without a project', () => {
+    const flags=b1RateScope(undefined,true);
+    expect(flags).toEqual({budgetAllowed:true,saleAllowed:true});
+    expect(applyB1RateAccess(hrDefault,true,flags.budgetAllowed,flags.saleAllowed)).toEqual(hrDefault);
+  });
+  it('no global capability returns no global rates even if one project grants all areas', () => {
+    const flags=b1RateScope(undefined,false,{budget_cost:true,financials:true});
+    expect(flags).toEqual({budgetAllowed:false,saleAllowed:false});
+    expect(applyB1RateAccess(hrDefault,true,flags.budgetAllowed,flags.saleAllowed).sale).toBeNaN();
+  });
+  it('project Financials/Budget remain independent of the context-free global flag', () => {
+    expect(b1RateScope('uralchem',false,{budget_cost:false,financials:false})).toEqual({budgetAllowed:false,saleAllowed:false});
+    expect(b1RateScope('mint',false,{budget_cost:true,financials:true})).toEqual({budgetAllowed:true,saleAllowed:true});
   });
 });
