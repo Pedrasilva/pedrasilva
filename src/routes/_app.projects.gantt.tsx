@@ -4,6 +4,7 @@ import i18n from "@/i18n/index";
 import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useIsFetching } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { AppShell } from "@/components/projects/app-shell";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
@@ -83,6 +84,9 @@ function GlobalGanttPage() {
     canV2("projects.edit_planning", "assigned");
   const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !canEditPlanning });
   const { data: defaultRates } = useDefaultResourceRates(undefined,true);
+  // Loading signal for cutover checks: figures are final only when no query is fetching.
+  const fetchingCount = useIsFetching();
+  const totalsReady = !!projects && !!allStages && !!resources && defaultRates !== undefined && fetchingCount === 0;
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
   const navigate = useNavigate();
@@ -177,7 +181,7 @@ function GlobalGanttPage() {
       )}
 
       {/* Toolbar — always visible */}
-      <div className="w-full px-6 pt-4">
+      <div className="w-full px-6 pt-4" data-totals-ready={totalsReady ? "true" : "false"}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-1">
             {STATUS_TABS.map(({ id, label, Icon }) => {
