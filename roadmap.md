@@ -1,3 +1,8 @@
+## Current request — 8 November B1 preview parity (no cutover)
+- [x] Explain Rita live-ON 48/-48/— vs preview 1812/1274/41%: old preview used review readers; live capture was mid-load rendered as numbers.
+- [x] Preview now uses the identical gate-ON path (migration 0266); loading shows "—"; rolled-back SQL parity test PASS 21 checks + TS parity tests.
+- [x] "Added dark mode toggle" is an automatic merge title with no toggle code; nothing removed. B1 OFF, no real data changes.
+
 ## Current request — 6 November 17:06 global Gantt repair
 - [x] Hide denied project financial values across headers, bars, outline and popovers; 40 tests passed, allowed-only aggregation covered.
 - [x] One disposable all-OFF/all-ON project in OFF-gate presentation review, cleanup and independent zero; evidence saved.
