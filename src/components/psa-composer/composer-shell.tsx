@@ -312,9 +312,9 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </div>
         </div>
         {!isReadOnly && (
-          <div id="proposal-split-settings" hidden={layout === "split" && !drawers.settings} className={layout === "split" ? "absolute inset-y-0 right-0 z-30 flex max-w-full flex-col border-l border-border bg-background shadow-lg print:hidden" : "shrink-0 print:hidden"}>
+          <div id="proposal-split-settings" hidden={layout === "split" && !drawers.settings} className={layout === "split" ? "absolute inset-y-0 right-0 z-30 flex max-w-full flex-col border-l border-border bg-background shadow-lg print:hidden" : "flex h-full min-h-0 shrink-0 flex-col print:hidden"}>
             {layout === "split" && <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-1"><span className="text-sm font-medium">{t("settings")}</span><Button size="icon" variant="ghost" aria-label={t("close")} onClick={() => setDrawer("settings", false)}><X className="h-4 w-4" /></Button></div>}
-            <div className="min-h-0 flex-1 overflow-auto">
+            <div className="min-h-0 flex-1 overflow-hidden">
             <BlockSettingsPanel
               proposalId={proposalId}
               proposal={proposal.data}

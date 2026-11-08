@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -96,6 +97,7 @@ export function BlockSettingsPanel({
   const update = useUpdateBlock(proposalId);
   const del = useDeleteBlock(proposalId);
   const dup = useDuplicateBlock(proposalId);
+  const [deleteTarget, setDeleteTarget] = useState<PsaProposalBlock | null>(null);
 
   const lang = resolveProposalLang(proposal.language);
   // Standard headings are shown in the proposal language; saving only
@@ -175,12 +177,29 @@ export function BlockSettingsPanel({
 
 
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
+    <aside className="flex h-full min-h-0 w-72 shrink-0 flex-col overflow-hidden border-l bg-muted/30 text-sm xl:w-80">
+      <div className="shrink-0 space-y-3 border-b border-border bg-background p-3">
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
            {uiI18n.t("crm:quoteEditor.blockSettings")} </div>
         <RelevanceBadge value={block.contract_relevance} />
       </div>
+
+      <div className="flex items-center justify-between gap-2">
+        <Label className="text-xs">{uiI18n.t("common:proposalComposer.headingLevel.label")}</Label>
+        <Select value={blockHeadingLevel(block)} onValueChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), headingLevel: v } } })}>
+          <SelectTrigger className="h-8 w-36 text-xs" aria-label={uiI18n.t("common:proposalComposer.headingLevel.label")}><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {BLOCK_HEADING_LEVELS.map((level) => <SelectItem key={level} value={level}>{uiI18n.t(`common:proposalComposer.headingLevel.${level}`)}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" className="flex-1" disabled={dup.isPending} onClick={() => dup.mutate(block)}><Copy className="mr-1 h-3.5 w-3.5" />{uiI18n.t("common:duplicate")}</Button>
+        <Button variant="destructive" size="sm" className="flex-1" disabled={del.isPending} onClick={() => setDeleteTarget(block)}><Trash2 className="mr-1 h-3.5 w-3.5" />{uiI18n.t("common:delete")}</Button>
+      </div>
+      </div>
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3" data-block-settings-scroll>
 
       <div className="space-y-1">
         <Label className="text-xs"> {uiI18n.t("common:title")} </Label>
@@ -1002,17 +1021,6 @@ export function BlockSettingsPanel({
           }
         />
       </div>
-      <div className="flex items-center justify-between gap-2 rounded-md border bg-background p-2">
-        <Label className="text-xs">{uiI18n.t("common:proposalComposer.headingLevel.label")}</Label>
-        <Select value={blockHeadingLevel(block)} onValueChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), headingLevel: v } } })}>
-          <SelectTrigger className="h-8 w-28 text-xs" aria-label={uiI18n.t("common:proposalComposer.headingLevel.label")}><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {BLOCK_HEADING_LEVELS.map((level) => (
-              <SelectItem key={level} value={level} className="text-xs">{uiI18n.t(`common:proposalComposer.headingLevel.${level}`)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       <div className="flex items-center justify-between rounded-md border bg-background p-2">
         <Label className="text-xs">{uiI18n.t("common:proposalComposer.pagination.keepWithNext")}</Label>
         <Switch checked={keepBlockWithNext(block)} onCheckedChange={(v) => update.mutate({ id: block.id, patch: { content_rich: { ...(block.content_rich ?? {}), keepWithNext: v } } })} />
@@ -1119,12 +1127,23 @@ export function BlockSettingsPanel({
           variant="destructive"
           size="sm"
           className="flex-1"
-          onClick={() => {
-            if (confirm(uiI18n.t("crm:quoteEditor.deleteBlockPrompt"))) del.mutate(block.id);
-          }}
+          onClick={() => setDeleteTarget(block)}
         >
           <Trash2 className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("common:delete")} </Button>
       </div>
+      </div>
+      <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{uiI18n.t("common:delete")}</AlertDialogTitle>
+            <AlertDialogDescription>{uiI18n.t("crm:quoteEditor.deleteBlockPrompt")} {deleteTarget ? resolveBlockTitle(deleteTarget.block_type, deleteTarget.title, lang) : ""}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{uiI18n.t("common:cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (deleteTarget) del.mutate(deleteTarget.id); }}>{uiI18n.t("common:delete")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }

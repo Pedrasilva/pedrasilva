@@ -55,7 +55,7 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
   const left = computed.getPropertyValue("--psa-margin-left").trim() || "14mm";
   styles.push({
     "proposal-a4.css": `
-      @page proposal-document {
+      @page {
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
         @top-center { content: ${furniture.header ? '""' : "none"}; width: 100%; }
@@ -89,8 +89,8 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
         page-break-inside: avoid;
       }
       .proposal-paged-content [data-proposal-block-type="index"] {
-        break-inside: auto;
-        page-break-inside: auto;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
       .proposal-paged-content .proposal-page-break-before {
         break-before: page;
@@ -284,6 +284,10 @@ export function PaginatedPreview({
         const labelInk = rootStyle.getPropertyValue("--muted-foreground").trim() || "#737373";
         frameTarget.querySelectorAll<HTMLElement>(".pagedjs_page").forEach((page) => {
           page.setAttribute("data-page-label", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
+          const footerNumber = page.querySelector<HTMLElement>(".pagedjs_margin-bottom-right .pagedjs_margin-content");
+          if (footerNumber && runningElements.some((element) => element.classList.contains("proposal-page-footer"))) {
+            footerNumber.setAttribute("data-footer-page", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
+          }
         });
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
@@ -301,7 +305,8 @@ export function PaginatedPreview({
           .proposal-paginated-preview .pagedjs_margin-bottom-left,.proposal-paginated-preview .pagedjs_margin-bottom-right{display:block!important;position:absolute!important;bottom:var(--psa-footer-bottom,6mm)!important;top:auto!important;height:auto!important;width:auto!important}
           .proposal-paginated-preview .pagedjs_margin-bottom-left{left:0!important;right:30mm!important}
           .proposal-paginated-preview .pagedjs_margin-bottom-right{right:0!important;left:auto!important;text-align:right!important}
-          .proposal-paginated-preview .pagedjs_margin-bottom-right > .pagedjs_margin-content::after{font-family:var(--psa-heading-font);font-size:8pt;color:#111}
+          .proposal-paginated-preview .pagedjs_margin-bottom-left > .pagedjs_margin-content,.proposal-paginated-preview .pagedjs_margin-bottom-right > .pagedjs_margin-content{display:block!important;width:100%!important;height:auto!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-right > .pagedjs_margin-content::after{content:attr(data-footer-page)!important;font-family:var(--psa-heading-font);font-size:8pt;color:#111}
           .proposal-paginated-preview .pagedjs_margin-bottom-right,.proposal-paginated-preview .pagedjs_margin-bottom-right *{font-size:8pt;font-family:var(--psa-heading-font);color:#111;line-height:1.2}
           .proposal-margin-furniture .proposal-page-footer{position:static!important;margin:0!important;display:block!important}
           /* Screen-only sheet presentation; print never sees these rules. */
