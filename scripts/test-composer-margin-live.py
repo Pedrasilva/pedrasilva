@@ -27,7 +27,7 @@ async def main():
     if isinstance(data,dict) and data.get('id')==REAL:
      data['id']=COPY
      if PATCHED.get('style'): data['style_settings']=PATCHED['style']
-     if MARGIN: data['style_settings']={**(data.get('style_settings') or {}),'marginLeft':int(MARGIN)}
+     if MARGIN and not PATCHED.get('style'): data['style_settings']={**(data.get('style_settings') or {}),'marginLeft':int(MARGIN)}
     if isinstance(data,list):
      for row in data:
       if row.get('id')==REAL: row['id']=COPY
