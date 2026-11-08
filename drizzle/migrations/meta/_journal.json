@@ -1877,6 +1877,13 @@
       "when": 1794141335926,
       "tag": "0267_project_b1_preview_marker_admin_only",
       "breakpoints": true
+    },
+    {
+      "idx": 268,
+      "version": "7",
+      "when": 1794153767539,
+      "tag": "0268_project_b1_global_resource_access",
+      "breakpoints": true
     }
   ]
 }
