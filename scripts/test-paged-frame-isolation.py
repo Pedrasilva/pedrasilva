@@ -17,9 +17,9 @@ async def main():
             const doc = frame.contentDocument;
             doc.open(); doc.write('<html><head></head><body><main></main></body></html>'); doc.close();
             const script = doc.createElement('script'); script.textContent = runtime; doc.head.append(script);
-            const source = doc.createElement('div'); source.innerHTML = '<article data-proposal-block-id="one">Hotel</article><article style="break-before:page" data-proposal-block-id="two">Chiado</article>';
+            const source = doc.createElement('div'); source.innerHTML = '<article data-proposal-block-id="one">Hotel</article><article class="next" data-proposal-block-id="two">Chiado</article>';
             const engine = new frame.contentWindow.Paged.Previewer();
-            const result = await engine.preview(source, [{'test.css':'@page {size:A4; margin:20mm} @media print {nav{display:none!important}}'}], doc.querySelector('main'));
+            const result = await engine.preview(source, [{'test.css':'@page {size:A4; margin:20mm} .next {break-before:page} @media print {nav{display:none!important}}'}], doc.querySelector('main'));
             engine.chunker.pages.forEach(p=>p.removeListeners());
             return {total:result.total, first:Array.from(doc.querySelectorAll('.pagedjs_page')).map(p=>p.querySelector('[data-proposal-block-id]').dataset.proposalBlockId), parentStyles:document.querySelectorAll('[data-pagedjs-inserted-styles]').length, chrome:getComputedStyle(document.querySelector('nav')).display};
         }''', runtime)
