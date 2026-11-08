@@ -403,7 +403,9 @@ export async function printProposalDocument(
       ).map(
         (link) =>
           new Promise<void>((resolve) => {
-            if (link.sheet) {
+            // load/error may already have fired before window.load resolved.
+            // A null sheet after that point is a failed stylesheet, not pending.
+            if (link.sheet || printWindow.document.readyState === "complete") {
               resolve();
               return;
             }
