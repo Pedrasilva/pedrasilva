@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { projectActualTotals, applyB1RateAccess, type ActualEntryFigure, type ActualTimeRow } from '../src/lib/projects/project-actual-totals';
 import { loggedEntryFigures, marginLabel } from '../src/lib/projects/financial-calculation';
 import { b1RateScope } from '../src/lib/projects/b1-rate-scope';
+import { ganttProjectFigures } from '../src/lib/projects/gantt-financial-visibility';
+import type { StageWithAllocations } from '../src/lib/projects/types';
 
 // Gate-ON reader outputs are proven identical for Rita and Luis on Mint by the
 // rolled-back transaction in scripts/test-b1-gate-on-parity.sql (B1_PARITY_PASS).
@@ -66,5 +68,11 @@ describe('B1 global financial capability rate scope', () => {
   it('project Financials/Budget remain independent of the context-free global flag', () => {
     expect(b1RateScope('uralchem',false,{budget_cost:false,financials:false})).toEqual({budgetAllowed:false,saleAllowed:false});
     expect(b1RateScope('mint',false,{budget_cost:true,financials:true})).toEqual({budgetAllowed:true,saleAllowed:true});
+  });
+  it('global viewers get the same concrete allocation cost and budget totals', () => {
+    const rows=[{id:'qa-stage',project_id:'qa-project',start_date:'2026-11-09',end_date:'2026-11-10',budget:1000,allocations:[{id:'qa-allocation',start_date:'2026-11-09',end_date:'2026-11-10',hours_per_day:8,resource:{id:'qa-resource',cost_rate:30,hourly_rate:52.75,hourly_rate_is_override:true}}]}] as unknown as StageWithAllocations[];
+    const figures=ganttProjectFigures(rows,true,undefined);
+    expect(figures).toEqual({cost:480,budget:1000});
+    expect(ganttProjectFigures(rows,false,undefined).cost).toBeNaN();
   });
 });

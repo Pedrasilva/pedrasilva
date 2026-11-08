@@ -108,6 +108,24 @@ BEGIN
   SELECT sum((e->>'hours')::numeric) FILTER (WHERE (e->>'billable')::boolean) INTO billable FROM jsonb_array_elements(snap->rita::text->mint::text->'entries') e;
   checks := checks + 1;
 
+  -- Global resource pool and every allocation embed are also protected, not just stage budgets.
+  PERFORM set_config('request.jwt.claim.sub',patricia::text,true);
+  PERFORM set_config('request.jwt.claims',jsonb_build_object('sub',patricia,'role','authenticated')::text,true);
+  SET LOCAL ROLE authenticated;
+  IF public.pm_b1_global_financial_access() THEN RAISE EXCEPTION 'B1_PARITY_FAIL Patricia global capability'; END IF;
+  SELECT count(*) INTO leaked FROM public.pm_b1_resources(NULL) r,
+    unnest(ARRAY['hourly_rate','sale_rate','cost_rate']) f WHERE jsonb_typeof(r->f)='number';
+  IF leaked>0 THEN RAISE EXCEPTION 'B1_PARITY_FAIL Patricia global resource rates'; END IF;
+  SELECT count(*) INTO leaked FROM public.pm_b1_stages(NULL) st
+    CROSS JOIN LATERAL jsonb_array_elements(st->'allocations') a
+    CROSS JOIN unnest(ARRAY['hourly_rate','sale_rate','cost_rate']) f
+    WHERE jsonb_typeof(a->'resource'->f)='number'
+      AND NOT coalesce((public.pm_project_viewer_areas((st->>'project_id')::uuid)->>'financials')::boolean,false)
+      AND NOT coalesce((public.pm_project_viewer_areas((st->>'project_id')::uuid)->>'budget_cost')::boolean,false);
+  IF leaked>0 THEN RAISE EXCEPTION 'B1_PARITY_FAIL Patricia allocation rates'; END IF;
+  RESET ROLE;
+  checks:=checks+3;
+
   -- (2) Patricia: no financial figure on Mint or Uralchem page readers, and none in global Gantt readers.
   FOREACH p IN ARRAY ARRAY[mint,uralchem] LOOP
     areas := snap->patricia::text->p::text->'areas';
