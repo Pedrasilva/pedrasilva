@@ -47,7 +47,11 @@ async def main():
   sl=page.get_by_role('slider'); target=sl.nth(4)
   await target.scroll_into_view_if_needed(); await target.focus()
   start=int(await target.get_attribute('aria-valuenow'))
-  for _ in range(30-start): await target.press('ArrowRight')
+  trace=[]
+  for _ in range(30-start):
+   await page.keyboard.press('ArrowRight'); await page.wait_for_timeout(120)
+   trace.append(await page.evaluate("()=>{const a=document.activeElement;return (a?.getAttribute('role')||a?.tagName)+':'+(a?.getAttribute('aria-valuenow')||'')}"))
+  print('TRACE',trace)
   await page.wait_for_timeout(600); now=await target.get_attribute('aria-valuenow')
   await page.wait_for_function("document.querySelector('.proposal-paginated-preview')?.dataset.paginationStatus==='ready'",timeout=120000); await page.wait_for_timeout(1500)
   print('LIVE',json.dumps({'sliderFrom':start,'sliderTo':now,'areaLeftBeforePx':before,'areaLeftAfterPx':await page.evaluate(AREA),'writes':writes}))
