@@ -1,3 +1,8 @@
+## Current request — 8 November 23:30 proposal paged follow-up
+- [ ] Reproduce and repair footer, atomic index, bullet alignment, top heading/actions and panel scrolling; no B1 changes.
+- [ ] Delete only authorized Hotel Chiado section 7 after Programa; independently verify every other block unchanged.
+- [ ] Disposable current-copy screen/PDF parity, first-block matrix, page 1/2/last and nested index/settings screenshots; report files.
+
 ## Current request — 8 November 23:07 DocuSign demo Go-Live
 - [x] Verify exact requested integration key and demo OAuth/API hosts; OAuth JWT grant succeeds.
 - [x] 22 error-free eSignature API requests; synthetic-only envelope sent to Luis, 16 PDFs downloaded/validated, envelope voided and final state read back.
