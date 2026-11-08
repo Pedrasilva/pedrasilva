@@ -1,7 +1,7 @@
 ## Current request — 8 November 23:30 proposal paged follow-up
-- [ ] Reproduce and repair footer, atomic index, bullet alignment, top heading/actions and panel scrolling; no B1 changes.
-- [ ] Delete only authorized Hotel Chiado section 7 after Programa; independently verify every other block unchanged.
-- [ ] Disposable current-copy screen/PDF parity, first-block matrix, page 1/2/last and nested index/settings screenshots; report files.
+- [x] Reproduced footer outside Letter sheet; default A4 geometry restores furniture. Atomic index on page 2, bullet gutters, top heading/actions, in-app delete confirmation and scroll 1796/1796 verified; no B1 changes.
+- [x] Deleted only exact duplicate 7d2e3a62 at sort_order 90, preserving original 2d9b0662; transaction proved every other block unchanged, independent 0/1 read. Actual order differed from verbal description (Programa was section 4); reported.
+- [x] Disposable current-copy and nested demonstration each 11 screen/11 physical PDF pages, first-block parity 11/11, footer ON/OFF, page 1/2/last and nested index/settings screenshots. 15 tests, i18n 0, build OK; report docs/proposal-paged-followup-report.md. No persisted fixture.
 
 ## Current request — 8 November 23:07 DocuSign demo Go-Live
 - [x] Verify exact requested integration key and demo OAuth/API hosts; OAuth JWT grant succeeds.
