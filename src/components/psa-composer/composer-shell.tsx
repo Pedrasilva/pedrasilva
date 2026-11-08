@@ -21,6 +21,7 @@ import { BlockSettingsPanel } from "./block-settings-panel";
 import { PaginatedPreview } from "./paginated-preview";
 import { useSmartPagination } from "./use-smart-pagination";
 import { useLiveQuoteSnapshot, resolveProposalLang } from '@/lib/psa-proposal/live-data';
+import { proposalPaginationReady } from '@/lib/psa-proposal/pagination-ready';
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import {
   useProposal,
@@ -51,8 +52,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const [revision, setRevision] = useState(0);
   const observedEditRef = useRef("");
   const liveQuery = useLiveQuoteSnapshot(proposal.data?.quote_id, resolveProposalLang(proposal.data?.language));
-  const dataReady = !!proposal.data && blocks.isSuccess && !proposal.isFetching && !blocks.isFetching &&
-    (!proposal.data.quote_id || (!!liveQuery.data && !liveQuery.isFetching && !liveQuery.isError));
+  const dataReady = proposalPaginationReady(proposal, blocks, liveQuery, !!proposal.data?.quote_id);
   const sourceRef = useRef<HTMLDivElement | null>(null);
   useSmartPagination(sourceRef, revision);
   const selectBlock = useCallback((id: string) => {
