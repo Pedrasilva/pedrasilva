@@ -1,6 +1,6 @@
 ## Current request — 8 November 15:08 authorized B1 cutover
 - [x] Recompared all 1176 matrix rows independently of ordering: zero content changes, canonical SHA-256 identical.
-- [x] One audited activation revision 9; 11 load-aware live ON Rita/Patricia/Tatiana pages PASS. B1 remains ON; rollback not needed.
+- [x] One audited activation revision 9; 11 initial load-aware checks PASS, additional Tatiana global parity unconfirmed; conservative rollback revision 10 OFF, no retry.
 - [x] Report and screenshots recorded; no real project writes or B2; stop and await Luis.
 
 ## Current request — 8 November 12:22 B1 final pre-cutover checks
