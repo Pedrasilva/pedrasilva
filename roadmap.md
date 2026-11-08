@@ -1,7 +1,7 @@
 ## Current request — 8 November 15:26 Tatiana Gantt diagnosis (B1 OFF)
-- [ ] Compare Tatiana OFF/ON evidence by project and column; distinguish loading, access and retainer double-count.
-- [ ] Fix confirmed display-only retainer double-count and run focused regression tests.
-- [ ] Recheck Rita, Patricia and Tatiana through admin-only review without activating B1; report limitations and stop, no B2.
+- [x] Compared all 13 project headers OFF/ON: identical; rates become unavailable and allocation rows differ, separate from retainer double-count.
+- [x] Fixed display-only retainer budget double-count in OFF/ON global headers; 17 focused tests passed and admin preview shows Mint 30 980.
+- [ ] Three effective-B1 target-user checks blocked: Rita/Patricia/Tatiana are non-admin and marker is correctly ignored; no target-user admin review runner exists. Own-session negative controls and Luis admin preview verified; NO-GO reported, B1 OFF revision 10, no B2.
 
 ## Current request — 8 November 15:08 authorized B1 cutover
 - [x] Recompared all 1176 matrix rows independently of ordering: zero content changes, canonical SHA-256 identical.
