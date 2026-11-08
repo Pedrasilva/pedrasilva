@@ -1,3 +1,8 @@
+## Current request — 8 November 20:14 composer regression
+- [ ] Reproduce and isolate Paged.js from app document; verify chrome at 1024/1400/1740 in Edit/Split/Pages and preserve exact-sheet export.
+- [ ] Investigate Hotel Chiado duplicate blocks with live timestamps; remove only proven accidental rows, verify other quotes unchanged.
+- [ ] Save screenshots and one report; B1 OFF, no B2.
+
 ## Current request — 8 November 16:00 B1 global capability parity
 - [x] Identify and fix B1 global NULL-project resource/rate restrictions; allocation data is identical (114 total/86 active), visual collapse separately verified.
 - [x] Extend rolled-back gate-ON parity tests: 52 principal assertions + supplementary denials/active-row parity, Tatiana/Irene/Ricardo = Luis, Rita Mint parity, Patricia redaction.

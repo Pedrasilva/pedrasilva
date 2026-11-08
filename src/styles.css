@@ -1901,6 +1901,7 @@
   .proposal-source-host .proposal-print-document { width: 210mm; max-width: none; }
   .proposal-pagination-staging { position: fixed; left: -20000px; top: 0; width: 210mm; visibility: hidden; }
   .proposal-zoom-sheet { position: relative; }
+  .proposal-pagination-frame { display: block; border: 0; width: 210mm; min-height: 297mm; }
   .proposal-paginated-preview .pagedjs_page::after { display: none; }
   .proposal-paginated-preview .proposal-generated-pagebox { font-family: var(--psa-body-font); }
 }

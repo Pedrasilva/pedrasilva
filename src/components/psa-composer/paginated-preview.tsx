@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
+import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 
 let paginationQueue: Promise<void> = Promise.resolve();
 type PagedListeners = { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
@@ -133,7 +134,7 @@ export function PaginatedPreview({
     if (!dataReady || source.querySelector('[data-live-ready="false"]')) return;
 
     const render = async () => {
-      let staging: HTMLDivElement | null = null;
+      let frame: HTMLIFrameElement | null = null;
       let releasePages = () => {};
       try {
         await document.fonts?.ready;
@@ -182,18 +183,32 @@ export function PaginatedPreview({
         while (clone.firstChild) content.appendChild(clone.firstChild);
         printRoot.appendChild(content);
 
-        const { Previewer } = await import("pagedjs");
-        if (cancelled) return;
-        const previewer = new Previewer();
+        frame = document.createElement("iframe");
+        frame.title = t("proposalComposer.pagination.pages");
+        frame.className = "proposal-pagination-frame";
+        target.replaceChildren(frame);
+        const frameWindow = installPagedFrame(frame);
+        const frameDoc = frame.contentDocument;
+        if (!frameDoc || !frameWindow.Paged) throw new Error("Pagination frame unavailable");
+        const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
+        if (!frameTarget) throw new Error("Pagination target unavailable");
+        const styles = collectDocumentStyles(source);
+        for (const entry of styles) {
+          const style = frameDoc.createElement("style");
+          style.textContent = Object.values(entry).join("\n");
+          frameDoc.head.appendChild(style);
+        }
+        await frameDoc.fonts?.ready;
+        const previewer = new frameWindow.Paged.Previewer();
         const pagedInternals = previewer as unknown as PagedListeners;
         releasePages = () => pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
         // Render away from React's live target. In development/fast toggles an
         // effect cleanup can otherwise remove Paged.js' current page while its
         // async layout is still measuring it, causing the one-page/null crash.
-        staging = document.createElement("div");
+        const staging = frameDoc.createElement("div");
         staging.className = "proposal-pagination-staging";
-        document.body.appendChild(staging);
-        const result = await previewer.preview(printRoot, collectDocumentStyles(source), staging);
+        frameDoc.body.appendChild(staging);
+        const result = await previewer.preview(frameDoc.importNode(printRoot, true), styles, staging);
         if (cancelled) return;
         // Paged.js keeps a ResizeObserver on every generated sheet. Moving the
         // completed sheets out of the staging container otherwise triggers an
@@ -229,7 +244,17 @@ export function PaginatedPreview({
         if (!completedPages) {
           throw new Error("Pagination did not produce a page container");
         }
-        target.replaceChildren(completedPages.cloneNode(true));
+        frameTarget.replaceChildren(completedPages.cloneNode(true));
+        staging.remove();
+        const reset = frameDoc.createElement("style");
+        reset.textContent = "html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important} .proposal-paginated-preview{display:block!important} .proposal-paginated-preview .pagedjs_pages{gap:24px!important} .proposal-paginated-preview .pagedjs_page{box-shadow:none!important}";
+        frameDoc.head.appendChild(reset);
+        frame.style.height = `${frameTarget.scrollHeight}px`;
+        frameDoc.addEventListener("click", (event) => {
+          const element = event.target as HTMLElement;
+          const id = element.closest<HTMLElement>("[data-proposal-block-id]")?.dataset.proposalBlockId;
+          if (id) onSelect(id);
+        });
         target.dataset.pageCount = String(result.total);
         setStatus("ready");
         onStatusChange?.("ready");
@@ -243,7 +268,7 @@ export function PaginatedPreview({
         onStatusChange?.("error");
       } finally {
         releasePages();
-        staging?.remove();
+        if (cancelled) frame?.remove();
       }
     };
 
@@ -257,14 +282,15 @@ export function PaginatedPreview({
   useEffect(() => {
     const target = targetRef.current;
     if (!target) return;
-    target.querySelectorAll<HTMLElement>("[data-proposal-block-id]").forEach((fragment) => {
+    const frameDoc = target.querySelector<HTMLIFrameElement>("iframe")?.contentDocument;
+    frameDoc?.querySelectorAll<HTMLElement>("[data-proposal-block-id]").forEach((fragment) => {
       fragment.classList.toggle(
         "proposal-paged-block-selected",
         fragment.dataset.proposalBlockId === selectedId,
       );
     });
     if (selectedId) {
-      const fragment = Array.from(target.querySelectorAll<HTMLElement>("[data-proposal-block-id]")).find((node) => node.dataset.proposalBlockId === selectedId);
+      const fragment = Array.from(frameDoc?.querySelectorAll<HTMLElement>("[data-proposal-block-id]") ?? []).find((node) => node.dataset.proposalBlockId === selectedId);
       fragment?.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
   }, [selectedId, status]);
