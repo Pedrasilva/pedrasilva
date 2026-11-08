@@ -247,7 +247,29 @@ export function PaginatedPreview({
         frameTarget.replaceChildren(completedPages.cloneNode(true));
         staging.remove();
         const reset = frameDoc.createElement("style");
-        reset.textContent = "html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important} .proposal-paginated-preview{display:block!important} .proposal-paginated-preview .pagedjs_pages{gap:24px!important} .proposal-paginated-preview .pagedjs_page{box-shadow:none!important}";
+        const rootStyle = getComputedStyle(document.documentElement);
+        const sheetGap = rootStyle.getPropertyValue("--muted").trim() || "#e5e5e5";
+        const sheetEdge = rootStyle.getPropertyValue("--border").trim() || "#d4d4d4";
+        const labelInk = rootStyle.getPropertyValue("--muted-foreground").trim() || "#737373";
+        frameTarget.querySelectorAll<HTMLElement>(".pagedjs_page").forEach((page) => {
+          page.setAttribute("data-page-label", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
+        });
+        reset.textContent = `
+          html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
+          .proposal-paginated-preview{display:block!important}
+          /* Header furniture: identical to the editor letterhead on every sheet (screen and print). */
+          .proposal-paginated-preview .pagedjs_margin-top-center{grid-column:1 / -1!important;display:block!important;width:100%!important}
+          .proposal-paginated-preview .pagedjs_margin-top-center > .pagedjs_margin-content{display:block!important;width:100%!important;text-align:left!important}
+          .proposal-margin-furniture .proposal-page-header{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;justify-content:space-between!important;align-items:flex-start!important;width:100%!important;text-align:left!important}
+          .proposal-margin-furniture .proposal-letterhead-brand{align-items:flex-start!important;margin:0!important}
+          .proposal-margin-furniture .proposal-letterhead-contact{text-align:right!important;margin-left:auto!important}
+          /* Screen-only sheet presentation; print never sees these rules. */
+          @media screen{
+            html,body{background:${sheetGap}!important}
+            .proposal-paginated-preview .pagedjs_pages{display:flex!important;flex-direction:column!important;align-items:center!important;gap:24px!important;padding:12px 0 24px!important}
+            .proposal-paginated-preview .pagedjs_page{position:relative!important;margin:0!important;background:#fff;box-shadow:0 0 0 1px ${sheetEdge},0 2px 8px rgba(0,0,0,.12)!important}
+            .proposal-paginated-preview .pagedjs_page::before{content:attr(data-page-label);position:absolute;left:0;right:0;bottom:-18px;text-align:center;font:500 10px/1 system-ui,sans-serif;color:${labelInk};pointer-events:none}
+          }`;
         frameDoc.head.appendChild(reset);
         frame.style.height = `${frameTarget.scrollHeight}px`;
         frameDoc.addEventListener("click", (event) => {
