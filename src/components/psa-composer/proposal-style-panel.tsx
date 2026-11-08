@@ -79,12 +79,24 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   const pendingRef = useRef<PsaProposalStyleSettings | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Latest local settings while edits are unsaved or in flight. A refetch that
+  // returns an older save must not snap sliders (and the paged view) back.
+  const latestRef = useRef<PsaProposalStyleSettings | null>(null);
+  const inFlightRef = useRef(0);
+  useEffect(() => {
+    const latest = latestRef.current;
+    if (!latest || JSON.stringify(latest) === JSON.stringify(proposal.style_settings ?? {})) return;
+    qc.setQueryData<PsaProposal | undefined>(["psa-proposal", proposal.id], (prev) => (prev ? { ...prev, style_settings: latest } : prev));
+  }, [proposal.style_settings, proposal.id, qc]);
+
   function patch(next: Partial<PsaProposalStyleSettings>) {
     // Merge onto latest pending (or current) settings to avoid overwrites
     // between rapid slider ticks.
-    const base = pendingRef.current ?? s;
+    const base = pendingRef.current ?? latestRef.current ?? s;
     const merged = { ...base, ...next } as PsaProposalStyleSettings;
     pendingRef.current = merged;
+    latestRef.current = merged;
+    void qc.cancelQueries({ queryKey: ["psa-proposal", proposal.id] });
 
     // Optimistic cache update so the canvas re-renders instantly.
     qc.setQueryData<PsaProposal | undefined>(
@@ -99,7 +111,19 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       const toSave = pendingRef.current;
       pendingRef.current = null;
       timerRef.current = null;
-      if (toSave) update.mutate({ style_settings: toSave } as Partial<PsaProposal>);
+      if (!toSave) return;
+      inFlightRef.current += 1;
+      update.mutate({ style_settings: toSave } as Partial<PsaProposal>, {
+        onSettled: () => {
+          inFlightRef.current -= 1;
+          // Keep guarding until the last save has settled and its refetch landed.
+          if (inFlightRef.current === 0 && !timerRef.current) {
+            window.setTimeout(() => {
+              if (inFlightRef.current === 0 && !timerRef.current) latestRef.current = null;
+            }, 1500);
+          }
+        },
+      });
     }, 250);
   }
 
