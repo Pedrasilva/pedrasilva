@@ -337,7 +337,7 @@ export async function printProposalDocument(
       const observer = new MutationObserver(check);
       function check() {
         if (host?.dataset.paginationStatus === "error") { cleanup(); reject(new Error("Proposal pagination failed")); }
-        else if (host?.dataset.paginationStatus === "ready" && host.querySelector(".pagedjs_pages")) { cleanup(); resolve(); }
+        else if (host?.dataset.paginationStatus === "ready" && host.querySelector(".pagedjs_pages") && !document.querySelector('.proposal-source-host [data-live-ready="false"]')) { cleanup(); resolve(); }
       }
       function cleanup() { observer.disconnect(); clearTimeout(deadline); }
       observer.observe(host, { attributes: true, childList: true, subtree: true });
@@ -348,6 +348,8 @@ export async function printProposalDocument(
     if (!source) throw new Error("Proposal pages were not found");
     const clone = source.cloneNode(true) as HTMLElement;
     clone.querySelectorAll(".proposal-paged-block-selected").forEach((n) => n.classList.remove("proposal-paged-block-selected"));
+    // Carry the exact committed page count into the isolated print document.
+    const pageCount = source.querySelectorAll('.pagedjs_page').length;
 
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
       .map((node) => {
@@ -387,7 +389,7 @@ export async function printProposalDocument(
             padding: 0 !important;
           }
         }
-      </style></head><body class="proposal-pdf-export"><div class="proposal-export-sheets proposal-paginated-preview">${clone.outerHTML}</div></body></html>`,
+      </style></head><body class="proposal-pdf-export" data-export-page-count="${pageCount}"><div class="proposal-export-sheets proposal-paginated-preview">${clone.outerHTML}</div></body></html>`,
     );
     printWindow.document.close();
 

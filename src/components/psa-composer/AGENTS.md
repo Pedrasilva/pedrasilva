@@ -1,3 +1,4 @@
 # Proposal rendering rules
 - Composer paging uses the existing PaginatedPreview/Paged.js from the canvas HTML at fixed A4 dimensions; zoom transforms sheets without reflow, and print/revision preparation exports those completed sheets only. Why: editing preview and exported pagination must be identical.
 - Keep-with-next defaults are display defaults unless explicitly changed; page furniture is rendered in Paged.js margin boxes, and pagination observes edits with a 300 ms debounce independently of persistence. Why: existing documents and save timing must not be rewritten by presentation changes.
+- Pagination waits for the proposal, blocks and every live quote snapshot to finish loading; superseded Paged.js runs release page listeners before detached staging is removed. Why: incomplete content must never be accepted as a printable page set or trigger late detached-page errors.

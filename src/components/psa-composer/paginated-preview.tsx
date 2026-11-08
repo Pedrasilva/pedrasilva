@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
 
 let paginationQueue: Promise<void> = Promise.resolve();
+type PagedListeners = { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
 
 function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
@@ -133,7 +134,7 @@ export function PaginatedPreview({
 
     const render = async () => {
       let staging: HTMLDivElement | null = null;
-      let pagedInternals: { chunker?: { pages?: Array<{ removeListeners: () => void }> } } | null = null;
+      let releasePages = () => {};
       try {
         await document.fonts?.ready;
         const sourceImages = Array.from(source.querySelectorAll<HTMLImageElement>("img"));
@@ -184,7 +185,8 @@ export function PaginatedPreview({
         const { Previewer } = await import("pagedjs");
         if (cancelled) return;
         const previewer = new Previewer();
-        pagedInternals = previewer as unknown as { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
+        const pagedInternals = previewer as unknown as PagedListeners;
+        releasePages = () => pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
         // Render away from React's live target. In development/fast toggles an
         // effect cleanup can otherwise remove Paged.js' current page while its
         // async layout is still measuring it, causing the one-page/null crash.
@@ -197,7 +199,7 @@ export function PaginatedPreview({
         // completed sheets out of the staging container otherwise triggers an
         // underflow pass against detached nodes (`findElement(null)`), which
         // can collapse the visible result back to its first page.
-        pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
+        releasePages();
         const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
@@ -240,7 +242,7 @@ export function PaginatedPreview({
         setStatus("error");
         onStatusChange?.("error");
       } finally {
-        pagedInternals?.chunker?.pages?.forEach((page) => page.removeListeners());
+        releasePages();
         staging?.remove();
       }
     };
