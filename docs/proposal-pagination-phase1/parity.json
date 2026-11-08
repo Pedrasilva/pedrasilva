@@ -1,0 +1,37 @@
+{
+  "screen_pages": 5,
+  "pdf_pages": 12,
+  "pages": [
+    {
+      "number": "1",
+      "first": "bbbbbbbb-3333-4444-8888-000000000000",
+      "text": "Proposta de Honorários\nProjeto\n—\nÍndice\n1.\nSobre a PSA\n2.\nÂmbito e Descrição do Projeto\n3.\nOrganização do Projeto e Fases\n4.\nFase\n5.\nFase\n6.\nFase\n7.\nF"
+    },
+    {
+      "number": "2",
+      "first": "bbbbbbbb-3333-4444-8888-000000000001",
+      "text": "20.\nConsiderações Gerais\n21.\nSuspensão ou Rescisão\n22.\nExclusões\n1. Sobre a PSA\n\nA Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lis"
+    },
+    {
+      "number": "3",
+      "first": "bbbbbbbb-3333-4444-8888-000000000010",
+      "text": "8. Fase\n\nSelecione uma fase do orçamento no painel direito para preencher este bloco.\n\n9. Fase\n\nSelecione uma fase do orçamento no painel direito para"
+    },
+    {
+      "number": "4",
+      "first": "bbbbbbbb-3333-4444-8888-000000000018",
+      "text": "uras são enviadas por email no prazo máximo de 48 horas após a sua emissão.\n\nO período de aprovação de cada fase é de 5 dias úteis após a entrega. Na "
+    },
+    {
+      "number": "5",
+      "first": "bbbbbbbb-3333-4444-8888-000000000023",
+      "text": "As condições aqui apresentadas regem-se pela legislação portuguesa aplicável. Qualquer alteração ao âmbito ou ao calendário será formalizada por escri"
+    }
+  ],
+  "first_block_text_parity": [],
+  "errors": [],
+  "blocked_writes": [
+    "psa_proposals",
+    "psa_proposal_snapshots"
+  ]
+}

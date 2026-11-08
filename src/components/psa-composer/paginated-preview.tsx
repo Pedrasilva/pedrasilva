@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
 
+let paginationQueue: Promise<void> = Promise.resolve();
+
 function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
 
@@ -239,7 +241,7 @@ export function PaginatedPreview({
       }
     };
 
-    const timer = window.setTimeout(() => { void render(); }, REPAGINATION_DELAY_MS);
+    const timer = window.setTimeout(() => { paginationQueue = paginationQueue.then(async () => { if (!cancelled) await render(); }).catch(() => {}); }, REPAGINATION_DELAY_MS);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
