@@ -1,0 +1,122 @@
+[
+  {
+    "who": "luis",
+    "page": "admin-global-gantt-preview",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 21.3,
+    "gate_from_page_session": {
+      "preview": true,
+      "recorded": false,
+      "effective": true
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 164,
+      "zero_euro": 96
+    },
+    "preview_marker_sent": true
+  },
+  {
+    "who": "luis",
+    "page": "admin-mint-insights-preview",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 13.0,
+    "gate_from_page_session": {
+      "preview": true,
+      "recorded": false,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": "€1,812 / €30,980",
+      "profit": "€1,274",
+      "margin": "41%",
+      "revenue": "€3,086",
+      "current_margin": "€1,274\n41%",
+      "euro_count": 28,
+      "zero_euro": 12
+    },
+    "preview_marker_sent": true
+  },
+  {
+    "who": "rita",
+    "page": "rita-global-gantt-marker-ignored",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 15.8,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": false,
+      "effective": false
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 26,
+      "zero_euro": 17
+    },
+    "preview_marker_sent": true
+  },
+  {
+    "who": "patricia",
+    "page": "patricia-global-gantt-marker-ignored",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 14.4,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": false,
+      "effective": false
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 26,
+      "zero_euro": 17
+    },
+    "preview_marker_sent": true
+  },
+  {
+    "who": "tatiana",
+    "page": "tatiana-global-gantt-marker-ignored",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 24.7,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": false,
+      "effective": false
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 41,
+      "zero_euro": 25
+    },
+    "preview_marker_sent": true
+  }
+]
