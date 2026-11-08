@@ -1,7 +1,7 @@
 ## Current request — 8 November 15:08 authorized B1 cutover
-- [ ] Recompare all matrix rows independently of ordering; stop on content changes.
-- [ ] One audited activation, live load-aware Rita/Patricia/Tatiana checks; immediate rollback on any failure.
-- [ ] Report outcome and screenshots; no real project writes or B2; stop.
+- [x] Recompared all 1176 matrix rows independently of ordering: zero content changes, canonical SHA-256 identical.
+- [x] One audited activation revision 9; 11 load-aware live ON Rita/Patricia/Tatiana pages PASS. B1 remains ON; rollback not needed.
+- [x] Report and screenshots recorded; no real project writes or B2; stop and await Luis.
 
 ## Current request — 8 November 12:22 B1 final pre-cutover checks
 - [x] Preview marker admin-only + read-only (0267), server re-check, SQL/TS tests (non-admin → OFF).

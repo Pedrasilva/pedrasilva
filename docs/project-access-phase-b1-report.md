@@ -1,5 +1,39 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Corte autorizado — 8 novembro 2026, 15:08 UTC
+
+**PASS — B1 permanece ON, revisão 9. Fase A continua ON. B2 não iniciado.**
+
+### Condição prévia e ação auditada
+- Matriz completa comparada por conteúdo, ordenada por pessoa/projeto/área, incluindo IDs e todos os campos de acesso: **1 176 → 1 176, zero diferenças**. SHA-256 de ambas: `13b68e44b0b0c891499603922e82cf7c18ad8dd4801eb3390569b5db1d74e339`.
+- A matriz foi lida novamente imediatamente antes da ação e continuava idêntica. Não houve alteração de atribuições ou permissões.
+- Uma única ativação por `pm_change_project_b1_cutover`, como Luis: revisão **9**, **2026-11-08 15:14:38.297886 UTC**, motivo exato **`Approved by Luis 2026-11-08`**. A ação validou também o hash da matriz e o estado esperado OFF.
+- Rollback pela mesma ação preparado no executor, acionado na primeira falha ou exceção. **Não foi necessário**; não houve segunda ativação.
+
+### Checks autenticados com o gate realmente ON
+Cada uma das 11 páginas confirmou `{recorded:true, preview:false, effective:true}`. Não se enviou marcador nem se simulou resposta. Usou-se `scripts/b1-cutover/cutover_checks.py`: espera pelo sinal de totais completos, ausência de placeholders nos totais autorizados e zero pedidos de dados em curso durante a janela de rede inativa; nenhuma pausa fixa para ler números.
+
+| Sessão / página | Resultado observado |
+|---|---|
+| Rita — Mint Resumo e Análises | **PASS:** receita **3 086 €**, custo **1 812 €**, lucro **1 274 €**, **41%**. Orçamento 30 980 €. Angariação 48 € incluída no custo. |
+| Rita — Uralchem Resumo | **PASS:** fases, horas e datas presentes; nenhum valor monetário, nem zeros financeiros substitutos. |
+| Rita — Gantt global | **PASS:** valores autorizados de Mint presentes; sem NaN. |
+| Patricia — Mint e Uralchem Resumo | **PASS:** dados operacionais presentes, zero valores monetários; totais financeiros omitidos. |
+| Patricia — Gantt global | **PASS:** nenhum valor monetário em todo o texto da página; outline operacional sem coluna financeira. |
+| Tatiana — Mint Resumo e Análises | **PASS:** mesmos 3 086 / 1 812 / 1 274 / 41%, cliente e áreas financeiras preservados. |
+| Tatiana — Uralchem Resumo | **PASS:** custo 42 583 €, orçamento 421 300 €, lucro 31 938 €, margem 43%, como na verificação anterior. |
+| Tatiana — Gantt global | **PASS:** valores financeiros continuam disponíveis, sem NaN. |
+
+Capturas inspecionadas visualmente: Rita Mint Análises, Rita Uralchem Resumo, Patricia Gantt global e Tatiana Mint Resumo. As restantes páginas têm texto, captura e resultado automático guardados. Receita de Mint é validada explicitamente em Análises; no Resumo não existe esse total agregado separado.
+
+### Evidência, limites e estado final
+- Evidência: `project-access-phase-b1/cutover-20261108/` — comparação da matriz, pré-leitura, ativação, resultados das 11 páginas, textos e screenshots.
+- Leitura independente da auditoria após os checks confirmou **B1 ON/revisão 9**, motivo e hora acima; Fase A preservada.
+- Nenhum projeto, proposta, fase, data, montante, equipa, snapshot ou ficheiro de cliente foi alterado. Nenhuma fixture ou conta foi criada. A única escrita de aplicação foi a transição auditada B1 autorizada; sessões temporárias autenticadas apenas para os checks.
+- Sem alterações de aplicação ou migrações nesta tarefa. Ficheiros atualizados: este relatório, evidências e `roadmap.md`.
+- Continuam fora deste corte, sem correção: nome do cliente ausente para Rita pela regra CRM/Finance e orçamento 36 260 € no Gantt global de Mint por soma dos meses da avença, já documentados. Não são novos desvios de B1.
+- Paragem cumprida; aguardar Luis, **sem B2**.
+
 
 ## Verificações finais antes do corte — 8 novembro 2026, 12:22–12:45 UTC (sem corte)
 **B1 OFF (revisão 8, inalterada); Fase A ON. Nenhum dado real alterado; sem fixtures. B2 não iniciado.**
