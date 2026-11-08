@@ -1,7 +1,7 @@
 ## Current request — 8 November 20:14 composer regression
-- [ ] Reproduce and isolate Paged.js from app document; verify chrome at 1024/1400/1740 in Edit/Split/Pages and preserve exact-sheet export.
-- [ ] Investigate Hotel Chiado duplicate blocks with live timestamps; remove only proven accidental rows, verify other quotes unchanged.
-- [ ] Save screenshots and one report; B1 OFF, no B2.
+- [x] Reproduced print CSS promotion; isolated Paged.js in iframe realm. Nine chrome combinations PASS, 11 screen/PDF pages and first-block parity 11/11; regression test PASS.
+- [x] Two copies predate Phase 1; Luis confirmed intentional duplicates for renaming. Both preserved; full proposal/block hashes unchanged during final checks.
+- [x] Nine screenshots, PDF and results in docs/proposal-chrome-regression; report docs/proposal-chrome-regression-report.md. B1 OFF, no B2.
 
 ## Current request — 8 November 16:00 B1 global capability parity
 - [x] Identify and fix B1 global NULL-project resource/rate restrictions; allocation data is identical (114 total/86 active), visual collapse separately verified.
