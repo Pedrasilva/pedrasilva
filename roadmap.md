@@ -1,3 +1,7 @@
+## Current request — 8 November 23:44 proposal Master page (plan only)
+- [x] Record scope and inspect current page/style/default rendering architecture; prepare short data-model/UI plan after prior task completion.
+- [ ] Implementation and disposable Hotel Chiado verification await Luis's OK; no real content or B1 changes.
+
 ## Current request — 8 November 23:30 proposal paged follow-up
 - [x] Reproduced footer outside Letter sheet; default A4 geometry restores furniture. Atomic index on page 2, bullet gutters, top heading/actions, in-app delete confirmation and scroll 1796/1796 verified; no B1 changes.
 - [x] Deleted only exact duplicate 7d2e3a62 at sort_order 90, preserving original 2d9b0662; transaction proved every other block unchanged, independent 0/1 read. Actual order differed from verbal description (Programa was section 4); reported.

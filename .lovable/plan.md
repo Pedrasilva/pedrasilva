@@ -1,41 +1,26 @@
-# Fase B — isolamento financeiro completo por projeto (plano apenas)
+# Página-mestre das propostas
 
-## Estado e limites
-A Fase A ficou ON na revisão auditada 19 em 4 novembro às 00:52:47 UTC: anexo descartável permitido ao PM e negado a Patricia, Rita Mint/Uralchem/all-OFF e quatro sessões globais passaram; limpeza independente confirmou zero QA às 00:54:47 UTC. Dados reais incluídos na comparação preservados. Nenhuma implementação da Fase B nesta entrega; requer aprovação separada.
+## Modelo de dados
+- **Modelo do atelier:** um registo versionado de página-mestre, com leitura pelos editores autorizados de propostas e alterações apenas por administradores, verificadas no servidor.
+- **Por proposta:** guardar o modelo aplicado e a sua versão nas definições de apresentação existentes, com uma substituição opcional própria. «Repor padrão do atelier» aplica explicitamente o padrão atual; alterar o padrão não modifica propostas existentes nem PDFs já emitidos. Novas propostas recebem o padrão atual.
+- **Conteúdo do modelo:** A4; quatro margens; altura do cabeçalho/rodapé e respetiva visibilidade; logótipo (alinhamento, X/Y e largura); contactos (email/site, X/Y e largura); rodapé (morada à esquerda, «n / total» à direita e tamanho de letra). Medidas geométricas em mm; tamanho de letra em pt.
+- **Primeira página opcional:** visibilidade própria do cabeçalho/rodapé e posição própria do logótipo; restantes valores herdados do modelo principal.
 
-## 1. Fechar a Fase A antes de avançar
-- Preservar a correção já verificada: Faturação por Financials, sem abrir módulo Finance nem conceder editar, emitir, pagar ou alterar valores.
-- Fecho verificado no relatório Fase A: anexo descartável, quatro sessões globais, Rita/Patricia/all-OFF, comparação de dados e limpeza zero concluídos; preservar a evidência e o rollback auditado.
-- Manter ação auditada e rollback prontos. Não inferir sucesso de zero linhas quando não existe evidência de linhas reais.
+## Interface
+- Botão **Página-mestre** na barra da proposta e no painel de estilo, abrindo um editor amplo: uma folha A4 a 100% de escala documental, com zoom de visualização sem alterar medidas, guias de margens e áreas de cabeçalho/rodapé.
+- Separadores **Todas as páginas / Primeira página**; campos numéricos agrupados por margens, cabeçalho, logótipo, contactos e rodapé.
+- Arrastar logótipo e contactos com encaixe nas guias; X/Y atualizam durante o movimento. O alinhamento define a referência horizontal e os campos mostram a posição efetiva em relação às bordas da folha, sem depender da margem do texto.
+- Indicação **Padrão do atelier / Personalizado**, ação **Repor padrão do atelier** e gravação explícita das alterações. O mesmo editor em **Definições → Página-mestre das propostas**, com gravação do padrão reservada a administradores.
+- Remover os controlos dispersos de margens/cabeçalho/rodapé; manter os controlos de tipografia do texto.
 
-## 2. Leituras operacionais sem valores negados
-Separar dados operacionais dos quatro grupos financeiros em projetos, fases, propostas convertidas, alocações, horas, recursos e snapshots. Criar projeções autorizadas que devolvem apenas campos permitidos; retirar leituras diretas amplas só depois de migrar todos os leitores. RLS de linhas, por si só, não oculta colunas.
-- Datas, dependências, nomes, horas autorizadas e planeamento continuam operacionais.
-- Contrato/venda por Financials; orçamento/custo/snapshots por Budget; despesas por Expenses; fornecedores por Suppliers.
-- Lucro, margem e totais integrados só quando todas as parcelas necessárias são permitidas. Valor oculto não vira zero.
-- Não mudar snapshots de custos, preços, datas, baseline, folhas de horas ou publicação semanal.
+## Compatibilidade e implementação
+- Um único resolvedor de geometria alimenta a folha-mestre, o editor e as caixas de margem do Paged.js; PDF continua a imprimir as folhas já concluídas no iframe isolado. Repaginação após 300 ms; guias e seleção nunca entram no PDF.
+- Converter as definições antigas em memória, incluindo os atuais posicionamentos independentes de cabeçalho/rodapé, sem escrever em propostas reais. Guardar o novo formato apenas numa edição explícita; nada se desloca simplesmente por abrir uma proposta.
+- Alterações de armazenamento aditivas, com permissões e ficheiros de migração idênticos nas duas pastas existentes. Preservar bloqueios, revisões, histórico, idioma e conteúdo das propostas; B1 intocado.
 
-## 3. Todas as páginas e agregados
-Migrar Overview/cabeçalho, Insights, avença, orçamento, inspetores e Gantt; depois homepage, Gantt global, pesquisa, forecasts e relatórios. Filtrar no servidor antes de agregar, inclusive contagens/totais que permitam reconstruir valores. Leituras de recebimentos usam a projeção operacional do item 2; previsões legadas de saídas não devem herdar datas relativas de propostas convertidas.
+## Verificação e entrega
+- Só numa cópia descartável do Hotel Chiado: guardar/reabrir modelo, arrastar com encaixe, alterar margens, verificar primeira página, reposição do padrão e autorização de administrador.
+- Antes de editar a cópia: confirmar as 11 páginas e os primeiros blocos iguais entre ecrã/PDF; depois das alterações, confirmar nova paridade sem exigir 11 páginas quando as medidas mudarem a paginação.
+- Capturas da página-mestre, Split, Pages e PDF; relatório dos ficheiros alterados e confirmação independente de conteúdo real preservado e cópia eliminada.
 
-## 4. Documentos, anexos e servidores
-Inventariar consultas/RPCs e funções privilegiadas que devolvem dados mistos, texto com valores, URLs, exportações e PDFs. Reautorizar downloads e geração pelo chamador/projeto/área; evitar devolver documento completo quando contém áreas negadas. Preservar conteúdo e idioma dos documentos; bloquear acesso ou produzir saída autorizada, nunca reescrever documentos históricos. Rever URLs assinadas existentes e sua validade sem prometer revogação instantânea de links já emitidos.
-
-## 5. Migração e aprovação
-- Inventário por leitor: origem, campos/área, chamador, projeção nova, testes e cobertura; investigar caminhos ainda não localizados antes de declarar cobertura completa.
-- Migrações aditivas e mirrors idênticos; substituir SELECTs permissivos de leitura sem alargar ou remover proteções de escrita.
-- Gate separado para a Fase B, inicialmente OFF; matriz de pessoas × projetos × áreas, perdas e exceções globais explícitas.
-- Apresentar evidência e esperar aprovação própria para o corte da Fase B. Rollback só muda autorização, não dados.
-
-## Verificação
-Um fixture descartável de cada vez, sem testar mutações em projetos/propostas reais. Testar área isolada/tudo OFF/tudo ON, múltiplos membros ON, gestor versus não gestor, global e não-PSA. Exercitar API direta, deep links, agregados, exportações/PDFs/anexos e caches após troca/revogação de acesso. Confirmar horas e custos históricos intactos, PT/EN, comparação antes/depois e zero fixtures. Verificações com sessões reais apenas para leitura e após autorização. Cessar perante falha do pooler.
-
-## Detalhes técnicos — alvos iniciais
-- Projetos: `src/routes/_app.projects.$projectId.tsx`, hooks em `src/lib/projects` (`useProjects/useProjectDetail/useAllStages/useResources`, planner, actuals, baseline), `QuoteGantt` e inspetores.
-- Globais: `_app.index.tsx`, routes Projects Gantt/financials/forecast/insights/resources, componentes `financial-kpi-strip`, `project-scorecard`, `project-health-table`, `project-value-chart`.
-- Reports: `src/lib/reports/use-{business-performance,budget-consumption,estimate-vs-actual,supplier-stages,capacity-forecast}.ts`; ler AGENTS local antes de alterações.
-- Finance: `use-cashflow-report.ts`, `legacy-sections.tsx`, servidores de recebimentos/issued-PDF/OCR, downloads e editor de Faturação. Preservar ownership e guards fiscais.
-- Pesquisa/exportações/PDFs/documentos: completar mapa de ficheiros e chamadas antes da implementação; não são considerados já auditados.
-
-## Entrega
-Relatório de cobertura por superfície, matriz, testes, screenshots PT/EN, migrações, provas de dados preservados/zero e lista explícita de qualquer caminho ainda aberto. Sem afirmação de isolamento completo antes da verificação de todas as superfícies.
+**Aguardar o OK de Luis antes de implementar.**
