@@ -49,6 +49,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const pagePaneRef = useRef<HTMLDivElement | null>(null);
   const [source, setSource] = useState<HTMLDivElement | null>(null);
   const [revision, setRevision] = useState(0);
+  const observedEditRef = useRef("");
   const fetching = useIsFetching();
   const sourceRef = useRef<HTMLDivElement | null>(null);
   useSmartPagination(sourceRef, revision);
@@ -64,7 +65,10 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     const documentNode = host.querySelector<HTMLDivElement>(".proposal-print-document");
     setSource(documentNode); sourceRef.current = documentNode;
     const observer = new MutationObserver((mutations) => {
-      if (mutations.some((m) => m.type !== "attributes" || (m.attributeName !== "style" && m.attributeName !== "class"))) setRevision((n) => n + 1);
+      if (mutations.some((m) => m.type !== "attributes" || (m.attributeName !== "style" && m.attributeName !== "class"))) {
+        const signature = host.innerHTML.replace(/style="[^"]*"/g, "").replace(/class="[^"]*"/g, "");
+        if (signature !== observedEditRef.current) { observedEditRef.current = signature; setRevision((n) => n + 1); }
+      }
     });
     observer.observe(host, { subtree: true, childList: true, characterData: true, attributes: true });
     return () => observer.disconnect();
