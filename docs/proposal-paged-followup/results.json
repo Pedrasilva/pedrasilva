@@ -1,0 +1,482 @@
+{
+  "currentCopy": {
+    "screenPages": 11,
+    "pdfPages": 11,
+    "screenFirstBlocks": [
+      {
+        "id": "d4dc54e8-3e16-4da8-bbc9-a2b17b41c7aa",
+        "type": "cover",
+        "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+      },
+      {
+        "id": "9964c3ca-c966-4bf3-84d5-b964f6ee8ccf",
+        "type": "index",
+        "text": "Índice"
+      },
+      {
+        "id": "3a8b8458-1dc4-4b1a-8dc9-9800d6267905",
+        "type": "scope",
+        "text": "Em cada fase, a PSA só poderá desenvolver o seu trabalho após a recepção dos elementos necessários por parte do RG. Caso estes elementos não sejam recebidos nos"
+      },
+      {
+        "id": "dd65bb9a-3ad3-4840-bfa7-dbfd4e204e74",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "d879fef8-63ca-4d58-8a47-7ba4c54d347a",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "4670c8a9-57d3-40e0-b717-5486b8b1a6aa",
+        "type": "stage_item",
+        "text": "Actividades Principais"
+      },
+      {
+        "id": "6a11f58a-fb3b-42e1-a906-2bed85afa131",
+        "type": "stage_item",
+        "text": "8. Assistência Técnica"
+      },
+      {
+        "id": "0c09788f-67f5-4001-8bb8-0f8229999a68",
+        "type": "timeline",
+        "text": "10. Cronograma"
+      },
+      {
+        "id": "7cdf5de0-c636-40bc-89af-73a7a13dade4",
+        "type": "payment_terms",
+        "text": "O período de aprovação de cada fase é de 5 dias úteis após a entrega. Na ausência de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+      },
+      {
+        "id": "46b8b8dc-ac1c-4860-bc96-e5400d906997",
+        "type": "billable_hourly_rate",
+        "text": "Sócio 239 € Diretor 200 € Arquiteto Sénior 180 € Arquiteto 130 € Lead Designer 92 € Arquiteto Júnior 70 €"
+      },
+      {
+        "id": "999f2426-da2f-4fd7-ad40-3b65b905a62d",
+        "type": "acceptance",
+        "text": "Validade e Aceitação"
+      }
+    ],
+    "printFirstBlocks": [
+      {
+        "id": "d4dc54e8-3e16-4da8-bbc9-a2b17b41c7aa",
+        "type": "cover",
+        "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+      },
+      {
+        "id": "9964c3ca-c966-4bf3-84d5-b964f6ee8ccf",
+        "type": "index",
+        "text": "Índice"
+      },
+      {
+        "id": "3a8b8458-1dc4-4b1a-8dc9-9800d6267905",
+        "type": "scope",
+        "text": "Em cada fase, a PSA só poderá desenvolver o seu trabalho após a recepção dos elementos necessários por parte do RG. Caso estes elementos não sejam recebidos nos"
+      },
+      {
+        "id": "dd65bb9a-3ad3-4840-bfa7-dbfd4e204e74",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "d879fef8-63ca-4d58-8a47-7ba4c54d347a",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "4670c8a9-57d3-40e0-b717-5486b8b1a6aa",
+        "type": "stage_item",
+        "text": "Actividades Principais"
+      },
+      {
+        "id": "6a11f58a-fb3b-42e1-a906-2bed85afa131",
+        "type": "stage_item",
+        "text": "8. Assistência Técnica"
+      },
+      {
+        "id": "0c09788f-67f5-4001-8bb8-0f8229999a68",
+        "type": "timeline",
+        "text": "10. Cronograma"
+      },
+      {
+        "id": "7cdf5de0-c636-40bc-89af-73a7a13dade4",
+        "type": "payment_terms",
+        "text": "O período de aprovação de cada fase é de 5 dias úteis após a entrega. Na ausência de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+      },
+      {
+        "id": "46b8b8dc-ac1c-4860-bc96-e5400d906997",
+        "type": "billable_hourly_rate",
+        "text": "Sócio 239 € Diretor 200 € Arquiteto Sénior 180 € Arquiteto 130 € Lead Designer 92 € Arquiteto Júnior 70 €"
+      },
+      {
+        "id": "999f2426-da2f-4fd7-ad40-3b65b905a62d",
+        "type": "acceptance",
+        "text": "Validade e Aceitação"
+      }
+    ]
+  },
+  "nestedDemoCopy": {
+    "screenPages": 11,
+    "pdfPages": 11,
+    "screenFirstBlocks": [
+      {
+        "id": "d4dc54e8-3e16-4da8-bbc9-a2b17b41c7aa",
+        "type": "cover",
+        "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+      },
+      {
+        "id": "9964c3ca-c966-4bf3-84d5-b964f6ee8ccf",
+        "type": "index",
+        "text": "Índice"
+      },
+      {
+        "id": "3a8b8458-1dc4-4b1a-8dc9-9800d6267905",
+        "type": "scope",
+        "text": "Em cada fase, a PSA só poderá desenvolver o seu trabalho após a recepção dos elementos necessários por parte do RG. Caso estes elementos não sejam recebidos nos"
+      },
+      {
+        "id": "dd65bb9a-3ad3-4840-bfa7-dbfd4e204e74",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "d879fef8-63ca-4d58-8a47-7ba4c54d347a",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "4670c8a9-57d3-40e0-b717-5486b8b1a6aa",
+        "type": "stage_item",
+        "text": "Actividades Principais"
+      },
+      {
+        "id": "6a11f58a-fb3b-42e1-a906-2bed85afa131",
+        "type": "stage_item",
+        "text": "3.5 Assistência Técnica"
+      },
+      {
+        "id": "0c09788f-67f5-4001-8bb8-0f8229999a68",
+        "type": "timeline",
+        "text": "5. Cronograma"
+      },
+      {
+        "id": "7cdf5de0-c636-40bc-89af-73a7a13dade4",
+        "type": "payment_terms",
+        "text": "O período de aprovação de cada fase é de 5 dias úteis após a entrega. Na ausência de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+      },
+      {
+        "id": "46b8b8dc-ac1c-4860-bc96-e5400d906997",
+        "type": "billable_hourly_rate",
+        "text": "Sócio 239 € Diretor 200 € Arquiteto Sénior 180 € Arquiteto 130 € Lead Designer 92 € Arquiteto Júnior 70 €"
+      },
+      {
+        "id": "999f2426-da2f-4fd7-ad40-3b65b905a62d",
+        "type": "acceptance",
+        "text": "Validade e Aceitação"
+      }
+    ],
+    "printFirstBlocks": [
+      {
+        "id": "d4dc54e8-3e16-4da8-bbc9-a2b17b41c7aa",
+        "type": "cover",
+        "text": "Proposta de Honorários Hotel Chiado Proposta 26103 · 07/11/2026"
+      },
+      {
+        "id": "9964c3ca-c966-4bf3-84d5-b964f6ee8ccf",
+        "type": "index",
+        "text": "Índice"
+      },
+      {
+        "id": "3a8b8458-1dc4-4b1a-8dc9-9800d6267905",
+        "type": "scope",
+        "text": "Em cada fase, a PSA só poderá desenvolver o seu trabalho após a recepção dos elementos necessários por parte do RG. Caso estes elementos não sejam recebidos nos"
+      },
+      {
+        "id": "dd65bb9a-3ad3-4840-bfa7-dbfd4e204e74",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "d879fef8-63ca-4d58-8a47-7ba4c54d347a",
+        "type": "stage_item",
+        "text": "Âmbito e entregáveis"
+      },
+      {
+        "id": "4670c8a9-57d3-40e0-b717-5486b8b1a6aa",
+        "type": "stage_item",
+        "text": "Actividades Principais"
+      },
+      {
+        "id": "6a11f58a-fb3b-42e1-a906-2bed85afa131",
+        "type": "stage_item",
+        "text": "3.5 Assistência Técnica"
+      },
+      {
+        "id": "0c09788f-67f5-4001-8bb8-0f8229999a68",
+        "type": "timeline",
+        "text": "5. Cronograma"
+      },
+      {
+        "id": "7cdf5de0-c636-40bc-89af-73a7a13dade4",
+        "type": "payment_terms",
+        "text": "O período de aprovação de cada fase é de 5 dias úteis após a entrega. Na ausência de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+      },
+      {
+        "id": "46b8b8dc-ac1c-4860-bc96-e5400d906997",
+        "type": "billable_hourly_rate",
+        "text": "Sócio 239 € Diretor 200 € Arquiteto Sénior 180 € Arquiteto 130 € Lead Designer 92 € Arquiteto Júnior 70 €"
+      },
+      {
+        "id": "999f2426-da2f-4fd7-ad40-3b65b905a62d",
+        "type": "acceptance",
+        "text": "Validade e Aceitação"
+      }
+    ]
+  },
+  "footerMetrics": [
+    {
+      "page": 1,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "1 / 11"
+    },
+    {
+      "page": 2,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "2 / 11"
+    },
+    {
+      "page": 3,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "3 / 11"
+    },
+    {
+      "page": 4,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "4 / 11"
+    },
+    {
+      "page": 5,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "5 / 11"
+    },
+    {
+      "page": 6,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "6 / 11"
+    },
+    {
+      "page": 7,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "7 / 11"
+    },
+    {
+      "page": 8,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "8 / 11"
+    },
+    {
+      "page": 9,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "9 / 11"
+    },
+    {
+      "page": 10,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "10 / 11"
+    },
+    {
+      "page": 11,
+      "width": 793.6875,
+      "height": 1122.515625,
+      "headerTop": 30.234375,
+      "footerBottom": 22.6875,
+      "footerInside": true,
+      "number": "11 / 11"
+    }
+  ],
+  "indexPages": [
+    2
+  ],
+  "settingsScroll": {
+    "top": 1796,
+    "max": 1796
+  },
+  "bulletGutters": [
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    },
+    {
+      "padding": 21,
+      "listLeft": 94.484375,
+      "itemLeft": 115.484375
+    }
+  ],
+  "footerToggleOff": "No footer or page number when disabled",
+  "headingControl": "H2 saved and read back on browser copy",
+  "deleteConfirmation": "in-app dialog/cancel verified",
+  "sourcePreserved": [
+    {
+      "path": "/rest/v1/psa_proposals",
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposals",
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposals",
+      "equal": true
+    },
+    {
+      "path": "/rest/v1/psa_proposal_blocks",
+      "equal": true
+    }
+  ],
+  "blockedWrites": [
+    {
+      "method": "PATCH",
+      "path": "/rest/v1/psa_proposal_blocks"
+    }
+  ],
+  "errors": [],
+  "cleanup": "Browser-only fixture context destroyed; no persisted copy"
+}
