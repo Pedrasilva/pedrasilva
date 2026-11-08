@@ -1,6 +1,6 @@
 ## Current request — 8 November 21:38 composer follow-ups
-- [ ] Split: toggleable overlay library/settings, user-scoped remembered state, evenly sized readable columns.
-- [ ] Hotel Chiado disposable browser copy: completed iframe/printed PDF count and first-block parity; 1400/1740 screenshots, preservation checks and one report. No real quote writes or B1 changes.
+- [x] Split: toggleable overlay library/settings, user-scoped remembered state, evenly sized readable columns; reload/Escape/browser checks and 13 unit tests PASS.
+- [x] Hotel Chiado disposable browser copy: 11 iframe/11 physical PDF pages, first-block parity 11/11; 1400/1740 screenshots, independent original-row equality and report docs/proposal-split-followups-report.md. Context destroyed; no real quote writes or B1 changes.
 
 ## Current request — 8 November 20:14 composer regression
 - [x] Reproduced print CSS promotion; isolated Paged.js in iframe realm. Nine chrome combinations PASS, 11 screen/PDF pages and first-block parity 11/11; regression test PASS.
