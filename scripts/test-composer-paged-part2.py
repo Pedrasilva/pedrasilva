@@ -7,10 +7,12 @@ ROOT=Path('/tmp/browser/paged-part2')/os.environ.get('RUN','base'); ROOT.mkdir(p
 MARGIN=os.environ.get('MARGIN'); H2=os.environ.get('H2')
 REAL='3d0db6b3-4bf5-4681-a875-c553f8c64656'
 COPY=str(uuid.uuid4())
+_m=json.load(open(os.path.expanduser('~/.cache/lovable-auth/session.json'))) if os.environ.get('LOVABLE_BROWSER_AUTH_STATUS')!='injected' else None
+SK=_m['storage_key'] if _m else os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY']; SJ=json.dumps(_m['session']) if _m else os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']
 async def main():
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True); c=await b.new_context(viewport={'width':1400,'height':981}); page=await c.new_page(); errors=[]; page.on('pageerror',lambda e:errors.append(str(e))); writes=[]; originals={}; readheaders={}; blockmap={}
-  await page.goto('http://localhost:8080'); await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'],os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']])
+  await page.goto('http://localhost:8080'); await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[SK,SJ])
   await page.evaluate('id=>localStorage.setItem(`psa-snap-last:${id}`,String(Date.now()))',COPY)
   async def guard(route):
    req=route.request; url=req.url
