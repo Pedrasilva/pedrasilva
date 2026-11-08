@@ -1,3 +1,8 @@
+## Current request — 8 November 15:08 authorized B1 cutover
+- [ ] Recompare all matrix rows independently of ordering; stop on content changes.
+- [ ] One audited activation, live load-aware Rita/Patricia/Tatiana checks; immediate rollback on any failure.
+- [ ] Report outcome and screenshots; no real project writes or B2; stop.
+
 ## Current request — 8 November 12:22 B1 final pre-cutover checks
 - [x] Preview marker admin-only + read-only (0267), server re-check, SQL/TS tests (non-admin → OFF).
 - [x] Explain 30 980 € (Mint budget) and "Sem cliente" (companies read policy); no changes.
