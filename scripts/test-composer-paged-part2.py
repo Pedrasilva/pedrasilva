@@ -20,6 +20,9 @@ async def main():
     writes.append(urlsplit(url).path); await route.fulfill(status=200,content_type='application/json',body='[]'); return
    if req.method=='GET' and any('/rest/v1/'+table+'?' in url for table in ['psa_proposals','psa_proposal_blocks']):
     readheaders[url.replace(COPY,REAL)]=req.headers; response=await route.fetch(url=url.replace(COPY,REAL)); data=await response.json(); originals[url.replace(COPY,REAL)]=json.loads(json.dumps(data))
+    if isinstance(data,dict) and data.get('id')==REAL:
+     data['id']=COPY
+     if MARGIN: data['style_settings']={**(data.get('style_settings') or {}),'marginLeft':int(MARGIN)}
     if isinstance(data,list):
      for row in data:
       if row.get('id')==REAL: row['id']=COPY
