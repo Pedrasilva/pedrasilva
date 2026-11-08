@@ -127,12 +127,14 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
     }, 250);
   }
 
-  const bodySize = s.bodySize ?? 10.5;
-  const headingScale = s.headingScale ?? 1;
-  const marginTop = s.marginTop ?? 34;
-  const marginBottom = s.marginBottom ?? 32;
-  const marginLeft = s.marginLeft ?? 14;
-  const marginRight = s.marginRight ?? 14;
+  // Sliders read the newest local value so rapid ticks never compute from a stale save.
+  const v = latestRef.current ?? s;
+  const bodySize = v.bodySize ?? 10.5;
+  const headingScale = v.headingScale ?? 1;
+  const marginTop = v.marginTop ?? 34;
+  const marginBottom = v.marginBottom ?? 32;
+  const marginLeft = v.marginLeft ?? 14;
+  const marginRight = v.marginRight ?? 14;
 
   return (
     <div className="flex flex-col gap-3">
