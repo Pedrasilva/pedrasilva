@@ -62,6 +62,7 @@ import { useNextRevNumber, useProposalRevisions } from "@/lib/psa-proposal/use-p
 import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signatures";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
+import { completedPagedDocument } from "@/lib/psa-proposal/paged-frame";
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
@@ -126,7 +127,7 @@ export function ComposerTopBar({
   }, [proposal.updated_at, blocks.length, autoSnap, isReadOnly]);
 
   return (
-    <div className="flex items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
+    <div className="flex flex-wrap items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
       <Input
         value={proposal.title}
         onChange={(e) => update.mutate({ title: e.target.value })}
@@ -337,14 +338,15 @@ export async function printProposalDocument(
       const observer = new MutationObserver(check);
       function check() {
         if (host?.dataset.paginationStatus === "error") { cleanup(); reject(new Error("Proposal pagination failed")); }
-        else if (host?.dataset.paginationStatus === "ready" && host.querySelector(".pagedjs_pages") && !document.querySelector('.proposal-source-host [data-live-ready="false"]')) { cleanup(); resolve(); }
+        else if (host && completedPagedDocument(host) && !document.querySelector('.proposal-source-host [data-live-ready="false"]')) { cleanup(); resolve(); }
       }
       function cleanup() { observer.disconnect(); clearTimeout(deadline); }
       observer.observe(host, { attributes: true, childList: true, subtree: true });
       deadline = setTimeout(() => { cleanup(); reject(new Error("Proposal pagination did not finish")); }, 120000);
       check();
     });
-    const source = host.querySelector<HTMLElement>(".pagedjs_pages");
+    const pagedDocument = completedPagedDocument(host);
+    const source = pagedDocument?.querySelector<HTMLElement>(".pagedjs_pages");
     if (!source) throw new Error("Proposal pages were not found");
     const clone = source.cloneNode(true) as HTMLElement;
     // Every sheet is printed, including images outside the popup viewport.
@@ -354,7 +356,7 @@ export async function printProposalDocument(
     // Carry the exact committed page count into the isolated print document.
     const pageCount = source.querySelectorAll('.pagedjs_page').length;
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+    const styles = Array.from(pagedDocument?.querySelectorAll('style, link[rel="stylesheet"]') ?? [])
       .map((node) => {
         if (node instanceof HTMLLinkElement) {
           const absoluteHref = new URL(node.href, document.baseURI).href;

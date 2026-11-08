@@ -211,8 +211,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         </div>
       )}
       <div className="flex min-h-0 flex-1 overflow-hidden print:block">
-        {!isReadOnly && !previewMode && (
-          <div className="print:hidden">
+        {!isReadOnly && (
+          <div className="shrink-0 print:hidden">
             <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
           </div>
         )}
@@ -259,8 +259,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
             </div>
           </div>
         </div>
-        {!isReadOnly && !previewMode && (
-          <div className="print:hidden">
+        {!isReadOnly && (
+          <div className="shrink-0 print:hidden">
             <BlockSettingsPanel
               proposalId={proposalId}
               proposal={proposal.data}
