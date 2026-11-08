@@ -6,7 +6,7 @@ import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 let paginationQueue: Promise<void> = Promise.resolve();
 type PagedListeners = { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
 
-function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, string>> {
+function collectDocumentStyles(source: HTMLDivElement, furniture: { header: boolean; footer: boolean }): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
 
   for (const sheet of Array.from(document.styleSheets)) {
@@ -39,9 +39,9 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
       @page proposal-document {
         size: A4;
         margin: ${top} ${right} ${bottom} ${left};
-        @top-center { content: ""; width: 100%; }
-        @bottom-left { content: ""; }
-        @bottom-right { content: counter(page); }
+        @top-center { content: ${furniture.header ? '""' : "none"}; width: 100%; }
+        @bottom-left { content: ${furniture.footer ? '""' : "none"}; }
+        @bottom-right { content: ${furniture.footer ? 'counter(page) " / " counter(pages)' : "none"}; }
 
       }
       .proposal-paged-source,
@@ -174,6 +174,11 @@ export function PaginatedPreview({
           clone.querySelectorAll<HTMLElement>(".proposal-page-header, .proposal-page-footer"),
         );
         runningElements.forEach((element) => element.remove());
+        runningElements.forEach((element) => element.querySelectorAll("img").forEach((image) => {
+          image.setAttribute("src", new URL(image.getAttribute("src") ?? "", document.baseURI).href);
+          image.loading = "eager";
+          image.decoding = "sync";
+        }));
 
         const printRoot = document.createElement("div");
         printRoot.className = "proposal-print-area proposal-print-document proposal-paged-source";
@@ -192,7 +197,10 @@ export function PaginatedPreview({
         if (!frameDoc || !frameWindow.Paged) throw new Error("Pagination frame unavailable");
         const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
         if (!frameTarget) throw new Error("Pagination target unavailable");
-        const styles = collectDocumentStyles(source);
+        const styles = collectDocumentStyles(source, {
+          header: runningElements.some((element) => element.classList.contains("proposal-page-header")),
+          footer: runningElements.some((element) => element.classList.contains("proposal-page-footer")),
+        });
         for (const entry of styles) {
           const style = frameDoc.createElement("style");
           style.textContent = Object.values(entry).join("\n");
@@ -257,13 +265,22 @@ export function PaginatedPreview({
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}
-          /* Header furniture: identical to the editor letterhead on every sheet (screen and print). */
-          .proposal-paginated-preview .pagedjs_margin-top-center{grid-column:1 / -1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;height:100%!important}
+          /* Running header/footer: fixed position inside the page margins on every sheet (screen and print). */
+          .proposal-paginated-preview .pagedjs_margin-top{display:block!important;position:relative!important}
           .proposal-paginated-preview .pagedjs_margin-top-left,.proposal-paginated-preview .pagedjs_margin-top-right{display:none!important}
-          .proposal-paginated-preview .pagedjs_margin-top-center > .pagedjs_margin-content{display:block!important;flex:1 1 100%!important;width:100%!important;text-align:left!important}
-          .proposal-margin-furniture .proposal-page-header{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;justify-content:space-between!important;align-items:flex-start!important;width:100%!important;text-align:left!important}
+          .proposal-paginated-preview .pagedjs_margin-top-center{display:block!important;position:absolute!important;left:0!important;right:0!important;top:var(--psa-header-top,8mm)!important;height:auto!important;width:auto!important}
+          .proposal-paginated-preview .pagedjs_margin-top-center > .pagedjs_margin-content{display:block!important;width:100%!important;text-align:left!important}
+          .proposal-margin-furniture .proposal-page-header{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;justify-content:space-between!important;align-items:flex-start!important;width:100%!important;text-align:left!important;position:static!important;margin:0!important}
           .proposal-margin-furniture .proposal-letterhead-brand{align-items:flex-start!important;margin:0!important}
           .proposal-margin-furniture .proposal-letterhead-contact{text-align:right!important;margin-left:auto!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom{display:block!important;position:relative!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-center{display:none!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-left,.proposal-paginated-preview .pagedjs_margin-bottom-right{display:block!important;position:absolute!important;bottom:var(--psa-footer-bottom,6mm)!important;top:auto!important;height:auto!important;width:auto!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-left{left:0!important;right:30mm!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-right{right:0!important;left:auto!important;text-align:right!important}
+          .proposal-paginated-preview .pagedjs_margin-bottom-right > .pagedjs_margin-content::after{font-family:var(--psa-heading-font);font-size:8pt;color:#111}
+          .proposal-paginated-preview .pagedjs_margin-bottom-right,.proposal-paginated-preview .pagedjs_margin-bottom-right *{font-size:8pt;font-family:var(--psa-heading-font);color:#111;line-height:1.2}
+          .proposal-margin-furniture .proposal-page-footer{position:static!important;margin:0!important;display:block!important}
           /* Screen-only sheet presentation; print never sees these rules. */
           @media screen{
             html,body{background:${sheetGap}!important}
