@@ -114,7 +114,13 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   useEffect(() => {
     if (layout !== "split") return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setDrawer("library", false); setDrawer("settings", false); }
+      if (event.key === "Escape") {
+        const closed = { library: false, settings: false };
+        setDrawerPreference({ userId: user?.id ?? null, drawers: closed });
+        if (user?.id) {
+          try { localStorage.setItem(splitDrawerStorageKey(user.id), JSON.stringify(closed)); } catch { /* Keep working without persistence. */ }
+        }
+      }
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
