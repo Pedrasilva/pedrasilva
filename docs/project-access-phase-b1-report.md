@@ -1,5 +1,55 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+
+## Verificações finais antes do corte — 8 novembro 2026, 12:22–12:45 UTC (sem corte)
+**B1 OFF (revisão 8, inalterada); Fase A ON. Nenhum dado real alterado; sem fixtures. B2 não iniciado.**
+
+### 1. Marcador de pré-visualização (`x-psa-b1-preview`)
+Código que o lê:
+- Base de dados — `pm_project_b1_header_preview()` (migração `0267_project_b1_preview_marker_admin_only.sql`, idêntica em `drizzle/migrations` e `supabase/migrations`):
+  ```sql
+  RETURN coalesce(h,'')='on' AND auth.uid() IS NOT NULL
+     AND public.has_role(auth.uid(),'admin')
+     AND current_setting('transaction_read_only')='on';
+  ```
+  `pm_project_b1_active()` = estado auditado gravado **OU** esta função. Antes (0266) bastava ser PSA staff; agora só administradores, e só em transações só-de-leitura (as leituras da API correm assim; qualquer escrita corre em leitura-escrita, onde o marcador é ignorado mesmo para admin).
+- `pm_change_project_b1_cutover` recusa qualquer pedido que traga o marcador (`pm_project_b1_marker_present()`), seja quem for.
+- Servidor da aplicação — `src/lib/projects/b1-preview.server.ts` (`withB1PreviewHeader`): só reencaminha o marcador depois de confirmar `has_role(admin)` do próprio chamador; regra pura em `src/lib/projects/b1-preview-marker.ts`. Em `default-rates.functions.ts`, o pedido `b1Projection` vindo do navegador também deixou de poder ativar o caminho ON por projeto com o gate OFF.
+
+Testes:
+- `scripts/test-b1-preview-marker.sql` (transação sempre revertida): **`B1_MARKER_PASS`, 10 verificações** — Rita, Patricia e Tatiana com marcador em Mint e Uralchem obtêm gate OFF e resultado **idêntico** ao pedido sem marcador (projetos, fases, entradas, recursos, custo bloqueado, angariação); marcador de admin ignorado numa transação de escrita; ação de corte recusa o marcador; controlo positivo: Luis em leitura → pré-visualização ativa.
+- `scripts/test-b1-preview-marker.test.ts` — não-admin com marcador não é reencaminhado (3 testes). Com os restantes testes B1: 18 passaram.
+- Navegador, depois da 0267 (`final-checks-20261108/after-admin-only-marker/`): Rita, Patricia, Tatiana a enviar o marcador → `effective: false` em todas as páginas; Luis → `effective: true`, Mint 1 812 / 30 980 / 1 274 / 41%, receita 3 086.
+
+### 2. «custo 48 € de 30 980 €»
+É o cartão **Uso do orçamento** (custo real / orçamento). 30 980 € = soma dos orçamentos das fases de Mint (5 fases regulares 25 700 € + fase-mãe da avença 5 280 €; os 4 meses da avença não são somados para não contar duas vezes) = honorário contratado (`sold_fee`, baseline contratual 30 980 €). Rita tem Budget e Financials ON em Mint, por isso **deve vê-lo** (Luis e Tatiana veem o mesmo). Errado era só o custo: 48 € era a angariação, a única parcela carregada aos 5 s; o valor final é 1 812 €. A página já mostra «—» até todas as parcelas chegarem.
+Observado, não alterado: no Gantt global o orçamento de Mint aparece como **36 260 €** porque esse ecrã soma também os 4 meses da avença (+5 280 €). Acontece igual para Luis e já existia antes de B1; fica para correção separada.
+
+### 3. «Sem cliente» para Rita
+Regra de acesso: política de leitura **`Finance or CRM users read companies`** da tabela de empresas — só lê o nome quem é administrador ou tem `finance.dashboard`, `crm.dashboard` ou `crm.pipeline` (mais a restrição `psa_staff_or_own_suppliers`). Rita não tem nenhuma destas permissões, por isso o nome SMILEPROVIDER, LDA não lhe chega e o cabeçalho mostra «Sem cliente». Patricia (`crm.pipeline`) e Tatiana (`crm.pipeline`, `finance.dashboard`) veem o nome. Não depende de B1 nem dos switches do projeto. Não alterado.
+
+### 4. Scripts de verificação sem esperas fixas
+`scripts/b1-cutover/cutover_checks.py` só lê valores quando: (1) a página indica `data-totals-ready="true"` (novo sinal no projeto e no Gantt global: todas as fontes dos totais carregadas e nenhuma consulta a decorrer); (2) rede inativa — zero pedidos de dados em curso durante 1,5 s, medido por eventos; (3) para quem deve ver valores, nenhum «—» nos totais. Sem pausas fixas; um limite de 180 s só serve para dar FAIL a uma página que nunca estabiliza. Comparação independente do formato numérico (PT/EN).
+
+Resultados em modo pré-visualização (`final-checks-20261108/preview-staff-marker/`, corrido antes de restringir o marcador a admins, para exercitar o caminho ON destas pessoas):
+| Pessoa / página | Estado | Estável em | Valores |
+|---|---|---|---|
+| Rita — Mint resumo | PASS | 12,5 s | 1 812 € / 30 980 €, lucro 1 274 €, 41% |
+| Rita — Mint análises | PASS | 14,6 s | receita 3 086 €, margem 1 274 € / 41% |
+| Rita — Uralchem | PASS | 9,8 s | sem valores (0 €), fases/horas presentes |
+| Rita — Gantt global | PASS | 33,3 s | só Mint com valores |
+| Patricia — Mint / Uralchem / Gantt global | PASS | 11,1 / 10,5 / 43,8 s | nenhum valor monetário |
+| Tatiana — Mint resumo / análises | PASS | 11,0 / 14,3 s | igual a Luis: 1 812 / 30 980 / 1 274 / 41%, receita 3 086 |
+| Tatiana — Uralchem / Gantt global | PASS | 11,8 / 23,3 s | valores completos (42 583 € / 421 300 €, lucro 31 938 €, 43%) |
+Todas as páginas confirmaram `{recorded:false, preview:true, effective:true}`.
+
+Com o marcador já restrito (`after-admin-only-marker/`) as mesmas sessões recebem o resultado OFF atual. Mostra o que B1 corrige: com OFF, Patricia vê hoje 26 valores no Gantt global (orçamentos por fase), e Rita não consegue completar os totais de Mint (ficam «—»).
+
+### Recomendação: **GO**
+- Matriz não reverificada nesta tarefa; repetir a comparação ordenada imediatamente antes do corte.
+- No corte, os checks live passam a correr só com o gate gravado ON (a pré-visualização já não serve para não-admins): `python3 scripts/b1-cutover/cutover_checks.py --sessions <pasta temporária> --out <pasta>` (sem `--preview`), rollback a qualquer FAIL.
+- Pontos fora de B1 a decidir à parte: nome do cliente para Rita (permissão CRM/Finance) e orçamento 36 260 € no Gantt global.
+
 ## Pré-visualização igual ao corte ON e teste de paridade — 8 novembro 2026 (sem corte)
 **B1 OFF (revisão 8, inalterada); Fase A ON. Nenhuma tentativa de corte, nenhum dado real alterado. B2 não iniciado.**
 
