@@ -1,5 +1,37 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Pré-visualização igual ao corte ON e teste de paridade — 8 novembro 2026 (sem corte)
+**B1 OFF (revisão 8, inalterada); Fase A ON. Nenhuma tentativa de corte, nenhum dado real alterado. B2 não iniciado.**
+
+### O que Rita viu em Mint
+| Fonte | Custo / orçamento | Lucro | Margem | Equipa | Linhas de fases |
+|---|---|---|---|---|---|
+| Corte real ON, revisão 7 (17:29 UTC 6 nov), captura aos 5 s | **48 € / 30 980 €** | **-48 €** | **—** | «Sem equipa ainda» | só o cabeçalho, nenhuma linha |
+| Pré-visualização antiga (4–6 nov) | 1 812 € / 30 980 € | 1 274 € | 41% | RS / RC | carregadas |
+| Pré-visualização nova = caminho ON, página estável (8 nov) | **1 812 € / 30 980 €** | **1 274 €** | **41%** | RS / RC | carregadas; fase [1]: 1 764 € / 3 950 €, receita 3 086 €, lucro 1 322 € |
+| Luis, acesso atual (8 nov) | €1,812 / €30,980 | €1,274 | 41% | RS / RC | iguais |
+
+### Porque divergiam
+1. **A pré-visualização antiga não usava o caminho ON.** No navegador de teste, intercetava `pm_project_b1_active` para devolver `true` e redirecionava custos/preços para ações de revisão próprias (`pm_b1_review_stage_locked_cost`, `pm_b1_preview_own`). O servidor continuava a ver o gate OFF. Nos pedidos ao servidor (preços HR) o estado era outro.
+2. **Os 48 € no corte real eram um ecrã a meio do carregamento, apresentado como número final.** Antes de chegarem horas/custos das fases, a página tratava a ausência como zero: custo das fases 0 + angariação 48 € (o primeiro valor a chegar) = 48 €, lucro -48 €, receita 0 → margem «—». A equipa e as linhas de fases também ainda não tinham carregado. O teste esperou um tempo fixo de 5 s; com o caminho ON real a página só estabiliza ao fim de **cerca de 10–24 s** no servidor de desenvolvimento. Não houve receita nem custo errados vindos da base de dados: o teste em transação abaixo mostra que Rita recebe exatamente os mesmos dados que Luis.
+
+### Correções
+- **Pré-visualização = mesmo código do ON.** Migração 0266 (espelhada em `drizzle/migrations` e `supabase/migrations`): `pm_project_b1_active()` = estado auditado **ou** pedido do próprio utilizador com o marcador `x-psa-b1-preview: on` (só PSA staff). Todos os leitores (`pm_b1_*`, preços no servidor, cliente) passam pelo mesmo ramo ON; não há leitores de revisão. O estado gravado separa-se em `pm_project_b1_recorded_active()`; `pm_project_b1_preview` e `pm_change_project_b1_cutover` leem só o estado gravado e recusam pedidos com marcador. Nada é escrito, nenhuma outra sessão é afetada.
+- O cálculo de preços no servidor (`default-rates.functions.ts`) reencaminha o marcador do próprio pedido (`b1-preview.server.ts`) e o filtro por áreas está em `applyB1RateAccess`.
+- **Sem números parciais durante o carregamento.** Totais e fases da página usam `src/lib/projects/project-actual-totals.ts` (o mesmo usado pelo teste): até horas, custos, histórico, entradas e angariação estarem carregados, os valores ficam indisponíveis («—»), nunca 48 € / -48 €.
+
+### Testes automáticos
+- `scripts/test-b1-gate-on-parity.sql` — **uma transação sempre revertida** (termina com `RAISE`), com o gate gravado substituído por `SELECT true` apenas dentro dela: sem linha de auditoria, sem consumir revisão. Como Luis, Rita e Patricia (`SET LOCAL ROLE authenticated`) chama todos os leitores ON da página e do Gantt global. Resultado: **`B1_PARITY_PASS`, 21 verificações** — Rita = Luis linha a linha em Mint em projetos, fases, 12 entradas, 16 recursos, histórico, horas, custo bloqueado (1 763,775 €) e angariação (47,99 €); Rita com as quatro áreas ON; Patricia sem nenhum número financeiro em Mint/Uralchem (projeto, fases, entradas, recursos, custo bloqueado, angariação, histórico) nem nos 17 projetos do Gantt global. Depois: gate gravado OFF, definição original confirmada.
+- `scripts/test-b1-gate-on-parity.test.ts` — com esses dados, passa pelo cálculo da página: Rita = Luis = receita 3 085,875 / custo 1 811,765 / lucro 1 274,11 / **41%**; durante o carregamento → «—»; Patricia → indisponível, nunca zero. 25 testes B1 passaram; build OK.
+- Limite: os preços de venda vêm do cálculo HR no servidor e não podem correr dentro da transação SQL; o teste cobre a regra de acesso (`applyB1RateAccess`) e a pré-visualização no navegador confirma o valor real (3 086 €).
+
+### Verificação no navegador (pré-visualização = caminho ON, gate OFF)
+Capturas em `project-access-phase-b1/preview-parity-20261108/`: Rita Mint Resumo/Análises 1 812 / 1 274 / 41% (Análises: receita real 3 086 €); Rita Uralchem sem «€» (horas e fases presentes); Patricia Mint, Uralchem e Gantt global sem «€»; Gantt global de Mint igual para Rita e Luis (0 € / 36 260 €; não há alocações planeadas, por isso o custo planeado é um zero real e autorizado).
+- Observado, não alterado: o cabeçalho de Rita mostra «Sem cliente» e o de Luis «SMILEPROVIDER, LDA». Já acontecia antes de B1 (leitura da empresa), não é um valor financeiro.
+
+### «Added dark mode toggle»
+É o título automático de uma junção de versões (6 nov 11:33). O conteúdo é idêntico à versão anterior com as correções pré-B1 (detalhes do projeto, ações de estado, aviso da equipa, angariação no Budget, traduções). **Não contém nenhum interruptor de modo escuro**; a app não tem esse controlo. As cores para modo escuro já existiam na base do projeto. Nada a remover.
+
 ## Gantt global: correção e tentativa única — 6 novembro 17:06 UTC
 **Resultado final: B1 OFF/revisão 8; Fase A ON. A tentativa foi interrompida no primeiro check e não foi repetida. B2 não iniciado.**
 
