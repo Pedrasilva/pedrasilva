@@ -567,7 +567,7 @@ function BlockBodyContent({
         if (!kids.length) {
           return <li key={s.id}>{stageLabel(s)}</li>;
         }
-        const HeadingTag = depth === 0 ? "h2" : "h3";
+        const HeadingTag = depth === 0 ? "h3" : "h4";
         const headingCls =
           depth === 0
             ? "proposal-print-heading mb-1 text-base font-semibold tracking-tight text-zinc-900"
