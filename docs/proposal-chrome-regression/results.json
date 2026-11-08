@@ -1,0 +1,248 @@
+{
+  "results": [
+    {
+      "width": 1024,
+      "mode": "edit",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 320
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 712,
+          "right": 1000
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1024,
+      "mode": "split",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 320
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 712,
+          "right": 1000
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1024,
+      "mode": "pages",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 320
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 712,
+          "right": 1000
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1400,
+      "mode": "edit",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1056,
+          "right": 1376
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1400,
+      "mode": "split",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1056,
+          "right": 1376
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1400,
+      "mode": "pages",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1056,
+          "right": 1376
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1740,
+      "mode": "edit",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1396,
+          "right": 1716
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1740,
+      "mode": "split",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1396,
+          "right": 1716
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    },
+    {
+      "width": 1740,
+      "mode": "pages",
+      "stepbar": true,
+      "toolbar": true,
+      "quoteTab": true,
+      "rail": true,
+      "panels": [
+        {
+          "text": "BLOCK LIBRARY\nCover\nBOTH\nIndex\nPROP",
+          "display": "flex",
+          "x": 80,
+          "right": 336
+        },
+        {
+          "text": "PROPOSAL LANGUAGE\nPortugu\u00eas (Portug",
+          "display": "flex",
+          "x": 1396,
+          "right": 1716
+        }
+      ],
+      "parentPagedStyles": 0,
+      "framePages": 11
+    }
+  ],
+  "errors": [],
+  "blockedWrites": [],
+  "screenFirstBlocks": [
+    "44821640-6554-47f7-befe-8129f341a50d",
+    "a689c825-7047-4511-9adf-9483c6e12263",
+    "2d9b0662-984c-41a7-b518-97baea89035b",
+    "a1ceee28-26da-4fac-a0e0-6bd5c5f96403",
+    "db9736ec-ce7b-4482-8750-5a234a3b4be2",
+    "7d2e3a62-da65-4aaa-889a-5b6a6f8749c6",
+    "1085f5cd-1556-4386-89c4-2d94d46d18fc",
+    "05f8f35b-f616-4f6a-8660-1ba951e00232",
+    "5f27cd29-037d-44f7-a8cc-61f9b8c992a0",
+    "4a5bb02f-4934-444f-b8b4-6ddb524c7f16",
+    "a8ab2c8e-880d-4965-a4e6-065994959ed3"
+  ],
+  "printFirstBlocks": [
+    "44821640-6554-47f7-befe-8129f341a50d",
+    "a689c825-7047-4511-9adf-9483c6e12263",
+    "2d9b0662-984c-41a7-b518-97baea89035b",
+    "a1ceee28-26da-4fac-a0e0-6bd5c5f96403",
+    "db9736ec-ce7b-4482-8750-5a234a3b4be2",
+    "7d2e3a62-da65-4aaa-889a-5b6a6f8749c6",
+    "1085f5cd-1556-4386-89c4-2d94d46d18fc",
+    "05f8f35b-f616-4f6a-8660-1ba951e00232",
+    "5f27cd29-037d-44f7-a8cc-61f9b8c992a0",
+    "4a5bb02f-4934-444f-b8b4-6ddb524c7f16",
+    "a8ab2c8e-880d-4965-a4e6-065994959ed3"
+  ]
+}
