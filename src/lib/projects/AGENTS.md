@@ -1,6 +1,7 @@
 # Projects module rules
 
 - Global Gantt financial headers, outline, bars and popovers require caller-scoped project area approval; empty allocations never make a denied cost zero and rollups propagate missing budgets. Why: operational visibility must not manufacture financial values.
+- Global Gantt header budgets count regular leaf stages and retainer parents once, excluding monthly retainer breakdowns in both legacy and B1 calculations; allocation cost iteration remains independent. Why: parent/month display rows must not duplicate the agreed budget or discard planned costs.
 
 - B1 operational readers use caller-scoped pm_b1 projections behind the independent audited B1 gate; legacy B2/B3 readers remain explicitly mapped, missing financial numbers propagate as unavailable and integrated margins require every contributing area. Why: staged rollout must not expose denied values or rewrite operational history.
 - B1 preview honours x-psa-b1-preview only for administrators inside read-only transactions (pm_project_b1_header_preview, server forwarding re-checks admin); any marker is refused by the cutover action, cutover/audit read only the recorded state, and page totals use project-actual-totals.ts with data-totals-ready for checks. Why: non-admins must always get the recorded result and preview must never influence writes or partial figures.

@@ -45,7 +45,7 @@ import {
 import { toast } from '@/lib/toast';
 import type { Project } from "@/lib/projects/types";
 import { useProjectB1State, useProjectViewerAreas } from '@/lib/projects/use-project-access';
-import { ganttProjectFigures } from '@/lib/projects/gantt-financial-visibility';
+import { ganttProjectFigures, ganttProjectBudget } from '@/lib/projects/gantt-financial-visibility';
 
 export const Route = createFileRoute("/_app/projects/gantt")({
   head: () => ({ meta: [{ title: "Global project Gantt — PSA Hub" }, { name: "description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:title", content: "Global project Gantt — PSA Hub" }, { property: "og:description", content: "Global project Gantt in the Pedra Silva Architects operations hub." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -141,9 +141,7 @@ function GlobalGanttPage() {
     const m = new Map<string, { cost: number; budget: number }>();
     if (!allStages) return m;
     for (const s of allStages) {
-      const cur = m.get(s.project_id) ?? { cost: 0, budget: 0 };
-      cur.budget += Number(s.budget);
-      if(s.budget==null)cur.budget=NaN;
+      const cur = m.get(s.project_id) ?? { cost: 0, budget: ganttProjectBudget(allStages.filter((x) => x.project_id === s.project_id)) };
       for (const a of s.allocations) {
         const costRate = a.resource.cost_rate==null ? NaN : effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
         cur.cost += allocationCost({

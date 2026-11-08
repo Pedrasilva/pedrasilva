@@ -21,6 +21,17 @@ describe('global Gantt project financial visibility', () => {
     const tree = buildProjectGanttTree([stage(NaN)], 'project', 'QA');
     expect(tree.mappedStages[0].budget).toBeNaN();
   });
+  it('Mint retainer months are not added to the retainer parent (30 980, not 36 260)', () => {
+    const s = (id: string, budget: number, extra: Record<string, unknown> = {}) => ({ ...stage(budget), id, ...extra }) as StageWithAllocations;
+    const rows = [s('a', 25700), s('r', 5280, { stage_kind: 'retainer_monthly' }),
+      ...[1, 2, 3, 4].map((n) => s(`m${n}`, 1320, { stage_kind: 'retainer_month', parent_stage_id: 'r' }))];
+    expect(ganttProjectFigures(rows, true, undefined).budget).toBe(30980);
+    expect(ganttProjectFigures(rows, false, undefined).budget).toBeNaN();
+  });
+  it('summary parents count their children once', () => {
+    const rows = [{ ...stage(999), id: 'p' }, { ...stage(400), id: 'c1', parent_stage_id: 'p' }, { ...stage(600), id: 'c2', parent_stage_id: 'p' }] as unknown as StageWithAllocations[];
+    expect(ganttProjectFigures(rows, true, undefined).budget).toBe(1000);
+  });
   it('totals sum only permitted projects', () => {
     expect(sumAllowedGanttValues([{ allowed: true, value: 1000 }, { allowed: false, value: 9999 }, { allowed: true, value: 200 }])).toBe(1200);
   });

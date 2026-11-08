@@ -1,5 +1,57 @@
 # Fase B1 — plano antes da implementação (4 novembro 2026, 09:22 UTC)
 
+## Diagnóstico de Tatiana e correção da avença — 8 novembro, 15:26 UTC (sem corte)
+
+**NO-GO: B1 OFF/revisão 10.** A duplicação de Mint foi corrigida apenas no cálculo de apresentação; não explica todas as diferenças de Tatiana. Não foram alterados dados, permissões, datas, snapshots ou gates; B2 não iniciado.
+
+### Comparação exata OFF / ON
+Base OFF: `final-checks-20261108/after-admin-only-marker/tatiana-global-gantt.txt` (effective=false). Base ON: `cutover-20261108/tatiana-global-gantt.txt` (recorded=true, preview=false). A anterior comparação de 178/199 símbolos monetários usava uma **pré-visualização effective=ON**, não um controlo OFF; não era uma comparação válida por projeto.
+
+Todas as linhas de cabeçalho custo planeado / orçamento são iguais entre OFF e ON:
+
+| Projeto | OFF | ON |
+|---|---:|---:|
+| Clinica Mint II | 0 / 36 260 € | 0 / 36 260 € |
+| 2128 Sandycove Road Dental Clinic | 0 / 0 € | 0 / 0 € |
+| Bolshaya | 0 / 0 € | 0 / 0 € |
+| 2600 Quelhas | 0 / 0 € | 0 / 0 € |
+| 2663 Alteração de loteamento - Ericeira | 0 / 9 900 € | 0 / 9 900 € |
+| 2608 Alcanena | 0 / 23 050 € | 0 / 23 050 € |
+| 0434 Sérgio Varanda | 0 / 31 680 € | 0 / 31 680 € |
+| 2101 Colares | 0 / 0 € | 0 / 0 € |
+| 2609 Mastercard | 0 / 485 500 € | 0 / 485 500 € |
+| 2502 Uralchem IV | 0 / 421 300 € | 0 / 421 300 € |
+| 0410B Telheiras Obra | 0 / 47 520 € | 0 / 47 520 € |
+| 2521 Escritórios BCG | 0 / 181 850 € | 0 / 181 850 € |
+| 2522 Escritórios Banco CTT - Atrium 2 | 0 / 44 791 € | 0 / 44 791 € |
+
+Estes custos são os custos **planeados de alocações**, não os 1 812 € de custo real de Mint. Projetos, contagem de fases e colunas operacionais (#, Marcos e tarefas, dias úteis, início, prazo) mantêm-se nas duas provas.
+
+Diferenças efetivas:
+- **Preços na lista de equipa:** 15 recursos mantêm nomes/capacidade, mas passam de valores para `— /h`. OFF: 100 €/h para o colaborador PE descartável, Adalberto Duarte, Mariana Oliveira, dois recursos QA PSA, Ricardo Cabrita e Rita; 0 €/h para Bernardo, Francisco, Irene, João, Luis, Patricia, Ricardo Conceição e Tatiana. ON: todos indisponíveis. São os valores do campo `hourly_rate`; não se inferem custos reais desses valores.
+- **Causa de acesso identificada no código atual:** o pedido global `pm_b1_resources(NULL)` chama `pm_b1_resource(...,NULL)`, que redige preços com `pm_project_area_proposed(NULL,...)`. Este helper testa primeiro se existe o projeto; com NULL retorna false **antes** das exceções admin/globais. É uma diferença no caminho de autorização sem contexto de projeto, não a duplicação da avença. Não foi alterada neste pedido condicional de correção da duplicação.
+- **Linhas de alocação ausentes:** Bolshaya perde João Almeida, Luis e Rita; Sérgio Varanda perde Irene; Colares perde Francisco, João e Irene. As capturas não contêm as respostas por ID necessárias para atribuir estas diferenças a filtragem ou contexto do render; não se declara causa provada nem eliminação de dados.
+- **Valores adicionais nas barras ON, ausentes OFF:** Mint Programa Base 0 / 3 950 €, Estudo Prévio 0 / 9 450 €, Execução 0 / 12 300 €, assistência 0 / 5 280 €. Uralchem: 3 906 / 22 500 €, 29 142 / 160 000 €, 0 / 238 800 €. A visibilidade financeira do Gantt interno usa as áreas B1 quando ON; OFF recebia o default false por não ser passado `canSeeFinancials` pelo global.
+
+A captura ON de Tatiana esperou **25 s**, sinal de totais prontos e rede quieta. Não há evidência de leitura prematura. Contudo o teste Gantt só recusava NaN e não verificava preços indisponíveis/erros de cada consulta; um PASS desse teste não certifica preservação. O diff integral está em `tatiana-review-20261108/tatiana-off-vs-on.diff`.
+
+### Mint: duplicação corrigida em ambos os ramos
+Leitura atual confirmou fases regulares 25 700 €, fase-mãe da avença 5 280 € e quatro meses de 1 320 €. O cálculo global somava tudo: **36 260 €**. Novo helper soma folhas regulares e fase-mãe da avença uma vez, excluindo o desdobramento mensal: **30 980 €**. Pais regulares resumem filhos, sem somar orçamento de pai e filhos. Custos continuam a percorrer todas as alocações, sem eliminar custos mensais; valores negados/ausentes continuam indisponíveis.
+
+Capturas posteriores confirmam Mint 30 980 € para Luis em pré-visualização administrativa efetiva ON e para Tatiana/Rita no estado real OFF. Nenhum montante guardado mudou.
+
+![Antes Tatiana ON](project-access-phase-b1/cutover-20261108/tatiana-global-gantt.png)
+![Depois admin preview](project-access-phase-b1/tatiana-review-20261108/admin-global-gantt-preview.png)
+
+### Verificações de pré-visualização e limite explícito
+- Luis/admin: **recorded=false, preview=true, effective=true**; Gantt Mint 0 / 30 980 €, Insights 3 086 receita / 1 812 custo / 1 274 lucro / 41%. Carregamento completo em 21,3 s / 13 s.
+- Rita, Patricia, Tatiana: enviados marcadores próprios, corretamente ignorados: **recorded=false, preview=false, effective=false** nas três sessões. Não são checks ON e não certificam isolamento de Patricia nem paridade B1 de Tatiana. Os valores legados OFF de Patricia continuam presentes; não são uma regressão da correção do orçamento.
+- **Os três checks B1 pedidos não podem ser certificados com estas sessões em admin-only preview:** nenhuma é administrativa. Não concedi admin, não reativei o antigo marcador staff, não usei os leitores privilegiados como substitutos de RLS e não ativei o gate. A captura de Luis valida apenas Luis. Requer um mecanismo de revisão administrativa, só de leitura, que execute explicitamente como cada pessoa sem ampliar os seus direitos; não existe atualmente no executor usado.
+- 17 testes passam: 10 Gantt, 4 paridade B1, 3 projeções; inclui Mint 30 980 (não 36 260), pais/filhos e negação/missing. Build OK após alterações.
+- Sem fixtures persistentes: não houve criação nem limpeza; auditoria independente confirma B1 OFF/revisão 10. Zero alterações reais de aplicação.
+
+Ficheiros alterados: `src/lib/projects/gantt-financial-visibility.ts`, `src/routes/_app.projects.gantt.tsx`, `scripts/test-gantt-financial-visibility.test.ts`, `src/lib/projects/AGENTS.md`, `roadmap.md`, este relatório e novas evidências em `project-access-phase-b1/tatiana-review-20261108/`. Sem migração. **Parar, sem corte ou B2.**
+
 ## Corte autorizado — 8 novembro 2026, 15:08 UTC
 
 **Resultado final: B1 OFF, revisão 10, após rollback conservador. Fase A continua ON. B2 não iniciado.** Os 11 checks iniciais passaram, mas a verificação adicional de preservação do Gantt de Tatiana não confirmou igualdade; não se certifica o corte.

@@ -1,0 +1,732 @@
+--- Tatiana OFF
++++ Tatiana ON
+@@ -987,16 +987,28 @@
+ PROJETO
+ [1] Programa Base / Conceito
+ 128 d.ú.
++€0
++/
++€3,950
+ Análise e aprovação (cliente)
+ 5 d.ú.
+ [2] Estudo Prévio
+ 15 d.ú.
++€0
++/
++€9,450
+ Análise e aprovação (cliente)
+ 5 d.ú.
+ [4] Projeto de Execução
+ 25 d.ú.
++€0
++/
++€12,300
+ [6] Assistência Técnica à Obra
+ 78 d.ú.
++€0
++/
++€5,280
+ FS
+ FS
+ FS
+@@ -1470,14 +1482,22 @@
+ CONSTRUCTION
+ CA - Abril a Junho 2026
+ 61 d.ú.
++€0
++/
++€0
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 5 dias
++€0
+ CA - Julho a Setembro 2026
+ 66 d.ú.
++€0
++/
++€0
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 11 dias
++€0
+ FS
+ Bolshaya
+ 1 fase
+@@ -1502,9 +1522,6 @@
+ 21
+ 04/09/2026
+ 04/10/2026
+-João Almeida
+-Luis Pedra Silva
+-Rita Saragoça
+ AGOSTO 2026
+ SETEMBRO 2026
+ OUTUBRO 2026
+@@ -1631,15 +1648,9 @@
+ PROJETO
+ New Concept
+ 21 d.ú.
+-João Almeida
+-0 h/dia
+-Ausência 1 dia
+-Luis Pedra Silva
+-0 h/dia
+-Ausência 1 dia
+-RS
+-Rita Saragoça
+-0 h/dia
++€0
++/
++€0
+ 2600 Quelhas
+ · Associação Nossa Senhora Consoladora dos Aflitos
+ 2 fases
+@@ -1980,13 +1991,21 @@
+ PROJETO
+ Programa
+ 21 d.ú.
++€0
++/
++€0
+ João Almeida
+ 0 h/dia
+ Ausência 4 dias
++€0
+ Conceito
+ 67 d.ú.
++€0
++/
++€0
+ Irene Cunha
+ 0 h/dia
++€0
+ 2663 Alteração de loteamento - Ericeira
+ · Rubén Calvo Rodriguez
+ 6 fases
+@@ -2449,13 +2468,25 @@
+ AVALIAÇÃO E VIABILIDADE
+ Due Dilligence
+ 5 d.ú.
++€0
++/
++€1,200
+ Plano Geral
+ 10 d.ú.
++€0
++/
++€2,000
+ Preparação PIP
+ 5 d.ú.
++€0
++/
++€2,700
+ LOTEAMENTO
+ Alteração ao Alvará de Loteamento
+ 20 d.ú.
++€0
++/
++€4,000
+ FS
+ FS · 75 dias de intervalo adicional
+ FS
+@@ -2729,12 +2760,24 @@
+ PROJECTO
+ Programa
+ 10 d.ú.
++€0
++/
++€2,850
+ Estudo previo
+ 15 d.ú.
++€0
++/
++€7,650
+ Execução
+ 25 d.ú.
++€0
++/
++€9,550
+ Mobiliário
+ 14 d.ú.
++€0
++/
++€3,000
+ FS · 3 dias de intervalo adicional
+ FF
+ FS · 4 dias de intervalo adicional
+@@ -2761,7 +2804,6 @@
+ 252
+ 01/06/2026
+ 04/06/2027
+-Irene Cunha
+ 2
+ Comunicação Previa
+ 145
+@@ -3582,12 +3624,19 @@
+ PROJETO
+ Assistência Técnica
+ 252 d.ú.
+-Irene Cunha
+-0 h/dia
++€0
++/
++€0
+ Comunicação Previa
+ 145 d.ú.
++€0
++/
++€0
+ Construction retainer
+ 248 d.ú.
++€0
++/
++€15,840
+ 2101 Colares
+ 1 fase
+ 
+@@ -3611,9 +3660,6 @@
+ 148
+ 01/06/2026
+ 07/01/2027
+-Francisco Oliveira
+-João Almeida
+-Irene Cunha
+ MAIO 2026
+ JUNHO 2026
+ JULHO 2026
+@@ -4123,14 +4169,9 @@
+ PROJETO
+ Assistencia técnica
+ 148 d.ú.
+-Francisco Oliveira
+-0 h/dia
+-Ausência 10 dias
+-João Almeida
+-0 h/dia
+-Ausência 27 dias
+-Irene Cunha
+-0 h/dia
++€0
++/
++€0
+ 2609 Mastercard
+ 32 fases
+ 
+@@ -5545,88 +5586,168 @@
+ DESIGN
+ F1 - Concept
+ 65 d.ú.
++€779
++/
++€25,000
++24 h
+ PR
+ Patricia Reis
+ 0 h/dia
+ Ausência 20 dias
++€0
+ Mariana Oliveira
+ 0 h/dia
+ 8 h
++€0
+ Mariana Oliveira
+ 8 h/dia
+ 8 h
++€779
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 13 dias
++€0
+ RS
+ Rita Saragoça
+ 0 h/dia
++€0
+ Luis Pedra Silva
+ 0 h/dia
+ Ausência 16 dias
++€0
+ Francisco Oliveira
+ 0 h/dia
+ Ausência 5 dias
++€0
+ F2 - Developed Design
+ 39 d.ú.
++€0
++/
++€72,000
+ PR
+ Patricia Reis
+ 0 h/dia
+ Ausência 7 dias
++€0
+ F2 - DD Mobiliário
+ 29 d.ú.
++€0
++/
++€18,000
+ RS
+ Rita Saragoça
+ 0 h/dia
++€0
+ F3 - Technical Design
+ 52 d.ú.
++€0
++/
++€100,000
+ F3 - TD Mobiliário
+ 25 d.ú.
++€0
++/
++€15,000
+ Mariana Oliveira
+ 0 h/dia
++€0
+ CONSTRUCTION
+ F4 - Tender
+ 21 d.ú.
++€0
++/
++€8,000
+ F5 - Construction supervision
+ 203 d.ú.
++€0
++/
++€77,000
+ MAIS ENGENHARIA
+ ME DESIGN
+ ME Concept
+ 64 d.ú.
++€0
++/
++€36,650
+ ME Developed Design
+ 22 d.ú.
++€0
++/
++€23,000
+ ME Technical Design
+ 42 d.ú.
++€0
++/
++€35,000
+ ME CONSTRUCTION
+ ME Tender
+ 20 d.ú.
++€0
++/
++€3,500
+ ME Construction
+ 232 d.ú.
++€0
++/
++€25,850
+ NULTY
+ NULTY DESIGN
+ Nulty Concept
+ 21 d.ú.
++€0
++/
++€10,100
+ Nulty Developed Design
+ 22 d.ú.
++€0
++/
++€0
+ Nulty Technical 1
+ 23 d.ú.
++€0
++/
++€19,800
+ Nulty Technical 2
+ 19 d.ú.
++€0
++/
++€5,200
+ NULTY CONSTRUCTION
+ Nulty Construction January
+ 21 d.ú.
++€0
++/
++€1,500
+ Nulty Construction March
+ 22 d.ú.
++€0
++/
++€1,500
+ Nulty Construction May
+ 21 d.ú.
++€0
++/
++€1,500
+ Nulty Construction July
+ 21 d.ú.
++€0
++/
++€1,500
+ Nulty Construction September
+ 22 d.ú.
++€0
++/
++€1,500
+ Nulty Construction October
+ 19 d.ú.
++€0
++/
++€1,500
+ Nulty Construction November
+ 21 d.ú.
++€0
++/
++€2,400
+ FS
+ FS · -128 dias de intervalo adicional
+ FS
+@@ -6339,36 +6460,56 @@
+ PROJETO
+ F1 - Programme Definition
+ 38 d.ú.
++€3,906
++/
++€22,500
++120 h
+ RC
+ Ricardo Cabrita
+ 0 h/dia
++€0
+ João Almeida
+ 6 h/dia
+ Ausência 4 dias
++€3,906
+ Bernardo Nadais
+ 0 h/dia
++€0
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 9 dias
++€0
+ F2 - Concept Design
+ 88 d.ú.
++€29,142
++/
++€160,000
++901 h
+ Ricardo Conceição
+ 1.6 h/dia
+ Ausência 11 dias
++€3,279
+ Luis Pedra Silva
+ 1 h/dia
+ Ausência 15 dias
++€2,543
+ PR
+ Patricia Reis
+ 2.4 h/dia
+ Ausência 18 dias
++€4,341
+ RC
+ Ricardo Cabrita
+ 6 h/dia
++€9,588
+ Francisco Oliveira
+ 6 h/dia
++€9,391
+ F3 - Developed Design
+ 86 d.ú.
++€0
++/
++€238,800
+ FS
+ 0410B Telheiras Obra
+ · GROOVESNORE - INVESTIMENTOS IMOBILIÁRIOS, LDA
+@@ -7590,11 +7731,19 @@
+ PROJETO
+ Comunicação prévia
+ 107 d.ú.
++€22,078
++/
++€0
++642 h
+ Bernardo Nadais
+ 6 h/dia
+ Ausência 11 dias
++€22,078
+ Avença de obra
+ 376 d.ú.
++€0
++/
++€23,760
+ 2521 Escritórios BCG
+ 10 fases
+ 
+@@ -8347,70 +8496,114 @@
+ PROJETO
+ F0 - Gestão
+ 193 d.ú.
++€0
++/
++€0
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 17 dias
++€0
+ Luis Pedra Silva
+ 0 h/dia
+ Ausência 26 dias
++€0
+ F3 - Technical Design
+ 17 d.ú.
++€4,856
++/
++€129,050
++144 h
+ João Almeida
+ 6 h/dia
+ Ausência 1 dia
++€1,172
+ PR
+ Patricia Reis
+ 6 h/dia
+ Ausência 1 dia
++€1,229
+ Francisco Oliveira
+ 6 h/dia
++€1,063
+ Ricardo Conceição
+ 6 h/dia
++€1,392
+ Luis Pedra Silva
+ 0 h/dia
+ Ausência 4 dias
++€0
+ Mariana Oliveira
+ 0 h/dia
++€0
+ F4 - Tender
+ 51 d.ú.
++€0
++/
++€2,950
+ PR
+ Patricia Reis
+ 0 h/dia
++€0
+ João Almeida
+ 0 h/dia
++€0
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 14 dias
++€0
+ Luis Pedra Silva
+ 0 h/dia
+ Ausência 16 dias
++€0
+ F5 - CONSTRUCTION
+ F5 - Mês 1 - Setembro
+ 19 d.ú.
++€0
++/
++€4,058
+ João Almeida
+ 0 h/dia
+ Ausência 1 dia
++€0
+ PR
+ Patricia Reis
+ 0 h/dia
+ Ausência 2 dias
++€0
+ F5 - Mês 2 - Outubro
+ 21 d.ú.
++€0
++/
++€4,058
+ PR
+ Patricia Reis
+ 0 h/dia
+ Ausência 5 dias
++€0
+ Francisco Oliveira
+ 0 h/dia
+ Ausência 4 dias
++€0
+ F5 - Mês 3 - Novembro
+ 20 d.ú.
++€0
++/
++€4,058
+ F5 - Mês 4 - Dezembro
+ 20 d.ú.
++€0
++/
++€4,058
+ F5 - Mês 5 - Janeiro
+ 10 d.ú.
++€0
++/
++€4,059
+ F6 - Close out
+ 20 d.ú.
++€0
++/
++€4,059
+ FS
+ FS
+ FS
+@@ -9030,31 +9223,55 @@
+ PROJETO
+ Projecto
+ 102 d.ú.
++€9,835
++/
++€34,122
++330 h
+ Francisco Oliveira
+ 1.61 h/dia
+ Ausência 1 dia
++€5,705
+ RC
+ Rita Costa
+ 0.25 h/dia
++€0
+ Ricardo Conceição
+ 0.89 h/dia
++€4,130
+ Luis Pedra Silva
+ 0 h/dia
+ Ausência 4 dias
++€0
+ Concurso de Obra
+ 20 d.ú.
++€0
++/
++€2,209
+ Ricardo Conceição
+ 0 h/dia
+ Ausência 3 dias
++€0
+ CONSTRUÇÃO
+ F4 - Mês 1 - Julho
+ 25 d.ú.
++€0
++/
++€2,115
+ F4 - Mês 2 - Agosto
+ 20 d.ú.
++€0
++/
++€2,115
+ F4 - Mês 3 - Setembro
+ 24 d.ú.
++€0
++/
++€2,115
+ F5 - Mês 4 - Outubro
+ 24 d.ú.
++€0
++/
++€2,115
+ FS · -146 dias de intervalo adicional
+ 
+ ARRASTE PARA UMA FASE
+@@ -9067,85 +9284,85 @@
+ 
+ [DISPOSABLE PE FIXTURE] Colaborador
+ 
+-€100 /h
++— /h
+ 0/40 h
+ AD
+ 
+ Adalberto Duarte
+ 
+-€100 /h
++— /h
+ 0/40 h
+ 
+ Bernardo Nadais
+ 
+-€0 /h
++— /h
+ 0/40 h
+ 
+ Francisco Oliveira
+ 
+-€0 /h
++— /h
+ 0/40 h
+ 
+ Irene Cunha
+ 
+-€0 /h
++— /h
+ 0/40 h
+ 
+ João Almeida
+ 
+-€0 /h
++— /h
+ 0/0 h 40
+ 
+ Capacidade reduzida 100 % por ausência
+ 
+ Luis Pedra Silva
+ 
+-€0 /h
++— /h
+ 0/40 h
+ 
+ Mariana Oliveira
+ 
+-€100 /h
++— /h
+ 0/20 h
+ PR
+ 
+ Patricia Reis
+ 
+-€0 /h
++— /h
+ 0/40 h
+ PD
+ 
+ PSA QA Approvals disposable
+ 
+-€100 /h
++— /h
+ 0/40 h
+ PD
+ 
+ PSA QA Vacation opening disposable
+ 
+-€100 /h
++— /h
+ 0/40 h
+ RC
+ 
+ Ricardo Cabrita
+ 
+-€100 /h
++— /h
+ 0/32 h 40
+ 
+ Capacidade reduzida 20 % por ausência
+ 
+ Ricardo Conceição
+ 
+-€0 /h
++— /h
+ 0/40 h
+ RS
+ 
+ Rita Saragoça
+ 
+-€100 /h
++— /h
+ 0/40 h
+ 
+ Tatiana Shchenina
+ 
+-€0 /h
++— /h
+ 0/40 h
