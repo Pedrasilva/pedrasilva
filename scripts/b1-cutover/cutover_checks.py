@@ -90,14 +90,19 @@ def parse(text: str) -> dict:
     }
 
 
+def digits(x):
+    # Locale-independent comparison: "€1,812 / €30,980" == "1812 € / 30 980 €".
+    return None if x is None else re.sub(r"[^\d%/-]", "", x)
+
+
 def judge(kind: str, v: dict, text: str) -> list[str]:
     text = norm(text)
     fails = []
     if kind == "figures":
         for k in ("budget", "profit", "margin"):
-            if v[k] != MINT_EXPECT[k]:
+            if digits(v[k]) != digits(MINT_EXPECT[k]):
                 fails.append(f"{k}={v[k]!r} expected {MINT_EXPECT[k]!r}")
-        if v["revenue"] is not None and v["revenue"] != MINT_EXPECT["revenue"]:
+        if v["revenue"] is not None and digits(v["revenue"]) != digits(MINT_EXPECT["revenue"]):
             fails.append(f"revenue={v['revenue']!r} expected {MINT_EXPECT['revenue']!r}")
         if "NaN" in text:
             fails.append("NaN visible")

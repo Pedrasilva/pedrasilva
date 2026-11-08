@@ -1,0 +1,264 @@
+CRM / Sales
+Projects
+Finance
+Team / HR
+Time
+Tasks
+Schedule
+9+
+L
+All projects
+Clinica Mint II
+ACTIVE
+Origin: converted proposal
+SMILEPROVIDER, LDA
+·
+1 Jun – 23 Jul 2027
+· 257d
+Pause
+Close out
+Archive
+Delete project
+Overview
+Insights
+Retainer
+Approvals
+Notes
+Expenses
+Project billing
+Architecture
+Suppliers
+Incoming
+Outgoing
+Payment schedule
+Financial summary
+CLIENT
+SMILEPROVIDER, LDA
+PROJECT DETAILS
+Status
+Active
+Start
+1 Jun 2026
+End
+23 Jul 2027
+Remaining
+257d
+TEAM
+MANAGER
+RS
+SUPPORT
+RC
+Manage team
+BUDGET USAGE
+€1,812 / €30,980
+6%
+PROFIT
+€1,274
+41%
+NOTES
+
+Created from approved proposal
+
+Status
+All
+Active
+Unallocated
+Edit plan
+Add task
+
+Normal text = actual · italic grey = planned (allocations) · – = zero
+
+MILESTONES & TASKS	STATUS	COST (ACTUAL VS BUDGET)	REVENUE (EARNED)	BILLED (EXCLUDING VAT)	EARNED − BILLED	PROFIT / MARGIN	LOGGED / PLANNED HOURS	SCHEDULED START	SCHEDULED DUE	ACTIONS
+
+2. [1] Programa Base / Conceito
+No owner · 64.6 h unallocated
+	
+Active
+	
+€1,764 / €3,950
+45%
+	
+€3,086
+	€0	€3,086	
+€1,322
++42.8% margin
+	
+58h 30m
+/
+64h 34m
+	1 Jun	30 Nov	
+
+
+3. Análise e aprovação (cliente)
+No owner
+	
+Planned
+	
+–NO BUDGET
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+–
+	2 Dec	9 Dec	
+
+
+4. [2] Estudo Prévio
+No owner · 154.5 h unallocated
+	
+Planned
+	
+– / €9,450
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+154h 29m
+	10 Dec	7 Jan	
+
+
+5. Análise e aprovação (cliente)
+No owner
+	
+Planned
+	
+–NO BUDGET
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+–
+	8 Jan	14 Jan	
+
+
+6. [4] Projeto de Execução
+No owner · 201.1 h unallocated
+	
+Planned
+	
+– / €12,300
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+201h 4m
+	15 Jan	18 Feb	
+
+
+1. [6] Assistência Técnica à Obra
+4 substages
+	
+Planned
+	
+– / €10,560
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+172h 37m
+	5 Apr	23 Jul	
+
+
+1.1. 2026-11 — [6] Assistência Técnica à Obra
+No owner · 21.6 h unallocated
+	
+Planned
+	
+– / €1,320
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+21h 35m
+	5 Apr	3 May	
+
+
+1.2. 2026-12 — [6] Assistência Técnica à Obra
+No owner · 21.6 h unallocated
+	
+Planned
+	
+– / €1,320
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+21h 35m
+	4 May	25 May	
+
+
+1.3. 2027-01 — [6] Assistência Técnica à Obra
+No owner · 21.6 h unallocated
+	
+Planned
+	
+– / €1,320
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+21h 35m
+	26 May	24 Jun	
+
+
+1.4. 2027-02 — [6] Assistência Técnica à Obra
+No owner · 21.6 h unallocated
+	
+Planned
+	
+– / €1,320
+0%
+	
+–
+	€0	€0	
+–
+NO REVENUE YET
+	
+–
+/
+21h 35m
+	28 Jun	23 Jul	
+Contractual baseline
+2680 · €30,980.00 · snapshot 11/3/2026
+Read-only
+Compare to contract
+10 of 10 stages differ
+Derived

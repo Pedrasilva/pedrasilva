@@ -1,0 +1,50 @@
+[
+  {
+    "who": "luis",
+    "page": "luis-mint-overview",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 9.6,
+    "gate_from_page_session": {
+      "preview": true,
+      "recorded": false,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": "€1,812 / €30,980",
+      "profit": "€1,274",
+      "margin": "41%",
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 35,
+      "zero_euro": 19
+    },
+    "preview_marker_sent": true
+  },
+  {
+    "who": "luis",
+    "page": "luis-mint-insights",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 13.5,
+    "gate_from_page_session": {
+      "preview": true,
+      "recorded": false,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": "€1,812 / €30,980",
+      "profit": "€1,274",
+      "margin": "41%",
+      "revenue": "€3,086",
+      "current_margin": "€1,274\n41%",
+      "euro_count": 28,
+      "zero_euro": 12
+    },
+    "preview_marker_sent": true
+  }
+]
