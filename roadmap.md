@@ -4,6 +4,7 @@
 - [x] Report technical GO and verification limits; B1 remains OFF revision 10, no real-data changes or B2.
 
 ## Current request — Proposal pagination Phase 1 approved, 8 November 15:32
+- [ ] 16:14 continuation: wait for resolved live data, diagnose 5/12 stale capture and verify identical completed screen/print sheets on browser-only Hotel copy.
 - [ ] Wire existing Paged.js preview and smart measurement, 300 ms debounce, A4 transform zoom, synchronized Edit/Split/Pages.
 - [ ] Keep-with-next and shared page furniture; PDF/revision printing exports generated sheets only.
 - [ ] Hotel Chiado disposable-copy screen/PDF page count and first-block parity; cleanup/zero, report files and results.

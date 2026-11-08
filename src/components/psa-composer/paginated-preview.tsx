@@ -104,12 +104,14 @@ function collectDocumentStyles(source: HTMLDivElement): Array<Record<string, str
 
 export function PaginatedPreview({
   source,
+  dataReady = true,
   invalidateKey,
   selectedId,
   onSelect,
   onStatusChange,
 }: {
   source: HTMLDivElement | null;
+  dataReady?: boolean;
   invalidateKey: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -126,9 +128,12 @@ export function PaginatedPreview({
     let cancelled = false;
     setStatus("loading");
     onStatusChange?.("loading");
+    target.dataset.paginationStatus = "loading";
+    if (!dataReady || source.querySelector('[data-live-ready="false"]')) return;
 
     const render = async () => {
       let staging: HTMLDivElement | null = null;
+      let pagedInternals: { chunker?: { pages?: Array<{ removeListeners: () => void }> } } | null = null;
       try {
         await document.fonts?.ready;
         const sourceImages = Array.from(source.querySelectorAll<HTMLImageElement>("img"));
@@ -179,6 +184,7 @@ export function PaginatedPreview({
         const { Previewer } = await import("pagedjs");
         if (cancelled) return;
         const previewer = new Previewer();
+        pagedInternals = previewer as unknown as typeof pagedInternals;
         // Render away from React's live target. In development/fast toggles an
         // effect cleanup can otherwise remove Paged.js' current page while its
         // async layout is still measuring it, causing the one-page/null crash.
@@ -191,9 +197,6 @@ export function PaginatedPreview({
         // completed sheets out of the staging container otherwise triggers an
         // underflow pass against detached nodes (`findElement(null)`), which
         // can collapse the visible result back to its first page.
-        const pagedInternals = previewer as unknown as {
-          chunker?: { pages?: Array<{ removeListeners: () => void }> };
-        };
         pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
         const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
@@ -237,6 +240,7 @@ export function PaginatedPreview({
         setStatus("error");
         onStatusChange?.("error");
       } finally {
+        pagedInternals?.chunker?.pages?.forEach((page) => page.removeListeners());
         staging?.remove();
       }
     };
@@ -246,7 +250,7 @@ export function PaginatedPreview({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [source, invalidateKey, onStatusChange]);
+  }, [source, dataReady, invalidateKey, onStatusChange]);
 
   useEffect(() => {
     const target = targetRef.current;

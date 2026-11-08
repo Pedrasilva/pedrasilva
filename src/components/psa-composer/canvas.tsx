@@ -105,7 +105,9 @@ function SortableRow({
     block.block_type === "stage_item" ||
     block.block_type === "index" ||
     block.block_type === "travel_expenses";
-  const live = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang).data;
+  const liveQuery = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang);
+  const live = liveQuery.data;
+  const liveReady = !useLive || !resolvedQuoteId || (!!live && !liveQuery.isFetching && !liveQuery.isError);
 
 
   const style = {
@@ -160,6 +162,7 @@ function SortableRow({
       style={style}
       id={chapter != null ? `chapter-${chapter}` : undefined}
       data-proposal-block-id={block.id}
+      data-live-ready={liveReady ? "true" : "false"}
       data-proposal-block-type={block.block_type}
       data-keep-with-next={keepBlockWithNext(block) ? "true" : "false"}
       data-page-aligned={pageAligned ? "true" : undefined}
