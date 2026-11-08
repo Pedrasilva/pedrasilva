@@ -329,20 +329,25 @@ export async function printProposalDocument(
 ) {
   const loadingToast = toast.loading(messages.loading);
   try {
-    const source = document.querySelector<HTMLElement>(
-      ".proposal-print-area .proposal-print-document",
-    );
-    if (!source) throw new Error("Proposal document was not found");
-
-    const clone = source.cloneNode(true) as HTMLElement;
-    clone
-      .querySelectorAll(
-        '[data-editor-toolbar="true"], .ProseMirror-menubar, button, .print\\:hidden',
-      )
-      .forEach((node) => node.remove());
-    clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
-      node.removeAttribute("contenteditable");
+    // Always export completed Paged.js sheets, never the continuous editor tree.
+    const host = document.querySelector<HTMLElement>(".proposal-paginated-preview");
+    if (!host) throw new Error("Proposal paginated document was not found");
+    await new Promise<void>((resolve, reject) => {
+      let deadline: ReturnType<typeof setTimeout>;
+      const observer = new MutationObserver(check);
+      function check() {
+        if (host?.dataset.paginationStatus === "error") { cleanup(); reject(new Error("Proposal pagination failed")); }
+        else if (host?.dataset.paginationStatus === "ready" && host.querySelector(".pagedjs_pages")) { cleanup(); resolve(); }
+      }
+      function cleanup() { observer.disconnect(); clearTimeout(deadline); }
+      observer.observe(host, { attributes: true, childList: true, subtree: true });
+      deadline = setTimeout(() => { cleanup(); reject(new Error("Proposal pagination did not finish")); }, 120000);
+      check();
     });
+    const source = host.querySelector<HTMLElement>(".pagedjs_pages");
+    if (!source) throw new Error("Proposal pages were not found");
+    const clone = source.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll(".proposal-paged-block-selected").forEach((n) => n.classList.remove("proposal-paged-block-selected"));
 
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
       .map((node) => {
@@ -360,10 +365,20 @@ export async function printProposalDocument(
       `<!doctype html><html><head><meta charset="utf-8"><base href="${escapeHtml(baseUrl)}"><title>${escapeHtml(filename)}</title>${styles}<style>
         @media print {
           @page { size: A4; margin: 0; }
+          .proposal-export-sheets .pagedjs_pages { display: block !important; }
+          .proposal-export-sheets .pagedjs_page { page: auto !important; width: 210mm !important; height: 297mm !important; margin: 0 !important; break-after: page !important; break-inside: avoid !important; box-shadow: none !important; }
+          .proposal-export-sheets .pagedjs_page:last-child { break-after: auto !important; }
+          .proposal-export-sheets .pagedjs_pagebox { width: 210mm !important; height: 297mm !important; }
+          .proposal-export-sheets .pagedjs_area { overflow: hidden !important; }
+          .proposal-export-sheets .pagedjs_page_content, .proposal-export-sheets .pagedjs_page_content * { break-before: auto !important; break-after: auto !important; }
+          .proposal-export-sheets .proposal-print-document { min-height: 0 !important; width: auto !important; padding: 0 !important; margin: 0 !important; }
+          .proposal-export-sheets .proposal-page-header, .proposal-export-sheets .proposal-page-footer { position: static !important; }
+          .proposal-export-sheets .proposal-page-break-before, .proposal-export-sheets .proposal-page-break-after { break-before: auto !important; break-after: auto !important; }
+
           html, body { width: 210mm; margin: 0 !important; padding: 0 !important; background: white !important; }
           body.proposal-pdf-export,
           body.proposal-pdf-export * { visibility: visible !important; }
-          body.proposal-pdf-export > .proposal-print-area {
+          body.proposal-pdf-export > .proposal-export-sheets {
             position: static !important;
             inset: auto !important;
             width: 210mm !important;
@@ -372,7 +387,7 @@ export async function printProposalDocument(
             padding: 0 !important;
           }
         }
-      </style></head><body class="proposal-pdf-export"><div class="proposal-print-area">${clone.outerHTML}</div></body></html>`,
+      </style></head><body class="proposal-pdf-export"><div class="proposal-export-sheets proposal-paginated-preview">${clone.outerHTML}</div></body></html>`,
     );
     printWindow.document.close();
 

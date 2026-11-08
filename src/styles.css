@@ -1894,3 +1894,18 @@
 @utility ts-hatch {
   background-image: repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted-foreground) 14%, transparent) 0 1px, transparent 1px 7px);
 }
+
+/* Composer Phase 1: physical sheets are immutable at zoom; editor stays the measured source. */
+@media screen {
+  .proposal-editor-hidden, .proposal-pages-hidden { position: fixed; left: -20000px; top: 0; width: 794px; height: 1123px; overflow: hidden; pointer-events: none; }
+  .proposal-source-host .proposal-print-document { width: 210mm; max-width: none; }
+  .proposal-pagination-staging { position: fixed; left: -20000px; top: 0; width: 210mm; visibility: hidden; }
+  .proposal-zoom-sheet { position: relative; }
+  .proposal-paginated-preview .pagedjs_page::after { display: none; }
+  .proposal-paginated-preview .proposal-generated-pagebox { font-family: var(--psa-body-font); }
+}
+.proposal-paginated-preview .proposal-margin-furniture { width: 100%; }
+.proposal-paginated-preview .proposal-margin-furniture .proposal-page-header,
+.proposal-paginated-preview .proposal-margin-furniture .proposal-page-footer { position: static !important; width: 100%; }
+.proposal-paginated-preview .pagedjs_margin-top-center { grid-column: 1 / -1; }
+.proposal-paginated-preview .pagedjs_margin-bottom-left { width: 100%; }
