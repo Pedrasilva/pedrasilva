@@ -1,3 +1,8 @@
+## Current request — Proposal pagination Phase 1 approved, 8 November 15:32
+- [ ] Wire existing Paged.js preview and smart measurement, 300 ms debounce, A4 transform zoom, synchronized Edit/Split/Pages.
+- [ ] Keep-with-next and shared page furniture; PDF/revision printing exports generated sheets only.
+- [ ] Hotel Chiado disposable-copy screen/PDF page count and first-block parity; cleanup/zero, report files and results.
+
 ## Current request — 8 November 15:26 Tatiana Gantt diagnosis (B1 OFF)
 - [x] Compared all 13 project headers OFF/ON: identical; rates become unavailable and allocation rows differ, separate from retainer double-count.
 - [x] Fixed display-only retainer budget double-count in OFF/ON global headers; 17 focused tests passed and admin preview shows Mint 30 980.
