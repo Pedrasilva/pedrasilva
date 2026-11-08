@@ -1,3 +1,8 @@
+## Current request — 8 November 23:07 DocuSign demo Go-Live
+- [x] Verify exact requested integration key and demo OAuth/API hosts; OAuth JWT grant succeeds.
+- [x] 22 error-free eSignature API requests; synthetic-only envelope sent to Luis, 16 PDFs downloaded/validated, envelope voided and final state read back.
+- [x] Historical own records inspected: 7 envelopes across 8/9 August and 4 September 2026; no historical per-call/key/environment audit exists. Evidence in docs/docusign-go-live-2026-11-08-report.md and matching call log. No production/client data or B1 changes; DocuSign review submission not performed.
+
 ## Current request — 8 November 21:38 composer follow-ups
 - [x] Split: toggleable overlay library/settings, user-scoped remembered state, evenly sized readable columns; reload/Escape/browser checks and 13 unit tests PASS.
 - [x] Hotel Chiado disposable browser copy: 11 iframe/11 physical PDF pages, first-block parity 11/11; 1400/1740 screenshots, independent original-row equality and report docs/proposal-split-followups-report.md. Context destroyed; no real quote writes or B1 changes.

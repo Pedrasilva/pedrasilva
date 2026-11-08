@@ -1,0 +1,238 @@
+{
+  "preliminaryAuthentication": [
+    {
+      "at": "2026-11-08T23:08:55.110Z",
+      "method": "POST",
+      "host": "account-d.docusign.com",
+      "path": "/oauth/token",
+      "status": 200
+    },
+    {
+      "at": "2026-11-08T23:08:55.272Z",
+      "method": "GET",
+      "host": "account-d.docusign.com",
+      "path": "/oauth/userinfo",
+      "status": 200
+    }
+  ],
+  "mainRun": [
+    {
+      "number": 1,
+      "at": "2026-11-08T23:09:37.928Z",
+      "method": "POST",
+      "path": "/oauth/token",
+      "status": 200,
+      "qualifying": false,
+      "trace": "05bf9027-1de6-4a38-812f-6221cbb922a4"
+    },
+    {
+      "number": 1,
+      "at": "2026-11-08T23:09:40.781Z",
+      "method": "POST",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes",
+      "status": 201,
+      "qualifying": true,
+      "trace": "f168401d-97cc-4a67-a8a4-66c8aeec48d7"
+    },
+    {
+      "number": 2,
+      "at": "2026-11-08T23:09:44.458Z",
+      "method": "PUT",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875",
+      "status": 200,
+      "qualifying": true,
+      "trace": "ccf3b9ad-438f-461b-bed0-53586efd0162"
+    },
+    {
+      "number": 3,
+      "at": "2026-11-08T23:09:44.727Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875",
+      "status": 200,
+      "qualifying": true,
+      "trace": "0d5fed82-1936-48d0-b33e-46c56373b0a8"
+    },
+    {
+      "number": 4,
+      "at": "2026-11-08T23:09:45.137Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents",
+      "status": 200,
+      "qualifying": true,
+      "trace": "d4dbe1f7-b8ee-4197-8bb3-d0d74ec6d45f"
+    },
+    {
+      "number": 5,
+      "at": "2026-11-08T23:09:45.657Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/1",
+      "status": 200,
+      "qualifying": true,
+      "trace": "b8674544-0e3b-4c2c-8d75-f25f8642e9e4"
+    },
+    {
+      "number": 6,
+      "at": "2026-11-08T23:09:46.439Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/2",
+      "status": 200,
+      "qualifying": true,
+      "trace": "71a4775d-ed3d-4ed1-b450-85a99addad0d"
+    },
+    {
+      "number": 7,
+      "at": "2026-11-08T23:09:47.043Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/3",
+      "status": 200,
+      "qualifying": true,
+      "trace": "bbbad565-8c1a-4403-aecc-3ddb8325ca5a"
+    },
+    {
+      "number": 8,
+      "at": "2026-11-08T23:09:47.604Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/4",
+      "status": 200,
+      "qualifying": true,
+      "trace": "f8e63e28-6927-4d36-aa70-ef7f2ed79760"
+    },
+    {
+      "number": 9,
+      "at": "2026-11-08T23:09:48.316Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/5",
+      "status": 200,
+      "qualifying": true,
+      "trace": "45bfcad5-e84f-40e5-8196-d06e7d743714"
+    },
+    {
+      "number": 10,
+      "at": "2026-11-08T23:09:48.910Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/6",
+      "status": 200,
+      "qualifying": true,
+      "trace": "1deb466c-b5d6-4958-911e-3a493f0aa361"
+    },
+    {
+      "number": 11,
+      "at": "2026-11-08T23:09:49.480Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/7",
+      "status": 200,
+      "qualifying": true,
+      "trace": "4ca483c4-3558-4886-8285-609e8e7bdc4d"
+    },
+    {
+      "number": 12,
+      "at": "2026-11-08T23:09:50.071Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/8",
+      "status": 200,
+      "qualifying": true,
+      "trace": "c639771c-ec99-4738-afdb-814e460be715"
+    },
+    {
+      "number": 13,
+      "at": "2026-11-08T23:09:50.665Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/9",
+      "status": 200,
+      "qualifying": true,
+      "trace": "bcef4dc2-9c29-4102-b939-19bd038cb976"
+    },
+    {
+      "number": 14,
+      "at": "2026-11-08T23:09:51.210Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/10",
+      "status": 200,
+      "qualifying": true,
+      "trace": "b476ec38-4ab1-4bd5-bafb-38f868a3be84"
+    },
+    {
+      "number": 15,
+      "at": "2026-11-08T23:09:51.785Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/11",
+      "status": 200,
+      "qualifying": true,
+      "trace": "00bbd332-ac61-4b3e-b590-48ea3bf8774b"
+    },
+    {
+      "number": 16,
+      "at": "2026-11-08T23:09:52.492Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/12",
+      "status": 200,
+      "qualifying": true,
+      "trace": "3f45e9be-accc-4f44-b98d-58337d60ccc7"
+    },
+    {
+      "number": 17,
+      "at": "2026-11-08T23:09:53.207Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/13",
+      "status": 200,
+      "qualifying": true,
+      "trace": "f6e990d5-abdd-4545-9e64-bec7c39f0aa5"
+    },
+    {
+      "number": 18,
+      "at": "2026-11-08T23:09:53.978Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/14",
+      "status": 200,
+      "qualifying": true,
+      "trace": "be2e21a9-29d8-45b4-919a-3d3fb8c9662a"
+    },
+    {
+      "number": 19,
+      "at": "2026-11-08T23:09:54.569Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/15",
+      "status": 200,
+      "qualifying": true,
+      "trace": "7506d477-4d4c-453e-ad32-cc87f90ebe58"
+    },
+    {
+      "number": 20,
+      "at": "2026-11-08T23:09:55.118Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875/documents/16",
+      "status": 200,
+      "qualifying": true,
+      "trace": "b6881346-f999-4d62-afae-ecd83c19f367"
+    },
+    {
+      "number": 21,
+      "at": "2026-11-08T23:09:58.276Z",
+      "method": "PUT",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875",
+      "status": 200,
+      "qualifying": true,
+      "trace": "a7c5645f-24b5-4bbf-8494-12572f706c86"
+    },
+    {
+      "number": 22,
+      "at": "2026-11-08T23:09:58.705Z",
+      "method": "GET",
+      "path": "/restapi/v2.1/accounts/{account}/envelopes/0f722789-ce91-8d53-815a-9889ecb00875",
+      "status": 200,
+      "qualifying": true,
+      "trace": "847a89a3-d6e5-4334-bd38-77b50cb81cf9"
+    }
+  ],
+  "summary": {
+    "finished": "2026-11-08T23:09:58.705Z",
+    "integrationKey": "02b23c8f-16d2-48b3-94b3-ed2dea8f7b25",
+    "environment": "demo",
+    "envelopeId": "0f722789-ce91-8d53-815a-9889ecb00875",
+    "finalStatus": "voided",
+    "qualifyingSuccesses": 22,
+    "oauthSuccesses": 1,
+    "errors": [],
+    "downloadedSyntheticDocuments": 16
+  }
+}
