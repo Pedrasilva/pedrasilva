@@ -36,7 +36,9 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     const {data:b1State,error:b1Error}=await supabase.rpc('pm_project_b1_active');
     if(b1Error)throw b1Error;
     // Explicit review uses the same caller-scoped areas without changing the gate.
-    const b1=(b1State||!!data.b1Projection)&&(!!data.projectId||!!data.b1Projection);
+    // A client-supplied b1Projection flag can never switch a per-project read to the ON path
+    // while the effective gate is OFF; without a project it only yields the empty global set.
+    const b1=b1State ? (!!data.projectId||!!data.b1Projection) : (!!data.b1Projection&&!data.projectId);
     let budgetAllowed=false;
     let saleAllowed=false;
     if(b1){
