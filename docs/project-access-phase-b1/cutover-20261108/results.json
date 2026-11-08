@@ -1,0 +1,266 @@
+[
+  {
+    "who": "rita",
+    "page": "rita-mint-overview",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 32.1,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "Sem cliente",
+      "budget": "1812 € / 30 980 €",
+      "profit": "1274 €",
+      "margin": "41%",
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 15,
+      "zero_euro": 7
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "rita",
+    "page": "rita-mint-insights",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 16.8,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "Sem cliente",
+      "budget": "1812 € / 30 980 €",
+      "profit": "1274 €",
+      "margin": "41%",
+      "revenue": "3086 €",
+      "current_margin": "1274 €\n41%",
+      "euro_count": 28,
+      "zero_euro": 12
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "rita",
+    "page": "rita-uralchem-overview",
+    "expect": "none",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 10.1,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "Sem cliente",
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 0,
+      "zero_euro": 0
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "rita",
+    "page": "rita-global-gantt",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 57.1,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 10,
+      "zero_euro": 5
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "patricia",
+    "page": "patricia-mint-overview",
+    "expect": "none",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 10.5,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 0,
+      "zero_euro": 0
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "patricia",
+    "page": "patricia-uralchem-overview",
+    "expect": "none",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 8.7,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "Sem cliente",
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 0,
+      "zero_euro": 0
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "patricia",
+    "page": "patricia-global-gantt",
+    "expect": "none",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 33.5,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 0,
+      "zero_euro": 0
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "tatiana",
+    "page": "tatiana-mint-overview",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 11.8,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": "1812 € / 30 980 €",
+      "profit": "1274 €",
+      "margin": "41%",
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 35,
+      "zero_euro": 26
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "tatiana",
+    "page": "tatiana-mint-insights",
+    "expect": "figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 14.5,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "SMILEPROVIDER, LDA",
+      "budget": "1812 € / 30 980 €",
+      "profit": "1274 €",
+      "margin": "41%",
+      "revenue": "3086 €",
+      "current_margin": "1274 €\n41%",
+      "euro_count": 28,
+      "zero_euro": 12
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "tatiana",
+    "page": "tatiana-uralchem-overview",
+    "expect": "any-figures",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 12.3,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": "Sem cliente",
+      "budget": "42 583 € / 421 300 €",
+      "profit": "31 938 €",
+      "margin": "43%",
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 18,
+      "zero_euro": 5
+    },
+    "preview_marker_sent": false
+  },
+  {
+    "who": "tatiana",
+    "page": "tatiana-global-gantt",
+    "expect": "gantt",
+    "status": "PASS",
+    "reasons": [],
+    "settled_s": 25.0,
+    "gate_from_page_session": {
+      "preview": false,
+      "recorded": true,
+      "effective": true
+    },
+    "values": {
+      "client": null,
+      "budget": null,
+      "profit": null,
+      "margin": null,
+      "revenue": null,
+      "current_margin": null,
+      "euro_count": 199,
+      "zero_euro": 117
+    },
+    "preview_marker_sent": false
+  }
+]
