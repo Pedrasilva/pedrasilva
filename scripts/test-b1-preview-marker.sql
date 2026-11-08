@@ -5,6 +5,7 @@
 -- result (gate false, identical reader output to no marker); (b) an admin's
 -- marker is ignored in a read-write (write) transaction; (c) the cutover action
 -- refuses any marker; (d) an admin's marker counts only in a read-only transaction.
+-- Run through the database SQL tool (needs SET ROLE). Last run 2026-11-08: B1_MARKER_PASS 10 checks.
 DO $marker$
 DECLARE
   luis uuid := 'ab5a48c0-939b-4502-bd3b-db7801f0f8b8';
