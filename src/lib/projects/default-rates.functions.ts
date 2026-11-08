@@ -42,7 +42,12 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     let budgetAllowed=false;
     let saleAllowed=false;
     if(b1){
-      if(!data.projectId)return [];
+      if(!data.projectId){
+        const {data:globalAllowed,error}=await supabase.rpc('pm_b1_global_financial_access');
+        if(error)throw error;
+        if(!globalAllowed)return [];
+        budgetAllowed=true;saleAllowed=true;
+      } else {
       const {data:visible,error:visibleError}=await supabase.rpc('pm_b1_projects',{_project:data.projectId});
       if(visibleError)throw visibleError;
       if(!visible?.length)return [];
@@ -51,6 +56,7 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
       const flags=areas as unknown as {budget_cost:boolean;financials:boolean};
       budgetAllowed=flags.budget_cost;saleAllowed=flags.financials;
       if(!budgetAllowed&&!saleAllowed)return [];
+      }
     }
     const [{ data: isAdmin }, { data: hasFinance }, { data: hasProjFin }] = await Promise.all([
       supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
