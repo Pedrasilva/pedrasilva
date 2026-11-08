@@ -1,0 +1,117 @@
+Projetos
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+R
+Todos os projetos
+Clinica Mint II
+ATIVO
+Origem: proposta convertida
+Sem cliente
+·
+1 jun – 23 jul 2027
+· 257d
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+Sem cliente
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+1 jun 2026
+Fim
+23 jul 2027
+Restante
+257d
+EQUIPA
+GESTOR
+?
+APOIO
+?
+NOTAS
+
+Created from approved proposal
+
+ÂMBITO
+Todo o projeto
+2 [1] Programa Base / Conceito
+3 Análise e aprovação (cliente)
+4 [2] Estudo Prévio
+5 Análise e aprovação (cliente)
+6 [4] Projeto de Execução
+1 [6] Assistência Técnica à Obra
+  1.1 2026-11 — [6] Assistência Técnica à Obra
+  1.2 2026-12 — [6] Assistência Técnica à Obra
+  1.3 2027-01 — [6] Assistência Técnica à Obra
+  1.4 2027-02 — [6] Assistência Técnica à Obra
+ATIVIDADES E HORAS
+jul 2026
+ago 2026
+out 2026
+nov 2026
+0
+1
+2
+3
+4
+Atividades
+0
+10
+20
+30
+40
+Horas
+AtividadesHoras
+
+jul 2026
+
+RECEITA
+Receita real: — (0%)
+Valor de venda planeado: — (0%)
+Real = horas faturáveis × preço de venda horário. Planeado = total de horas alocadas × preço de venda horário.
+
+Valorização incompleta — faltam custos ou preços de venda
+
+RENTABILIDADE
+MARGEM ATUAL:
+—
+—
+MARGEM ESTIMADA NA CONCLUSÃO:
+—
+—
+FATURÁVEL
+0 h
+NÃO FATURÁVEL
+58.5 h
+TOTAL DE HORAS REGISTADAS
+58.5 h
+FINANCEIRO
+	SERVIÇOS	FORNECEDORES	DESPESAS	TOTAL
+Orçamento	30 980 €	0 €	0 €	30 980 €
+Valor	—	0 €	0 €	—
+Custo	—	0 €	0 €	—
+Lucro	—	0 €	0 €	—
+Faturado	0 €	0 €	0 €	0 €
+TRABALHO
+SALDO DO PLANO
+0h
+Ver tarefas
+HORAS CONSUMIDAS
+0%
+TRABALHO CONCLUÍDO
+Sem alocações.
+ORÇAMENTO
+Sem alocações.
+10

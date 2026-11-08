@@ -41,6 +41,8 @@ RUNS = [
     ("tatiana", f"/projects/{MINT}?tab=insights", "tatiana-mint-insights", "figures"),
     ("tatiana", f"/projects/{URAL}", "tatiana-uralchem-overview", "any-figures"),
     ("tatiana", "/projects/gantt", "tatiana-global-gantt", "gantt"),
+    ("luis", f"/projects/{MINT}", "luis-mint-overview", "figures"),
+    ("luis", f"/projects/{MINT}?tab=insights", "luis-mint-insights", "figures"),
 ]
 
 # Placeholder test for allowed totals: the totals blocks must not contain "—".

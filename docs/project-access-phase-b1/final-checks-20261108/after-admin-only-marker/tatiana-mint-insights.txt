@@ -1,0 +1,139 @@
+CRM / Vendas
+Projetos
+Finanças
+Equipa / RH
+Tempo
+Tarefas
+Agenda
+9+
+T
+Todos os projetos
+Clinica Mint II
+ATIVO
+Origem: proposta convertida
+SMILEPROVIDER, LDA
+·
+1 jun – 23 jul 2027
+· 257d
+Resumo
+Análises
+Avença
+Notas
+Despesas
+Faturação do projeto
+Arquitetura
+Fornecedores
+Recebimentos
+Pagamentos
+Calendário de pagamentos
+Resumo financeiro
+CLIENTE
+SMILEPROVIDER, LDA
+DETALHES DO PROJETO
+Estado
+Ativo
+Início
+1 jun 2026
+Fim
+23 jul 2027
+Restante
+257d
+EQUIPA
+GESTOR
+RS
+APOIO
+RC
+USO DO ORÇAMENTO
+1812 € / 30 980 €
+6%
+LUCRO
+1274 €
+41%
+NOTAS
+
+Created from approved proposal
+
+Pré-contrato (angariação)
+1h00 · 48 €
+Do lead: Clinica Mint II
+Mudar lead
+
+Horas registadas no lead deste projeto antes de ser ganho, ao custo/hora de cada pessoa. Incluídas no custo total do projeto.
+
+ÂMBITO
+Todo o projeto
+2 [1] Programa Base / Conceito
+3 Análise e aprovação (cliente)
+4 [2] Estudo Prévio
+5 Análise e aprovação (cliente)
+6 [4] Projeto de Execução
+1 [6] Assistência Técnica à Obra
+  1.1 2026-11 — [6] Assistência Técnica à Obra
+  1.2 2026-12 — [6] Assistência Técnica à Obra
+  1.3 2027-01 — [6] Assistência Técnica à Obra
+  1.4 2027-02 — [6] Assistência Técnica à Obra
+ATIVIDADES E HORAS
+jul 2026
+ago 2026
+out 2026
+nov 2026
+0
+1
+2
+3
+4
+Atividades
+0
+10
+20
+30
+40
+Horas
+AtividadesHoras
+
+jul 2026
+
+RECEITA
+Receita real: 3086 € (100%)
+Valor de venda planeado: 3086 € (100%)
+Real = horas faturáveis × preço de venda horário. Planeado = total de horas alocadas × preço de venda horário.
+
+O valor ganho inclui preços de venda atuais quando não existe preço guardado
+
+RENTABILIDADE
+MARGEM ATUAL:
+1274 €
+41%
+MARGEM ESTIMADA NA CONCLUSÃO:
+1274 €
+41%
+FATURÁVEL
+58.5 h
+NÃO FATURÁVEL
+0 h
+TOTAL DE HORAS REGISTADAS
+58.5 h
+FINANCEIRO
+	SERVIÇOS	FORNECEDORES	DESPESAS	TOTAL
+Orçamento	30 980 €	0 €	0 €	30 980 €
+Valor	3086 €	0 €	0 €	3086 €
+Custo	1812 €	0 €	0 €	1812 €
+Lucro	1274 €
+41%
+	0 €	0 €	1274 €
+41%
+
+Faturado	0 €	0 €	0 €	0 €
+TRABALHO
+SALDO DO PLANO
+0h
+Ver tarefas
+HORAS CONSUMIDAS
+11%
+TRABALHO CONCLUÍDO
+RC
+58h 30m
+ORÇAMENTO
+RC
+0%
+10
