@@ -335,10 +335,6 @@ export function ComposerCanvas({
   if (styleSettings?.bodyAlign) (styleVars as Record<string, string>)["--psa-body-align"] = styleSettings.bodyAlign;
   if (styleSettings?.bodySize) (styleVars as Record<string, string>)["--psa-body-size"] = `${styleSettings.bodySize}pt`;
   if (styleSettings?.headingScale) (styleVars as Record<string, string>)["--psa-heading-scale"] = String(styleSettings.headingScale);
-  if (styleSettings?.marginTop != null) (styleVars as Record<string, string>)["--psa-margin-top"] = `${styleSettings.marginTop}mm`;
-  if (styleSettings?.marginBottom != null) (styleVars as Record<string, string>)["--psa-margin-bottom"] = `${styleSettings.marginBottom}mm`;
-  if (styleSettings?.marginLeft != null) (styleVars as Record<string, string>)["--psa-margin-left"] = `${styleSettings.marginLeft}mm`;
-  if (styleSettings?.marginRight != null) (styleVars as Record<string, string>)["--psa-margin-right"] = `${styleSettings.marginRight}mm`;
 
   return (
     <div
