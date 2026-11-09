@@ -1,0 +1,14 @@
+CREATE TABLE public.psa_master_page_defaults (id boolean PRIMARY KEY DEFAULT true CHECK (id), template jsonb NOT NULL, revision integer NOT NULL DEFAULT 1, updated_at timestamptz NOT NULL DEFAULT now(), updated_by uuid DEFAULT auth.uid());
+GRANT SELECT, INSERT, UPDATE ON public.psa_master_page_defaults TO authenticated;
+GRANT ALL ON public.psa_master_page_defaults TO service_role;
+REVOKE ALL ON public.psa_master_page_defaults FROM anon;
+REVOKE TRUNCATE ON public.psa_master_page_defaults FROM anon, authenticated;
+ALTER TABLE public.psa_master_page_defaults ENABLE ROW LEVEL SECURITY;
+CREATE POLICY master_read ON public.psa_master_page_defaults FOR SELECT TO authenticated USING (public.is_psa_staff() AND (public.has_role(auth.uid(), 'admin') OR public.has_permission(auth.uid(), 'crm.pipeline')));
+CREATE POLICY master_insert ON public.psa_master_page_defaults FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'));
+CREATE POLICY master_update ON public.psa_master_page_defaults FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
+CREATE FUNCTION public.psa_master_page_stamp() RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$ BEGIN NEW.revision := CASE WHEN TG_OP = 'INSERT' THEN 1 ELSE OLD.revision + 1 END; NEW.updated_at := now(); NEW.updated_by := auth.uid(); IF jsonb_typeof(NEW.template) <> 'object' OR NEW.template->>'version' <> '1' THEN RAISE EXCEPTION 'Invalid master page'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER psa_master_page_stamp BEFORE INSERT OR UPDATE ON public.psa_master_page_defaults FOR EACH ROW EXECUTE FUNCTION public.psa_master_page_stamp();
+CREATE FUNCTION public.psa_apply_master_on_creation() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$ DECLARE d public.psa_master_page_defaults%ROWTYPE; BEGIN IF NOT (coalesce(NEW.style_settings, '{}'::jsonb) ? 'masterPage') THEN SELECT * INTO d FROM public.psa_master_page_defaults WHERE id = true; IF FOUND THEN NEW.style_settings := coalesce(NEW.style_settings, '{}'::jsonb) || jsonb_build_object('masterPage', d.template, 'masterRevision', d.revision, 'masterCustomized', false); END IF; END IF; RETURN NEW; END $$;
+REVOKE ALL ON FUNCTION public.psa_apply_master_on_creation() FROM PUBLIC, anon, authenticated;
+CREATE TRIGGER psa_apply_master_on_creation BEFORE INSERT ON public.psa_proposals FOR EACH ROW EXECUTE FUNCTION public.psa_apply_master_on_creation();
