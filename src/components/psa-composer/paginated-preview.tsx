@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
+import { resolveMaster, pageVariant, masterVariables, type MasterPage } from '@/lib/psa-proposal/master-page';
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 
 const inlinedImages = new Map<string, Promise<string>>();
@@ -170,6 +171,8 @@ export function PaginatedPreview({
         );
         if (cancelled) return;
 
+        const masterNode = source.matches('[data-master-page]') ? source : source.querySelector<HTMLElement>('[data-master-page]');
+        const master: MasterPage = masterNode?.dataset.masterPage ? JSON.parse(masterNode.dataset.masterPage) : resolveMaster();
         const clone = source.cloneNode(true) as HTMLDivElement;
         clone.removeAttribute("id");
         // Never copy the hidden source state into Paged.js. The clone must be
@@ -205,7 +208,8 @@ export function PaginatedPreview({
 
         const printRoot = document.createElement("div");
         printRoot.className = "proposal-print-area proposal-print-document proposal-paged-source";
-        printRoot.setAttribute("style", source.getAttribute("style") ?? "");
+        printRoot.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
+        Object.entries(masterVariables(master)).forEach(([key,value]) => printRoot.style.setProperty(key,value));
         const content = document.createElement("div");
         content.className = "proposal-paged-content";
         while (clone.firstChild) content.appendChild(clone.firstChild);
@@ -249,7 +253,12 @@ export function PaginatedPreview({
         const pageBoxes = staging.querySelectorAll<HTMLElement>(".pagedjs_pagebox");
         pageBoxes.forEach((pageBox, index) => {
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
-          pageBox.setAttribute("style", source.getAttribute("style") ?? "");
+          pageBox.classList.add('proposal-master-document');
+          pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
+          const variant = pageVariant(master, index === 0);
+          Object.entries(masterVariables(variant)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
+          pageBox.dataset.headerHidden = String(!variant.header.show);
+          pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
             const selector = element.classList.contains("proposal-page-header")
               ? ".pagedjs_margin-top-center .pagedjs_margin-content"
@@ -257,7 +266,9 @@ export function PaginatedPreview({
             const margin = pageBox.querySelector<HTMLElement>(selector);
             if (margin) {
               margin.classList.add("proposal-margin-furniture");
-              margin.appendChild(element.cloneNode(true));
+              const furnitureClone = element.cloneNode(true) as HTMLElement;
+              furnitureClone.removeAttribute('data-first-hidden');
+              margin.appendChild(furnitureClone);
             }
           });
           pageBox.closest<HTMLElement>(".pagedjs_page")?.setAttribute(
@@ -289,6 +300,7 @@ export function PaginatedPreview({
             footerNumber.setAttribute("data-footer-page", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
           }
         });
+        const geometry = masterVariables(master);
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}
@@ -309,6 +321,18 @@ export function PaginatedPreview({
           .proposal-paginated-preview .pagedjs_margin-bottom-right > .pagedjs_margin-content::after{content:attr(data-footer-page)!important;font-family:var(--psa-heading-font);font-size:8pt;color:#111}
           .proposal-paginated-preview .pagedjs_margin-bottom-right,.proposal-paginated-preview .pagedjs_margin-bottom-right *{font-size:8pt;font-family:var(--psa-heading-font);color:#111;line-height:1.2}
           .proposal-margin-furniture .proposal-page-footer{position:static!important;margin:0!important;display:block!important}
+          /* Master geometry is page-edge based, not margin-box-edge based. */
+          .proposal-master-document .pagedjs_margin-top {position:static!important}
+          .proposal-master-document .pagedjs_margin-top-center {left:0!important;right:0!important;top:0!important;bottom:auto!important;width:210mm!important;height:var(--psa-header-height)!important}
+          .proposal-master-document .proposal-margin-furniture .proposal-page-header {position:relative!important;left:0!important;right:auto!important;top:0!important;width:210mm!important;height:var(--psa-header-height)!important;display:block!important}
+          .proposal-master-document .proposal-letterhead-brand {position:absolute!important;left:var(--psa-logo-x)!important;top:var(--psa-logo-y)!important;transform:var(--psa-logo-transform)!important}
+          .proposal-master-document .proposal-letterhead-logo {width:var(--psa-logo-width)!important;height:var(--psa-logo-height)!important;max-width:none!important}
+          .proposal-master-document .proposal-letterhead-contact {position:absolute!important;left:var(--psa-contact-x)!important;top:var(--psa-contact-y)!important;width:var(--psa-contact-width)!important;margin:0!important}
+          .proposal-master-document .pagedjs_margin-bottom {position:static!important}
+          .proposal-master-document .pagedjs_margin-bottom-left {left:14mm!important;right:44mm!important;bottom:6mm!important}
+          .proposal-master-document .pagedjs_margin-bottom-right {right:14mm!important;bottom:6mm!important}
+          .proposal-master-document .proposal-page-footer,.proposal-master-document .pagedjs_margin-bottom-right,.proposal-master-document .pagedjs_margin-bottom-right *,.proposal-master-document .pagedjs_margin-bottom-right > .pagedjs_margin-content::after {font-size:var(--psa-footer-size)!important}
+          .proposal-master-document[data-header-hidden="true"] .pagedjs_margin-top-center,.proposal-master-document[data-footer-hidden="true"] .pagedjs_margin-bottom-left,.proposal-master-document[data-footer-hidden="true"] .pagedjs_margin-bottom-right {visibility:hidden!important}
           /* Screen-only sheet presentation; print never sees these rules. */
           @media screen{
             html,body{background:${sheetGap}!important}
