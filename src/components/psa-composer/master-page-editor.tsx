@@ -23,7 +23,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
   const sheet = useRef<HTMLDivElement>(null);
   const current = pageVariant(m, first);
   const patchLogo = (p: Partial<MasterLogo>) => setM(prev => first && prev.firstPage?.enabled ? { ...prev, firstPage: { ...prev.firstPage, logo: { ...prev.firstPage.logo, ...p } } } : { ...prev, logo: { ...prev.logo, ...p } });
-  const field = (key: string, value: number, change: (v: number) => void, unit = 'mm') => <div className="space-y-1"><Label htmlFor={`master-${key}`}>{t(`masterPage.${key}`)} ({unit})</Label><Input id={`master-${key}`} type="number" step="0.1" value={value} onChange={e => change(Number(e.target.value))} /></div>;
+  const field = (key: string, value: number, change: (v: number) => void, unit = 'mm') => <div className="space-y-1"><Label htmlFor={`master-${key}`}>{t(`masterPage.${key}`)} ({unit})</Label><Input id={`master-${key}`} type="number" step="0.1" value={Math.round(value * 100) / 100} onChange={e => change(Number(e.target.value))} /></div>;
   function startDrag(event: React.PointerEvent<HTMLDivElement>, kind: 'logo' | 'contact') {
     const bounds = sheet.current?.getBoundingClientRect();
     if (!bounds) return;
