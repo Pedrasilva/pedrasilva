@@ -19,7 +19,7 @@ export function resolveMaster(s: PsaProposalStyleSettings = {}): MasterPage {
     margins: { top: s.marginTop ?? 34, bottom: s.marginBottom ?? 32, left: s.marginLeft ?? 14, right: s.marginRight ?? 14 },
     header: { show: s.showHeader !== false, height: 22 },
     footer: { show: s.showFooter !== false, height: 26, address: s.footerAddress ?? 'Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal', fontSize: 8.5 },
-    logo: { alignment: 'left', x: 14, y: 8, width: 0 },
+    logo: { alignment: 'left', x: 14, y: 8, width: 14 * 1920 / 563 },
     contact: { x: 146, y: 8, width: 50, email: s.headerContactEmail ?? 'info@pedrasilva.com', website: s.headerContactWebsite ?? 'www.pedrasilva.com' },
   };
 }

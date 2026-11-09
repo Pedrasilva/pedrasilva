@@ -1953,3 +1953,7 @@
 .proposal-master-document .proposal-page-footer {font-size:var(--psa-footer-size);}
 .proposal-master-document [data-first-hidden="true"] {visibility:hidden;}
 @media(max-width:900px){.master-workspace{grid-template-columns:minmax(0,1fr)}.master-controls{max-height:40dvh}.master-sheet-scroll{max-height:45dvh}}
+
+.master-dialog {z-index:1000!important;background:var(--background)!important;isolation:isolate;}
+.master-dialog ~ [data-state], [data-slot="dialog-overlay"] {z-index:999;}
+.master-sheet {background:var(--background)!important;}

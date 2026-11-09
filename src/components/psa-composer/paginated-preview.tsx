@@ -300,7 +300,6 @@ export function PaginatedPreview({
             footerNumber.setAttribute("data-footer-page", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
           }
         });
-        const geometry = masterVariables(master);
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}
