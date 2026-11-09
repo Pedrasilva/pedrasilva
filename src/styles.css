@@ -1957,3 +1957,6 @@
 .master-dialog {z-index:1000!important;background:var(--background)!important;isolation:isolate;}
 .master-dialog ~ [data-state], [data-slot="dialog-overlay"] {z-index:999;}
 .master-sheet {background:var(--background)!important;}
+@media screen {
+  body:has(.master-dialog[data-state="open"]) .proposal-preview-toolbar { display:none!important; }
+}
