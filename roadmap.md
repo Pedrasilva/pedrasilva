@@ -1,6 +1,6 @@
 ## Current request — 9 November direct-project origin bug
-- [ ] Diagnose all quote-linked projects read-only; distinguish generated quotes from recorded conversions and present exact disputed Mastercard rows.
-- [ ] Fix generated-quote provenance and live Gantt edit gating without real-data or B1 changes; run regression and disposable direct-creation/save/reload/delete/independent-zero checks.
+- [x] Diagnose all 10 quote-linked projects read-only: five reverse-generated quotes, four with conversion baselines, one unresolved legacy link; exact disputed Mastercard rows in docs/direct-project-origin-report.md.
+- [x] Generated-quote provenance and live Gantt edit gating fixed without real-data/B1 changes; 14 tests, i18n zero, build OK; direct UI creation/date edit/reload/delete passed, independent zero across all six sequential fixtures.
 - [ ] Mastercard link removal/reclassification waits for Luis: existing quote, sold timestamp and baseline contradict direct-creation recollection.
 
 ## Current request — 8 November 23:44 proposal Master page (plan only)
