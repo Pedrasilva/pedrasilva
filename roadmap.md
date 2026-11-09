@@ -1,3 +1,8 @@
+## Current request — 9 November direct-project origin bug
+- [ ] Diagnose all quote-linked projects read-only; distinguish generated quotes from recorded conversions and present exact disputed Mastercard rows.
+- [ ] Fix generated-quote provenance and live Gantt edit gating without real-data or B1 changes; run regression and disposable direct-creation/save/reload/delete/independent-zero checks.
+- [ ] Mastercard link removal/reclassification waits for Luis: existing quote, sold timestamp and baseline contradict direct-creation recollection.
+
 ## Current request — 8 November 23:44 proposal Master page (plan only)
 - [x] Record scope and inspect current page/style/default rendering architecture; prepare short data-model/UI plan after prior task completion.
 - [x] Approved Master editor, mm geometry, cover variant, practice storage/RLS and creation snapshot applied (0269); 15 tests, i18n parity and zero literals; browser-only Hotel copy 11/11 before and after, exact first-block parity, readback and real equality.
