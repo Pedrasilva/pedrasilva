@@ -1,0 +1,22 @@
+import { describe, it, expect } from 'vitest';
+import { resolveMaster, masterVariables, logoLeft, snapMm, pageVariant, validMaster } from '../src/lib/psa-proposal/master-page';
+describe('Master page rules', () => {
+  it('preserves legacy margins and independent logo coordinates without changing input', () => {
+    const input = { marginLeft: 30, showFooter: false }; const m = resolveMaster(input);
+    expect(m.margins).toEqual({ top: 34, bottom: 32, left: 30, right: 14 }); expect(m.logo.x).toBe(14); expect(m.footer.show).toBe(false); expect(input).toEqual({ marginLeft: 30, showFooter: false });
+  });
+  it('drives all four margins in millimetres', () => {
+    const m = resolveMaster(); m.margins = { top: 40, bottom: 35, left: 30, right: 20 };
+    expect(masterVariables(m)['--psa-margin-left']).toBe('30mm'); expect(masterVariables(m)['--psa-margin-right']).toBe('20mm'); expect(masterVariables(m)['--psa-margin-top']).toBe('40mm'); expect(masterVariables(m)['--psa-margin-bottom']).toBe('35mm');
+  });
+  it('limits cover overrides to page one', () => {
+    const m = resolveMaster(); m.firstPage = { enabled: true, showHeader: false, showFooter: false, logo: { alignment: 'centre', x: 105, y: 15, width: 40 } };
+    expect(pageVariant(m,true).header.show).toBe(false); expect(pageVariant(m,true).logo.x).toBe(105); expect(pageVariant(m,false).header.show).toBe(true); expect(pageVariant(m,false).logo.x).toBe(14);
+  });
+  it('aligns and snaps using physical coordinates', () => {
+    expect(logoLeft({ alignment:'centre',x:105,y:8,width:40 })).toBe(85); expect(logoLeft({ alignment:'right',x:196,y:8,width:40 })).toBe(156); expect(snapMm(29.4,[30])).toBe(30); expect(snapMm(26,[30])).toBe(26);
+  });
+  it('rejects impossible page margins and accepts legacy geometry', () => {
+    const m = resolveMaster(); expect(validMaster(m)).toBe(true); m.margins.left = 100; m.margins.right = 100; expect(validMaster(m)).toBe(false);
+  });
+});
