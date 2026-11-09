@@ -23,6 +23,8 @@ import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { PlannerChart, PlannerFrame, PlannerZoom, PlannerOutlineTools } from "./planner-surface";
 import { useProjectStageRoles } from "@/lib/projects/use-project-stage-roles";
+import { useProjectProvenance } from "@/lib/projects/use-project-provenance";
+import { liveStageIdentityIssues } from "@/lib/projects/project-provenance";
 import { GanttPrintButton } from "@/components/planner/gantt-print-button";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { ResourcePool } from "@/components/projects/resource-pool";
@@ -1277,7 +1279,7 @@ function OperationalScheduleAdapter({
   dayWidth: dayWidthProp,
   canEdit: requestedCanEdit = false,
   canSeeFinancials: requestedFinancials = false,
-  sourceQuoteId,
+  sourceQuoteId: linkedQuoteId,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
   const b1=useProjectB1State();
@@ -1287,12 +1289,15 @@ function OperationalScheduleAdapter({
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
+  const provenance = useProjectProvenance(linkedQuoteId);
+  const sourceQuoteId = provenance.data?.generated ? undefined : linkedQuoteId;
+  const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
     stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
-    issues: detailQ.data.stages.filter(s => s.source_quote_stage_id && !s.stage_role && !rolesQ.data.find(r => r.stage_id === s.id)?.stage_role).map(s => s.name),
-  } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess]);
-  const mappingReady = !!projection && projection.issues.length === 0;
+    issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
+  } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
+  const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;
   const canEdit = requestedCanEdit && mappingReady;
   const { data: allResourcesData } = useProjectResources(projectId);
   const allResources = useMemo(
