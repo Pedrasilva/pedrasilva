@@ -14683,6 +14683,30 @@ export type Database = {
         }
         Relationships: []
       }
+      psa_master_page_defaults: {
+        Row: {
+          id: boolean
+          revision: number
+          template: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          revision?: number
+          template: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          revision?: number
+          template?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       psa_proposal_audit: {
         Row: {
           action: string

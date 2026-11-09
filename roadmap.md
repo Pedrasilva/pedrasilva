@@ -1,6 +1,7 @@
 ## Current request — 8 November 23:44 proposal Master page (plan only)
 - [x] Record scope and inspect current page/style/default rendering architecture; prepare short data-model/UI plan after prior task completion.
-- [ ] Implementation and disposable Hotel Chiado verification await Luis's OK; no real content or B1 changes.
+- [x] Approved Master editor, mm geometry, cover variant, practice storage/RLS and creation snapshot applied (0269); 15 tests, i18n parity and zero literals; browser-only Hotel copy 11/11 before and after, exact first-block parity, readback and real equality.
+- [ ] Full persistent practice-default/admin-denial check blocked: managed SQL runner cannot assume authenticated role; no default saved to avoid changing practice settings. Browser fixture verified proposal flow; report docs/proposal-master-page-report.md.
 
 ## Current request — 8 November 23:30 proposal paged follow-up
 - [x] Reproduced footer outside Letter sheet; default A4 geometry restores furniture. Atomic index on page 2, bullet gutters, top heading/actions, in-app delete confirmation and scroll 1796/1796 verified; no B1 changes.

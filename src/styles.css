@@ -1933,3 +1933,30 @@
 .proposal-paginated-preview .proposal-margin-furniture .proposal-page-footer { position: static !important; width: 100%; }
 .proposal-paginated-preview .pagedjs_margin-top-center { grid-column: 1 / -1; }
 .proposal-paginated-preview .pagedjs_margin-bottom-left { width: 100%; }
+
+/* Master page: presentation controls use the same physical coordinates as print. */
+.master-dialog { width: calc(100vw - 32px); max-width: 1440px !important; max-height: calc(100dvh - 32px); overflow: auto; }
+.master-editor { display:flex; flex-direction:column; gap:12px; min-height:0; }
+.master-workspace { display:grid; grid-template-columns:minmax(0,1fr) 290px; gap:20px; min-height:0; }
+.master-sheet-scroll { overflow:auto; max-height:72dvh; background:var(--muted); padding:16px; }
+.master-sheet-size { position:relative; }
+.master-sheet { width:210mm; height:297mm; transform-origin:top left; box-shadow:0 0 0 1px var(--border); overflow:hidden; }
+.master-controls { overflow:auto; max-height:72dvh; padding-right:8px; }
+.master-margin-guides { position:absolute; border:1px dashed var(--primary); pointer-events:none; }
+.master-header-guide,.master-footer-guide {position:absolute;left:0;right:0;border-bottom:1px dotted var(--border);pointer-events:none;}
+.master-header-guide{top:0}.master-footer-guide{bottom:0;border-top:1px dotted var(--border);border-bottom:0}
+.master-draggable {cursor:move;touch-action:none;outline:1px dashed var(--primary);}
+.proposal-master-document .proposal-page-header {position:absolute;top:0;left:0;right:0;width:210mm;height:var(--psa-header-height);display:block;}
+.proposal-master-document .proposal-letterhead-brand {position:absolute;left:var(--psa-logo-x);top:var(--psa-logo-y);transform:var(--psa-logo-transform);}
+.proposal-master-document .proposal-letterhead-logo {width:var(--psa-logo-width);height:var(--psa-logo-height);max-width:none;}
+.proposal-master-document .proposal-letterhead-contact {position:absolute;left:var(--psa-contact-x);top:var(--psa-contact-y);width:var(--psa-contact-width);}
+.proposal-master-document .proposal-page-footer {font-size:var(--psa-footer-size);}
+.proposal-master-document [data-first-hidden="true"] {visibility:hidden;}
+@media(max-width:900px){.master-workspace{grid-template-columns:minmax(0,1fr)}.master-controls{max-height:40dvh}.master-sheet-scroll{max-height:45dvh}}
+
+.master-dialog {z-index:1000!important;background:var(--background)!important;isolation:isolate;}
+.master-dialog ~ [data-state], [data-slot="dialog-overlay"] {z-index:999;}
+.master-sheet {background:var(--background)!important;}
+@media screen {
+  body:has(.master-dialog[data-state="open"]) .proposal-preview-toolbar { display:none!important; }
+}

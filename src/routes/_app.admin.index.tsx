@@ -42,6 +42,12 @@ const getGroups = (): AdminGroup[] => [
     description: uiI18n.t("access:batchFive.labels.taxDetailsSharedByFinanceOcrAnd"),
     links: [
       {
+        to: '/admin/proposal-master',
+        label: uiI18n.t('common:masterPage.title'),
+        description: uiI18n.t('common:masterPage.practiceDefault'),
+        icon: Settings,
+      },
+      {
         to: "/admin/company-settings",
         label: uiI18n.t("access:batchFive.labels.companyTaxSettings"),
         description:

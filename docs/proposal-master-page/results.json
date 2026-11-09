@@ -1,0 +1,288 @@
+{
+  "results": {
+    "baseline": {
+      "screenPages": 11,
+      "pdfPages": 11,
+      "screenFirstBlocks": [
+        {
+          "id": "d533272e-1fa3-4a3e-9ce8-9c69cad4a5ec",
+          "type": "cover",
+          "text": "Proposta de Honor\u00e1rios Hotel Chiado Proposta 26103 \u00b7 07/11/2026"
+        },
+        {
+          "id": "8b950bdb-97eb-498c-93c3-46680eb3ce64",
+          "type": "index",
+          "text": "\u00cdndice"
+        },
+        {
+          "id": "4f46860b-4c53-4118-9aa2-2800ea0353a0",
+          "type": "scope",
+          "text": "Em cada fase, a PSA s\u00f3 poder\u00e1 desenvolver o seu trabalho ap\u00f3s a recep\u00e7\u00e3o dos elementos necess\u00e1rios por parte do RG. Caso estes elementos n\u00e3o sejam recebidos nos"
+        },
+        {
+          "id": "fe742a4d-6ede-4f1f-bcf6-f876faf96a03",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "d88b0e6a-a921-4b74-8ba6-e80de545121c",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "14f0a0d1-10e7-4cdc-99ab-5d0cf5203bb4",
+          "type": "stage_item",
+          "text": "Actividades Principais"
+        },
+        {
+          "id": "e567ce8d-dc2a-47f4-9c8b-ee4461ff708d",
+          "type": "timeline",
+          "text": "4.1 Cronograma"
+        },
+        {
+          "id": "1182536f-afdf-4854-940e-d52f70f55282",
+          "type": "stage_item",
+          "text": "Resumo da Fase"
+        },
+        {
+          "id": "4977238b-50b5-46c8-ad71-daf76a394a41",
+          "type": "payment_terms",
+          "text": "O per\u00edodo de aprova\u00e7\u00e3o de cada fase \u00e9 de 5 dias \u00fateis ap\u00f3s a entrega. Na aus\u00eancia de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+        },
+        {
+          "id": "6d1e96bc-db3b-4043-b85d-c97a97087fae",
+          "type": "billable_hourly_rate",
+          "text": "S\u00f3cio 239 \u20ac Diretor 200 \u20ac Arquiteto S\u00e9nior 180 \u20ac Arquiteto 130 \u20ac Lead Designer 92 \u20ac Arquiteto J\u00fanior 70 \u20ac"
+        },
+        {
+          "id": "01ec529c-b63d-4a59-a03d-f0f6230c3db2",
+          "type": "acceptance",
+          "text": "Validade e Aceita\u00e7\u00e3o"
+        }
+      ],
+      "printFirstBlocks": [
+        {
+          "id": "d533272e-1fa3-4a3e-9ce8-9c69cad4a5ec",
+          "type": "cover",
+          "text": "Proposta de Honor\u00e1rios Hotel Chiado Proposta 26103 \u00b7 07/11/2026"
+        },
+        {
+          "id": "8b950bdb-97eb-498c-93c3-46680eb3ce64",
+          "type": "index",
+          "text": "\u00cdndice"
+        },
+        {
+          "id": "4f46860b-4c53-4118-9aa2-2800ea0353a0",
+          "type": "scope",
+          "text": "Em cada fase, a PSA s\u00f3 poder\u00e1 desenvolver o seu trabalho ap\u00f3s a recep\u00e7\u00e3o dos elementos necess\u00e1rios por parte do RG. Caso estes elementos n\u00e3o sejam recebidos nos"
+        },
+        {
+          "id": "fe742a4d-6ede-4f1f-bcf6-f876faf96a03",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "d88b0e6a-a921-4b74-8ba6-e80de545121c",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "14f0a0d1-10e7-4cdc-99ab-5d0cf5203bb4",
+          "type": "stage_item",
+          "text": "Actividades Principais"
+        },
+        {
+          "id": "e567ce8d-dc2a-47f4-9c8b-ee4461ff708d",
+          "type": "timeline",
+          "text": "4.1 Cronograma"
+        },
+        {
+          "id": "1182536f-afdf-4854-940e-d52f70f55282",
+          "type": "stage_item",
+          "text": "Resumo da Fase"
+        },
+        {
+          "id": "4977238b-50b5-46c8-ad71-daf76a394a41",
+          "type": "payment_terms",
+          "text": "O per\u00edodo de aprova\u00e7\u00e3o de cada fase \u00e9 de 5 dias \u00fateis ap\u00f3s a entrega. Na aus\u00eancia de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+        },
+        {
+          "id": "6d1e96bc-db3b-4043-b85d-c97a97087fae",
+          "type": "billable_hourly_rate",
+          "text": "S\u00f3cio 239 \u20ac Diretor 200 \u20ac Arquiteto S\u00e9nior 180 \u20ac Arquiteto 130 \u20ac Lead Designer 92 \u20ac Arquiteto J\u00fanior 70 \u20ac"
+        },
+        {
+          "id": "01ec529c-b63d-4a59-a03d-f0f6230c3db2",
+          "type": "acceptance",
+          "text": "Validade e Aceita\u00e7\u00e3o"
+        }
+      ]
+    },
+    "changed": {
+      "screenPages": 11,
+      "pdfPages": 11,
+      "screenFirstBlocks": [
+        {
+          "id": "d533272e-1fa3-4a3e-9ce8-9c69cad4a5ec",
+          "type": "cover",
+          "text": "Proposta de Honor\u00e1rios Hotel Chiado Proposta 26103 \u00b7 07/11/2026"
+        },
+        {
+          "id": "8b950bdb-97eb-498c-93c3-46680eb3ce64",
+          "type": "index",
+          "text": "\u00cdndice"
+        },
+        {
+          "id": "4f46860b-4c53-4118-9aa2-2800ea0353a0",
+          "type": "scope",
+          "text": "Em cada fase, a PSA s\u00f3 poder\u00e1 desenvolver o seu trabalho ap\u00f3s a recep\u00e7\u00e3o dos elementos necess\u00e1rios por parte do RG. Caso estes elementos n\u00e3o sejam recebidos nos"
+        },
+        {
+          "id": "fe742a4d-6ede-4f1f-bcf6-f876faf96a03",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "d88b0e6a-a921-4b74-8ba6-e80de545121c",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "14f0a0d1-10e7-4cdc-99ab-5d0cf5203bb4",
+          "type": "stage_item",
+          "text": "Actividades Principais"
+        },
+        {
+          "id": "e567ce8d-dc2a-47f4-9c8b-ee4461ff708d",
+          "type": "timeline",
+          "text": "4.1 Cronograma"
+        },
+        {
+          "id": "1182536f-afdf-4854-940e-d52f70f55282",
+          "type": "stage_item",
+          "text": "Resumo da Fase"
+        },
+        {
+          "id": "4977238b-50b5-46c8-ad71-daf76a394a41",
+          "type": "payment_terms",
+          "text": "O per\u00edodo de aprova\u00e7\u00e3o de cada fase \u00e9 de 5 dias \u00fateis ap\u00f3s a entrega. Na aus\u00eancia de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+        },
+        {
+          "id": "6d1e96bc-db3b-4043-b85d-c97a97087fae",
+          "type": "billable_hourly_rate",
+          "text": "S\u00f3cio 239 \u20ac Diretor 200 \u20ac Arquiteto S\u00e9nior 180 \u20ac Arquiteto 130 \u20ac Lead Designer 92 \u20ac Arquiteto J\u00fanior 70 \u20ac"
+        },
+        {
+          "id": "01ec529c-b63d-4a59-a03d-f0f6230c3db2",
+          "type": "acceptance",
+          "text": "Validade e Aceita\u00e7\u00e3o"
+        }
+      ],
+      "printFirstBlocks": [
+        {
+          "id": "d533272e-1fa3-4a3e-9ce8-9c69cad4a5ec",
+          "type": "cover",
+          "text": "Proposta de Honor\u00e1rios Hotel Chiado Proposta 26103 \u00b7 07/11/2026"
+        },
+        {
+          "id": "8b950bdb-97eb-498c-93c3-46680eb3ce64",
+          "type": "index",
+          "text": "\u00cdndice"
+        },
+        {
+          "id": "4f46860b-4c53-4118-9aa2-2800ea0353a0",
+          "type": "scope",
+          "text": "Em cada fase, a PSA s\u00f3 poder\u00e1 desenvolver o seu trabalho ap\u00f3s a recep\u00e7\u00e3o dos elementos necess\u00e1rios por parte do RG. Caso estes elementos n\u00e3o sejam recebidos nos"
+        },
+        {
+          "id": "fe742a4d-6ede-4f1f-bcf6-f876faf96a03",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "d88b0e6a-a921-4b74-8ba6-e80de545121c",
+          "type": "stage_item",
+          "text": "\u00c2mbito e entreg\u00e1veis"
+        },
+        {
+          "id": "14f0a0d1-10e7-4cdc-99ab-5d0cf5203bb4",
+          "type": "stage_item",
+          "text": "Actividades Principais"
+        },
+        {
+          "id": "e567ce8d-dc2a-47f4-9c8b-ee4461ff708d",
+          "type": "timeline",
+          "text": "4.1 Cronograma"
+        },
+        {
+          "id": "1182536f-afdf-4854-940e-d52f70f55282",
+          "type": "stage_item",
+          "text": "Resumo da Fase"
+        },
+        {
+          "id": "4977238b-50b5-46c8-ad71-daf76a394a41",
+          "type": "payment_terms",
+          "text": "O per\u00edodo de aprova\u00e7\u00e3o de cada fase \u00e9 de 5 dias \u00fateis ap\u00f3s a entrega. Na aus\u00eancia de resposta do Cliente findo este prazo, a fase considera-se aprovada por amba"
+        },
+        {
+          "id": "6d1e96bc-db3b-4043-b85d-c97a97087fae",
+          "type": "billable_hourly_rate",
+          "text": "S\u00f3cio 239 \u20ac Diretor 200 \u20ac Arquiteto S\u00e9nior 180 \u20ac Arquiteto 130 \u20ac Lead Designer 92 \u20ac Arquiteto J\u00fanior 70 \u20ac"
+        },
+        {
+          "id": "01ec529c-b63d-4a59-a03d-f0f6230c3db2",
+          "type": "acceptance",
+          "text": "Validade e Aceita\u00e7\u00e3o"
+        }
+      ]
+    }
+  },
+  "variant": [
+    {
+      "h": "true",
+      "f": "true"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    },
+    {
+      "h": "false",
+      "f": "false"
+    }
+  ],
+  "writesIntercepted": 2,
+  "realUnchanged": true
+}
