@@ -62,6 +62,9 @@ export type PsaContractRelevance =
   | "internal_only";
 
 export interface PsaProposalStyleSettings {
+  masterPage?: import('./master-page').MasterPage;
+  masterRevision?: number;
+  masterCustomized?: boolean;
   headingFont?: string;
   bodyFont?: string;
   headingWeight?: number;
