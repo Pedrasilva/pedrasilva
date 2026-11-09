@@ -63,6 +63,7 @@ import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signature
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
 import { completedPagedDocument } from "@/lib/psa-proposal/paged-frame";
+import { ProposalMasterButton } from './master-page-editor';
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
@@ -165,6 +166,7 @@ export function ComposerTopBar({
         <ProposalSignatureStatus proposalId={proposal.id} />
       </div>
       <div className="ml-auto flex items-center gap-2">
+        <ProposalMasterButton proposal={proposal} readOnly={isReadOnly} />
         <Button
           variant={previewMode ? "default" : "outline"}
           size="sm"

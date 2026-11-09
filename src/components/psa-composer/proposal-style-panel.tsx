@@ -12,8 +12,8 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { ProposalMasterButton } from "./master-page-editor";
+
 import {
   Select,
   SelectContent,
@@ -162,7 +162,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           variant="default"
           size="sm"
           className="w-full"
-          onClick={() => update.mutate({ style_settings: PSA_BRAND_PRESET } as Partial<PsaProposal>)}
+          onClick={() => update.mutate({ style_settings: { ...s, ...PSA_BRAND_PRESET } } as Partial<PsaProposal>)}
         >
            {uiI18n.t("crm:quoteEditor.applyBrand")} </Button>
         <p className="text-[10px] text-zinc-500 leading-snug">
@@ -258,134 +258,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
 
-      <div className="pt-2 border-t border-zinc-200" />
-
-      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-         {uiI18n.t("crm:quoteEditor.pageMargins")} </div>
-      <p className="text-[11px] text-zinc-500">
-         {uiI18n.t("crm:quoteEditor.pageMarginsHint")} </p>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.topMarginPrefix")} {marginTop}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
-        <Slider
-          min={15}
-          max={60}
-          step={1}
-          value={[marginTop]}
-          onValueChange={([v]) => patch({ marginTop: v })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bottomMarginPrefix")} {marginBottom}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
-        <Slider
-          min={15}
-          max={60}
-          step={1}
-          value={[marginBottom]}
-          onValueChange={([v]) => patch({ marginBottom: v })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.leftMarginPrefix")} {marginLeft}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
-        <Slider
-          min={5}
-          max={60}
-          step={1}
-          value={[marginLeft]}
-          onValueChange={([v]) => patch({ marginLeft: v })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.rightMarginPrefix")} {marginRight}  {uiI18n.t("crm:quoteEditor.millimetreSuffix")} </Label>
-        <Slider
-          min={5}
-          max={60}
-          step={1}
-          value={[marginRight]}
-          onValueChange={([v]) => patch({ marginRight: v })}
-        />
-      </div>
-
-      <div className="pt-2 border-t border-zinc-200" />
-
-      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-         {uiI18n.t("common:header")} </div>
-
-      <div className="flex items-center justify-between">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showHeader")} </Label>
-        <Switch
-          checked={s.showHeader !== false}
-          onCheckedChange={(v) => patch({ showHeader: v })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.brandFirstLine")} </Label>
-        <Input
-          value={s.headerBrand ?? "PEDRA SILVA"}
-          onChange={(e) => patch({ headerBrand: e.target.value })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.brandSecondLine")} </Label>
-        <Input
-          value={s.headerBrandSub ?? "ARCHITECTS"}
-          onChange={(e) => patch({ headerBrandSub: e.target.value })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.contactEmail")} </Label>
-        <Input
-          value={s.headerContactEmail ?? "info@pedrasilva.com"}
-          onChange={(e) => patch({ headerContactEmail: e.target.value })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("common:website")} </Label>
-        <Input
-          value={s.headerContactWebsite ?? "www.pedrasilva.com"}
-          onChange={(e) => patch({ headerContactWebsite: e.target.value })}
-        />
-      </div>
-
-      <div className="pt-2 border-t border-zinc-200" />
-
-      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-         {uiI18n.t("common:footer")} </div>
-
-      <div className="flex items-center justify-between">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.showFooter")} </Label>
-        <Switch
-          checked={s.showFooter !== false}
-          onCheckedChange={(v) => patch({ showFooter: v })}
-        />
-      </div>
-
-      <div className="space-y-1">
-        <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.addressLines")} </Label>
-        <Textarea
-          rows={3}
-          value={s.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal"}
-          onChange={(e) => patch({ footerAddress: e.target.value })}
-        />
-      </div>
-
-
-      <div className="pt-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => update.mutate({ style_settings: {} } as Partial<PsaProposal>)}
-        >
-           {uiI18n.t("crm:quoteEditor.resetDefaults")} </Button>
-      </div>
+      <div className="border-t pt-3"><ProposalMasterButton proposal={proposal} readOnly={!!proposal.locked_at || proposal.status === "sent" || proposal.status === "accepted"} /></div>
     </div>
   );
 }

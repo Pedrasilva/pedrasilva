@@ -43,6 +43,7 @@ import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
+import { resolveMaster, masterVariables, pageVariant } from '@/lib/psa-proposal/master-page';
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
 const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
@@ -317,15 +318,17 @@ export function ComposerCanvas({
     onReorder(arrayMove(blocks, oldIdx, newIdx));
   }
 
-  const showHeader = styleSettings?.showHeader !== false;
-  const showFooter = styleSettings?.showFooter !== false;
+  const master = resolveMaster(styleSettings);
+  const firstMaster = pageVariant(master, true);
+  const showHeader = master.header.show || !!master.firstPage?.showHeader;
+  const showFooter = master.footer.show || !!master.firstPage?.showFooter;
   const headerBrand = styleSettings?.headerBrand ?? "PEDRA SILVA";
   const headerBrandSub = styleSettings?.headerBrandSub ?? "ARCHITECTS";
-  const headerEmail = styleSettings?.headerContactEmail ?? "info@pedrasilva.com";
-  const headerWebsite = styleSettings?.headerContactWebsite ?? "www.pedrasilva.com";
-  const footerAddress = styleSettings?.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal";
+  const headerEmail = master.contact.email;
+  const headerWebsite = master.contact.website;
+  const footerAddress = master.footer.address;
 
-  const styleVars: React.CSSProperties = {};
+  const styleVars: React.CSSProperties = masterVariables(firstMaster);
   if (styleSettings?.headingFont) (styleVars as Record<string, string>)["--psa-heading-font"] = styleSettings.headingFont;
   if (styleSettings?.bodyFont) (styleVars as Record<string, string>)["--psa-body-font"] = styleSettings.bodyFont;
   if (styleSettings?.headingWeight) (styleVars as Record<string, string>)["--psa-heading-weight"] = String(styleSettings.headingWeight);
@@ -345,13 +348,14 @@ export function ComposerCanvas({
       )}
     >
       <div
-        className="proposal-print-document"
+        className="proposal-print-document proposal-master-document"
+        data-master-page={JSON.stringify(master)}
         style={styleVars}
       >
         {/* PSA running header — fixed in print so it repeats per page.
             Content is editable via the Style panel. */}
         {showHeader && (
-          <div className="proposal-page-header">
+          <div className="proposal-page-header" data-first-hidden={!firstMaster.header.show}>
             <div className="proposal-letterhead-brand">
               <img
                 src={psaLogo.url}
@@ -401,7 +405,7 @@ export function ComposerCanvas({
 
         {/* PSA running footer — editable via the Style panel. */}
         {showFooter && (
-          <div className="proposal-page-footer">
+          <div className="proposal-page-footer" data-first-hidden={!firstMaster.footer.show}>
             <div className="proposal-page-address">
               {footerAddress.split("\n").map((line, i) => (
                 <span key={i}>
