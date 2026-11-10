@@ -30,6 +30,8 @@
     "footerFontSize": "Tamanho de letra do rodapé",
     "reset": "Repor padrão do atelier",
     "saved": "Padrão do atelier guardado",
+    "adminOnly": "Só administradores podem guardar o padrão do atelier.",
+    "staleRevision": "O padrão do atelier foi alterado noutro local. Recarregue e tente novamente.",
     "align": {
       "left": "Esquerda",
       "centre": "Centro",

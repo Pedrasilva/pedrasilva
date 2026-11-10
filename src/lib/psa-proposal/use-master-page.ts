@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import i18n from 'i18next';
 import { resolveMaster, validMaster, type MasterPage } from './master-page';
 
 export function useMasterDefault() {
@@ -19,7 +20,8 @@ export function useSaveMasterDefault() {
       ? supabase.from('psa_master_page_defaults').insert({ id: true, template: template as unknown as Json })
       : supabase.from('psa_master_page_defaults').update({ template: template as unknown as Json }).eq('id', true).eq('revision', revision);
     const { data, error } = await query.select('revision').single();
-    if (error) throw error;
+    // Present database refusals clearly; the policy itself remains the authority.
+    if (error) throw new Error(error.code === '42501' ? i18n.t('common:masterPage.adminOnly') : error.code === 'PGRST116' ? i18n.t('common:masterPage.staleRevision') : error.message);
     return data;
   }, onSuccess: () => qc.invalidateQueries({ queryKey: ['psa-master-default'] }) });
 }
