@@ -1,9 +1,10 @@
 ## Current request — 9 November direct-project origin bug
 - [x] Diagnose all 10 quote-linked projects read-only: five reverse-generated quotes, four with conversion baselines, one unresolved legacy link; exact disputed Mastercard rows in docs/direct-project-origin-report.md.
 - [x] Generated-quote provenance and live Gantt edit gating fixed without real-data/B1 changes; 14 tests, i18n zero, build OK; direct UI creation/date edit/reload/delete passed, independent zero across all six sequential fixtures.
-- [ ] Mastercard link removal/reclassification waits for Luis: existing quote, sold timestamp and baseline contradict direct-creation recollection.
+- [x] Mastercard: Luis decided to keep it converted (10 Nov); link, baseline, origin and badge unchanged; closed in report.
 
 ## Current request — 8 November 23:44 proposal Master page (plan only)
+- [x] 10 Nov: Master page pending checks (a)–(e) completed; practice default restored to no saved default.
 - [x] Record scope and inspect current page/style/default rendering architecture; prepare short data-model/UI plan after prior task completion.
 - [x] Approved Master editor, mm geometry, cover variant, practice storage/RLS and creation snapshot applied (0269); 15 tests, i18n parity and zero literals; browser-only Hotel copy 11/11 before and after, exact first-block parity, readback and real equality.
 - [ ] Full persistent practice-default/admin-denial check blocked: managed SQL runner cannot assume authenticated role; no default saved to avoid changing practice settings. Browser fixture verified proposal flow; report docs/proposal-master-page-report.md.

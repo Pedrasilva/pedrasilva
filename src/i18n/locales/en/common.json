@@ -30,6 +30,8 @@
     "footerFontSize": "Footer font size",
     "reset": "Reset to practice default",
     "saved": "Practice default saved",
+    "adminOnly": "Only administrators can save the practice default.",
+    "staleRevision": "The practice default changed elsewhere. Reload and try again.",
     "align": {
       "left": "Left",
       "centre": "Centre",

@@ -82,3 +82,6 @@ No migration, permissions, conversion procedure, quote financial displays or B1 
 ## Pending
 
 Luis's decision on Mastercard's conflicting stored source evidence. Until then its link/baseline/badge are preserved, while the incorrect nullable-role editing block is fixed.
+
+## Decision — Mastercard (closed, 10 November 2026)
+Luis decided 2609 Mastercard stays a converted project. Its proposal link (`7b4403fc-016f-4d0b-9bc4-823b3c81547d`), contract baseline (`29c86f4c-af25-4b74-b857-b264a63ce0fb`), `origin='quote_conversion'` and converted-proposal badge are kept exactly as they are. No data was changed. Item closed.

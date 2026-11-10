@@ -1,0 +1,71 @@
+{
+  "defaultBefore": {
+    "Top": "34",
+    "Bottom": "32",
+    "Left": "20",
+    "Right": "14",
+    "Logo X": "20"
+  },
+  "defaultAfterReload": {
+    "Left": "20",
+    "Logo X": "20"
+  },
+  "nonAdminUiSaveVisible": 0,
+  "nonAdminText": "Master page\nLoading\u2026",
+  "existingLeftAfterNewDefault": "25",
+  "existing": {
+    "screen": 11,
+    "pdf": 11
+  },
+  "afterReset": {
+    "left": "20",
+    "label": 1,
+    "stored": false
+  },
+  "overrideStored": {
+    "customized": true,
+    "left": 25,
+    "logoX": 25,
+    "first": {
+      "enabled": true,
+      "showHeader": true,
+      "showFooter": false,
+      "logo": {
+        "x": 60,
+        "y": 20,
+        "width": 47.744227353463586,
+        "alignment": "left"
+      }
+    }
+  },
+  "geometry": {
+    "first": {
+      "logoX": 60,
+      "logoY": 20,
+      "textX": null,
+      "h": "false",
+      "f": "true"
+    },
+    "second": {
+      "logoX": 25,
+      "logoY": 8,
+      "textX": 25,
+      "h": "false",
+      "f": "false"
+    },
+    "last": {
+      "logoX": 25,
+      "logoY": 8,
+      "textX": 25,
+      "h": "false",
+      "f": "false"
+    }
+  },
+  "parity": {
+    "screen": 11,
+    "pdf": 11,
+    "firstBlockMatch": true
+  },
+  "errors": [],
+  "writesIntercepted": 2
+}
