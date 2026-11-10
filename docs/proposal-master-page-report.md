@@ -18,3 +18,14 @@ Storage: 0269_proposal_master_page.sql applied and mirrored exactly at supabase/
 
 ## Files
 src/lib/psa-proposal/{master-page.ts,use-master-page.ts,types.ts}; src/components/psa-composer/{master-page-editor.tsx,canvas.tsx,paginated-preview.tsx,composer-top-bar.tsx,proposal-style-panel.tsx,AGENTS.md}; src/routes/{_app.admin.proposal-master.tsx,_app.admin.index.tsx}; src/styles.css; src/i18n/locales/{en,pt-PT}/common.json; scripts/{test-master-page.test.ts,test-master-page-security.sql,test-composer-master-page.py}; migration mirrors; generated database types; roadmap.md; this report/evidence.
+
+
+## Pending checks completed — 10 November 2026
+Evidence: `proposal-master-page-checks/` (screenshots and results.json).
+- (a) Practice default saved as admin from Settings (left margin and logo X 20 mm), confirmation shown, values persisted after reload; a second save used the revision-checked update path (revision 2).
+- (b) Viewing as a non-admin, Settings shows Restricted access with no editor or Save button. Database, rolled back: a non-admin insert was refused by row-level security; a non-admin update changed 0 rows (`has_role` false, role `authenticated`). A refused save now shows "Only administrators can save the practice default." (shown with a simulated database refusal response).
+- (c) Rolled-back new proposal received the current default (`masterCustomized=false`). The Hotel Chiado copy kept its own 25 mm margin after the default changed; Reset applied 20 mm and Practice default; a later override (25 mm) persisted after reload.
+- (d) First-page variant: logo at X 60 / Y 20 mm, header on, footer off on page 1 only; pages 2–11 logo at 25 mm, matching the text margin at 25 mm.
+- (e) 11 screen / 11 PDF pages and first block match on every page, before and after the override.
+- Practice default restored to its prior state (no saved default; 0 rows). Real Hotel Chiado proposal/blocks hashes unchanged; 21 proposals, no QA rows remain. B1 untouched.
+Files: src/lib/psa-proposal/use-master-page.ts; src/i18n/locales/{en,pt-PT}/common.json; this report.
