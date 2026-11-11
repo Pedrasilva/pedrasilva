@@ -1,7 +1,7 @@
 ## Current request — delegated project team management
 - [x] Confirm no existing grantable capability; record Luis's decision D32.
-- [ ] Add admin-grantable all-project team capability, guarded audited actions and bilingual toggle help; grant nobody.
-- [ ] Verify disposable grant/deny/revoke, team and four-toggle persistence, admin-only permission assignment, cleanup and B1 OFF; report.
+- [x] Add admin-grantable all-project team capability, guarded audited actions and bilingual toggle help; grant nobody (0279 mirrored).
+- [x] Rolled-back synthetic-identity grant/deny/revoke and admin-only assignment; authenticated admin UI add/four-toggle reload/remove, bilingual screenshots; independent zero, no actual grants and B1 OFF revision 10. Report docs/project-team-management-permission-report.md; delegated authenticated-browser session not tested.
 
 ## Current request — urgent shared Gantt save regression
 - [x] Reproduce dependency enum error and linked-stage date rollback on disposable fixture.
