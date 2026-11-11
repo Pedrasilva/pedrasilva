@@ -1,3 +1,7 @@
+import { PlannerToolbar } from "./planner-toolbar";
+import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
+import { recomputeSchedule } from "@/lib/projects/schedule-engine";
+import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
 import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import i18n from "@/i18n/index";
 /**
@@ -1127,50 +1131,12 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <PlannerOutlineTools disabled={upsertStage.isPending || isLocked} selected={!!selectedStageId}
-            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-7 px-2 text-xs"
-            onClick={handleReflow}
-            disabled={reflowing || isLocked}
-            title={t("workspace.planning.reflow.tooltip", {
-              defaultValue:
-                "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
-            })}
-          >
-            <AlignVerticalJustifyStart className="mr-1 h-3.5 w-3.5" />
-            {reflowing
-              ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
-              : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
-          </Button>
-          <QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked} />
-          {onAddRetainerPhase && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-7 px-2 text-xs"
-              onClick={onAddRetainerPhase}
-              disabled={isLocked}
-            >
-              <Plus className="mr-1 h-3.5 w-3.5" />
-              {t("workspace.planning.retainerMonthly.addStage", {
-                defaultValue: "Add retainer phase",
-              })}
-            </Button>
-          )}
-          <GanttHistoryControls mode="quote" scope={quoteId} disabled={isLocked}/>
-          {!relative && <RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}
-        </div>
-
-        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
-          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
-      </div>
+      <PlannerToolbar mode="quote" scope={quoteId} disabled={upsertStage.isPending||isLocked} selected={!!selectedStageId}
+        add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
+        reflow={handleReflow} reflowing={reflowing} zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
+        extras={<><QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked}/>
+          {onAddRetainerPhase&&<Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onAddRetainerPhase} disabled={isLocked}><Plus className="mr-1 h-3.5 w-3.5"/>{t("workspace.planning.retainerMonthly.addStage")}</Button>}
+          {!relative&&<RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}</>}/>
       <PlannerFrame>
         <div
           ref={chartRef}
@@ -1268,6 +1234,7 @@ function OperationalScheduleAdapter({
   sourceQuoteId: linkedQuoteId,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
+  const qc=useQueryClient();
   const b1=useProjectB1State();
   const areas=useProjectViewerAreas(projectId);
   const canSeeFinancials=b1.data ? !!areas.data?.financials && !!areas.data?.budget_cost && !!areas.data?.expenses && !!areas.data?.supplier_fees : requestedFinancials;
@@ -1741,22 +1708,13 @@ function OperationalScheduleAdapter({
 
   return (
     <div className="min-w-0 max-w-full space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <PlannerOutlineTools disabled={!canEdit || createStage.isPending || updateStage.isPending} selected={!!selectedStageId}
-            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
-          <GanttHistoryControls mode="project" scope={projectId} disabled={!canEdit}/>
-          <label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")} />{t("projects:gantt.actuals.show")}</label>
-          {!canEdit && (
-            <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
-              {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
-            </span>
-          )}
-        </div>
-
-        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
-          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
-      </div>
+      <PlannerToolbar mode="project" scope={projectId} disabled={!canEdit||createStage.isPending||updateStage.isPending} selected={!!selectedStageId}
+        add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
+        reflow={async()=>{if(!canEdit)return;try{const state=await readGanttSchedule("project",projectId);await saveGanttSchedule("project",projectId,state,recomputeSchedule(state));await qc.invalidateQueries({queryKey:["pm-project",projectId]});await qc.invalidateQueries({queryKey:["pm-stages-all"]});}catch(error){toast.error(error instanceof Error?error.message:String(error));}}}
+        zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
+        extras={<><label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")}/>{t("projects:gantt.actuals.show")}</label>
+          {canEdit&&<NewRetainerStageDialog projectId={projectId} nextOrder={Math.max(0,...stages.map(s=>s.sort_order))+10}/>}
+          {!canEdit&&<span className="text-xs text-muted-foreground">{t("projects:gantt.readOnly.badge")}</span>}</>}/>
       {sourceQuoteId && !mappingReady && <p role="alert" className="text-sm text-destructive">
         {projection ? t("gantt.convertedMappingBlocked", { names: projection.issues.join(", ") }) : t("common:loading")}
       </p>}
