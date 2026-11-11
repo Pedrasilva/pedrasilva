@@ -44,18 +44,21 @@ import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
 import { useQuoteSaleMargin, saleFromCost } from "@/lib/quotes/use-quote-sale-margin";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import type { PlannerInspectorModel } from "@/components/planner/planner-inspector-model";
+import { plannerStageRole } from "@/lib/projects/planner-stage-role";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
 import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 
 interface Props {
   relative?:boolean;
+  readOnly?:boolean;
   quoteId: string;
   stageId: string;
   onClose: () => void;
 }
 
-export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=false }: Props) {
+export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=false, readOnly=false }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
@@ -73,11 +76,27 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
   const delAlloc = useDeleteQuoteAllocation(quoteId);
   const { data: quoteMargin } = useQuoteSaleMargin(quoteId);
 
-  const stage = (stagesQ.data ?? []).find((s) => s.id === stageId);
-  const allStages = stagesQ.data ?? [];
-  const deps = depsQ.data ?? [];
-  const allocs = (allocQ.data ?? []).filter((a) => a.stage_id === stageId);
+  const model: PlannerInspectorModel = {
+    stages: stagesQ.data ?? [], dependencies: depsQ.data ?? [], allocations: allocQ.data ?? [],
+    resources: poolResources, upsertStage, deleteStage: delStage, createDependency: createDep,
+    updateDependency: updateDep, deleteDependency: delDep, cascadeStage: updateStageCascade,
+    upsertAllocation: upsertAlloc, deleteAllocation: delAlloc, quoteMargin: quoteMargin ?? null,
+    defaultRates, readOnly, financialVisible: true, operational: false,
+  };
+  return <SharedPlannerInspector model={model} scopeId={quoteId} stageId={stageId} onClose={onClose} relative={relative} />;
+}
 
+export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClose, relative=false}: {
+  model: PlannerInspectorModel; scopeId:string; stageId:string; onClose:()=>void; relative?:boolean;
+}) {
+  const {t}=useTranslation('crm');
+  const {upsertStage, deleteStage:delStage, createDependency:createDep, updateDependency:updateDep,
+    deleteDependency:delDep, cascadeStage:updateStageCascade, upsertAllocation:upsertAlloc,
+    deleteAllocation:delAlloc, resources:poolResources, defaultRates, quoteMargin}=model;
+  const stage = model.stages.find(s=>s.id===stageId);
+  const allStages=model.stages;
+  const deps=model.dependencies;
+  const allocs=model.allocations.filter(a=>a.stage_id===stageId);
   const stageMap = useMemo(
     () => Object.fromEntries(allStages.map((s) => [s.id, s])),
     [allStages],
@@ -126,7 +145,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     const descendants = new Set<string>();
     const queue = [stageId];
     while (queue.length) {
-      const current = queue.shift()!;
+      const current = queue.shift();
+      if (!current) continue;
       for (const d of deps) {
         if (d.predecessor_stage_id === current && !descendants.has(d.successor_stage_id)) {
           descendants.add(d.successor_stage_id);
@@ -145,7 +165,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     const ancestors = new Set<string>();
     const queue = [stageId];
     while (queue.length) {
-      const current = queue.shift()!;
+      const current = queue.shift();
+      if (!current) continue;
       for (const d of deps) {
         if (d.successor_stage_id === current && !ancestors.has(d.predecessor_stage_id)) {
           ancestors.add(d.predecessor_stage_id);
@@ -179,7 +200,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     );
   }
 
-  const stageRoleNow = ((stage as { stage_role?: string | null }).stage_role ?? "architecture") as string;
+  const stageRoleNow = plannerStageRole(stage);
   const isSupplier = stageRoleNow === "supplier_group" || stageRoleNow === "supplier_phase";
 
   const handleAddPred = async () => {
@@ -268,6 +289,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
         </Button>
       </header>
 
+      {model.contractReferencePending && <p role="status" className="border-b border-border px-3 py-2 text-xs text-muted-foreground">{t("projects:sharedGantt.referencePending")}</p>}
+      <fieldset disabled={model.readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
           <TabsTrigger value="plan">
@@ -296,13 +319,13 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
               }}
             />
           </div>
-          {!isSupplier && (
+          {(
             <div className="space-y-1">
               <Label className="text-xs">
                 {t("workspace.planning.category", { defaultValue: "Category" })}
               </Label>
               <Select
-                value={((stage as { stage_role?: string | null }).stage_role ?? "architecture")}
+                value={stageRoleNow}
                 onValueChange={(v) =>
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   upsertStage.mutate({ id: stage.id, stage_role: v } as any)
@@ -470,6 +493,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
               const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id ?? null;
               cur = pid ? byId.get(pid) : undefined;
             }
+            if (model.operational) return null;
             if (ancestorOptional) {
               return (
                 <div className="rounded-md border border-dashed bg-amber-50 px-2.5 py-2 text-xs text-amber-900">
@@ -619,7 +643,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
             </>
             );
           })()}
-          {stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
+          {model.financialVisible && stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
               (() => {
                 const sx = stage as typeof stage & {
                   budget_mode?: string | null;
@@ -713,7 +737,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
                         />
                       )}
                     </div>
-                    {!isParent && (() => {
+                    {!model.operational && !isParent && (() => {
                       const allocatedRevenue = allocs.reduce(
                         (sum, a) => sum + quoteAllocationLine(a).revenue,
                         0,
@@ -1281,6 +1305,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
         </TabsContent>
         )}
       </Tabs>
+      </fieldset>
     </aside>
   );
 }

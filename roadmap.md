@@ -1,4 +1,10 @@
-## Current request — 11 November Gantt investigation and plan only
+## Current request — 11 November 11:56 simplified Gantt Phase 1
+- [ ] Unify CRM/project/global panel, toolbar, colours and supplier styling; preserve supplier identity in new conversions without real-data backfill.
+- [ ] Reuse scoped project financial access for all live Gantt writes, enforced server-side; preserve fiscal guards and B1 state.
+- [ ] Display unavailable legacy contractual reference explicitly; test only disposable copies, capture screenshots, delete fixtures and verify zero.
+- [ ] Report Phase 1 and wait for Luis's OK before Phase 2 (dates/value confirmations/history/substage caps/retainer forward changes).
+
+## Previous request — 11 November Gantt investigation and plan only
 - [x] Compare shared renderer and separate panels/toolbar/financial/supplier/retainer paths; read-only Ricardo permissions and Luis disabled-budget reproduction.
 - [x] Document missing Mastercard legacy contract evidence, supplier role loss and mismatch of reported October €285 row; no code/data/B1 changes.
 - [x] Prepare one shared-Gantt/internal-vs-client/audit plan and complete investigation report.

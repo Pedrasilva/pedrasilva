@@ -99,8 +99,8 @@ export function useProjectPlannerAdapter(
     // RLS on pm_allocations allows each user to manage their OWN allocation
     // (needed for timesheet self-staffing and editing % / hours per day).
     // Cross-resource edits fail at the DB and surface as an error toast.
-    createAllocation: (a) => createAlloc.mutateAsync(a),
-    updateAllocation: async (a) => {
+    createAllocation: readOnly ? deny : (a) => createAlloc.mutateAsync(a),
+    updateAllocation: readOnly ? deny : async (a) => {
       if ((a.patch.start_date || a.patch.end_date) && !a.patch.stage_id && a.patch.hours_per_day===undefined && a.patch.allocation_percentage===undefined) {
         await changeGanttAllocationDates("project",a.projectId,a.id,a.patch);
         await qc.invalidateQueries({queryKey:["pm-project"]});
@@ -109,8 +109,8 @@ export function useProjectPlannerAdapter(
       }
       return updateAlloc.mutateAsync(a);
     },
-    deleteAllocation: (a) => deleteAlloc.mutateAsync(a),
-    setAllocationStatus: (a) => setStatusMut.mutateAsync(a),
+    deleteAllocation: readOnly ? deny : (a) => deleteAlloc.mutateAsync(a),
+    setAllocationStatus: readOnly ? deny : (a) => setStatusMut.mutateAsync(a),
 
     createDependency: readOnly
       ? deny

@@ -1,3 +1,7 @@
+import { PlannerToolbar } from "./planner-toolbar";
+import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
+import { recomputeSchedule } from "@/lib/projects/schedule-engine";
+import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
 import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import i18n from "@/i18n/index";
 /**
@@ -36,7 +40,8 @@ import { RELATIVE_ORIGIN,scheduleCalendar } from "@/lib/projects/schedule-engine
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import {quoteAllocationLine} from "@/lib/quotes/financial-rollups";
 import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
-import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
+import { ProjectInspectorAdapter } from "./project-inspector-adapter";
+import { plannerStageRole } from "@/lib/projects/planner-stage-role";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import {
   useQuoteLock,
@@ -69,7 +74,7 @@ import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
 import { proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
-import {useProjectB1State,useProjectViewerAreas} from '@/lib/projects/use-project-access';
+import {useProjectB1State,useProjectViewerAreas,useProjectGanttEditAccess} from '@/lib/projects/use-project-access';
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
 import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
@@ -131,22 +136,8 @@ function QuoteScheduleEntry(props: Props) {
 }
 
 function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, canSeeFinancials }: Props & { projectId: string }) {
-  const { user } = useAuth();
-  const permissions = useMyPermissionsV2();
-  const assignedQ = useQuery({
-    queryKey: ["pm-assigned-access", user?.id, projectId],
-    enabled: !!user?.id,
-    queryFn: async () => {
-      if (!user) return false;
-      const { data, error } = await supabase.rpc("pm_has_assigned_access", { _user_id: user.id, _project_id: projectId });
-      if (error) throw error;
-      return !!data;
-    },
-  });
-  const allowed = !permissions.loading && (permissions.can("projects.edit_planning", "all") ||
-    (permissions.can("projects.edit_planning", "assigned") && !!assignedQ.data));
   return <OperationalScheduleAdapter projectId={projectId} sourceQuoteId={quoteId} dayWidth={dayWidth}
-    canEdit={canEditPlanning ?? allowed} canSeeFinancials={canSeeFinancials ?? false} />;
+    canEdit={canEditPlanning} canSeeFinancials={canSeeFinancials} />;
 }
 
 function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
@@ -473,14 +464,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
     const ordered: S[] = [];
     const hier = new Map<string, GanttHierarchyNode>();
 
-    const roleOf = (s: S): "architecture" | "client" | "supplier_group" | "supplier_phase" => {
-      // "This is us" overrides supplier role — render as architecture
-      // (solid bar, no dashed supplier hatching, no outflow).
-      if (s.stage_role !== "client" && (s as { is_self?: boolean | null }).is_self === true) return "architecture";
-      const r = (s.stage_role ?? "architecture") as string;
-      if (r === "supplier_group" || r === "supplier_phase" || r === "client") return r;
-      return "architecture";
-    };
+    const roleOf = plannerStageRole;
     const isSupplierRole = (s: S) => {
       const role = roleOf(s);
       return role === "supplier_group" || role === "supplier_phase";
@@ -589,7 +573,12 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
       is_self: (s as { is_self?: boolean }).is_self ?? true,
       source_quote_stage_id: null,
-      stage_role: s.stage_role ?? "architecture",
+      stage_role: plannerStageRole(s),
+      supplier_id: s.supplier_id ?? null,
+      supplier_placeholder: s.supplier_placeholder ?? null,
+      budget_mode: s.budget_mode ?? "calculated",
+      stage_billing_timing: s.stage_billing_timing ?? "end",
+      is_optional: s.is_optional ?? false,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
@@ -1142,50 +1131,12 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <PlannerOutlineTools disabled={upsertStage.isPending || isLocked} selected={!!selectedStageId}
-            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-7 px-2 text-xs"
-            onClick={handleReflow}
-            disabled={reflowing || isLocked}
-            title={t("workspace.planning.reflow.tooltip", {
-              defaultValue:
-                "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
-            })}
-          >
-            <AlignVerticalJustifyStart className="mr-1 h-3.5 w-3.5" />
-            {reflowing
-              ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
-              : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
-          </Button>
-          <QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked} />
-          {onAddRetainerPhase && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-7 px-2 text-xs"
-              onClick={onAddRetainerPhase}
-              disabled={isLocked}
-            >
-              <Plus className="mr-1 h-3.5 w-3.5" />
-              {t("workspace.planning.retainerMonthly.addStage", {
-                defaultValue: "Add retainer phase",
-              })}
-            </Button>
-          )}
-          <GanttHistoryControls mode="quote" scope={quoteId} disabled={isLocked}/>
-          {!relative && <RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}
-        </div>
-
-        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
-          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
-      </div>
+      <PlannerToolbar mode="quote" scope={quoteId} disabled={upsertStage.isPending||isLocked} selected={!!selectedStageId}
+        add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
+        reflow={handleReflow} reflowing={reflowing} zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
+        extras={<><QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked}/>
+          {onAddRetainerPhase&&<Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onAddRetainerPhase} disabled={isLocked}><Plus className="mr-1 h-3.5 w-3.5"/>{t("workspace.planning.retainerMonthly.addStage")}</Button>}
+          {!relative&&<RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}</>}/>
       <PlannerFrame>
         <div
           ref={chartRef}
@@ -1252,6 +1203,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
             quoteId={quoteId}
             stageId={selectedStageId}
             relative={relative}
+            readOnly={isLocked}
             onClose={() => setSelectedStageId(null)}
           />
         )}
@@ -1282,6 +1234,7 @@ function OperationalScheduleAdapter({
   sourceQuoteId: linkedQuoteId,
 }: ProjectGanttProps) {
   const { t } = useTranslation(["projects", "crm"]);
+  const qc=useQueryClient();
   const b1=useProjectB1State();
   const areas=useProjectViewerAreas(projectId);
   const canSeeFinancials=b1.data ? !!areas.data?.financials && !!areas.data?.budget_cost && !!areas.data?.expenses && !!areas.data?.supplier_fees : requestedFinancials;
@@ -1294,11 +1247,13 @@ function OperationalScheduleAdapter({
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
+    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
     issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
   const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;
-  const canEdit = requestedCanEdit && mappingReady;
+  const editAccess=useProjectGanttEditAccess(projectId);
+  const canEdit = editAccess.data===true && mappingReady;
+  void requestedCanEdit;
   const { data: allResourcesData } = useProjectResources(projectId);
   const allResources = useMemo(
     () => (allResourcesData ?? []).filter((r) => r.active !== false),
@@ -1753,22 +1708,13 @@ function OperationalScheduleAdapter({
 
   return (
     <div className="min-w-0 max-w-full space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <PlannerOutlineTools disabled={!canEdit || createStage.isPending || updateStage.isPending} selected={!!selectedStageId}
-            add={() => handleInsert(null, "below")} indent={() => { if (selectedStageId) handleIndent(selectedStageId); }} outdent={() => { if (selectedStageId) handleOutdent(selectedStageId); }} />
-          <GanttHistoryControls mode="project" scope={projectId} disabled={!canEdit}/>
-          <label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")} />{t("projects:gantt.actuals.show")}</label>
-          {!canEdit && (
-            <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
-              {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
-            </span>
-          )}
-        </div>
-
-        {dayWidthProp === undefined && <PlannerZoom zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed}
-          togglePool={() => setPoolCollapsed(v => !v)} getTarget={() => chartRef.current} />}
-      </div>
+      <PlannerToolbar mode="project" scope={projectId} disabled={!canEdit||createStage.isPending||updateStage.isPending} selected={!!selectedStageId}
+        add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
+        reflow={async()=>{if(!canEdit)return;try{const state=await readGanttSchedule("project",projectId);await saveGanttSchedule("project",projectId,state,recomputeSchedule(state));await qc.invalidateQueries({queryKey:["pm-project",projectId]});await qc.invalidateQueries({queryKey:["pm-stages-all"]});}catch(error){toast.error(error instanceof Error?error.message:String(error));}}}
+        zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
+        extras={<><label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")}/>{t("projects:gantt.actuals.show")}</label>
+          {canEdit&&<NewRetainerStageDialog projectId={projectId} nextOrder={Math.max(0,...stages.map(s=>s.sort_order))+10}/>}
+          {!canEdit&&<span className="text-xs text-muted-foreground">{t("projects:gantt.readOnly.badge")}</span>}</>}/>
       {sourceQuoteId && !mappingReady && <p role="alert" className="text-sm text-destructive">
         {projection ? t("gantt.convertedMappingBlocked", { names: projection.issues.join(", ") }) : t("common:loading")}
       </p>}
@@ -1806,7 +1752,7 @@ function OperationalScheduleAdapter({
             onInsertStage={canEdit ? handleInsert : undefined}
             onDeleteStage={canEdit ? handleDelete : undefined}
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
-            onUpdateStageBudget={canEdit && !sourceQuoteId && (!b1.data || !!areas.data?.financials) ? handleUpdateBudget : undefined}
+            onUpdateStageBudget={canEdit ? handleUpdateBudget : undefined}
             onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
             actuals={actuals}
             showFinancials={canSeeFinancials}
@@ -1815,14 +1761,13 @@ function OperationalScheduleAdapter({
           />
         </div>
         {selectedStageId && (
-          <ProjectPlannerInspector
+          <ProjectInspectorAdapter
             projectId={projectId}
             stages={stages}
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
             readOnly={!canEdit}
-            planningOnly
-            financialVisible={!b1.data || !!areas.data?.financials}
+            financialVisible={areas.data?.financials===true}
           />
         )}
         {!poolCollapsed && !selectedStageId && (

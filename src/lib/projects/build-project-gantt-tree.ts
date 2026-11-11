@@ -1,3 +1,4 @@
+import { plannerStageRole } from "./planner-stage-role";
 import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
  * Build the outline-column hierarchy + rolled-up summary stages for the
@@ -57,7 +58,7 @@ export function buildProjectGanttTree(
       wbs: numbers.get(node.id) ?? wbs,
       hasChildren: kids.length > 0,
       isSummary: kids.length > 0,
-      role: node.stage_role === "client" ? "client" : node.stage_role === "supplier_group" || node.stage_role === "supplier_phase" ? node.stage_role : "architecture",
+      role: plannerStageRole(node),
       parentId,
     });
     ordered.push(node);
