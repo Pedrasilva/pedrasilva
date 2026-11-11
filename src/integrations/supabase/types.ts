@@ -19875,6 +19875,21 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_retainer_create: {
+        Args: {
+          _amount?: number
+          _group_name: string
+          _mode: string
+          _months?: number
+          _name: string
+          _scope: string
+        }
+        Returns: string
+      }
+      pm_retainer_month_date: {
+        Args: { _index: number; _relative?: boolean; _start: string }
+        Returns: string
+      }
       pm_revise_week_plan: {
         Args: { _expected_updated_at: string; _plan_id: string; _slots: Json }
         Returns: Json
