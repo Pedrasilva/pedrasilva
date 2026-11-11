@@ -84,15 +84,12 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
   // Auto-save inputs to fee_proposals.project_fee_calculation (JSONB) on
   // every change, debounced. The manual "Save draft" button stays as a
   // visible confirmation, but typing values is enough — no click required.
-  const isFirstRender = useRef(true);
+  const lastSavedInputs = useRef(JSON.stringify(parseFeeCalculatorPayload(initialPayload)));
   const reviewInProgress = useRef(false);
   const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   useEffect(() => {
     if (preview || reviewInProgress.current) return;
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    if (JSON.stringify(inputs)===lastSavedInputs.current) return;
     setAutoSaveState("saving");
     const handle = setTimeout(async () => {
       const { error } = await supabase
@@ -104,6 +101,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
         setAutoSaveState("error");
         toast.error(error.message);
       } else {
+        lastSavedInputs.current=JSON.stringify(inputs);
         setAutoSaveState("saved");
         qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       }
@@ -141,13 +139,13 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
 
   const apply = useMutation({mutationFn:async({action,overwrite,remove,revision}:{action:string;overwrite:boolean;remove:boolean;revision:string})=>{
     const r=await supabase.rpc('quote_apply_calculator',{_quote_id:quoteId,_inputs:{...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))} as unknown as import('@/integrations/supabase/types').Json,_revision:revision,_existing_action:action,_overwrite_manual:overwrite,_delete_removed:remove});if(r.error)throw Error(r.error.message);return r.data;
-  },onSuccess:async id=>{setUndoId(id);setPreview(null);reviewInProgress.current=false;await qc.invalidateQueries();onApplied?.(result.finalFee,result.constructionValue,result.feePercentage);toast.success(t('feeCalculator.appliedToast'));},onError:(e:Error)=>toast.error(e.message)});
+  },onSuccess:async id=>{lastSavedInputs.current=JSON.stringify(inputs);setUndoId(id);setPreview(null);reviewInProgress.current=false;await qc.invalidateQueries();onApplied?.(result.finalFee,result.constructionValue,result.feePercentage);toast.success(t('feeCalculator.appliedToast'));},onError:(e:Error)=>toast.error(e.message)});
   const review=useMutation({mutationFn:async()=>{
     reviewInProgress.current=true;
     const normalized={...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))};
     const saved=await supabase.from('fee_proposals').update({project_fee_calculation:normalized as unknown as import('@/integrations/supabase/types').Json}).eq('id',quoteId);if(saved.error)throw Error(saved.error.message);
     const ids=normalized.stages.map(s=>s.id);
-    const r=await supabase.rpc('quote_calculator_preview',{_quote_id:quoteId,_row_ids:ids});if(r.error)throw Error(r.error.message);return r.data as unknown as CalculatorPreview;
+    const r=await supabase.rpc('quote_calculator_preview',{_quote_id:quoteId,_row_ids:ids});if(r.error)throw Error(r.error.message);lastSavedInputs.current=JSON.stringify(inputs);return r.data as unknown as CalculatorPreview;
   },onSuccess:p=>{if(calculatorHasConflicts(p))setPreview(p);else apply.mutate({action:'add',overwrite:false,remove:false,revision:p.revision});},onError:(e:Error)=>toast.error(e.message)});
   const undo=useMutation({mutationFn:async()=>{if(!undoId)return;const r=await supabase.rpc('quote_undo_template_import',{_import_id:undoId});if(r.error)throw Error(r.error.message);},onSuccess:async()=>{setUndoId(null);await qc.invalidateQueries();toast.success(t('quoteTemplate.undone'));},onError:(e:Error)=>toast.error(e.message)});
   const busy=apply.isPending||review.isPending||save.isPending||undo.isPending;
