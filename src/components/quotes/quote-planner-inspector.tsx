@@ -325,6 +325,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                 {t("workspace.planning.category", { defaultValue: "Category" })}
               </Label>
               <Select
+                disabled={model.readOnly}
                 value={stageRoleNow}
                 onValueChange={(v) =>
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any

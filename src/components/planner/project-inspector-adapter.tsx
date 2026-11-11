@@ -25,16 +25,17 @@ export function ProjectInspectorAdapter({projectId,stages,stageId,onClose,readOn
     if(id)return update.mutateAsync({id,projectId,patch});
     return create.mutateAsync({project_id:projectId,budget:0,...patch} as Parameters<typeof create.mutateAsync>[0]);
   },onSuccess:()=>qc.invalidateQueries({queryKey:['pm-project',projectId]})});
-  const delStage=useMutation({mutationFn:async(id:string)=>remove.mutateAsync({id,projectId})});
-  const cascadeStage=useMutation({mutationFn:async(input:Record<string,any>)=>cascade.mutateAsync({...input,projectId} as Parameters<typeof cascade.mutateAsync>[0])});
-  const insertDependency=useMutation({mutationFn:async(input:Record<string,any>)=>createDep.mutateAsync({predecessor_id:input.predecessor_stage_id,successor_id:input.successor_stage_id,type:input.type,lag_days:input.lag_days})});
+  const delStage=useMutation({mutationFn:async(id:string)=>{if(readOnly)throw new Error('Forbidden');return remove.mutateAsync({id,projectId});}});
+  const cascadeStage=useMutation({mutationFn:async(input:Record<string,any>)=>{if(readOnly)throw new Error('Forbidden');return cascade.mutateAsync({...input,projectId} as Parameters<typeof cascade.mutateAsync>[0]);}});
+  const insertDependency=useMutation({mutationFn:async(input:Record<string,any>)=>{if(readOnly)throw new Error('Forbidden');return createDep.mutateAsync({predecessor_id:input.predecessor_stage_id,successor_id:input.successor_stage_id,type:input.type,lag_days:input.lag_days});}});
   const upsertAllocation=useMutation({mutationFn:async(input:Record<string,any>)=>{
+    if(readOnly)throw new Error('Forbidden');
     const {id,quote_id,cost_rate_snapshot,sale_rate_snapshot,...patch}=input;
     void quote_id;void cost_rate_snapshot;void sale_rate_snapshot;
     if(id)return updateAlloc.mutateAsync({id,patch,projectId});
     return createAlloc.mutateAsync({...patch,projectId} as Parameters<typeof createAlloc.mutateAsync>[0]);
   }});
-  const removeAllocation=useMutation({mutationFn:async(id:string)=>deleteAlloc.mutateAsync({id,projectId})});
+  const removeAllocation=useMutation({mutationFn:async(id:string)=>{if(readOnly)throw new Error('Forbidden');return deleteAlloc.mutateAsync({id,projectId});}});
   const ids=new Set(stages.map(s=>s.id));
   const model:PlannerInspectorModel={
     stages:stages.map(s=>({...s,quote_id:projectId,stage_role:plannerStageRole(s),sale_source:'budget'})) as unknown as QuoteStage[],
