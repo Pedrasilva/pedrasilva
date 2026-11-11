@@ -25,7 +25,7 @@ Contagens de linhas, não de faturas.
 | Clinica Mint II | 8 | 0 | 8 | 0 | Sim |
 | **Total** | **93** | **30** | **88** | **30** | **4 projetos** |
 
-**Sem plano operacional (14):** 0434 Sérgio Varanda; 2025 Clinica Mulher; 2028 CTR Capital Towers Restaurant; 2101 Colares; 2128 Sandycove Road Dental Clinic; 2506 Apartamento Tiago Carreiras; 2521 Escritórios BCG; 2522 Escritórios Banco CTT - Atrium 2; 2600 Quelhas; Consultoria Greg Freeman; DLMC Oral Surgery; Escritório Sakur Dubai; Projeto histórico Museu Zer0 / ILC; Projeto histórico N10GLED. Os quatro projetos `finance_only` mantêm-se fora do planeamento operacional.
+**Sem plano (14):** 0434 Sérgio Varanda; 2025 Clinica Mulher; 2028 CTR Capital Towers Restaurant; 2101 Colares; 2128 Sandycove Road Dental Clinic; 2506 Apartamento Tiago Carreiras; 2521 Escritórios BCG; 2522 Escritórios Banco CTT - Atrium 2; 2600 Quelhas; Consultoria Greg Freeman; DLMC Oral Surgery; Escritório Sakur Dubai; Projeto histórico Museu Zer0 / ILC; Projeto histórico N10GLED. Os quatro projetos `finance_only` mantêm-se fora do planeamento operacional.
 
 Todos os 123 pagamentos operacionais têm estado armazenado `planned`, apesar de vários projetos já terem documentos financeiros. Isto exige reconciliar apresentação do estado com as ligações fiscais reais; **não marcar pagamentos como emitidos/pagos em massa**, nem inferir correspondência pelo nome/montante apenas. A tabela antiga `pm_invoices` tem zero registos nos 21 projetos; não a usar para criar um segundo livro de faturação.
 
@@ -49,7 +49,7 @@ Preservar documentos emitidos, recebimentos e totais existentes como histórico 
 
 Reutilizar pagamentos já existentes e regras da revisão aceite: por exemplo, 50% no início + 50% no fim, ou meses de avença. Alterações de fase recalculam só o restante não emitido, mantendo percentagens e histórico; adiantamentos inclusivos não se somam ao honorário.
 
-Para fases sem regras, apresentar **Plano por definir** e uma pré-visualização de regras propostas. Não adotar silenciosamente 50/50 nem substituir linhas manuais. Projetos antigos sem plano requerem revisão das linhas exatas por Luis antes de qualquer preenchimento real. Nunca criar propostas de substituição.
+Para fases sem regras, apresentar **Plano por definir** e uma pré-visualização de regras propostas. Não adotar silenciosamente 50/50 nem substituir linhas manuais. Planos antigos só após revisão das linhas exatas por Luis; nunca criar propostas artificiais.
 
 Datas seguem o Gantt vivo; exceções manuais auditadas prevalecem até serem removidas. Usar o calendário útil existente e o primeiro dia útil de cada mês de avença. Sem fase/prazo comprovado, mostrar Por confirmar. O plano contratado continua apenas leitura.
 
