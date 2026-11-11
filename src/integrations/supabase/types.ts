@@ -9861,6 +9861,44 @@ export type Database = {
           },
         ]
       }
+      pm_billing_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          dissolved_at: string | null
+          id: string
+          planned_date_override: string | null
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          description: string
+          dissolved_at?: string | null
+          id?: string
+          planned_date_override?: string | null
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          dissolved_at?: string | null
+          id?: string
+          planned_date_override?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_billing_groups_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_cost_rate_periods: {
         Row: {
           computed_at: string
@@ -11049,6 +11087,7 @@ export type Database = {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value: number
           appointment_date: string | null
+          billing_plan_revision: number
           billing_status: Database["public"]["Enums"]["quote_invoice_billing_status"]
           contract_baseline_payment_id: string | null
           created_at: string
@@ -11064,9 +11103,11 @@ export type Database = {
           frozen_payment_date: string | null
           generator_source: string | null
           id: string
+          invoice_description: string | null
           invoice_group_id: string | null
           label: string
           linked_payment_item_id: string | null
+          manual_billing_group_id: string | null
           manual_override: boolean
           notes: string | null
           original_invoice_date: string | null
@@ -11093,6 +11134,7 @@ export type Database = {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
           appointment_date?: string | null
+          billing_plan_revision?: number
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           contract_baseline_payment_id?: string | null
           created_at?: string
@@ -11108,9 +11150,11 @@ export type Database = {
           frozen_payment_date?: string | null
           generator_source?: string | null
           id?: string
+          invoice_description?: string | null
           invoice_group_id?: string | null
           label: string
           linked_payment_item_id?: string | null
+          manual_billing_group_id?: string | null
           manual_override?: boolean
           notes?: string | null
           original_invoice_date?: string | null
@@ -11137,6 +11181,7 @@ export type Database = {
           amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
           appointment_date?: string | null
+          billing_plan_revision?: number
           billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           contract_baseline_payment_id?: string | null
           created_at?: string
@@ -11152,9 +11197,11 @@ export type Database = {
           frozen_payment_date?: string | null
           generator_source?: string | null
           id?: string
+          invoice_description?: string | null
           invoice_group_id?: string | null
           label?: string
           linked_payment_item_id?: string | null
+          manual_billing_group_id?: string | null
           manual_override?: boolean
           notes?: string | null
           original_invoice_date?: string | null
@@ -11178,6 +11225,13 @@ export type Database = {
           vat_rate_override?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_manual_billing_group_fk"
+            columns: ["manual_billing_group_id"]
+            isOneToOne: false
+            referencedRelation: "pm_billing_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_payment_schedule_items_contract_baseline_payment_id_fkey"
             columns: ["contract_baseline_payment_id"]
@@ -19261,6 +19315,23 @@ export type Database = {
         Args: { _date: string; _user_id: string }
         Returns: number
       }
+      pm_billing_edit_description: {
+        Args: { _description: string; _item: string; _revision: number }
+        Returns: undefined
+      }
+      pm_billing_item_protected: { Args: { _id: string }; Returns: boolean }
+      pm_billing_merge: {
+        Args: {
+          _date?: string
+          _description: string
+          _items: string[]
+          _project: string
+          _revisions: Json
+        }
+        Returns: string
+      }
+      pm_billing_plan: { Args: { _project: string }; Returns: Json }
+      pm_billing_unmerge: { Args: { _group: string }; Returns: undefined }
       pm_calendar_shift: {
         Args: { _date: string; _days: number }
         Returns: string
