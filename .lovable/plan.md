@@ -4,11 +4,9 @@
 
 ## 1. Porque aparece vazio
 
-O separador Faturação atual mostra **documentos financeiros já registados**, respetivas linhas e recebimentos, não o plano de emissão. Se não existem documentos nem pagamentos associados ao projeto, termina no estado vazio **antes de mostrar os marcos**. O plano está noutro separador, Recebimentos.
+Faturação consulta documentos registados e sai pelo estado vazio antes de mostrar marcos. Recebimentos consulta o plano. **Uralchem IV tem duas linhas previstas `gantt_value`, zero pagamentos CRM e zero documentos associados**: o vazio decorre desta separação de fontes, não prova perda na conversão.
 
-No projeto aberto, **2502 Uralchem IV**, existem **duas linhas previstas de entrada**, ambas `planned`, mas **zero documentos financeiros associados**, seja no cabeçalho ou nas linhas. Portanto, o vazio é explicável: o ecrã consulta uma fonte diferente daquela que Luis pretende. As duas linhas têm origem `gantt_value` e gatilho de fim de fase; não foram copiadas de um plano CRM (a proposta ligada tem zero pagamentos).
-
-Isto não prova perda de pagamentos na conversão: os quatro projetos com baseline contratual possuem pagamentos operacionais. Outros projetos antigos simplesmente não têm plano. Não criar propostas artificiais para preencher o vazio, nem chamar `ensure_project_has_quote`/`backfill_quote_from_project`.
+Não chamar `ensure_project_has_quote`/`backfill_quote_from_project` nem criar propostas artificiais.
 
 ## 2. O que existe hoje
 
@@ -31,17 +29,11 @@ Contagens de linhas, não de faturas emitidas. Consulta por `inflow`/`outflow`, 
 
 Todos os 123 pagamentos operacionais têm estado armazenado `planned`, apesar de vários projetos já terem documentos financeiros. Isto exige reconciliar apresentação do estado com as ligações fiscais reais; **não marcar pagamentos como emitidos/pagos em massa**, nem inferir correspondência pelo nome/montante apenas. A tabela antiga `pm_invoices` tem zero registos nos 21 projetos; não a usar para criar um segundo livro de faturação.
 
-### Para onde vai o plano na conversão
+### Conversão e funcionalidades existentes
 
-`pm_convert_relative_quote` copia `quote_payment_schedule_items` para **`pm_payment_schedule_items`**, remapeando fases para `pm_stages` e guardando `source_quote_payment_item_id`. Copia ambas as direções, fornecedor, IVA, condições, ligações entre pagamentos e grupos de faturação; remapeia também os grupos e pagamentos ligados. Calcula datas reais pelo calendário operacional e assinala condições de pagamento ilegíveis, sem inventar prazo.
+A conversão copia o plano CRM para `pm_payment_schedule_items`, remapeia fases/grupos/fornecedores e guarda datas reais e referência contratada. Reabrir um projeto existente não volta a copiar pagamentos. O CRM aceite fica intacto.
 
-Guarda a referência contratada em `pm_project_contract_baseline` e respetivas fases/pagamentos. Mantém o CRM aceite e a operação separados: os futuros movimentos/valores do Gantt não devem reescrever a proposta ou baseline.
-
-O caminho idempotente devolve o projeto já existente **sem voltar a copiar pagamentos**. Portanto, reabrir/reconverter um projeto antigo não preenche automaticamente planos ausentes.
-
-### Funcionalidades já existentes
-
-Datas vivas e exceções auditadas; reconciliação de valores não emitidos e histórico Gantt; agrupamento automático por datas/IVA/condições (não seleção manual); fila Finance com avisos de 14 dias, confirmação do gestor e emissão manual. A emissão da fila só marca o pagamento/número/data: deve convergir com o documento fiscal canónico. Saídas ainda leem o CRM; Mastercard possui 30 saídas vivas, com Nulty/Mais Energia ligados por fornecedor. Campos InvoiceXpress já existem no documento, sem ligação a implementar agora.
+Já existem datas vivas/exceções auditadas, reconciliação de valores e histórico Gantt, agrupamento automático (não seleção manual), fila Finance/avisos/confirmacão do gestor. A emissão da fila só marca pagamento/número/data: deve convergir com o documento fiscal. Outgoing ainda lê CRM; Mastercard tem 30 saídas vivas, incluindo Nulty/Mais Energia. Campos InvoiceXpress já existem.
 
 ## 3. Plano proposto
 
