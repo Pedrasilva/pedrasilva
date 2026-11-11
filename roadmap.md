@@ -1,10 +1,11 @@
 ## Current request — approved Project Billing plan
 - [x] D39 records explicit 22:19 permission confirmation and conditional approval; D38 approval chronology clarified.
-- [ ] Stop for Luis: Financials-only whole-plan visibility conflicts with proposed separate Suppliers gate; scope of audited issued-line corrections needs confirmation before implementation resumes.
+- [x] Luis resolved both choices: separate Suppliers gate retained; existing fiscal editor used.
 - [x] Operational Incoming/Outgoing plan visible without documents; live dates, VAT, supplier identity and audited date editor.
 - [x] Audited descriptions and reversible manual groups; disposable UI merge/readback, 10000→12000 reconciliation/unmerge and fiscal description/merge denial passed.
 - [x] Canonical manual no-PDF issuance, milestone links and shared Finance queue implemented; single-fixture issuance/document/lock and queue tests passed.
-- [ ] Fiscal actor loss matrix and Luis confirmation required before narrowing rights; optional-PDF group flow and partial-bank/group issuance/concurrency/denied-reader tests not yet complete.
+- [x] D39 fiscal exclusivity implemented through protected actor rows for Luis/Tatiana, document/line/payment/status guards and matching UI; disposable Financials+legacy Finance denied issuance/payments; descriptions/dates/merge/undo passed.
+- [ ] Optional-PDF group flow, partial-bank/group issuance/concurrency and full conversion/retainer tests remain pending; end-to-end validation cannot be certified while protected earlier QA audit cleanup remains unresolved.
 - [x] Six pure tests, i18n zero, build OK; synthetic project/payments/groups/document removed, independent operational zero; one protected orphan commercial-history QA row remains.
 - [ ] Full release validation and cleanup of protected orphan QA commercial-history row require a separately reviewed cleanup mechanism; no audit guard weakened. B1 OFF, historical plans/storage policies intact.
 - [x] Investigation report and plan approved; retain PM confirmation.
