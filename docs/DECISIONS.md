@@ -320,8 +320,18 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 
 ### D38 — Faturação operacional por projeto
 - **Data:** 11/11/2026, plano aprovado nesta conversa; confirmação do gestor reafirmada por Luis.
+- **Clarificação histórica (22:19 UTC):** A autorização explícita para construir sob condição foi recebida às 22:19 UTC e consta de D39; a indicação anterior de aprovação não comprova autorização prévia. D39 substitui o âmbito de permissões descrito nesta entrada.
 - **Área:** Projetos / Finance / faturação.
 - **Estado:** Plano aprovado; preenchimento de dados reais e alterações de direitos por pessoa continuam sujeitos a revisão separada.
 - **Decisão:** Faturação mostra o plano vivo de entradas e saídas, independente de haver documentos emitidos. Reutilizar pagamentos operacionais copiados do CRM e fases vivas; proposta aceite e baseline imutáveis. Descrições editáveis e junções reversíveis de linhas não emitidas, com IVA por linha, histórico e confirmação do gestor antes do registo fiscal. Emissão manual usa o livro fiscal existente; pagos derivam da conciliação Finance, sem botão de pagamento no projeto. Finance partilha a fila/projeção; preparar identidade externa/envio futuro sem construir InvoiceXpress. Financials permite planeamento, fornecedores mantêm a sua área, atos fiscais mantêm Finance. Não retirar direitos por pessoa sem lista/OK, não preencher planos antigos sem revisão exata, não criar propostas artificiais; B1 OFF e políticas de ficheiros intactas.
 - **Motivo:** Separar previsão de documentos fiscais e eliminar o vazio causado por consultar apenas faturas registadas.
 - **Relatórios:** [Plano aprovado](../.lovable/plan/faturação-do-projeto-investigação-e-plano-para-aprovação-2026-11-11.md), [Implementação e limites](project-billing-implementation-2026-11-11.md).
+
+### D39 — Permissões de Faturação e autorização condicionada
+- **Data:** 11/11/2026, confirmação explícita de Luis às 22:19 UTC.
+- **Área:** Projetos / Finance / Faturação.
+- **Estado:** Regra confirmada; construção autorizada apenas se o plano a cumprir exatamente e sem alterar dados reais. Substitui o âmbito de permissões proposto em D38.
+- **Decisão:** Acesso financeiro ao projeto permite ver o plano de faturação, editar descrições e datas previstas, juntar faturas previstas e desfazer antes da emissão. Apenas Finance — Luis Pedra Silva e Tatiana Shchenina — pode registar Emitida/Paga ou alterar linhas emitidas, com os procedimentos e proteções fiscais existentes. Não conceder atos fiscais através do acesso financeiro ao projeto. Pagamentos continuam ligados à conciliação Finance; nenhuma alteração fiscal silenciosa.
+- **Limites:** Ler decisões primeiro; B1 OFF; testes só em cópias descartáveis. Nenhuma alteração a projetos, faturas ou pagamentos reais, incluindo preenchimento retroativo de planos de projetos convertidos. Qualquer desvio do plano/requisitos ou necessidade de alterar dados reais obriga a parar e perguntar antes. Entregar capturas, resultados e ficheiros alterados. Não construir a integração InvoiceXpress.
+- **Motivo:** Separar planeamento autorizado por projeto dos atos fiscais de Luis/Tatiana, sem reescrever dados ou comprometer evidência.
+- **Relatórios:** [Revisão de conformidade e bloqueios](project-billing-permissions-review-2026-11-11.md).
