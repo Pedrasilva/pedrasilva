@@ -1,7 +1,8 @@
 ## Current request — urgent shared Gantt save regression
-- [ ] Reproduce dependency enum error and linked-stage date rollback on disposable fixture.
-- [ ] Fix shared atomic save enum cast with mirrored migration; audit other enum writes.
-- [ ] Verify FS/SS/FF/SF create/delete, drag, start date, duration and reload in CRM/project/global; clean fixtures, confirm B1 OFF, report.
+- [x] Reproduce dependency enum error and linked-stage date rollback on disposable fixture.
+- [x] Fix shared atomic save enum cast with mirrored migration 0278; audit other enum writes; 37 tests pass.
+- [x] CRM/project FS/SS/FF/SF adapter create/delete, mouse drag, start field, duration and reload; screenshots, cleanup zero, B1 OFF. Report docs/shared-gantt-save-regression-report.md.
+- [ ] Global mouse drag/start/duration/reload verification blocked by automated global page becoming unresponsive; shared adapter FS/SS/FF/SF passes. No global UI completion claim.
 
 ## Current request — Gantt Phase 2 approved
 - [x] Audited confirmed stage/retainer changes, immutable references, split caps and immediate unfrozen billing reconciliation.
