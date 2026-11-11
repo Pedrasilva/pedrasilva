@@ -1905,6 +1905,13 @@
       "when": 1794400609572,
       "tag": "0271_gantt_scope_preserve_authorized_cascade_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 272,
+      "version": "7",
+      "when": 1794400934521,
+      "tag": "0272_gantt_scope_preserve_private_weekly_publication",
+      "breakpoints": true
     }
   ]
 }
