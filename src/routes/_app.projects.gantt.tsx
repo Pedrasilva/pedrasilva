@@ -388,12 +388,7 @@ function GlobalGanttPage() {
                                {t("projects:gantt.ui.addStages")} </button>
                           </div>
                         ) : (
-                          <QuoteGantt
-                            projectId={p.id}
-                            dayWidth={dayWidth}
-                            sourceQuoteId={p.quote_id ?? undefined}
-                            canEdit={canEditPlanning}
-                          />
+                          <GlobalProjectSchedule project={p} dayWidth={dayWidth} />
                         )}
                       </div>
                     );
@@ -421,6 +416,11 @@ function GlobalGanttPage() {
 function euros(value: number): string {
   if(!Number.isFinite(value))return '—';
   return new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+}
+
+function GlobalProjectSchedule({project,dayWidth}:{project:Project;dayWidth:number}) {
+  const areas=useProjectViewerAreas(project.id);
+  return <QuoteGantt projectId={project.id} dayWidth={dayWidth} sourceQuoteId={project.quote_id??undefined} canSeeFinancials={areas.data?.financials===true}/>;
 }
 
 function ProjectFinancialSummary({ projectId, stages, rates, legacy }: { projectId: string; stages: StageWithProject[]; rates: Parameters<typeof ganttProjectFigures>[2]; legacy: { cost: number; budget: number } }) {

@@ -1,7 +1,7 @@
 import asyncio,json,os
 from pathlib import Path
 from playwright.async_api import async_playwright
-D=Path(__file__).parent
+D=Path('/tmp/browser/gantt-phase1');D.mkdir(parents=True,exist_ok=True)
 async def main():
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True);c=await b.new_context(viewport={'width':1280,'height':1800});page=await c.new_page()
@@ -22,7 +22,15 @@ async def main():
    project=conversion['project'];(D/'conversion-result.json').write_text(json.dumps(conversion))
    n=next(x for x in conversion['rows'] if x['name']=='Nulty fixture');assert n['supplier_id']==f['supplier'] and n['stage_role']=='supplier_phase',conversion
    print('PASS accepted synthetic conversion preserves supplier',conversion)
+   minted=json.loads(Path(os.path.expanduser('~/.cache/lovable-auth/session.json')).read_text());await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[minted['storage_key'],json.dumps(minted['session'])])
+   await page.goto('http://localhost:8080/projects/'+project+'?tab=schedule');await page.wait_for_timeout(8000);await page.get_by_text('Concept fixture',exact=True).first.click();await page.wait_for_timeout(500)
+   inp=page.locator('aside').last.locator('input[inputmode=decimal]').last;await inp.fill('1200');await inp.press('Tab');await page.wait_for_timeout(1500);await page.reload();await page.wait_for_timeout(7000);await page.get_by_text('Concept fixture',exact=True).first.click();await page.wait_for_timeout(300);await page.screenshot(path=str(D/'converted-ricardo-panel.png'))
+   verification=await page.evaluate("""async([f,p])=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const live=await s.from('pm_stages').select('budget').eq('project_id',p).eq('name','Concept fixture').single();const quote=await s.from('quote_stages').select('budget').eq('quote_id',f.quote).eq('name','Concept fixture').single();return {live:live.data?.budget,quote:quote.data?.budget};}""",[f,project])
+   assert verification=={'live':1200,'quote':1000},verification
+   print('PASS Ricardo converted edit/reload, accepted quote unchanged',verification)
+
   finally:
+   await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'],os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']]);await page.reload();await page.wait_for_timeout(1000)
    await page.evaluate('''async([f,p])=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const ck=r=>{if(r.error)throw Error(r.error.message);return r.data};if(p){ck(await s.from('pm_stages').delete().eq('project_id',p));ck(await s.from('pm_projects').delete().eq('id',p));}ck(await s.from('fee_proposals').delete().eq('id',f.quote));ck(await s.from('companies').delete().eq('id',f.company));}''',[f,project]);print('conversion fixture cleanup complete')
   await b.close()
 asyncio.run(main())
