@@ -1,6 +1,7 @@
 # Agent rules
+- Read docs/DECISIONS.md before every task; conflicts: stop and ask Luis. Append agreed decisions with date/area/decision/reason/report links; mark superseded, never delete. Why: preserve agreements.
 - Incoming timing uses Projects' audited date actions/access gate; invoice readiness/issuance and expense manual marks use scoped audited RPCs, existing timing/expense owners. Why: fiscal/date actions and access remain separate.
-- All Gantts use QuoteGantt, SharedPlannerInspector and PlannerToolbar with scoped adapters; live writes require pm_can_edit_gantt. Preserve immutable supplier evidence and fiscal/history guards. Why: CRM/project/global editing must agree without proposal sync or scope escalation.
+- Gantts share QuoteGantt/SharedPlannerInspector/PlannerToolbar; scoped adapters + pm_can_edit_gantt preserve supplier/fiscal/history guards. Why: parity, no proposal sync/escalation.
 - Version-2 project expenses use the Finance receipt intake and pm_expenses as the sole project-cost owner; receipt saves use a queue/hash claim, company purchase matches use the full evidenced EUR debit, and credits/receipts keep explicit expense allocations; approvals, reimbursement batches and invoice allocations run through guarded database actions while version-1 history remains unchanged. Why: payer and rebilling are independent and bank/document evidence must never create a second project cost.
 - UI translation auditing uses the TypeScript AST checker in scripts/check-i18n.mjs with explicit document/brand exclusions, exact path/kind/text technical-token exceptions and a signature-count baseline ratchet; never refresh the baseline to admit new UI literals. Why: existing debt remains visible while tests/CI block new untranslated UI without touching document languages.
 - Projects route and component UI uses namespace keys for constant maps, interpolated plural counts and locale-aware display formatting; document prose remains outside UI translation. Why: language changes must update route labels without changing stored enums, document language or financial calculations.
@@ -9,7 +10,7 @@
 - Instagram publication uses persistent database claims and a recorded pre-send boundary; ambiguous provider responses are never resubmitted automatically. Why: overlapping jobs and uncertain network outcomes must not duplicate posts.
 - Reel video retention uses Marketing's service-only persistent cleanup claims in the existing private scheduled job; purge evidence is outside approval hashes and media reuse is locked through shared upload advisory locks. Why: storage removal must preserve publication history and never race new drafts.
 - Composer shares planner fees, invalidates on billing edits, and normalizes frozen relative dates at render without writes. Why: totals and labels agree.
-- Composer pagination executes only in its iframe realm and exports its completed sheets/styles. Why: transformed print CSS must never enter the app document.
+- Composer paginates only in iframe; export its completed pages/styles. Why: isolate print CSS.
 - Composer content can opt into proposal-owned cover, duration and relative-programme display overrides; defaults remain live quote data, and overrides never write Gantt stages or payment values. Why: one document can match agreed editorial timing without changing other proposals or operational planning.
 - New quote payment generation treats advances as inclusive instalments; design-subtotal milestones share quote build settings across both refresh paths. Proposal payment timing is display-only relative weeks and construction month ordinals; real payment dates derive from converted working-calendar stages only. Why: agreed instalments and relative timing must survive regeneration without fabricated calendar dates.
 - Proposal editor display labels live in an editor-only key map; stored block titles/content, print labels and document-language autonyms are independent of UI locale, with exact documented output scopes in the AST allowlist. Why: switching editor language must never rewrite client documents.
@@ -37,7 +38,7 @@
 - Homepage weekly planning derives only the caller's personal approved allocation slots from weekBoardQuery, never draft_slots; navigation exposes the weekly board to PSA staff without widening Projects module access. Why: private drafts, existing project permissions and no-rates projection must stay intact.
 
 - Unlinked quotes default relative; pm_relative_normalize_dates keeps weekdays, <2010 prints weeks. Why: unchanged hours/fees.
-- Quote revisions lock root, retain source number and print stored revision minus one; unique number/revision. Why: new work alone consumes annual numbers.
+- Revisions lock root, reuse source number, print revision−1; unique number/revision. Why: annual numbers only for new work.
 
 <!-- LOVABLE:BEGIN -->
 - Historical document containers use archived finance_only projects without stages or quotes; operational lists exclude them. Sales exclusions preserve payments and link shareholder financing to financial_debts. Why: history must not create planning or treat financing as sales.
