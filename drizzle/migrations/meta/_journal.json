@@ -1996,6 +1996,13 @@
       "when": 1794434826669,
       "tag": "0284_billing_canonical_manual_issuance",
       "breakpoints": true
+    },
+    {
+      "idx": 285,
+      "version": "7",
+      "when": 1794435008440,
+      "tag": "0285_billing_issuance_before_document_freeze",
+      "breakpoints": true
     }
   ]
 }
