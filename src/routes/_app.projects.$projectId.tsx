@@ -3,6 +3,7 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
 import { financialResult, completionForecast, plannedAllocationFigures, marginPercentage, marginLabel } from "@/lib/projects/financial-calculation";
 import { useProjectEntryFigures } from "@/lib/projects/use-project-entry-figures";
+import { projectHourClassification } from '@/lib/projects/project-hour-classification';
 import { rollupExternalServices, rollupExpenses, sumFinancialsRows } from "@/lib/projects/financial-rollups";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
@@ -230,7 +231,7 @@ function ProjectDetail() {
   const { data: activities } = useProjectActivities(projectId);
   const updateProject = useUpdateProject();
   const { allowed: legacyFinancials } = useHasPermission("projects.financials");
-  const canSeeFinancials=b1.data ? !!viewerAreas.data?.financials && !!viewerAreas.data?.budget_cost : legacyFinancials;
+  const canSeeFinancials=!!viewerAreas.data?.financials;
   const canSeeIntegrated=b1.data ? canSeeFinancials && !!viewerAreas.data?.expenses && !!viewerAreas.data?.supplier_fees : canSeeFinancials;
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
   const { data: teamAvg } = useTeamPricingAverages(!b1.data);
@@ -324,8 +325,8 @@ function ProjectDetail() {
             stage_id: row.stage_id,
             month: row.month,
             hours,
-            billableHours: Number(row.billable_hours) || 0,
-            nonBillableHours: Number(row.non_billable_hours) || 0,
+            billableHours: row.billable_hours == null ? NaN : Number(row.billable_hours),
+            nonBillableHours: row.non_billable_hours == null ? NaN : Number(row.non_billable_hours),
             snapCost: lk?.snap ?? 0,
             unsnapHours: lk ? lk.unsnap : hours,
           };
@@ -1170,7 +1171,7 @@ function ProjectDetail() {
               </div>
             )}
             {b1.data && !canSeeIntegrated && (tab==='insights'||tab==='ap') && <B1OperationalInsights projectId={projectId} stages={stages} areas={viewerAreas.data} retainer={tab==='ap'} />}
-            {tab === "insights" && (!b1.data || canSeeIntegrated) && (
+            {tab === "insights" && canSeeIntegrated && (
               <InsightsPanel
                 projectId={projectId}
                 canEdit={isAdmin && canSeeFinancials}
@@ -1192,9 +1193,10 @@ function ProjectDetail() {
                 stageActuals={stageActuals}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
-                timeRows={timeRows ?? []}
+                timeRows={timeRows}
                       entryFigures={entryFiguresQ.data ?? []}
                 historical={hist}
+                hoursReady={timeRows !== undefined && histQ.data !== undefined}
                 initialScopeStageId={insightsScopeStageId}
               />
             )}
@@ -2282,6 +2284,7 @@ function InsightsPanel({
   timeRows,
   entryFigures,
   historical,
+  hoursReady,
   initialScopeStageId,
 }: {
   projectId: string;
@@ -2304,9 +2307,10 @@ function InsightsPanel({
   stageActuals: (id: string) => { revenue: number; cost: number; profit: number };
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
-  timeRows: { stage_id: string; month: string; hours: number }[];
+  timeRows: { stage_id: string; month: string; hours: number; billableHours: number; nonBillableHours: number }[] | undefined;
   entryFigures: NonNullable<ReturnType<typeof useProjectEntryFigures>["data"]>;
   historical: HistoricalProjectTotals;
+  hoursReady: boolean;
   initialScopeStageId?: string | null;
 }) {
   const dateLocale = useDateLocale();
@@ -2516,12 +2520,10 @@ function InsightsPanel({
   const histLoggedHours = historical.loggedHours;
   const histBillable = historical.billableHours;
   const earnedValue = actualRevenue;
-  const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
-    (a, b) => a + b,
-    0,
-  ) + histBillable;
-  const displayedLoggedHours = totalLoggedHours + histLoggedHours;
-  const totalNonBillableHours = Math.max(0, displayedLoggedHours - totalBillableHours);
+  const classifiedHours = projectHourClassification(timeRows, scopeStageIds, hoursReady ? historical : undefined);
+  const totalBillableHours = classifiedHours.billable;
+  const displayedLoggedHours = classifiedHours.logged;
+  const totalNonBillableHours = classifiedHours.nonBillable;
   const loggedCost = actualCost;
   // Planned (forecast) sale value from allocations — used as the upper bound
   // for the "Forecast Value" bar.
@@ -2716,6 +2718,7 @@ function InsightsPanel({
           <HoursPill label={t("projects:detail.ui.nonBillable")} hours={totalNonBillableHours} tone="warn" />
           <HoursPill label={t("projects:detail.ui.totalLogged")} hours={displayedLoggedHours} tone="muted" />
         </div>
+        {!Number.isFinite(totalBillableHours) && <p role="status" className="px-2 text-xs text-muted-foreground">{t('insightsFinance.hoursUnavailableHint')}</p>}
         {historical.rowCount > 0 && (
           <div className="mx-2 mb-3 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
@@ -3038,7 +3041,7 @@ function HoursPill({
   return (
     <div className={cn("rounded-md px-2 py-1.5", toneClass)}>
       <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
-      <div className="font-mono text-sm font-semibold">{Math.round(hours * 10) / 10} {t("common:units.hoursShort")} </div>
+      <div className="font-mono text-sm font-semibold">{Number.isFinite(hours) ? new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(hours) : '—'} {t("common:units.hoursShort")} </div>
     </div>
   );
 }

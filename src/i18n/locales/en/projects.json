@@ -1,6 +1,7 @@
 {
   "sharedGantt": { "supplierIdentityHint": "Operational supplier identity; issued documents and confirmed payments remain protected.", "referencePending": "Reference to confirm" },
   "insightsFinance": {
+    "hoursUnavailableHint": "Saved hour classification is unavailable or still loading.",
     "conclusionMargin": "Estimated margin at completion:",
     "remainingPlan": "Remaining plan",
     "hoursConsumed": "Hours consumed",
