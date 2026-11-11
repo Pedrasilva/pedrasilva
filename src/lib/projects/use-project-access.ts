@@ -18,8 +18,21 @@ export function useProjectViewerAreas(projectId:string){
 export const PROJECT_ACCESS_AREAS=['financials','budget_cost','expenses','supplier_fees'] as const;
 export type ProjectAccessArea=typeof PROJECT_ACCESS_AREAS[number];
 export type ProjectAccessRow={resource_id:string;name:string;roles:string[];revision:number;provenance:string}&Record<ProjectAccessArea,boolean>;
+export function useProjectTeamManagementAccess(){
+  const {user,isAdmin}=useAuth();
+  return useQuery({queryKey:['pm-team-management-access',user?.id,isAdmin],enabled:!!user?.id,staleTime:0,refetchInterval:30_000,queryFn:async()=>{
+    const {data,error}=await supabase.rpc('pm_can_manage_project_teams');if(error)throw error;return data===true;
+  }});
+}
+export function useProjectTeamDirectory(enabled:boolean){
+  const {user}=useAuth();
+  return useQuery({queryKey:['pm-team-directory',user?.id],enabled,queryFn:async()=>{
+    const {data,error}=await supabase.rpc('pm_project_team_directory');if(error)throw error;return data??[];
+  }});
+}
 export function useProjectAccessPreview(projectId:string,enabled:boolean){
-  return useQuery({queryKey:['pm-project-access-preview',projectId],enabled,queryFn:async()=>{
+  const {user}=useAuth();
+  return useQuery({queryKey:['pm-project-access-preview',projectId,user?.id],enabled,queryFn:async()=>{
     const {data,error}=await supabase.rpc('pm_preview_project_access',{_project:projectId});if(error)throw error;
     return data as unknown as {active:boolean;rows:ProjectAccessRow[]};
   }});

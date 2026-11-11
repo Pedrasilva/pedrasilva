@@ -43,6 +43,7 @@ export type V2PermissionKey =
   | "projects.view"
   | "projects.edit_planning"
   | "projects.edit_week_notes"
+  | "projects.manage_teams"
   | "projects.edit_stages"
   // Projects (financial visibility)
   | "projects.view_financials"
@@ -123,6 +124,13 @@ export const SCOPE_RANK: Record<PermissionScope, number> = {
 };
 
 export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
+  {
+    key: "projects.manage_teams",
+    module: "Projects",
+    label: "projects:projectAccess.manageTeams",
+    description: "projects:projectAccess.manageTeamsHint",
+    scopes: ["all"],
+  },
   {
     key: "projects.edit_week_notes",
     module: "Projects",

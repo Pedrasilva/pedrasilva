@@ -2985,6 +2985,14 @@
     }
   },
   "projectAccess": {
+    "manageTeams": "Gerir equipas de projeto",
+    "manageTeamsHint": "Acrescentar ou remover colaboradores e definir os quatro acessos em todos os projetos. Só administradores podem atribuir esta permissão.",
+    "help": {
+      "financials": "Valor contratado, honorários, recebimentos e faturas; também permite editar o Gantt e ver custos e preços horários derivados de HR, não salários brutos.",
+      "budget_cost": "Orçamentos do projeto, horas planeadas e registadas e respetivos custos de trabalho.",
+      "expenses": "Despesas do projeto, comprovativos e reembolsos; aprovações e atos fiscais mantêm permissões próprias.",
+      "supplier_fees": "Honorários e custos de fornecedores externos deste projeto."
+    },
     "pending": "Acesso proposto — aguarda aprovação do corte; os acessos financeiros atuais mantêm-se ativos.",
     "reason": "Motivo da alteração da equipa ou acesso",
     "person": "Pessoa",
