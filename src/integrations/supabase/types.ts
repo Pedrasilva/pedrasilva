@@ -10238,6 +10238,54 @@ export type Database = {
           },
         ]
       }
+      pm_gantt_value_history: {
+        Row: {
+          actor_id: string
+          actor_name: string
+          changed_at: string
+          details: Json
+          effective_month: string | null
+          event_type: string
+          id: string
+          new_value: number
+          old_value: number | null
+          project_id: string
+          reason: string
+          stage_id: string
+          stage_name: string
+        }
+        Insert: {
+          actor_id: string
+          actor_name: string
+          changed_at?: string
+          details?: Json
+          effective_month?: string | null
+          event_type: string
+          id?: string
+          new_value: number
+          old_value?: number | null
+          project_id: string
+          reason: string
+          stage_id: string
+          stage_name: string
+        }
+        Update: {
+          actor_id?: string
+          actor_name?: string
+          changed_at?: string
+          details?: Json
+          effective_month?: string | null
+          event_type?: string
+          id?: string
+          new_value?: number
+          old_value?: number | null
+          project_id?: string
+          reason?: string
+          stage_id?: string
+          stage_name?: string
+        }
+        Relationships: []
+      }
       pm_global_financial_capabilities: {
         Row: {
           assigned_at: string
@@ -12671,6 +12719,7 @@ export type Database = {
           budget_mode: string | null
           children_bill_independently: boolean
           color: string
+          commercial_value_owned: boolean
           created_at: string
           end_date: string
           external_id: string | null
@@ -12683,6 +12732,7 @@ export type Database = {
           markup_pct: number
           name: string
           origin: string | null
+          outside_contract: boolean
           parent_stage_id: string | null
           project_id: string
           retainer_anchor_month: string | null
@@ -12719,6 +12769,7 @@ export type Database = {
           budget_mode?: string | null
           children_bill_independently?: boolean
           color?: string
+          commercial_value_owned?: boolean
           created_at?: string
           end_date: string
           external_id?: string | null
@@ -12731,6 +12782,7 @@ export type Database = {
           markup_pct?: number
           name: string
           origin?: string | null
+          outside_contract?: boolean
           parent_stage_id?: string | null
           project_id: string
           retainer_anchor_month?: string | null
@@ -12767,6 +12819,7 @@ export type Database = {
           budget_mode?: string | null
           children_bill_independently?: boolean
           color?: string
+          commercial_value_owned?: boolean
           created_at?: string
           end_date?: string
           external_id?: string | null
@@ -12779,6 +12832,7 @@ export type Database = {
           markup_pct?: number
           name?: string
           origin?: string | null
+          outside_contract?: boolean
           parent_stage_id?: string | null
           project_id?: string
           retainer_anchor_month?: string | null
@@ -19250,6 +19304,39 @@ export type Database = {
       pm_expense_request_approval: {
         Args: { p_approver: string; p_expense_id: string }
         Returns: Json
+      }
+      pm_gantt_change_value: {
+        Args: {
+          _client_agreed?: boolean
+          _effective_month?: string
+          _expected: number
+          _reason: string
+          _responsibility: boolean
+          _stage: string
+          _value: number
+        }
+        Returns: Json
+      }
+      pm_gantt_commercial_read: { Args: { _project: string }; Returns: Json }
+      pm_gantt_contract_value: { Args: { _stage: string }; Returns: number }
+      pm_gantt_extend_retainer: {
+        Args: { _months: number; _stage: string }
+        Returns: Json
+      }
+      pm_gantt_reconcile_value: {
+        Args: { _new: number; _old: number; _stage: string }
+        Returns: undefined
+      }
+      pm_gantt_record_value: {
+        Args: {
+          _event: string
+          _month?: string
+          _new: number
+          _old: number
+          _reason: string
+          _stage: Database["public"]["Tables"]["pm_stages"]["Row"]
+        }
+        Returns: undefined
       }
       pm_gantt_save: {
         Args: {

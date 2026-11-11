@@ -1,3 +1,9 @@
+## Current request — Gantt Phase 2 approved
+- [x] Audited confirmed stage/retainer changes, immutable references, split caps and immediate unfrozen billing reconciliation.
+- [x] Shared Gantt contract comparison, allocated/remaining, new-stage markers and stage/project history.
+- [x] Direct/converted disposable UI confirmation, Ricardo real-actor history, screenshots, cleanup and B1 OFF verified.
+- [ ] Phase 2 remaining validation: retainer extension/forward values, concurrent split caps, fiscal reconciliation, denied-user checks and free-date forecasts (not completed this turn).
+
 ## Current request — 11 November project financials approved fix
 - [x] Scope resource and derived HR-rate reads to project financial access in OFF/ON, preserving raw HR restrictions and B1 OFF (0273–0274 mirrored).
 - [x] Compute billable/non-billable pills from saved classification, with unavailable state; one missing EUR expense listed unchanged.
@@ -11,7 +17,7 @@
 - [x] Reuse scoped project financial access for all live Gantt writes, enforced server-side; preserve fiscal guards and B1 state.
 - [x] Display unavailable legacy contractual reference explicitly; test only disposable copies, capture screenshots, delete fixtures and verify zero.
 - [x] Phase 1 report/screenshots: docs/project-proposal-gantt-phase1-report.md; Ricardo direct/converted edit and supplier conversion passed, zero fixtures, B1 OFF revision 10.
-- [ ] Phase 2 awaits Luis's explicit OK (dates/value confirmations/history/substage caps/retainer forward changes); no implementation started.
+- [x] Phase 2 approved by Luis on 11 November 2026; tracked above.
 
 ## Previous request — 11 November Gantt investigation and plan only
 - [x] Compare shared renderer and separate panels/toolbar/financial/supplier/retainer paths; read-only Ricardo permissions and Luis disabled-budget reproduction.

@@ -1,6 +1,7 @@
 import type { StageWithAllocations } from './types';
 import { allocationCost } from './gantt-utils';
 import { effectiveCostRate } from './use-default-rates';
+import {commercialProjectValue} from './gantt-commercial';
 
 export function visibleGanttNumber(value: number | null | undefined, allowed: boolean): number {
   return allowed && value != null && Number.isFinite(value) ? value : NaN;
@@ -10,8 +11,7 @@ export function visibleGanttNumber(value: number | null | undefined, allowed: bo
 export function ganttProjectBudget(stages: StageWithAllocations[]): number {
   const kept = stages.filter((s) => (s as { stage_kind?: string }).stage_kind !== 'retainer_month');
   if (!kept.length) return NaN;
-  const parents = new Set(kept.map((s) => (s as { parent_stage_id?: string | null }).parent_stage_id).filter(Boolean));
-  return kept.filter((s) => !parents.has(s.id)).reduce((sum, s) => sum + visibleGanttNumber(s.budget, true), 0);
+  return commercialProjectValue(kept);
 }
 
 /** Absence/denial must survive empty allocations and parent rollups. */

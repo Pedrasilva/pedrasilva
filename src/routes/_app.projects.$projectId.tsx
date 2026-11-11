@@ -4,6 +4,7 @@ import i18n from "@/i18n/index";
 import { financialResult, completionForecast, plannedAllocationFigures, marginPercentage, marginLabel } from "@/lib/projects/financial-calculation";
 import { useProjectEntryFigures } from "@/lib/projects/use-project-entry-figures";
 import { projectHourClassification } from '@/lib/projects/project-hour-classification';
+import {commercialProjectValue} from '@/lib/projects/gantt-commercial';
 import { rollupExternalServices, rollupExpenses, sumFinancialsRows } from "@/lib/projects/financial-rollups";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
@@ -406,13 +407,7 @@ function ProjectDetail() {
   // ---- Aggregations -----------------------------------------------------
   // Exclude retainer month children — their budget is already summed in the
   // retainer parent (kind='retainer_monthly'), so counting both double-counts.
-  const totalBudget = stages.reduce(
-    (sum, s) =>
-      (s as { stage_kind?: string | null }).stage_kind === "retainer_month"
-        ? sum
-        : sum + Number(s.budget),
-    0,
-  );
+  const totalBudget = commercialProjectValue(stages);
 
   const stageCost = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
@@ -2320,13 +2315,7 @@ function InsightsPanel({
       };
     }
     const inScope = stages.filter((s) => scopeStageIds.has(s.id));
-    const budget = inScope.reduce(
-      (sum, s) =>
-        (s as { stage_kind?: string | null }).stage_kind === "retainer_month"
-          ? sum
-          : sum + Number(s.budget),
-      0,
-    );
+    const budget = commercialProjectValue(inScope);
     const plannedCost = inScope.reduce((a, s) => a + stageCost(s.id), 0);
     const plannedH = inScope.reduce((a, s) => a + stagePlannedHours(s.id), 0);
     const loggedH = inScope.reduce((a, s) => a + stageLoggedHours(s.id), 0);

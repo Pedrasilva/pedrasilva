@@ -1,4 +1,23 @@
 {
+  "commercial": {
+    "contracted": "Contracted",
+    "current": "Current",
+    "changed": "≠ Contract",
+    "outside": "Outside the contract",
+    "confirmTitle": "Confirm value change",
+    "responsibilityHint": "This differs from what was contractually agreed ({{value}}). Confirm you take responsibility for this change.",
+    "pendingResponsibilityHint": "Contract reference to confirm. Confirm you take responsibility for this value change.",
+    "takeResponsibility": "I take responsibility for this change.",
+    "clientAgreed": "Has the client agreed to the new retainer value?",
+    "reason": "Short reason for the value change",
+    "effectiveMonth": "Applies from this month",
+    "history": "Value change history",
+    "historyUnavailable": "Value change history is unavailable.",
+    "historyEmpty": "No value changes recorded.",
+    "appliesFrom": "Applies from {{month}}",
+    "splitBalance": "Allocated {{allocated}} / Remaining {{remaining}}",
+    "addMonth": "Add retainer month"
+  },
   "sharedGantt": { "supplierIdentityHint": "Operational supplier identity; issued documents and confirmed payments remain protected.", "referencePending": "Reference to confirm" },
   "insightsFinance": {
     "hoursUnavailableHint": "Saved hour classification is unavailable or still loading.",

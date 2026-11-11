@@ -49,6 +49,7 @@ import { plannerStageRole } from "@/lib/projects/planner-stage-role";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
 import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
+import {GanttStageCommercial,GanttValueDialog} from '@/components/planner/gantt-commercial-panel';
 
 interface Props {
   relative?:boolean;
@@ -94,6 +95,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
     deleteDependency:delDep, cascadeStage:updateStageCascade, upsertAllocation:upsertAlloc,
     deleteAllocation:delAlloc, resources:poolResources, defaultRates, quoteMargin}=model;
   const stage = model.stages.find(s=>s.id===stageId);
+  const operationalStage=model.operationalStages?.find(s=>s.id===stageId);
   const allStages=model.stages;
   const deps=model.dependencies;
   const allocs=model.allocations.filter(a=>a.stage_id===stageId);
@@ -189,6 +191,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
     { succ: "", type: "FS", lag: "0" },
   );
   const [newAlloc, setNewAlloc] = useState({ resource_id: "", pct: "75", hpd: "6" });
+  const [pendingValue,setPendingValue]=useState<number|null>(null);
 
   if (!stage) {
     return (
@@ -289,7 +292,8 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
         </Button>
       </header>
 
-      {model.contractReferencePending && <p role="status" className="border-b border-border px-3 py-2 text-xs text-muted-foreground">{t("projects:sharedGantt.referencePending")}</p>}
+      {model.operational&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
+      {pendingValue!=null&&operationalStage&&<GanttValueDialog projectId={quoteId} stage={operationalStage} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       <fieldset disabled={model.readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
@@ -679,7 +683,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                 const timing = (sx.stage_billing_timing ?? "end") as "end" | "start" | "split";
                 return (
                   <>
-                    {isParent && (
+                    {isParent && !model.operational && (
                       <div className="space-y-1">
                         <Label className="text-xs">
                           {t("workspace.planning.budgetMode", { defaultValue: "Budget mode" })}
@@ -713,7 +717,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                           ? t("workspace.planning.supplierCost", { defaultValue: "Supplier cost" })
                           : t("workspace.planning.budget", { defaultValue: "Budget" })}
                       </Label>
-                      {isParent && mode === "calculated" ? (
+                      {model.operational&&operationalStage?.stage_kind==='retainer_monthly'?<p className="font-mono text-sm">{Number(stage.budget).toLocaleString(uiI18n.language,{style:'currency',currency:'EUR'})}</p>:isParent && mode === "calculated" && !model.operational ? (
                         <>
                           <CurrencyInput
                             key={`b-${stage.id}-calc-${calculated}`}
@@ -735,7 +739,10 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                           key={`b-${stage.id}-${stage.budget}`}
                           value={Number(stage.budget ?? 0)}
                           onCommit={(v: number) => {
-                            if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
+                            if (v !== Number(stage.budget)) {
+                              if(model.operational)setPendingValue(v);
+                              else upsertStage.mutate({ id: stage.id, budget: v });
+                            }
                           }}
                         />
                       )}

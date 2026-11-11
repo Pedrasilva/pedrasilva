@@ -226,6 +226,7 @@ export function useUpdateStageWithCascade() {
       qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
       qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
       qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-incoming-timing",vars.projectId] });
     },
   });
 }

@@ -4,6 +4,7 @@ import type { PlannerInspectorModel } from './planner-inspector-model';
 import { useStageDependencies,useResources,useUpdateStage,useCreateStage,useDeleteStage,useUpdateStageWithCascade,useCreateDependency,useUpdateDependency,useDeleteDependency,useCreateAllocation,useUpdateAllocation,useDeleteAllocation } from '@/lib/projects/use-planner';
 import { useDefaultResourceRates } from '@/lib/projects/use-default-rates';
 import { useContractBaseline } from '@/lib/projects/use-contract-baseline';
+import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
 import { plannerStageRole } from '@/lib/projects/planner-stage-role';
 import type { StageWithAllocations } from '@/lib/projects/types';
 import type { QuoteStage, QuoteStageDependency } from '@/lib/quotes/types';
@@ -14,6 +15,7 @@ export function ProjectInspectorAdapter({projectId,stages,stageId,onClose,readOn
 }){
   const dependencies=useStageDependencies(); const resources=useResources(projectId);
   const rates=useDefaultResourceRates(projectId); const baseline=useContractBaseline(financialVisible?projectId:undefined);
+  const commercial=useGanttCommercial(projectId,financialVisible);
   const update=useUpdateStage(); const create=useCreateStage(); const remove=useDeleteStage(); const cascade=useUpdateStageWithCascade();
   const createDep=useCreateDependency();const updateDep=useUpdateDependency();const deleteDep=useDeleteDependency();
   const createAlloc=useCreateAllocation(); const updateAlloc=useUpdateAllocation();const deleteAlloc=useDeleteAllocation();
@@ -45,6 +47,8 @@ export function ProjectInspectorAdapter({projectId,stages,stageId,onClose,readOn
     createDependency:insertDependency,updateDependency:updateDep,deleteDependency:deleteDep,cascadeStage,
     upsertAllocation,deleteAllocation:removeAllocation,readOnly,financialVisible,operational:true,
     contractReferencePending:financialVisible && baseline.isSuccess && (!baseline.data || baseline.data.stages.length===0),
+    commercialReferences:commercial.data?.stages,
+    operationalStages:stages,
   };
   return <SharedPlannerInspector model={model} scopeId={projectId} stageId={stageId} onClose={onClose}/>;
 }

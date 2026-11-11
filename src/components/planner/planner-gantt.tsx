@@ -1,4 +1,6 @@
 import { PlannerToolbar } from "./planner-toolbar";
+import {GanttValueDialog,GanttContractSummary} from './gantt-commercial-panel';
+import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
 import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
 import { recomputeSchedule } from "@/lib/projects/schedule-engine";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
@@ -545,6 +547,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       created_at: s.created_at,
       updated_at: s.updated_at,
       baseline_budget: null,
+      commercial_value_owned:false,
+      outside_contract:false,
       baseline_end_date: null,
       baseline_locked_at: null,
       baseline_notes: null,
@@ -1242,12 +1246,13 @@ function OperationalScheduleAdapter({
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
+  const commercialQ=useGanttCommercial(projectId,canSeeFinancials);
   const provenance = useProjectProvenance(linkedQuoteId);
   const sourceQuoteId = provenance.data?.generated ? undefined : linkedQuoteId;
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
+    stages: detailQ.data.stages.map(s => ({ ...s,is_locked:false, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
     issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
   const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;
@@ -1284,9 +1289,9 @@ function OperationalScheduleAdapter({
   const { mappedStages, hierarchy } = useMemo(
     () =>
       stages.length
-        ? buildProjectGanttTree(stages, projectId, summaryLabel)
+        ? buildProjectGanttTree(stages.map(s=>{const ref=commercialQ.data?.stages.find(r=>r.id===s.id);return {...s,commercial_value_owned:ref?.valueOwned??s.commercial_value_owned,contractedValue:ref?.contracted,outsideContract:ref?.outsideContract};}), projectId, summaryLabel)
         : { mappedStages: [] as StageWithProject[], hierarchy: new Map<string, GanttHierarchyNode>() },
-    [stages, projectId, summaryLabel],
+    [stages, projectId, summaryLabel,commercialQ.data],
   );
 
   // Payment milestones from issued invoices.
@@ -1390,6 +1395,7 @@ function OperationalScheduleAdapter({
   }, [zoom, projectId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [pendingCommercial,setPendingCommercial]=useState<{id:string;value:number}|null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
     if (typeof window === "undefined") return 420;
     const v = Number(window.localStorage.getItem("planner.outlineWidth.project"));
@@ -1402,7 +1408,7 @@ function OperationalScheduleAdapter({
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
       if (!canEdit) return;
-      await updateStage.mutateAsync({ id, patch: { budget }, projectId });
+      setPendingCommercial({id,value:budget});
     },
     [canEdit, updateStage, projectId],
   );
@@ -1708,6 +1714,8 @@ function OperationalScheduleAdapter({
 
   return (
     <div className="min-w-0 max-w-full space-y-2">
+      {canSeeFinancials&&<GanttContractSummary projectId={projectId} stages={stages}/>}
+      {pendingCommercial&&stages.find(s=>s.id===pendingCommercial.id)&&<GanttValueDialog projectId={projectId} stage={stages.find(s=>s.id===pendingCommercial.id) as StageWithAllocations} value={pendingCommercial.value} onClose={()=>setPendingCommercial(null)}/>}
       <PlannerToolbar mode="project" scope={projectId} disabled={!canEdit||createStage.isPending||updateStage.isPending} selected={!!selectedStageId}
         add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
         reflow={async()=>{if(!canEdit)return;try{const state=await readGanttSchedule("project",projectId);await saveGanttSchedule("project",projectId,state,recomputeSchedule(state));await qc.invalidateQueries({queryKey:["pm-project",projectId]});await qc.invalidateQueries({queryKey:["pm-stages-all"]});}catch(error){toast.error(error instanceof Error?error.message:String(error));}}}

@@ -30,6 +30,7 @@ export interface ActualStage {
   trailParentId?: string | null;
   budget: number;
   start: string;
+  valueOwned?:boolean;
   end: string;
   plans: ActualPlan[];
 }
@@ -166,7 +167,7 @@ export function buildGanttActuals(input: {
     const ownCost = aggregate ? aggregate.cost : ownMissing > 0 ? null : own.reduce((n,a) => n+(a.cost ?? 0),0);
     const missingHours = ownMissing + childTotals.reduce((n,c) => n+c.missingHours,0);
     const cost = ownCost == null || childTotals.some(c => c.cost == null) ? null : ownCost + childTotals.reduce((n,c) => n+(c.cost ?? 0),0);
-    const budget = kids.length ? childTotals.reduce((n,c) => n+c.budget,0) : stage.budget;
+    const budget = kids.length && !stage.valueOwned ? childTotals.reduce((n,c) => n+c.budget,0) : stage.budget;
     const planned = stage.plans.reduce((n,p) => n+workingDays(p.start,p.end,input.holidays)*actualPlanDailyHours(p),0) + childTotals.reduce((n,c) => n+c.planned,0);
     const logged = ownLogged + childTotals.reduce((n,c) => n+c.logged,0);
     const descendants = (s: ActualStage): ActualStage[] => {

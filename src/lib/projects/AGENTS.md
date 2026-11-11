@@ -1,4 +1,5 @@
 # Projects module rules
+- Live fee changes use confirmed atomic commercial actions and append-only history; new value-owned stages retain their fee independently of substage allocation, and split totals are server-capped. Why: operational adaptation must preserve contracted references, real actors and protected fiscal amounts.
 
 - Global Gantt financial headers, outline, bars and popovers require caller-scoped project area approval; empty allocations never make a denied cost zero and rollups propagate missing budgets. Why: operational visibility must not manufacture financial values.
 - Global Gantt header budgets count regular leaf stages and retainer parents once, excluding monthly retainer breakdowns in both legacy and B1 calculations; allocation cost iteration remains independent. Why: parent/month display rows must not duplicate the agreed budget or discard planned costs.
