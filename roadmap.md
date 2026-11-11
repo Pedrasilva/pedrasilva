@@ -1,3 +1,10 @@
+## Current request — confirmed HR isolation and temporary exception
+- [ ] Record D36/D37 and temporary Ricardo exception; B1 OFF.
+- [ ] Revoke only Bernardo/Patricia effective HR team list; preserve Ricardo and other rights.
+- [ ] Isolate Backoffice/leave detail reads; provide safe working-day and named generic team-calendar projections; preserve writes.
+- [ ] Remove only confirmed Gmail test account and its roles/grants.
+- [ ] Fresh disposable staff verification, privileged/Project Lead/Ricardo parity, cleanup and fresh security scan.
+
 ## Current request — approved permissions step 1 and isolated exposure investigation
 - [x] Record confirmed full-HR restriction D35 to Luis, Irene and Tatiana; B1 OFF, no real-account changes.
 - [x] Deliver 698-row person × action × scope × origin and exact proposed losses; preserve own HR/pay/leave requests, timesheets/projects; execution waits for Luis's confirmation.
