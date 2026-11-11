@@ -1,0 +1,77 @@
+{
+  "documentsEqual": true,
+  "documentCount": 4,
+  "paymentCount": 2,
+  "protectedEqual": true,
+  "protectedCount": 4,
+  "open": [
+    {
+      "label": "Open Concept",
+      "value": 1500
+    },
+    {
+      "label": "Open month",
+      "value": 150
+    }
+  ],
+  "months": [
+    {
+      "budget": 100,
+      "start_date": "2026-12-01"
+    },
+    {
+      "budget": 100,
+      "start_date": "2027-01-01"
+    },
+    {
+      "budget": 150,
+      "start_date": "2027-02-01"
+    }
+  ],
+  "stage": {
+    "budget": 2000
+  },
+  "retainer": {
+    "budget": 350,
+    "retainer_monthly_amount": 150
+  },
+  "belowError": "New value is below protected issued or paid amounts",
+  "directError": "Issued invoices and confirmed payments are protected",
+  "history": [
+    {
+      "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+      "old_value": 100,
+      "new_value": 150,
+      "reason": "Disposable agreed retainer protection",
+      "event_type": "retainer_month"
+    },
+    {
+      "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+      "old_value": 100,
+      "new_value": 150,
+      "reason": "Disposable agreed retainer protection",
+      "event_type": "retainer_value"
+    },
+    {
+      "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+      "old_value": 1000,
+      "new_value": 2000,
+      "reason": "Disposable issued and paid protection",
+      "event_type": "stage_value"
+    },
+    {
+      "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+      "old_value": null,
+      "new_value": 300,
+      "reason": "New stage outside the contract",
+      "event_type": "new_stage"
+    },
+    {
+      "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+      "old_value": null,
+      "new_value": 1000,
+      "reason": "New stage outside the contract",
+      "event_type": "new_stage"
+    }
+  ]
+}

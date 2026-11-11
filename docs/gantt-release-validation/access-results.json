@@ -1,0 +1,28 @@
+{
+  "deniedUI": {
+    "newStageButtons": 0,
+    "contractEditor": 0
+  },
+  "deniedServer": {
+    "access": false,
+    "directDenied": true,
+    "valueError": "Forbidden",
+    "scheduleError": "Forbidden"
+  },
+  "allowed": {
+    "access": true,
+    "stage": {
+      "budget": 1200,
+      "start_date": "2026-11-16"
+    },
+    "history": [
+      {
+        "actor_id": "4d2a2d60-fab6-42a5-b08c-03b7008c2170",
+        "old_value": 1000,
+        "new_value": 1200,
+        "reason": "Disposable financial-access UI test"
+      }
+    ],
+    "cross": "Forbidden"
+  }
+}
