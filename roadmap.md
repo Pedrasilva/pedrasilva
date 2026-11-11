@@ -1,3 +1,8 @@
+## Current request — final Gantt validation before team use
+- [ ] Repeat retainer, split limits, financial-editor/denied-user and fiscal protection checks on disposable fixtures; fix failures.
+- [ ] Repeat global, project and CRM mouse drag, start, duration, four dependency types and reload persistence.
+- [ ] Report pass/fail matrix, screenshots and changed files; independent cleanup zero, B1 OFF and real-data preservation.
+
 ## Current request — delegated project team management
 - [x] Confirm no existing grantable capability; record Luis's decision D32.
 - [x] Add admin-grantable all-project team capability, guarded audited actions and bilingual toggle help; grant nobody (0279 mirrored).
