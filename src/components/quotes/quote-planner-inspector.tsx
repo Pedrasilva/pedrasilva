@@ -339,7 +339,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                   <SelectItem value="client">
                     {t("workspace.planning.roleClient", { defaultValue: "Client (approvals, no cost)" })}
                   </SelectItem>
-                  <SelectItem value="supplier_group">
+                  <SelectItem value={stageRoleNow === "supplier_phase" ? "supplier_phase" : "supplier_group"}>
                     {t("workspace.planning.roleSupplier", { defaultValue: "Supplier (billed to client)" })}
                   </SelectItem>
                 </SelectContent>
@@ -413,6 +413,8 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
             {!(stage as { is_self?: boolean }).is_self && (
               <>
                 <SupplierPicker
+                  disabled={model.readOnly}
+                  legacyName={stage.supplier_placeholder}
                   value={(stage as { supplier_id?: string | null }).supplier_id ?? null}
                   onChange={(supplierId) =>
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -434,7 +436,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  {t("workspace.planning.supplierHintV2", { defaultValue: "Pick a supplier from the master directory, or use a placeholder name until known. Either way, an outflow commitment is generated." })}
+                  {model.operational ? t("projects:sharedGantt.supplierIdentityHint") : t("workspace.planning.supplierHintV2", { defaultValue: "Pick a supplier from the master directory, or use a placeholder name until known. Either way, an outflow commitment is generated." })}
                 </p>
               </>
             )}
