@@ -1,0 +1,2 @@
+ALTER TABLE public.pm_billing_groups DROP CONSTRAINT pm_billing_groups_project_id_fkey;
+ALTER TABLE public.pm_billing_groups ADD CONSTRAINT pm_billing_groups_project_id_fkey FOREIGN KEY(project_id) REFERENCES public.pm_projects(id) ON DELETE CASCADE;
