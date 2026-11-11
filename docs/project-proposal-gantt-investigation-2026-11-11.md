@@ -81,7 +81,7 @@ Baseline `29c86f4c-af25-4b74-b857-b264a63ce0fb` existe, mas tem **total_fee=0, z
 
 ## 5. Plano proposto
 
-O plano interativo apresenta a unificação integral, dados financeiros separados, auditoria e testes; aguarda aprovação. Sem implementação ou testes com escrita nesta tarefa.
+Este diagnóstico é anterior à decisão de Luis de simplificar o modelo. A separação por cargo/Finance e os workflows do plano antigo foram substituídos pelo acesso financeiro por projeto e pelas duas fases descritas em `project-proposal-gantt-phase1-report.md`. As verificações acima pertencem à investigação read-only; a Fase 1 foi autorizada depois.
 
 ### Evidência e limites
 

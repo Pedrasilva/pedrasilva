@@ -1,14 +1,14 @@
 ## Current request — 11 November 11:56 simplified Gantt Phase 1
-- [ ] Unify CRM/project/global panel, toolbar, colours and supplier styling; preserve supplier identity in new conversions without real-data backfill.
-- [ ] Reuse scoped project financial access for all live Gantt writes, enforced server-side; preserve fiscal guards and B1 state.
-- [ ] Display unavailable legacy contractual reference explicitly; test only disposable copies, capture screenshots, delete fixtures and verify zero.
+- [x] Unify CRM/project/global panel, toolbar, colours and supplier styling; preserve supplier identity in new conversions without real-data backfill.
+- [x] Reuse scoped project financial access for all live Gantt writes, enforced server-side; preserve fiscal guards and B1 state.
+- [x] Display unavailable legacy contractual reference explicitly; test only disposable copies, capture screenshots, delete fixtures and verify zero.
 - [ ] Report Phase 1 and wait for Luis's OK before Phase 2 (dates/value confirmations/history/substage caps/retainer forward changes).
 
 ## Previous request — 11 November Gantt investigation and plan only
 - [x] Compare shared renderer and separate panels/toolbar/financial/supplier/retainer paths; read-only Ricardo permissions and Luis disabled-budget reproduction.
 - [x] Document missing Mastercard legacy contract evidence, supplier role loss and mismatch of reported October €285 row; no code/data/B1 changes.
 - [x] Prepare one shared-Gantt/internal-vs-client/audit plan and complete investigation report.
-- [ ] Implementation awaits Luis's approval; any legacy real-data correction requires a separate exact-row approval.
+- [x] Superseded by approved simplified Phase 1; legacy real-data corrections still require exact-row approval.
 
 ## Current request — 9 November direct-project origin bug
 - [x] Diagnose all 10 quote-linked projects read-only: five reverse-generated quotes, four with conversion baselines, one unresolved legacy link; exact disputed Mastercard rows in docs/direct-project-origin-report.md.
