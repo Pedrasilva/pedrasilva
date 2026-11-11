@@ -1,2 +1,3 @@
 # Quote template rules
 - Full quote templates use versioned server-owned snapshots and guarded transactional import/undo with whole-state revision checks; legacy reduced snapshots disclose missing fidelity and never fetch live source data implicitly. Why: stage references, fiscal exclusion and undo must remain atomic without altering source quotes.
+- Calculator and template stage creation share quote_stage_snapshot_insert, the replacement warning and quote_template_imports revision-checked undo; calculator row keys and last-applied budgets preserve schedule edits and detect value overrides. Why: both entry points need atomic reversible planning without duplicates or silent overwrites.

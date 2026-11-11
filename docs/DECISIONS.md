@@ -345,3 +345,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Limites:** B1 OFF; testes só em propostas descartáveis vazia/preenchida, nunca Travessa do Oleiro nem proposta real. Não corrigir dados reais nem regravar templates existentes automaticamente.
 - **Motivo:** Blocos Gantt precisam do programa e honorários completos, não de uma cópia editorial desligada das fases.
 - **Relatórios:** [Implementação, testes e limites](full-quote-templates-report.md).
+
+### D41 — Calculadora cria fases de Arquitetura ligadas
+- **Data:** 11/11/2026, pedido confirmado por Luis às 23:01 UTC.
+- **Área:** CRM / calculadora / planeamento / pagamentos.
+- **Estado:** Decisão confirmada; implementação e limites de validação no relatório, sem substituir decisões anteriores.
+- **Decisão:** Aplicar honorários cria uma fase de Arquitetura por linha, com nome, ordem, valor percentual e um mês sequencial relativo. Valores em euros inteiros somam exatamente o honorário final, com resto na maior fase. Reaplicar mantém ligação, datas/durações editadas e não duplica fases; valores manuais exigem consentimento. Novas linhas acrescentam fases; linhas removidas perguntam pela fase ligada. Fases não criadas pela calculadora exigem Substituir/Adicionar/Cancelar; fornecedores e avenças nunca são tocados. Planeamento e financeiro usam as fases; novas fases recebem regra explícita de pagamentos do atelier ou mostram «Plano por definir», sem divisão silenciosa. Criação, aviso e desfazer/revisão automática partilhados com templates.
+- **Limites:** B1 OFF, só cópias descartáveis; não alterar propostas reais. Confirmação de substituição não autoriza apagar fornecedores/avenças ou evidência fiscal ligados.
+- **Motivo:** Eliminar honorários sem fases e preservar ajustes manuais e totais coerentes.
+- **Relatórios:** [Implementação, resultados, SQL e limites](calculator-linked-stages-report.md).

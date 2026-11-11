@@ -18,6 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {Plus,Trash2,Undo2} from 'lucide-react';
+import {CalculatorApplyDialog} from './calculator-apply-dialog';
+import {calculatorHasConflicts,type CalculatorPreview} from '@/lib/quotes/calculator-planning';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -58,6 +61,8 @@ function numInput(value: number | null): string {
 export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
+  const [preview,setPreview]=useState<CalculatorPreview|null>(null);
+  const [undoId,setUndoId]=useState<string|null>(null);
 
   const [inputs, setInputs] = useState<FeeCalculatorInputs>(() =>
     parseFeeCalculatorPayload(initialPayload),
@@ -79,13 +84,12 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
   // Auto-save inputs to fee_proposals.project_fee_calculation (JSONB) on
   // every change, debounced. The manual "Save draft" button stays as a
   // visible confirmation, but typing values is enough — no click required.
-  const isFirstRender = useRef(true);
+  const lastSavedInputs = useRef(JSON.stringify(parseFeeCalculatorPayload(initialPayload)));
+  const reviewInProgress = useRef(false);
   const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    if (preview || reviewInProgress.current) return;
+    if (JSON.stringify(inputs)===lastSavedInputs.current) return;
     setAutoSaveState("saving");
     const handle = setTimeout(async () => {
       const { error } = await supabase
@@ -97,12 +101,13 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
         setAutoSaveState("error");
         toast.error(error.message);
       } else {
+        lastSavedInputs.current=JSON.stringify(inputs);
         setAutoSaveState("saved");
         qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       }
     }, 600);
     return () => clearTimeout(handle);
-  }, [inputs, quoteId, qc]);
+  }, [inputs, quoteId, qc, preview]);
 
   const save = useMutation({
     mutationFn: async (apply: boolean) => {
@@ -132,17 +137,30 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const apply = useMutation({mutationFn:async({action,overwrite,remove,revision}:{action:string;overwrite:boolean;remove:boolean;revision:string})=>{
+    const r=await supabase.rpc('quote_apply_calculator',{_quote_id:quoteId,_inputs:{...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))} as unknown as import('@/integrations/supabase/types').Json,_revision:revision,_existing_action:action,_overwrite_manual:overwrite,_delete_removed:remove});if(r.error)throw Error(r.error.message);return r.data;
+  },onSuccess:async id=>{lastSavedInputs.current=JSON.stringify(inputs);setUndoId(id);setPreview(null);reviewInProgress.current=false;await qc.invalidateQueries();onApplied?.(result.finalFee,result.constructionValue,result.feePercentage);toast.success(t('feeCalculator.appliedToast'));},onError:(e:Error)=>toast.error(e.message)});
+  const review=useMutation({mutationFn:async()=>{
+    reviewInProgress.current=true;
+    const normalized={...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))};
+    const saved=await supabase.from('fee_proposals').update({project_fee_calculation:normalized as unknown as import('@/integrations/supabase/types').Json}).eq('id',quoteId);if(saved.error)throw Error(saved.error.message);
+    const ids=normalized.stages.map(s=>s.id);
+    const r=await supabase.rpc('quote_calculator_preview',{_quote_id:quoteId,_row_ids:ids});if(r.error)throw Error(r.error.message);lastSavedInputs.current=JSON.stringify(inputs);return r.data as unknown as CalculatorPreview;
+  },onSuccess:p=>{if(calculatorHasConflicts(p))setPreview(p);else apply.mutate({action:'add',overwrite:false,remove:false,revision:p.revision});},onError:(e:Error)=>toast.error(e.message)});
+  const undo=useMutation({mutationFn:async()=>{if(!undoId)return;const r=await supabase.rpc('quote_undo_template_import',{_import_id:undoId});if(r.error)throw Error(r.error.message);},onSuccess:async()=>{setUndoId(null);await qc.invalidateQueries();toast.success(t('quoteTemplate.undone'));},onError:(e:Error)=>toast.error(e.message)});
+  const busy=apply.isPending||review.isPending||save.isPending||undo.isPending;
+
   const setStageName = (idx: number, name: string) =>
     setInputs((p) => ({
       ...p,
-      stages: p.stages.map((s, i) => (i === idx ? { ...s, name } : s)),
+      stages: p.stages.map((s, i) => (i === idx ? { ...s, id:s.id??`legacy-${i}`, name } : s)),
     }));
 
   const setStagePct = (idx: number, raw: string) =>
     setInputs((p) => ({
       ...p,
       stages: p.stages.map((s, i) =>
-        i === idx ? { ...s, percentage: parsePct(raw) } : s,
+        i === idx ? { ...s, id:s.id??`legacy-${i}`, percentage: parsePct(raw) } : s,
       ),
     }));
 
@@ -288,12 +306,12 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
           </div>
           <div className="rounded-md border divide-y">
             {inputs.stages.map((s, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-2 items-center p-2 text-sm">
+              <div key={s.id??idx} className="grid grid-cols-12 gap-2 items-center p-2 text-sm">
                 <div className="col-span-1 text-xs text-muted-foreground">
                   {idx + 1}
                 </div>
                 <Input
-                  className="col-span-6 h-8"
+                  className="col-span-5 h-8"
                   placeholder={t("feeCalculator.stageNamePh")}
                   value={s.name}
                   onChange={(e) => setStageName(idx, e.target.value)}
@@ -310,12 +328,15 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
                 <div className="col-span-3 text-right tabular-nums">
                   {formatEUR(result.stageBreakdown[idx]?.amount ?? 0)}
                 </div>
+                <Button variant="ghost" size="icon" title={t('feeCalculator.planning.removeRow')} aria-label={t('feeCalculator.planning.removeRow')} disabled={busy} onClick={()=>setInputs(p=>({...p,stages:p.stages.filter((_,i)=>i!==idx)}))}><Trash2 className="h-4 w-4"/></Button>
               </div>
             ))}
           </div>
+          <Button variant="outline" size="sm" disabled={busy} onClick={()=>setInputs(p=>({...p,stages:[...p.stages,{id:crypto.randomUUID(),name:'',percentage:0}]}))}><Plus className="h-4 w-4"/>{t('feeCalculator.planning.addRow')}</Button>
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">
+          {undoId && <Button variant="outline" size="sm" disabled={busy} onClick={()=>undo.mutate()}><Undo2 className="h-4 w-4"/>{t('quoteTemplate.undo')}</Button>}
           <span className="mr-auto text-xs text-muted-foreground">
             {autoSaveState === "saving"
               ? uiI18n.t("common:saving")
@@ -334,13 +355,14 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
           </Button>
           <Button
             size="sm"
-            disabled={save.isPending || result.finalFee <= 0}
-            onClick={() => save.mutate(true)}
+            disabled={busy || result.finalFee <= 0 || Math.abs(stageTotal-1)>0.000001 || inputs.stages.some(s=>!s.name.trim())}
+            onClick={() => review.mutate()}
           >
             {t("feeCalculator.applyToFee")}
           </Button>
         </div>
       </CardContent>
+      <CalculatorApplyDialog key={preview?.revision??'closed'} preview={preview} pending={apply.isPending} onCancel={()=>{reviewInProgress.current=false;setPreview(null);}} onApply={(action,overwrite,remove)=>{if(preview)apply.mutate({action,overwrite,remove,revision:preview.revision});}}/>
     </Card>
   );
 }

@@ -50,6 +50,7 @@ export type FeeCategory = 2 | 3;
 export const DEFAULT_STAGE_PERCENTAGES: number[] = [0.10, 0.30, 0.20, 0.30, 0.10];
 
 export interface FeeCalculatorStage {
+  id?: string;
   /** User-entered stage name. Empty by default — proposal builder uses
    *  the actual quote_stages.name once the user sets it there. */
   name: string;
@@ -142,11 +143,12 @@ export function computeFeeCalculator(inputs: FeeCalculatorInputs): FeeCalculator
   const feePercentage = categoryFeePercentage(adjustedConstructionValue, inputs.category);
   const baseFee = adjustedConstructionValue * (feePercentage / 100);
   const discount = Math.min(Math.max(inputs.discount ?? 0, 0), 1);
-  const finalFee = baseFee * (1 - discount);
-  const stageBreakdown = (inputs.stages ?? []).map((s) => ({
+  const finalFee = Math.round(baseFee * (1 - discount));
+  const amounts = allocateCalculatorFee(finalFee, inputs.stages.map(s => s.percentage));
+  const stageBreakdown = (inputs.stages ?? []).map((s, i) => ({
     name: s.name,
     percentage: s.percentage,
-    amount: finalFee * (s.percentage ?? 0),
+    amount: amounts[i] ?? 0,
   }));
   return {
     constructionValue,
@@ -175,9 +177,10 @@ export function parseFeeCalculatorPayload(raw: unknown): FeeCalculatorInputs {
   const cat = num(r.category);
   const stagesRaw = Array.isArray(r.stages) ? (r.stages as unknown[]) : null;
   const stages: FeeCalculatorStage[] = stagesRaw
-    ? stagesRaw.map((s) => {
+    ? stagesRaw.map((s, i) => {
         const o = (s ?? {}) as Record<string, unknown>;
         return {
+          id: typeof o.id === "string" ? o.id : `legacy-${i}`,
           name: typeof o.name === "string" ? o.name : "",
           percentage: num(o.percentage) ?? 0,
         };
@@ -193,4 +196,13 @@ export function parseFeeCalculatorPayload(raw: unknown): FeeCalculatorInputs {
     extensionUplift: num(r.extensionUplift) ?? 0,
     stages: stages.length > 0 ? stages : base.stages,
   };
+}
+
+/** Whole-euro allocation; the first largest row absorbs the rounding remainder. */
+export function allocateCalculatorFee(fee: number, percentages: number[]): number[] {
+  const total = Math.round(fee);
+  const amounts = percentages.map(p => Math.round(total * p));
+  const largest = percentages.reduce((best, p, i) => p > (percentages[best] ?? -1) ? i : best, 0);
+  if (amounts.length) amounts[largest] += total - amounts.reduce((sum, n) => sum + n, 0);
+  return amounts;
 }

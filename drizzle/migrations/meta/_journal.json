@@ -2066,6 +2066,13 @@
       "when": 1794437628670,
       "tag": "0294_template_section_fidelity",
       "breakpoints": true
+    },
+    {
+      "idx": 295,
+      "version": "7",
+      "when": 1794438419864,
+      "tag": "0295_calculator_linked_stages",
+      "breakpoints": true
     }
   ]
 }

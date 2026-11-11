@@ -465,6 +465,19 @@
       "feePct": "Architectural fee %",
       "baseFee": "Base architectural fee",
       "finalFee": "Final architecture fee"
+    },
+    "planning": {
+      "replace": "Replace existing architecture stages",
+      "add": "Add calculator stages after them",
+      "overwriteManual": "Overwrite manually changed values: {{stages}}?",
+      "removed": "Removed calculator rows: {{stages}}. Delete their linked stages too, or keep them unlinked?",
+      "deleteLinked": "Delete linked stages too",
+      "addRow": "Add calculator row",
+      "removeRow": "Remove calculator row",
+      "undefinedPlan": "Plan undefined",
+      "saveDefaults": "Save practice payment defaults",
+      "defaultsSaved": "Practice payment defaults saved",
+      "durationMonths": "Duration (months)"
     }
   },
   "workspace": {

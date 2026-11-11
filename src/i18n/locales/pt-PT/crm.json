@@ -465,6 +465,19 @@
       "feePct": "% de honorários",
       "baseFee": "Honorários base de arquitectura",
       "finalFee": "Honorários finais de arquitectura"
+    },
+    "planning": {
+      "replace": "Substituir fases de Arquitetura existentes",
+      "add": "Adicionar fases da calculadora depois das existentes",
+      "overwriteManual": "Substituir valores alterados manualmente: {{stages}}?",
+      "removed": "Linhas removidas da calculadora: {{stages}}. Eliminar também as fases ligadas ou mantê-las sem ligação?",
+      "deleteLinked": "Eliminar também as fases ligadas",
+      "addRow": "Adicionar linha à calculadora",
+      "removeRow": "Remover linha da calculadora",
+      "undefinedPlan": "Plano por definir",
+      "saveDefaults": "Guardar predefinições de pagamentos do atelier",
+      "defaultsSaved": "Predefinições de pagamentos do atelier guardadas",
+      "durationMonths": "Duração (meses)"
     }
   },
   "workspace": {

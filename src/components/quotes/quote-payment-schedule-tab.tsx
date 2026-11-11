@@ -1,5 +1,6 @@
 import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 import uiI18n from "@/i18n/index";
+import {CalculatorPaymentDefaults,CalculatorUndefinedPlan} from "./calculator-payment-defaults";
 /**
  * Quote Payment Schedule tab — planned forecast payments.
  *
@@ -537,6 +538,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   useEffect(() => {
     if (autoSeededRef.current) return;
     if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
+    if (stages.some(s=>(s as typeof s & {calculator_payment_unconfigured?:boolean}).calculator_payment_unconfigured)) return;
     if (items.length > 0) {
       autoSeededRef.current = true;
       return;
@@ -687,6 +689,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
       {incomingOnly && <>
         <PaymentScheduleReconciliation stages={stages} items={visibleItems} stageFees={stageFees} contractTotal={contractTotal} />
       </>}
+      <CalculatorUndefinedPlan quoteId={quoteId}/>
       <PaymentScheduleProposalView
         items={visibleItems}
         stages={stages}
@@ -705,6 +708,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
   return (
     <div className="space-y-6">
+      <CalculatorUndefinedPlan quoteId={quoteId}/>
       {/* Quote-level billing defaults */}
       <Card>
         <CardHeader className="pb-3">
@@ -712,6 +716,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         </CardHeader>
         <CardContent className="space-y-4">
           <InvoiceGroupingControl kind="quote" id={quoteId} />
+          <CalculatorPaymentDefaults/>
           <div className="grid gap-3 md:grid-cols-3">
             <div>
               <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.defaultVat")} </Label>
