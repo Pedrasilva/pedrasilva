@@ -1,10 +1,16 @@
+## Current request — approved permissions step 1 and isolated exposure investigation
+- [ ] Record confirmed full-HR restriction to Luis, Irene and Tatiana; B1 OFF, no real-account changes.
+- [ ] Deliver person × action × scope × origin and exact proposed losses; preserve own HR/pay/leave requests, timesheets/projects; wait for Luis's confirmation.
+- [ ] Create authorized disposable PSA staff account without HR/Finance, test direct reads, remove it and confirm cleanup; propose minimal policies only, no policy changes.
+- [ ] Stop after the review tables and exposure report; later consolidation and per-person changes await explicit approval.
+
 ## Current request — Tatiana Backoffice costing decision
 - [x] Verify 11 real HR-derived project rates exclude Tatiana; Backoffice overhead/FTE allocation, zero periods/allocations/project hours; quote-pricing/manual-override and internal-analysis caveats flagged.
 - [x] Record Luis's approved rule D34 in DECISIONS.md; no application, policy or data changes. Report docs/tatiana-backoffice-costing-verification-2026-11-11.md.
 
 ## Current request — permissions investigation only
 - [x] Investigate 14 accounts, live roles/overrides/policies and B1 OFF; deliver read-only report.
-- [ ] Present consolidation plan and await Luis's approval; no permissions decision recorded.
+- [x] Consolidation direction approved with step-1 review and separate exposure investigation; implementation/account changes remain gated above.
 
 ## Current request — final pre-publication checks
 - [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
