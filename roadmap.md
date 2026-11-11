@@ -1,3 +1,9 @@
+## Current request — 11 November Gantt investigation and plan only
+- [x] Compare shared renderer and separate panels/toolbar/financial/supplier/retainer paths; read-only Ricardo permissions and Luis disabled-budget reproduction.
+- [x] Document missing Mastercard legacy contract evidence, supplier role loss and mismatch of reported October €285 row; no code/data/B1 changes.
+- [x] Prepare one shared-Gantt/internal-vs-client/audit plan and complete investigation report.
+- [ ] Implementation awaits Luis's approval; any legacy real-data correction requires a separate exact-row approval.
+
 ## Current request — 9 November direct-project origin bug
 - [x] Diagnose all 10 quote-linked projects read-only: five reverse-generated quotes, four with conversion baselines, one unresolved legacy link; exact disputed Mastercard rows in docs/direct-project-origin-report.md.
 - [x] Generated-quote provenance and live Gantt edit gating fixed without real-data/B1 changes; 14 tests, i18n zero, build OK; direct UI creation/date edit/reload/delete passed, independent zero across all six sequential fixtures.
