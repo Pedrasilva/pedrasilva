@@ -264,6 +264,14 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Motivo:** Consistência terminológica sem mutação de documentos, contratos ou cálculos.
 - **Relatórios:** [Auditoria de tradução](i18n-batch0-report.md), [Terminologia confirmada](project-proposal-gantt-phase1-report.md).
 
+### D32 — Gestão de equipas delegável, sem administração geral
+- **Data:** 11/11/2026, 16:27 UTC.
+- **Área:** Projetos / permissões / equipas.
+- **Estado:** Em vigor; substitui a exclusividade de administradores para gerir equipas e os quatro acessos de projeto, não para atribuir permissões gerais.
+- **Decisão:** Se não existir permissão atribuível, criar «Gerir equipas de projeto», concedida por conta no ecrã de permissões existente apenas por administradores. Permite acrescentar/remover pessoas e definir Financeiro, Orçamento e custo das horas, Despesas e Honorários de fornecedores em todos os projetos, através das ações auditadas com autorização no servidor. Não atribuir automaticamente a Ricardo Conceição, Irene Cunha ou qualquer outra pessoa: Luis fará a atribuição. Cada acesso tem uma ajuda curta em PT-PT e EN. Não concede acesso a salários brutos nem administração geral. B1 permanece OFF; testes apenas em dados descartáveis e nenhuma alteração a equipas reais.
+- **Motivo:** Delegar a gestão de equipas sem atribuir o papel de administrador nem permitir alterações sem autorização e auditoria.
+- **Relatórios:** [Gestão de equipas](project-team-management-permission-report.md).
+
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.

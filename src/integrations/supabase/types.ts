@@ -19199,6 +19199,7 @@ export type Database = {
           }
       pm_can_edit_gantt: { Args: { _project: string }; Returns: boolean }
       pm_can_edit_week_notes: { Args: never; Returns: boolean }
+      pm_can_manage_project_teams: { Args: never; Returns: boolean }
       pm_can_read_incoming_dates: {
         Args: { _project: string }
         Returns: boolean
@@ -19512,6 +19513,15 @@ export type Database = {
         Returns: {
           stage_id: string
           stage_role: string
+        }[]
+      }
+      pm_project_team_directory: {
+        Args: never
+        Returns: {
+          collaborator_id: string
+          color: string
+          id: string
+          name: string
         }[]
       }
       pm_project_viewer_areas: { Args: { _project: string }; Returns: Json }

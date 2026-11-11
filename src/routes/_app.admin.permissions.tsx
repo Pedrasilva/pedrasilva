@@ -161,7 +161,7 @@ function UsersTab() {
       const { data, error } = await supabase
         .from("user_permissions")
         .select("id, user_id, permission_key, scope, granted")
-        .eq("user_id", selected!);
+        .eq("user_id", selected ?? "");
       if (error) throw error;
       return (data ?? []) as OverrideRow[];
     },
@@ -173,9 +173,10 @@ function UsersTab() {
       scope: string;
       granted: boolean;
     }) => {
+      if (!selected) throw new Error(uiI18n.t("access:batchFive.labels.selectAnAccountToReviewEffectivePermissions"));
       const { error } = await supabase.from("user_permissions").upsert(
         {
-          user_id: selected!,
+          user_id: selected,
           permission_key: input.key,
           scope: input.scope,
           granted: input.granted,
@@ -188,6 +189,8 @@ function UsersTab() {
       toast.success(uiI18n.t("access:batchFive.labels.permissionUpdated"));
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["pm-team-management-access"] });
+      queryClient.removeQueries({ queryKey: ["pm-team-directory"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -201,6 +204,8 @@ function UsersTab() {
       toast.success(uiI18n.t("access:batchFive.labels.exceptionRemoved"));
       queryClient.invalidateQueries({ queryKey: ["admin-user-overrides", selected] });
       queryClient.invalidateQueries({ queryKey: ["my-effective-permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["pm-team-management-access"] });
+      queryClient.removeQueries({ queryKey: ["pm-team-directory"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -241,7 +246,7 @@ function UsersTab() {
     );
   }, [baseline, knownOverrides]);
 
-  const scopeOptions = newKey ? PERMISSION_BY_KEY.get(newKey)!.scopes : SCOPES;
+  const scopeOptions = newKey ? (PERMISSION_BY_KEY.get(newKey)?.scopes ?? SCOPES) : SCOPES;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">

@@ -2985,6 +2985,14 @@
     }
   },
   "projectAccess": {
+    "manageTeams": "Manage project teams",
+    "manageTeamsHint": "Add or remove team collaborators and set their four project access toggles on all projects. Only administrators can grant this capability.",
+    "help": {
+      "financials": "Contract value, fees, incoming payments and invoices; also permits Gantt editing and viewing HR-derived hourly cost and sale rates, not raw salaries.",
+      "budget_cost": "Project budgets, planned and logged hours, and their labour costs.",
+      "expenses": "Project expenses, receipts and reimbursements; approvals and fiscal actions keep their separate permissions.",
+      "supplier_fees": "External supplier fees and costs for this project."
+    },
     "pending": "Proposed access — awaiting cutover approval; existing financial access remains active.",
     "reason": "Reason for the team or access change",
     "person": "Person",

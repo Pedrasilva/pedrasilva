@@ -6,8 +6,8 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {useAuth} from '@/hooks/use-auth';
-import {PROJECT_ACCESS_AREAS,useProjectAccessPreview,useChangeProjectAccess} from '@/lib/projects/use-project-access';
+import {PROJECT_ACCESS_AREAS,useProjectAccessPreview,useChangeProjectAccess,useProjectTeamManagementAccess,useProjectTeamDirectory} from '@/lib/projects/use-project-access';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -55,8 +55,11 @@ export function ProjectTeamCard({
   const [resourceId, setResourceId] = useState<string>("");
   const [role, setRole] = useState<ProjectTeamRole>("support");
   const [reason,setReason]=useState('');
-  const {isAdmin}=useAuth();
-  const preview=useProjectAccessPreview(projectId,isAdmin&&open);
+  const managementAccess=useProjectTeamManagementAccess();
+  const canManage=managementAccess.data===true;
+  const directory=useProjectTeamDirectory(canManage);
+  const selectableResources=directory.data??resources;
+  const preview=useProjectAccessPreview(projectId,canManage&&open);
   const accessChange=useChangeProjectAccess(projectId);
 
   const { data: members = [] } = useProjectTeam(projectId);
@@ -65,9 +68,9 @@ export function ProjectTeamCard({
 
   const byId = useMemo(() => {
     const map = new Map<string, ResourceLite>();
-    [...resources, ...allocatedTeam].forEach((r) => map.set(r.id, r));
+    [...resources, ...allocatedTeam, ...(directory.data??[])].forEach((r) => map.set(r.id, r));
     return map;
-  }, [resources, allocatedTeam]);
+  }, [resources, allocatedTeam, directory.data]);
 
   const grouped = useMemo(
     () =>
@@ -138,7 +141,7 @@ export function ProjectTeamCard({
             )}
           </div>
         )}
-        {isAdmin&&<Button
+        {canManage&&<Button
           variant="ghost"
           size="sm"
           className="h-6 px-1 text-[11px] text-muted-foreground"
@@ -149,7 +152,7 @@ export function ProjectTeamCard({
         </Button>}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open&&canManage} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
@@ -169,7 +172,7 @@ export function ProjectTeamCard({
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {resources.map((r) => (
+                    {selectableResources.map((r) => (
                       <SelectItem key={r.id} value={r.id}>
                         {r.name}
                       </SelectItem>
@@ -228,7 +231,7 @@ export function ProjectTeamCard({
                 </div>
               ))}
             </div>
-            <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className="text-left">{t('projects:projectAccess.person')}</th>{PROJECT_ACCESS_AREAS.map(area=><th key={area} className="p-2">{t(`projects:projectAccess.areas.${area}`)}</th>)}</tr></thead><tbody>{preview.data?.rows.map(row=><tr key={row.resource_id} className="border-t border-border"><td className="py-2">{row.name}<div className="text-xs text-muted-foreground">{row.roles?.map(role=>t(`projects:detail.teamRoles.${role}`)).join(', ')}</div></td>{PROJECT_ACCESS_AREAS.map(area=><td key={area} className="p-2 text-center"><Switch aria-label={`${row.name}: ${t(`projects:projectAccess.areas.${area}`)}`} checked={row[area]} disabled={!reason.trim()||accessChange.isPending} onCheckedChange={()=>accessChange.mutate({row,area,reason},{onError:e=>toast.error(e.message)})}/></td>)}</tr>)}</tbody></table></div>
+            <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th className="text-left">{t('projects:projectAccess.person')}</th>{PROJECT_ACCESS_AREAS.map(area=><th key={area} className="p-2">{t(`projects:projectAccess.areas.${area}`)}</th>)}</tr></thead><tbody>{preview.data?.rows.map(row=><tr key={row.resource_id} className="border-t border-border"><td className="py-2">{row.name}<div className="text-xs text-muted-foreground">{row.roles?.map(role=>t(`projects:detail.teamRoles.${role}`)).join(', ')}</div></td>{PROJECT_ACCESS_AREAS.map(area=><td key={area} className="p-2 text-center"><Tooltip><TooltipTrigger asChild><span className="inline-flex" tabIndex={0}><Switch aria-label={`${row.name}: ${t(`projects:projectAccess.areas.${area}`)}`} checked={row[area]} disabled={!reason.trim()||accessChange.isPending} onCheckedChange={()=>accessChange.mutate({row,area,reason},{onError:e=>toast.error(e.message)})}/></span></TooltipTrigger><TooltipContent className="max-w-xs">{t(`projects:projectAccess.help.${area}`)}</TooltipContent></Tooltip></td>)}</tr>)}</tbody></table></div>
           </div>
         </DialogContent>
       </Dialog>
