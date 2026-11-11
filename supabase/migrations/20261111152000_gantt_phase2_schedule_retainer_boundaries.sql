@@ -119,7 +119,7 @@ IF EXISTS(SELECT 1 FROM jsonb_array_elements(_patch->'dependencies') d WHERE d->
 WITH RECURSIVE links AS(SELECT d->>'predecessor_id' p,d->>'successor_id' s FROM jsonb_array_elements(_patch->'dependencies') d), walk AS(SELECT p,s,ARRAY[p,s] path,p=s cycle FROM links UNION ALL SELECT w.p,l.s,w.path||l.s,l.s=ANY(w.path) FROM walk w JOIN links l ON l.p=w.s WHERE NOT w.cycle) SELECT count(*) INTO n FROM walk WHERE cycle; IF n>0 THEN RAISE EXCEPTION 'gantt.schedule.circular'; END IF;
 IF _mode='quote' THEN
 DELETE FROM quote_stage_dependencies WHERE quote_id=_scope;
-INSERT INTO quote_stage_dependencies(id,quote_id,predecessor_stage_id,successor_stage_id,type,lag_days) SELECT coalesce(nullif(d->>'id','')::uuid,gen_random_uuid()),_scope,(d->>'predecessor_id')::uuid,(d->>'successor_id')::uuid,(d->>'type')::quote_dep_type,coalesce((d->>'lag_days')::integer,0) FROM jsonb_array_elements(_patch->'dependencies') d;
+INSERT INTO quote_stage_dependencies(id,quote_id,predecessor_stage_id,successor_id,type,lag_days) SELECT coalesce(nullif(d->>'id','')::uuid,gen_random_uuid()),_scope,(d->>'predecessor_id')::uuid,(d->>'successor_id')::uuid,(d->>'type')::quote_dep_type,coalesce((d->>'lag_days')::integer,0) FROM jsonb_array_elements(_patch->'dependencies') d;
 ELSE
 DELETE FROM pm_stage_dependencies WHERE predecessor_id IN(SELECT id FROM pm_stages WHERE project_id=_scope);
 INSERT INTO pm_stage_dependencies(id,predecessor_id,successor_id,type,lag_days) SELECT coalesce(nullif(d->>'id','')::uuid,gen_random_uuid()),(d->>'predecessor_id')::uuid,(d->>'successor_id')::uuid,d->>'type',coalesce((d->>'lag_days')::integer,0) FROM jsonb_array_elements(_patch->'dependencies') d; END IF; END IF;
