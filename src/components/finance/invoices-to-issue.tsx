@@ -25,7 +25,7 @@ export function InvoicesToIssue(){
  const warnings=invoiceWarnings(q.data.rows,q.data.today);const forecast=monthlyIncoming(rows);
  const money=(v:number)=>new Intl.NumberFormat(i18n.language,{style:'currency',currency:'EUR'}).format(v);
  const date=(v:string|null)=>displayPaymentDate(v,i18n.language)??'—';
- async function save(){if(!selected)return;try{await action.mutateAsync({id:selected.id,action:mode,note,number,date:issueDate});setSelected(null);toast.success(t('common:saved'));}catch(e){toast.error((e as Error).message);}}
+ async function save(){if(!selected)return;try{await action.mutateAsync({id:selected.id,ids:selected.member_ids,action:mode,note,number,date:issueDate});setSelected(null);toast.success(t('common:saved'));}catch(e){toast.error((e as Error).message);}}
  return <div className="mx-auto w-full max-w-screen-2xl space-y-6 px-4 lg:px-8">
   <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-semibold">{t('finance:issueQueue.title')}</h1><Button variant="outline" size="icon" aria-label={t('common:refresh')} title={t('common:refresh')} onClick={()=>q.refetch()}><RefreshCw className="size-4"/></Button></div>
   <div className="grid gap-3 border-y border-border py-4 sm:grid-cols-3">{(['overdue','unconfirmed','moved'] as const).map(key=><div key={key} className="flex items-start gap-3"><AlertTriangle className={warnings[key]?'mt-1 size-4 text-destructive':'mt-1 size-4 text-muted-foreground'}/><div><div className="text-2xl font-semibold tabular-nums">{warnings[key]}</div><p className="text-sm text-muted-foreground">{t(`finance:issueQueue.warnings.${key}`,{count:warnings[key]})}</p></div></div>)}</div>
