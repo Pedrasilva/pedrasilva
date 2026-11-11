@@ -1,3 +1,4 @@
+import {retainerEnd} from "./retainer-schedule";
 import { plannerStageRole } from "./planner-stage-role";
 import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructionStage, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
@@ -35,7 +36,7 @@ export function buildProjectGanttTree(
   // see on the Gantt. Monthly children are only used by the monitor.
   const regular = stages.filter(
     (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_month",
-  );
+  ).map(s=>s.stage_kind==='retainer_monthly'?{...s,end_date:retainerEnd(s.start_date,s.retainer_months??12)}:s);
 
   const childrenByParent = new Map<string | null, StageWithAllocations[]>();
   for (const s of regular) {
