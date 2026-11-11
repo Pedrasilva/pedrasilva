@@ -546,6 +546,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       created_at: s.created_at,
       updated_at: s.updated_at,
       baseline_budget: null,
+      commercial_value_owned:false,
+      outside_contract:false,
       baseline_end_date: null,
       baseline_locked_at: null,
       baseline_notes: null,
@@ -774,7 +776,6 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
   }, [zoom, quoteId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
-  const [pendingCommercial,setPendingCommercial]=useState<{id:string;value:number}|null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
     if (typeof window === "undefined") return 420;
     const v = Number(window.localStorage.getItem("planner.outlineWidth.quote"));
@@ -1392,6 +1393,7 @@ function OperationalScheduleAdapter({
   }, [zoom, projectId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [pendingCommercial,setPendingCommercial]=useState<{id:string;value:number}|null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
     if (typeof window === "undefined") return 420;
     const v = Number(window.localStorage.getItem("planner.outlineWidth.project"));

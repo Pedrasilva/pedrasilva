@@ -95,6 +95,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
     deleteDependency:delDep, cascadeStage:updateStageCascade, upsertAllocation:upsertAlloc,
     deleteAllocation:delAlloc, resources:poolResources, defaultRates, quoteMargin}=model;
   const stage = model.stages.find(s=>s.id===stageId);
+  const operationalStage=model.operationalStages?.find(s=>s.id===stageId);
   const allStages=model.stages;
   const deps=model.dependencies;
   const allocs=model.allocations.filter(a=>a.stage_id===stageId);
@@ -291,8 +292,8 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
         </Button>
       </header>
 
-      {model.operational&&model.financialVisible&&model.operationalStages&&<div className="px-3 pt-3"><GanttStageCommercial projectId={quoteId} stage={model.operationalStages.find(s=>s.id===stage.id)??model.operationalStages[0]} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
-      {pendingValue!=null&&model.operationalStages?.find(s=>s.id===stage.id)&&<GanttValueDialog projectId={quoteId} stage={model.operationalStages.find(s=>s.id===stage.id) as NonNullable<typeof model.operationalStages>[number]} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
+      {model.operational&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
+      {pendingValue!=null&&operationalStage&&<GanttValueDialog projectId={quoteId} stage={operationalStage} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       <fieldset disabled={model.readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
