@@ -45,6 +45,7 @@ import { useInvoiceMilestones } from '@/lib/finance/use-provisional-invoicing';
 import { useFinanceAccess } from '@/hooks/use-finance-access';
 import { canMutateProjectBilling } from '@/lib/finance/project-billing-access';
 import { downloadProjectAttachment } from '@/lib/finance/project-attachment';
+import { ProjectBillingPlan } from './project-billing-plan';
 import { toast } from '@/lib/toast';
 
 const DASH = "—";
@@ -341,6 +342,8 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 
   if (!hasAny) {
     return (
+      <div className="space-y-6">
+      <ProjectBillingPlan projectId={projectId}/>
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
@@ -362,11 +365,13 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
           </div>
         </CardContent>
       </Card>
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      <ProjectBillingPlan projectId={projectId}/>
       {/* Header + CTA */}
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-3">

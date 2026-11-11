@@ -1,3 +1,12 @@
+## Current request — approved Project Billing plan
+- [x] Operational Incoming/Outgoing plan visible without documents; live dates, VAT, supplier identity and audited date editor.
+- [x] Audited descriptions and reversible manual groups; disposable UI merge/readback, 10000→12000 reconciliation/unmerge and fiscal description/merge denial passed.
+- [x] Canonical manual no-PDF issuance, milestone links and shared Finance queue implemented; single-fixture issuance/document/lock and queue tests passed.
+- [ ] Fiscal actor loss matrix and Luis confirmation required before narrowing rights; optional-PDF group flow and partial-bank/group issuance/concurrency/denied-reader tests not yet complete.
+- [x] Six pure tests, i18n zero, build OK; synthetic project/payments/groups/document removed, independent operational zero; one protected orphan commercial-history QA row remains.
+- [ ] Full release validation and cleanup of protected orphan QA commercial-history row require a separately reviewed cleanup mechanism; no audit guard weakened. B1 OFF, historical plans/storage policies intact.
+- [x] Investigation report and plan approved; retain PM confirmation.
+
 ## Current request — confirmed HR isolation and temporary exception
 - [x] Record D36/D37 and temporary Ricardo exception; B1 OFF.
 - [x] Two individual negative team-list overrides; Project Lead roles/non-target grants and Ricardo hashes unchanged.

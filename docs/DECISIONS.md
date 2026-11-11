@@ -317,3 +317,11 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.
+
+### D38 — Faturação operacional por projeto
+- **Data:** 11/11/2026, plano aprovado nesta conversa; confirmação do gestor reafirmada por Luis.
+- **Área:** Projetos / Finance / faturação.
+- **Estado:** Plano aprovado; preenchimento de dados reais e alterações de direitos por pessoa continuam sujeitos a revisão separada.
+- **Decisão:** Faturação mostra o plano vivo de entradas e saídas, independente de haver documentos emitidos. Reutilizar pagamentos operacionais copiados do CRM e fases vivas; proposta aceite e baseline imutáveis. Descrições editáveis e junções reversíveis de linhas não emitidas, com IVA por linha, histórico e confirmação do gestor antes do registo fiscal. Emissão manual usa o livro fiscal existente; pagos derivam da conciliação Finance, sem botão de pagamento no projeto. Finance partilha a fila/projeção; preparar identidade externa/envio futuro sem construir InvoiceXpress. Financials permite planeamento, fornecedores mantêm a sua área, atos fiscais mantêm Finance. Não retirar direitos por pessoa sem lista/OK, não preencher planos antigos sem revisão exata, não criar propostas artificiais; B1 OFF e políticas de ficheiros intactas.
+- **Motivo:** Separar previsão de documentos fiscais e eliminar o vazio causado por consultar apenas faturas registadas.
+- **Relatórios:** [Plano aprovado](../.lovable/plan/faturação-do-projeto-investigação-e-plano-para-aprovação-2026-11-11.md), [Implementação e limites](project-billing-implementation-2026-11-11.md).

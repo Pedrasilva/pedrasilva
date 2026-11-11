@@ -14,5 +14,5 @@ export function useChangePaymentDates(projectId:string) {
     const {data,error}=await supabase.rpc('pm_change_payment_dates',{_item:input.id,_patch:input.patch,_reason:input.reason});
     if(error) throw error;
     return data;
-  },onSuccess:async()=>{await qc.invalidateQueries({queryKey:['pm-incoming-timing',projectId]});}});
+  },onSuccess:async()=>{await Promise.all([qc.invalidateQueries({queryKey:['pm-incoming-timing',projectId]}),qc.invalidateQueries({queryKey:['billing-plan',projectId]}),qc.invalidateQueries({queryKey:['finance','invoices-to-issue']})]);}});
 }

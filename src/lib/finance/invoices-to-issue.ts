@@ -2,7 +2,7 @@ import type {IncomingTimingRow} from '@/lib/projects/payment-timing';
 import {buildStageNumberMap,formatStageLabel,isConstructionStage,type NumberableStage} from '@/lib/quotes/stage-numbering';
 
 export type InvoiceWorkflow = {confirmed_at:string|null; confirmed_by:string|null; note:string|null; confirmation_current:boolean; invoice_number:string|null; issue_date:string|null};
-export type IssueRow = IncomingTimingRow & {project_name:string; client_name:string|null; workflow:InvoiceWorkflow; pm_date_moves:number;project_stages?:NumberableStage[]};
+export type IssueRow = IncomingTimingRow & {member_ids?:string[];project_name:string; client_name:string|null; workflow:InvoiceWorkflow; pm_date_moves:number;project_stages?:NumberableStage[]};
 export function invoiceStageLabel(row:IssueRow){const stages=row.project_stages??[];const stage=stages.find(s=>s.id===row.stage_id);return stage?formatStageLabel(stage,buildStageNumberMap(stages).get(stage.id)):row.stage_name;}
 export type IssueStatus = 'planned'|'due'|'confirmed'|'issued'|'paid'|'cancelled';
 export type IssueGroup = 'overdue'|'thisWeek'|'next14Days'|'laterThisMonth'|'later'|'undefined'|'issued'|'paid'|'cancelled';
