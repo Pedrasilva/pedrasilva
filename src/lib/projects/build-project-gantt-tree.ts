@@ -78,12 +78,10 @@ export function buildProjectGanttTree(
     }
     let minStart = "";
     let maxEnd = "";
-    let sumBudget = 0;
     for (const k of kids) {
       const r = computeRollup(k);
       if (!minStart || r.start < minStart) minStart = r.start;
       if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
-      sumBudget += r.budget;
     }
     const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: commercialStageValue(node,regular) };
     rollup.set(node.id, out);
