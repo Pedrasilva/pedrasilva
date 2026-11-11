@@ -1,3 +1,8 @@
+## Current request — 11 November project financials approved fix
+- [ ] Scope resource and derived HR-rate reads to project financial access in OFF/ON, preserving raw HR restrictions and B1 OFF.
+- [ ] Compute billable/non-billable pills from saved classification, with unavailable state; list missing EUR expenses without changes.
+- [ ] Verify Mastercard read-only as Luis/Ricardo and denied viewer; tests, screenshots and changed-file report.
+
 ## Current request — terminology confirmation
 - [x] Apply saved Backoffice, shared financial glossary references and spelled-out EN Total Gross Value; display-only, no calculations/data changes.
 
