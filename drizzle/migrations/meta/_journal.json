@@ -2038,6 +2038,13 @@
       "when": 1794436774111,
       "tag": "0290_billing_schedule_fiscal_status_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 291,
+      "version": "7",
+      "when": 1794437280018,
+      "tag": "0291_full_quote_templates",
+      "breakpoints": true
     }
   ]
 }
