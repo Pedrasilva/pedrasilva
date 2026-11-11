@@ -1919,6 +1919,13 @@
       "when": 1794408948853,
       "tag": "0273_project_scoped_hr_rate_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 274,
+      "version": "7",
+      "when": 1794409216646,
+      "tag": "0274_project_scoped_single_resource_read",
+      "breakpoints": true
     }
   ]
 }
