@@ -2045,6 +2045,13 @@
       "when": 1794437280018,
       "tag": "0291_full_quote_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 292,
+      "version": "7",
+      "when": 1794437332815,
+      "tag": "0292_template_save_stage_key_fix",
+      "breakpoints": true
     }
   ]
 }
