@@ -1891,6 +1891,13 @@
       "when": 1794182811468,
       "tag": "0269_proposal_master_page",
       "breakpoints": true
+    },
+    {
+      "idx": 270,
+      "version": "7",
+      "when": 1794398460479,
+      "tag": "0270_shared_gantt_financial_scope_and_supplier_identity",
+      "breakpoints": true
     }
   ]
 }

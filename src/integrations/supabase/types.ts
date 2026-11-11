@@ -12668,6 +12668,7 @@ export type Database = {
           billing_model: string
           bootstrap_run_id: string | null
           budget: number
+          budget_mode: string | null
           children_bill_independently: boolean
           color: string
           created_at: string
@@ -12677,6 +12678,7 @@ export type Database = {
           is_fee_only: boolean
           is_locked: boolean
           is_milestone: boolean
+          is_optional: boolean | null
           is_self: boolean
           markup_pct: number
           name: string
@@ -12693,10 +12695,13 @@ export type Database = {
           source_contract_id: string | null
           source_contract_phase_key: string | null
           source_quote_stage_id: string | null
+          stage_billing_timing: string | null
           stage_kind: string
           stage_role: string | null
           start_date: string
           status: string
+          supplier_id: string | null
+          supplier_placeholder: string | null
           updated_at: string
         }
         Insert: {
@@ -12711,6 +12716,7 @@ export type Database = {
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
+          budget_mode?: string | null
           children_bill_independently?: boolean
           color?: string
           created_at?: string
@@ -12720,6 +12726,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          is_optional?: boolean | null
           is_self?: boolean
           markup_pct?: number
           name: string
@@ -12736,10 +12743,13 @@ export type Database = {
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
           source_quote_stage_id?: string | null
+          stage_billing_timing?: string | null
           stage_kind?: string
           stage_role?: string | null
           start_date: string
           status?: string
+          supplier_id?: string | null
+          supplier_placeholder?: string | null
           updated_at?: string
         }
         Update: {
@@ -12754,6 +12764,7 @@ export type Database = {
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
+          budget_mode?: string | null
           children_bill_independently?: boolean
           color?: string
           created_at?: string
@@ -12763,6 +12774,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          is_optional?: boolean | null
           is_self?: boolean
           markup_pct?: number
           name?: string
@@ -12779,10 +12791,13 @@ export type Database = {
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
           source_quote_stage_id?: string | null
+          stage_billing_timing?: string | null
           stage_kind?: string
           stage_role?: string | null
           start_date?: string
           status?: string
+          supplier_id?: string | null
+          supplier_placeholder?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -12812,6 +12827,20 @@ export type Database = {
             columns: ["source_contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stages_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stages_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -19114,6 +19143,7 @@ export type Database = {
             Args: { _target_user_id: string; _user_id: string }
             Returns: boolean
           }
+      pm_can_edit_gantt: { Args: { _project: string }; Returns: boolean }
       pm_can_edit_week_notes: { Args: never; Returns: boolean }
       pm_can_read_incoming_dates: {
         Args: { _project: string }
