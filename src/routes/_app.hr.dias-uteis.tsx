@@ -74,10 +74,10 @@ function DiasUteisPage() {
   });
 
   const { data: bo } = useQuery({
-    queryKey: ["bo-settings"],
+    queryKey: ["hr-working-day-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("bo_settings")
+        .from("hr_working_day_settings")
         .select("*")
         .limit(1)
         .maybeSingle();
@@ -163,6 +163,7 @@ function DiasUteisPage() {
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       qc.invalidateQueries({ queryKey: ["snapshots"] });
       qc.invalidateQueries({ queryKey: ["bo-settings"] });
+      qc.invalidateQueries({ queryKey: ["hr-working-day-settings"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });

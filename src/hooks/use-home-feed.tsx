@@ -149,9 +149,8 @@ export function useWhoIsOff() {
     queryFn: async () => {
       const today = toIsoDate(new Date());
       const { data, error } = await supabase
-        .from("vacation_requests")
-        .select("id, data_inicio, data_fim, tipo, estado, collaborator_id, collaborators:collaborator_id(nome)")
-        .eq("estado", "aprovada")
+        .from("hr_team_leave_calendar")
+        .select("data_inicio, data_fim, tipo, collaborator_id, nome")
         .lte("data_inicio", today)
         .gte("data_fim", today)
         .order("data_inicio");
@@ -164,8 +163,8 @@ export function useWhoIsOff() {
         collaborators: { nome: string } | null;
       };
       return (data as unknown as Row[] ?? []).map((r) => ({
-        id: r.id,
-        nome: r.collaborators?.nome ?? "—",
+        id: `${(r as unknown as { collaborator_id: string }).collaborator_id}:${r.data_inicio}:${r.data_fim}`,
+        nome: (r as unknown as { nome: string }).nome,
         data_inicio: r.data_inicio,
         data_fim: r.data_fim,
         tipo: r.tipo,
@@ -242,9 +241,8 @@ export function useTeamAvailability(windowDays = 14) {
       const [dirRes, absRes, remoteRes] = await Promise.all([
         supabase.from("collaborators_directory").select("id, nome"),
         supabase
-          .from("vacation_requests")
-          .select("id, data_inicio, data_fim, tipo, collaborator_id")
-          .eq("estado", "aprovada")
+          .from("hr_team_leave_calendar")
+          .select("data_inicio, data_fim, tipo, collaborator_id")
           .lte("data_inicio", limitIso)
           .gte("data_fim", todayIso)
           .order("data_inicio"),
