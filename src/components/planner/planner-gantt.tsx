@@ -1299,7 +1299,7 @@ function OperationalScheduleAdapter({
   // Payment milestones from issued invoices.
   const milestones = useMemo<PaymentMilestone[]>(() => {
     const list = invoices ?? [];
-    const planned:PaymentMilestone[]=(billingPlan.data?.incoming??[]).flatMap(group=>group.items.filter(p=>p.invoiceDate).map(p=>({id:p.id,label:p.description??p.label,date:p.invoiceDate as string,amount:p.amount,status:p.state==='paid'?'paid' as const:p.state==='issued'?'invoiced' as const:'planned' as const})));
+    const planned:PaymentMilestone[]=(billingPlan.data?.rows??[]).filter(p=>p.direction==='inflow'&&p.planned_invoice_date).map(p=>({id:p.id,label:p.description??p.label,date:p.planned_invoice_date as string,amount:Number(p.amount_value),status:p.billing_status==='paid'?'paid' as const:p.billing_status==='issued'?'invoiced' as const:'planned' as const}));
     return [...planned,...list
       .filter((inv) => inv.raised_date)
       .map((inv) => ({

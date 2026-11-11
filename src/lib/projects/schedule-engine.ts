@@ -1,3 +1,4 @@
+import {retainerEnd,retainerMonths} from "./retainer-schedule";
 import { addDays, format, isWeekend, parseISO } from "date-fns";
 import type { DepType, StageDependency } from "./dependencies";
 
@@ -145,7 +146,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
   const allDeps = deps;
   deps = schedulingLinks(state.stages, deps);
   const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
-  const stages = state.stages.map(s => ({...s}));
+  const stages = state.stages.filter(s=>s.stage_kind!=="retainer_month").map(s => ({...s}));
   const byId = new Map(stages.map(s => [s.id, s]));
   const parentIds = new Set(stages.map(s => s.parent_stage_id).filter(Boolean));
   const affected = new Set(roots ?? edits.map(s => s.id));
@@ -154,7 +155,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
     if (!stage || parentIds.has(edit.id)) throw new Error("gantt.schedule.summaryReadOnly");
     if (stage.is_locked) throw new Error("gantt.schedule.locked");
     stage.start_date = calendar.snap(edit.start_date);
-    stage.end_date = calendar.snap(edit.end_date, -1);
+    stage.end_date = stage.stage_kind==='retainer_monthly'?retainerEnd(stage.start_date,retainerMonths(edit.start_date,edit.end_date)):calendar.snap(edit.end_date, -1);
     if (stage.end_date < stage.start_date) stage.end_date = stage.start_date;
   }
   // Include dependent ancestors: a child's changed envelope can move a
@@ -187,6 +188,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
         if (!pred) continue;
         const candidate = constraintBounds({...pred, ...summary.get(pred.id)}, dep.type, dep.lag_days,
           durations.get(stage.id) ?? 1, calendar);
+        if(stage.stage_kind==='retainer_monthly')candidate.end_date=retainerEnd(candidate.start_date,retainerMonths(stage.start_date,stage.end_date));
         if (!best || candidate.start_date > best.start_date) best = candidate;
       }
       if (!best) continue; // Last link removed: retain current explicit position.
@@ -258,13 +260,13 @@ export function moveStagesPatch(state: ScheduleState, edits: StageEdit[], retime
   validateScheduleGraph(state.stages, state.dependencies);
   const calendar = scheduleCalendar(state.relative ? [] : state.holidays);
   const byId = new Map(state.stages.map(s => [s.id, s]));
-  const parentIds = new Set(state.stages.map(s => s.parent_stage_id).filter(Boolean));
+  const parentIds = new Set(state.stages.filter(s=>s.stage_kind!=='retainer_month').map(s => s.parent_stage_id).filter(Boolean));
   const normalized = edits.map(e => {
     const stage = byId.get(e.id);
     if (!stage || parentIds.has(e.id)) throw new Error("gantt.schedule.summaryReadOnly");
     if (stage.is_locked) throw new Error("gantt.schedule.locked");
     const start_date = calendar.snap(e.start_date);
-    const end_date = e.move ? calendar.shift(start_date, calendar.duration(stage.start_date, stage.end_date) - 1)
+    const end_date = stage.stage_kind==='retainer_monthly'?retainerEnd(start_date,e.move?retainerMonths(stage.start_date,stage.end_date):retainerMonths(e.start_date,e.end_date)):e.move ? calendar.shift(start_date, calendar.duration(stage.start_date, stage.end_date) - 1)
       : calendar.snap(e.end_date, -1);
     return {id: e.id, start_date, end_date: end_date < start_date ? start_date : end_date};
   });
