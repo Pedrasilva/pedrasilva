@@ -39,15 +39,9 @@ Guarda a referência contratada em `pm_project_contract_baseline` e respetivas f
 
 O caminho idempotente devolve o projeto já existente **sem voltar a copiar pagamentos**. Portanto, reabrir/reconverter um projeto antigo não preenche automaticamente planos ausentes.
 
-### Funcionalidades já aproveitáveis
+### Funcionalidades já existentes
 
-- **Datas Incoming:** `pm_project_incoming_timing` / `pm_incoming_resolve` usam fases vivas, início/fim, meses de avença, calendário útil, exceções manuais e congelamento fiscal. Dados sem ligação comprovada são assinalados, não adivinhados.
-- **Valores:** `pm_gantt_change_value` e `pm_gantt_reconcile_value` atualizam pagamentos não protegidos e registam responsabilidade/motivo/histórico. Preservam montantes fiscais, repartem o restante com arredondamento e rejeitam valor inferior ao já protegido. Mistura de tipos de montante exige revisão.
-- **Agrupamento atual:** há agrupamento automático por proximidade de datas/condições/IVA, `invoice_group_id` e `pm_invoice_regroup`; **não é a seleção manual de duas ou mais linhas nem um desfazer individual**. Alterações de valores podem voltar a agrupar: o novo agrupamento manual terá de ficar protegido dessa recomposição.
-- **Finance → Faturas a emitir:** existe fila global e avisos de atraso/próximos 14 dias, confirmação auditada pelo gestor e registo manual de número/data.
-- **Lacuna fiscal:** `fin_mark_incoming_issued` marca o pagamento e guarda número/data em `pm_invoice_readiness`, mas não cria o documento fiscal canónico nem as suas linhas. O registo de documento/PDF existente usa outra ação, `fin_register_issued_document`. Precisam de convergir numa única operação sem duplicados.
-- **Saídas atuais:** o separador Outgoing ainda lê a proposta CRM, não o plano operativo. Mastercard tem 30 saídas vivas, incluindo **Nulty e Mais Energia**. A identidade existe em `supplier_id`/`pm_suppliers`, mesmo quando `supplier_label`/`supplier_company_id` estão vazios: resolver por ligação comprovada, não fabricar fornecedor.
-- **InvoiceXpress:** `financial_documents` já possui `invoicexpress_id`, `invoicexpress_type` e `invoicexpress_status`. Preservar estes campos; não implementar a ligação agora.
+Datas vivas e exceções auditadas; reconciliação de valores não emitidos e histórico Gantt; agrupamento automático por datas/IVA/condições (não seleção manual); fila Finance com avisos de 14 dias, confirmação do gestor e emissão manual. A emissão da fila só marca o pagamento/número/data: deve convergir com o documento fiscal canónico. Saídas ainda leem o CRM; Mastercard possui 30 saídas vivas, com Nulty/Mais Energia ligados por fornecedor. Campos InvoiceXpress já existem no documento, sem ligação a implementar agora.
 
 ## 3. Plano proposto
 
@@ -103,22 +97,14 @@ A fila global reutiliza a mesma projeção de Faturação: grupos, valores atuai
 
 Reservar no modelo a ligação do grupo ao documento, linhas detalhadas, revisão confirmada, origem e campos externos existentes. Acrescentar apenas o que faltar para idempotência, estado externo e evidência de envio (data/destinatário/resultado/erro). **Emitida não significa enviada**: são factos separados. Uma futura ação InvoiceXpress poderá emitir e enviar com esses dados; nenhuma credencial, chamada, botão funcional, emissão ou email será construída agora.
 
-## 4. Detalhes técnicos e execução após aprovação
+## 4. Detalhes técnicos e implementação após OK
 
-1. Projeção de leitura do plano independente da existência de documentos; leitura operacional das saídas com calendário e fornecedores comprovados. Reutilizar `pm_payment_schedule_items`, `financial_documents`, `financial_document_lines`, pagamentos e prontidão existentes.
-2. Alterações aditivas mínimas para descrição, regra/fracionamento e grupos manuais com membros/histórico; ações atómicas com controlo de revisão e permissões. Guardas fiscais incluem documentos ligados, não só o estado do pagamento.
-3. Unificar emissão manual/PDF com o registo fiscal e afetação de todos os marcos do grupo. Auditar qualquer diferença histórica antes de propor correção real.
-4. Atualizar Faturação e fila Finance; PT-PT/EN na apresentação, preservando texto de fatura e idioma do documento.
-5. SQL aplicado e ficheiros idênticos nas duas pastas de migrações, GRANT/RLS e revogação explícita de TRUNCATE em novas tabelas públicas. Nenhuma alteração às três políticas de armazenamento pendentes.
+Reutilizar `pm_payment_schedule_items`, a projeção operacional Incoming, `financial_documents`, linhas, pagamentos e prontidão; não abrir segundo livro em `pm_invoices`. Guardar descrição, regras e grupos manuais com membros/histórico por alterações aditivas mínimas e ações atómicas revisionadas. O agrupador automático não pode desfazer grupos manuais. Unificar registo de emissão/PDF/SAF-T e ligações de todos os marcos. PT-PT/EN apenas na apresentação; texto fiscal preservado. Migrações idênticas nas duas pastas, GRANT/RLS e revogação de TRUNCATE em novas tabelas. Políticas de ficheiros pendentes intactas.
 
-## 5. Validação proposta — só após OK, em cópias descartáveis
+## 5. Validação — só cópias descartáveis após OK
 
-- Conversão com entradas/saídas/IVA e regra 50/50; começo/fim de fase, feriados/fechos, avenças e datas manuais.
-- Alteração 10 000 → 12 000: duas parcelas não emitidas de 5 000 passam a 6 000; se 5 000 já emitidos, conservar 5 000 e ajustar o restante a 7 000, com auditoria. Nenhuma mutação da proposta/baseline.
-- Junção/desfazer, conservação de linhas/totais/IVA, datas atualizadas, confirmação invalidada, concorrência e proteção do grupo manual contra regroup.
-- Emissão com/sem PDF, série/número duplicados, SAF-T posterior, pagamentos parciais e conciliação; proteção de linhas fiscais.
-- Sem documentos: plano visível. Sem plano: aviso fiel, sem proposta criada. Saídas Nulty com identidade comprovada e sem custo duplicado.
-- Financials permitido/negado, supplier-fees separado, Finance fiscal e acesso entre projetos/entidades; B1 OFF.
-- Paridade Faturação/Finance e preservação de timesheets, snapshots de custos, contratos e documentos. Limpeza das cópias com leitura independente a zero.
+Conversão com regras 50/50, entradas/saídas/IVA, feriados/fechos, avenças, datas manuais; junção/desfazer e concorrência; grupos manuais preservados e confirmações invalidadas; emissão com/sem PDF, duplicados e SAF-T; conciliação parcial/integral e bloqueio fiscal; permissões por projeto/entidade e fornecedores, B1 OFF; paridade Projetos/Finance e ausência de custos duplicados.
 
-**Conclusão:** a causa do vazio e o inventário foram confirmados por leitura de código e dados; nenhum fluxo de escrita foi testado ou alterado. Aprovação deste plano autoriza implementação/validação descartável, não preenchimento de planos reais, alteração de permissões por pessoa, políticas de ficheiros ou ativação B1. Aguardar OK de Luis; nenhum novo registo em DECISIONS.md nesta investigação.
+Teste concreto: fase 10 000 → 12 000, parcelas 5 000+5 000 passam a 6 000+6 000; se 5 000 já emitidos, preservar e ajustar só o restante a 7 000. Histórico, proposta e baseline intactos. Plano aparece sem documentos; ausência de plano nunca cria proposta. Timesheets/snapshots/contratos intactos; limpeza e leitura independente a zero.
+
+**Aguardar OK:** causa/inventário confirmados por leitura; nenhuma escrita de negócio testada ou aplicada. Aprovação do plano não aprova preenchimento real, mudanças de direitos por pessoa, políticas de armazenamento ou ativação B1. DECISIONS.md permanece intacto. Relatório completo disponibilizado separadamente.
