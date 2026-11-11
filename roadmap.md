@@ -1,6 +1,6 @@
 ## Current request — Tatiana Backoffice costing decision
-- [ ] Verify current HR-derived rates, overhead/FTE allocation and any contradictory resource/rate records read-only.
-- [ ] Record Luis's approved rule in DECISIONS.md; no application, policy or data changes.
+- [x] Verify 11 real HR-derived project rates exclude Tatiana; Backoffice overhead/FTE allocation, zero periods/allocations/project hours; quote-pricing/manual-override and internal-analysis caveats flagged.
+- [x] Record Luis's approved rule D34 in DECISIONS.md; no application, policy or data changes. Report docs/tatiana-backoffice-costing-verification-2026-11-11.md.
 
 ## Current request — permissions investigation only
 - [x] Investigate 14 accounts, live roles/overrides/policies and B1 OFF; deliver read-only report.
