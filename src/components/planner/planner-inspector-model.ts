@@ -1,6 +1,8 @@
 import type { QuoteStage, QuoteStageDependency } from '@/lib/quotes/types';
 import type { QuoteAllocationWithResource } from '@/lib/quotes/use-quote-allocations';
 import type { Resource } from '@/lib/projects/types';
+import type {StageWithAllocations} from '@/lib/projects/types';
+import type {CommercialReference} from '@/lib/projects/use-gantt-commercial';
 export interface InspectorMutation {
   mutate: (input: any, options?: {onSuccess?: (value?: any)=>void; onError?: (error: unknown)=>void})=>void;
   mutateAsync: (input: any)=>Promise<any>;
@@ -25,4 +27,6 @@ export interface PlannerInspectorModel {
   financialVisible: boolean;
   operational: boolean;
   contractReferencePending?: boolean;
+  commercialReferences?:CommercialReference[];
+  operationalStages?:StageWithAllocations[];
 }

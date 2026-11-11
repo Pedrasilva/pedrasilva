@@ -1,4 +1,23 @@
 {
+  "commercial": {
+    "contracted": "Contratado",
+    "current": "Atual",
+    "changed": "≠ Contrato",
+    "outside": "Fora do contrato",
+    "confirmTitle": "Confirmar alteração de valor",
+    "responsibilityHint": "Este valor difere do acordado contratualmente ({{value}}). Confirme que assume a responsabilidade por esta alteração.",
+    "pendingResponsibilityHint": "Referência por confirmar. Confirme que assume a responsabilidade por esta alteração de valor.",
+    "takeResponsibility": "Assumo a responsabilidade por esta alteração.",
+    "clientAgreed": "O cliente concordou com o novo valor da avença?",
+    "reason": "Motivo curto para a alteração de valor",
+    "effectiveMonth": "Aplica-se a partir deste mês",
+    "history": "Histórico de alterações de valor",
+    "historyUnavailable": "O histórico de alterações de valor está indisponível.",
+    "historyEmpty": "Sem alterações de valor registadas.",
+    "appliesFrom": "Aplica-se a partir de {{month}}",
+    "splitBalance": "Alocado {{allocated}} / Disponível {{remaining}}",
+    "addMonth": "Adicionar mês de avença"
+  },
   "sharedGantt": { "supplierIdentityHint": "Identidade operacional do fornecedor; documentos emitidos e pagamentos confirmados mantêm-se protegidos.", "referencePending": "Referência por confirmar" },
   "insightsFinance": {
     "hoursUnavailableHint": "A classificação das horas guardadas está indisponível ou ainda a carregar.",

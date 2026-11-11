@@ -1,4 +1,5 @@
 import { PlannerToolbar } from "./planner-toolbar";
+import {GanttValueDialog,GanttContractSummary} from './gantt-commercial-panel';
 import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
 import { recomputeSchedule } from "@/lib/projects/schedule-engine";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
@@ -773,6 +774,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
   }, [zoom, quoteId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [pendingCommercial,setPendingCommercial]=useState<{id:string;value:number}|null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
     if (typeof window === "undefined") return 420;
     const v = Number(window.localStorage.getItem("planner.outlineWidth.quote"));
@@ -1402,7 +1404,7 @@ function OperationalScheduleAdapter({
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
       if (!canEdit) return;
-      await updateStage.mutateAsync({ id, patch: { budget }, projectId });
+      setPendingCommercial({id,value:budget});
     },
     [canEdit, updateStage, projectId],
   );
@@ -1708,6 +1710,8 @@ function OperationalScheduleAdapter({
 
   return (
     <div className="min-w-0 max-w-full space-y-2">
+      {canSeeFinancials&&<GanttContractSummary projectId={projectId} stages={stages}/>}
+      {pendingCommercial&&stages.find(s=>s.id===pendingCommercial.id)&&<GanttValueDialog projectId={projectId} stage={stages.find(s=>s.id===pendingCommercial.id) as StageWithAllocations} value={pendingCommercial.value} onClose={()=>setPendingCommercial(null)}/>}
       <PlannerToolbar mode="project" scope={projectId} disabled={!canEdit||createStage.isPending||updateStage.isPending} selected={!!selectedStageId}
         add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
         reflow={async()=>{if(!canEdit)return;try{const state=await readGanttSchedule("project",projectId);await saveGanttSchedule("project",projectId,state,recomputeSchedule(state));await qc.invalidateQueries({queryKey:["pm-project",projectId]});await qc.invalidateQueries({queryKey:["pm-stages-all"]});}catch(error){toast.error(error instanceof Error?error.message:String(error));}}}

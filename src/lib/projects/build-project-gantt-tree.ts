@@ -17,6 +17,7 @@ import { sortStagesByWbs, buildStageNumberMap, compareStageDisplay, isConstructi
  */
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { visibleGanttNumber } from './gantt-financial-visibility';
+import {commercialStageValue} from './gantt-commercial';
 import type {
   StageWithProject,
   GanttHierarchyNode,
@@ -84,7 +85,7 @@ export function buildProjectGanttTree(
       if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
       sumBudget += r.budget;
     }
-    const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: sumBudget };
+    const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: commercialStageValue(node,regular) };
     rollup.set(node.id, out);
     return out;
   };
