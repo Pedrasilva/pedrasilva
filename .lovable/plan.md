@@ -12,7 +12,7 @@ Não chamar `ensure_project_has_quote`/`backfill_quote_from_project` nem criar p
 
 ### Inventário real dos 21 projetos
 
-Contagens de linhas, não de faturas emitidas. Consulta por `inflow`/`outflow`, os valores realmente usados no armazenamento.
+Contagens de linhas, não de faturas.
 
 | Projeto com plano operacional | Entradas projeto | Saídas projeto | Entradas CRM | Saídas CRM | Baseline contratual |
 |---|---:|---:|---:|---:|---|
