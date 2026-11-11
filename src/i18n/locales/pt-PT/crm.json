@@ -476,7 +476,8 @@
       "removeRow": "Remover linha da calculadora",
       "undefinedPlan": "Plano por definir",
       "saveDefaults": "Guardar predefinições de pagamentos do atelier",
-      "defaultsSaved": "Predefinições de pagamentos do atelier guardadas"
+      "defaultsSaved": "Predefinições de pagamentos do atelier guardadas",
+      "durationMonths": "Duração (meses)"
     }
   },
   "workspace": {

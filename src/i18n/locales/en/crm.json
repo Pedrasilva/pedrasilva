@@ -476,7 +476,8 @@
       "removeRow": "Remove calculator row",
       "undefinedPlan": "Plan undefined",
       "saveDefaults": "Save practice payment defaults",
-      "defaultsSaved": "Practice payment defaults saved"
+      "defaultsSaved": "Practice payment defaults saved",
+      "durationMonths": "Duration (months)"
     }
   },
   "workspace": {
