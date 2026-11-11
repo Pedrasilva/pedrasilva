@@ -1196,7 +1196,7 @@ function ProjectDetail() {
                 timeRows={timeRows}
                       entryFigures={entryFiguresQ.data ?? []}
                 historical={hist}
-                hoursReady={timeRows !== undefined && histQ.data !== undefined}
+                hoursReady={timeRows !== undefined && historical !== undefined}
                 initialScopeStageId={insightsScopeStageId}
               />
             )}
@@ -2577,8 +2577,8 @@ function InsightsPanel({
     monthMap.set(key, cur);
   }
   const scopedTimeRows = scopeStageIds
-    ? timeRows.filter((row) => scopeStageIds.has(row.stage_id))
-    : timeRows;
+    ? (timeRows ?? []).filter((row) => scopeStageIds.has(row.stage_id))
+    : timeRows ?? [];
   for (const row of scopedTimeRows) {
     const d = parseISO(`${row.month}-01`);
     const cur = monthMap.get(row.month) ?? {
