@@ -1,0 +1,15 @@
+CREATE OR REPLACE FUNCTION public.hr_can_read_full(_user_id uuid DEFAULT auth.uid()) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT _user_id IS NOT NULL AND _user_id IN ('ab5a48c0-939b-4502-bd3b-db7801f0f8b8'::uuid,'d1c1d349-2d32-42f6-b01b-89e51144a426'::uuid,'a5053861-594d-47fc-b955-2b0ad0b87e84'::uuid,'a8c10bd8-856b-405d-8957-2f7cdf476864'::uuid) $$;
+REVOKE ALL ON FUNCTION public.hr_can_read_full(uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.hr_can_read_full(uuid) TO authenticated,service_role;
+COMMENT ON FUNCTION public.hr_can_read_full(uuid) IS 'D35/D36: stable approved HR identities; Ricardo deliberate temporary exception. Not a project-rate gate.';
+ALTER POLICY "Read bo_settings" ON public.bo_settings USING (public.hr_can_read_full());
+CREATE POLICY hr_private_leave_read_boundary ON public.vacation_requests AS RESTRICTIVE FOR SELECT TO authenticated USING (collaborator_id=public.get_my_collaborator_id() OR public.hr_can_read_full());
+CREATE POLICY hr_full_leave_read ON public.vacation_requests FOR SELECT TO authenticated USING (public.hr_can_read_full());
+CREATE VIEW public.hr_working_day_settings WITH (security_barrier=true) AS SELECT id,dias_uteis,horas_dia FROM public.bo_settings WHERE public.is_psa_staff();
+REVOKE ALL ON public.hr_working_day_settings FROM PUBLIC,anon;
+GRANT SELECT ON public.hr_working_day_settings TO authenticated,service_role;
+COMMENT ON VIEW public.hr_working_day_settings IS 'Calendar-only projection: no overhead costs, margins, notes or financial settings; underlying writes unchanged.';
+CREATE VIEW public.hr_team_leave_calendar WITH (security_barrier=true) AS SELECT v.collaborator_id,c.nome,v.data_inicio,v.data_fim,'absent'::text AS tipo FROM public.vacation_requests v JOIN public.collaborators c ON c.id=v.collaborator_id WHERE public.is_psa_staff() AND v.estado='aprovada' AND c.archived_at IS NULL;
+REVOKE ALL ON public.hr_team_leave_calendar FROM PUBLIC,anon;
+GRANT SELECT ON public.hr_team_leave_calendar TO authenticated,service_role;
+COMMENT ON VIEW public.hr_team_leave_calendar IS 'D37: shared names/dates/generic absent only; deliberately owner-run projection with staff guard. No request IDs, approval details, reasons, half-day metadata, attachments or balances.';

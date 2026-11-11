@@ -17667,6 +17667,49 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_team_leave_calendar: {
+        Row: {
+          collaborator_id: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          nome: string | null
+          tipo: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vacation_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vacation_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_working_day_settings: {
+        Row: {
+          dias_uteis: number | null
+          horas_dia: number | null
+          id: string | null
+        }
+        Insert: {
+          dias_uteis?: number | null
+          horas_dia?: number | null
+          id?: string | null
+        }
+        Update: {
+          dias_uteis?: number | null
+          horas_dia?: number | null
+          id?: string | null
+        }
+        Relationships: []
+      }
       inventory_line_processing: {
         Row: {
           document_id: string | null
@@ -18511,6 +18554,7 @@ export type Database = {
         Args: { _id: string; _kind: string }
         Returns: string
       }
+      hr_can_read_full: { Args: { _user_id?: string }; Returns: boolean }
       hr_dashboard_alerts_finance: { Args: never; Returns: Json }
       hr_inbox_remote_decide: {
         Args: { _approve: boolean; _id: string; _reason: string }
