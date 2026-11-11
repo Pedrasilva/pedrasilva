@@ -538,6 +538,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   useEffect(() => {
     if (autoSeededRef.current) return;
     if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
+    if (stages.some(s=>(s as typeof s & {calculator_payment_unconfigured?:boolean}).calculator_payment_unconfigured)) return;
     if (items.length > 0) {
       autoSeededRef.current = true;
       return;
