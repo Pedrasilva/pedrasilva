@@ -717,7 +717,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                           ? t("workspace.planning.supplierCost", { defaultValue: "Supplier cost" })
                           : t("workspace.planning.budget", { defaultValue: "Budget" })}
                       </Label>
-                      {isParent && mode === "calculated" && !model.operational ? (
+                      {model.operational&&operationalStage?.stage_kind==='retainer_monthly'?<p className="font-mono text-sm">{Number(stage.budget).toLocaleString(uiI18n.language,{style:'currency',currency:'EUR'})}</p>:isParent && mode === "calculated" && !model.operational ? (
                         <>
                           <CurrencyInput
                             key={`b-${stage.id}-calc-${calculated}`}

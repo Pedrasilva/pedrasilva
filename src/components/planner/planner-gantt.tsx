@@ -1252,7 +1252,7 @@ function OperationalScheduleAdapter({
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
+    stages: detailQ.data.stages.map(s => ({ ...s,is_locked:false, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
     issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
   const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;

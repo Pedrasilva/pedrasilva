@@ -9,7 +9,9 @@ const db = supabase as unknown as {rpc: (name: string, args: Record<string, unkn
 export async function readGanttSchedule(mode: Mode, scope: string): Promise<ScheduleState> {
   const {data,error} = await db.rpc("pm_gantt_state", {_mode:mode,_scope:scope});
   if (error) throw new Error(error.message);
-  return data as ScheduleState;
+  const state=data as ScheduleState;
+  // Live dates are operational, not contractual locks. Imported allocations stay protected.
+  return mode==='project'?{...state,stages:state.stages.map(s=>({...s,is_locked:false}))}:state;
 }
 export async function saveGanttSchedule(mode: Mode, scope: string, state: ScheduleState, patch: SchedulePatch,
   initialize = false, history = true): Promise<History> {
