@@ -24,6 +24,9 @@ import { AvailabilitySummary } from "@/components/hr/availability/availability-s
 import { AvailabilityYear } from "@/components/hr/availability/availability-year";
 import { AvailabilityBalances } from "@/components/hr/availability/availability-balances";
 import { AbsenceLegend } from "@/components/hr/availability/absence-legend";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { TeamLeaveCalendar } from "@/components/hr/team-leave-calendar";
 
 export const Route = createFileRoute("/_app/hr/disponibilidade")({
   head: () => ({
@@ -40,16 +43,28 @@ export const Route = createFileRoute("/_app/hr/disponibilidade")({
         content:
           "Read-only monthly overview of team leave, public holidays, remote work and daily coverage.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
     <PermissionGate permission="hr.ferias.own">
-      <AvailabilityPage />
+      <AvailabilityEntry />
     </PermissionGate>
   ),
 });
 
 const ALL = "__all__";
+
+function AvailabilityEntry() {
+  const query = useQuery({ queryKey: ["hr-full-read-access"], queryFn: async () => {
+    const { data, error } = await supabase.rpc("hr_can_read_full");
+    if (error) throw error;
+    return data === true;
+  }});
+  // No detail component mounts until the server authorizes it.
+  return query.data === true ? <AvailabilityPage /> : <TeamLeaveCalendar />;
+}
 
 function AvailabilityPage() {
   const { t } = useTranslation("hr");
