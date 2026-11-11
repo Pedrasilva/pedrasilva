@@ -1,7 +1,7 @@
 ## Current request — Gantt Phase 2 approved
-- [ ] Audited confirmed stage/retainer changes, immutable references, split caps and immediate unfrozen billing reconciliation.
-- [ ] Shared Gantt contract comparison, allocated/remaining, new-stage markers and stage/project history.
-- [ ] Disposable-only end-to-end verification, screenshots, cleanup and B1 OFF check.
+- [x] Audited confirmed stage/retainer changes, immutable references, split caps and immediate unfrozen billing reconciliation.
+- [x] Shared Gantt contract comparison, allocated/remaining, new-stage markers and stage/project history.
+- [x] Disposable-only (retainer and over-limit UI flows not browser-tested) end-to-end verification, screenshots, cleanup and B1 OFF check.
 
 ## Current request — 11 November project financials approved fix
 - [x] Scope resource and derived HR-rate reads to project financial access in OFF/ON, preserving raw HR restrictions and B1 OFF (0273–0274 mirrored).
