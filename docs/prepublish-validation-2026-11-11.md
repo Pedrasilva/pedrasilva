@@ -1,7 +1,7 @@
 # Pré-publicação — 11/11/2026
 
 ## Resultado
-**Não publicar ainda.** O bloqueio das dependências foi encerrado. O PDF tem o mesmo conteúdo e paginação, mas ainda perde o cabeçalho das páginas de Conteúdo na impressão. A segurança aguarda aprovação das regras propostas abaixo; nenhuma política foi alterada e não foi usado «Try to fix».
+**Atualização às 20:41 UTC: PDF PASS no cenário testado; publicação conjunta aguarda segurança.** O cabeçalho foi corrigido e as 12 páginas revalidadas, com [relatório e evidência](pdf-header-validation-2026-11-11.md). As secções PDF abaixo conservam o diagnóstico anterior. A segurança aguarda aprovação separada; nenhuma política foi alterada e não foi usado «Try to fix».
 
 ## Gantt: PASS
 Nos painéis reais de Projetos e CRM, em duas cópias descartáveis: criar FS/SS/FF/SF com lag +2; recarregar; editar cada ligação para o tipo seguinte e lag −3; recarregar; remover; recarregar e confirmar ausência. Os oito ciclos passaram, com leitura independente do plano guardado. A falha anterior era do seletor do teste: abrangia uma secção exterior e os controlos de sucessoras, não apenas o formulário de predecessoras. Não foi necessário alterar o Gantt.
@@ -47,9 +47,9 @@ Todos os buckets verificados são **privados**. As três políticas sinalizadas 
 |---|---|---|
 | Gantt — dependências nos painéis Projetos/CRM | **Sim** | Nenhum: oito ciclos com lag positivo/negativo e reload passaram. Demais evidências na [matriz anterior](gantt-release-validation-report.md). |
 | Capa/Carta — sem numeração; Conteúdo 1–10; índice | **Sim, neste cenário testado** | Não substitui a paridade visual completa. |
-| PDF — paridade página a página nos três tipos | **Não** | Cabeçalho de Conteúdo desaparece na impressão; controlos anteriores não certificados continuam listados. |
+| PDF — paridade página a página nos três tipos | **Sim, no cenário testado** | Cabeçalho corrigido; 12 páginas passaram na [revalidação](pdf-header-validation-2026-11-11.md). Outros cenários anteriores não certificados continuam listados. |
 | Segurança — três políticas | **Não, até decisão e validação** | Aprovação das regras de âmbito PSA/Marketing e testes após aplicação. Nenhuma política alterada. |
-| Publicação conjunta | **Não** | PDF e segurança acima. |
+| Publicação conjunta | **Não** | Segurança pendente de decisão e validação; PDF já não bloqueia. |
 
 ## Verificações e ficheiros alterados
 - 10 testes Vitest passaram (`test-proposal-pagination-ready`, `test-gantt-dependency-cast`).
