@@ -52,12 +52,13 @@ import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 
 interface Props {
   relative?:boolean;
+  readOnly?:boolean;
   quoteId: string;
   stageId: string;
   onClose: () => void;
 }
 
-export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=false }: Props) {
+export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=false, readOnly=false }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
@@ -80,7 +81,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose, relative=fals
     resources: poolResources, upsertStage, deleteStage: delStage, createDependency: createDep,
     updateDependency: updateDep, deleteDependency: delDep, cascadeStage: updateStageCascade,
     upsertAllocation: upsertAlloc, deleteAllocation: delAlloc, quoteMargin: quoteMargin ?? null,
-    defaultRates, readOnly: false, financialVisible: true, operational: false,
+    defaultRates, readOnly, financialVisible: true, operational: false,
   };
   return <SharedPlannerInspector model={model} scopeId={quoteId} stageId={stageId} onClose={onClose} relative={relative} />;
 }

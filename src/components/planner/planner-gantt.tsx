@@ -36,7 +36,8 @@ import { RELATIVE_ORIGIN,scheduleCalendar } from "@/lib/projects/schedule-engine
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import {quoteAllocationLine} from "@/lib/quotes/financial-rollups";
 import { QuoteSaleMarginSettings } from "@/components/quotes/quote-sale-margin-settings";
-import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
+import { ProjectInspectorAdapter } from "./project-inspector-adapter";
+import { plannerStageRole } from "@/lib/projects/planner-stage-role";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import {
   useQuoteLock,
@@ -69,7 +70,7 @@ import { useGanttActuals } from "@/lib/projects/use-gantt-actuals";
 import { proposalUsesRelativeDates } from "@/lib/projects/converted-quote-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
-import {useProjectB1State,useProjectViewerAreas} from '@/lib/projects/use-project-access';
+import {useProjectB1State,useProjectViewerAreas,useProjectGanttEditAccess} from '@/lib/projects/use-project-access';
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
 import { QuoteProjectBillingInspector } from "@/components/quotes/quote-project-billing-inspector";
@@ -131,22 +132,8 @@ function QuoteScheduleEntry(props: Props) {
 }
 
 function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, canSeeFinancials }: Props & { projectId: string }) {
-  const { user } = useAuth();
-  const permissions = useMyPermissionsV2();
-  const assignedQ = useQuery({
-    queryKey: ["pm-assigned-access", user?.id, projectId],
-    enabled: !!user?.id,
-    queryFn: async () => {
-      if (!user) return false;
-      const { data, error } = await supabase.rpc("pm_has_assigned_access", { _user_id: user.id, _project_id: projectId });
-      if (error) throw error;
-      return !!data;
-    },
-  });
-  const allowed = !permissions.loading && (permissions.can("projects.edit_planning", "all") ||
-    (permissions.can("projects.edit_planning", "assigned") && !!assignedQ.data));
   return <OperationalScheduleAdapter projectId={projectId} sourceQuoteId={quoteId} dayWidth={dayWidth}
-    canEdit={canEditPlanning ?? allowed} canSeeFinancials={canSeeFinancials ?? false} />;
+    canEdit={canEditPlanning} canSeeFinancials={canSeeFinancials} />;
 }
 
 function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
@@ -1252,6 +1239,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
             quoteId={quoteId}
             stageId={selectedStageId}
             relative={relative}
+            readOnly={isLocked}
             onClose={() => setSelectedStageId(null)}
           />
         )}
@@ -1294,11 +1282,13 @@ function OperationalScheduleAdapter({
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null })),
+    stages: detailQ.data.stages.map(s => ({ ...s, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
     issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
   const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;
-  const canEdit = requestedCanEdit && mappingReady;
+  const editAccess=useProjectGanttEditAccess(projectId);
+  const canEdit = editAccess.data===true && mappingReady;
+  void requestedCanEdit;
   const { data: allResourcesData } = useProjectResources(projectId);
   const allResources = useMemo(
     () => (allResourcesData ?? []).filter((r) => r.active !== false),
@@ -1806,7 +1796,7 @@ function OperationalScheduleAdapter({
             onInsertStage={canEdit ? handleInsert : undefined}
             onDeleteStage={canEdit ? handleDelete : undefined}
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}
-            onUpdateStageBudget={canEdit && !sourceQuoteId && (!b1.data || !!areas.data?.financials) ? handleUpdateBudget : undefined}
+            onUpdateStageBudget={canEdit ? handleUpdateBudget : undefined}
             onAppendRoot={canEdit ? () => handleInsert(null, "below") : undefined}
             actuals={actuals}
             showFinancials={canSeeFinancials}
@@ -1815,14 +1805,13 @@ function OperationalScheduleAdapter({
           />
         </div>
         {selectedStageId && (
-          <ProjectPlannerInspector
+          <ProjectInspectorAdapter
             projectId={projectId}
             stages={stages}
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
             readOnly={!canEdit}
-            planningOnly
-            financialVisible={!b1.data || !!areas.data?.financials}
+            financialVisible={areas.data?.financials===true}
           />
         )}
         {!poolCollapsed && !selectedStageId && (
