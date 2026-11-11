@@ -1,7 +1,8 @@
 ## Current request — publish-readiness Gantt validation
-- [ ] Re-run financial editor/denied UI and direct writes on disposable fixtures, B1 OFF.
-- [ ] Exercise issued-document and confirmed-payment protections for stage and retainer changes.
-- [ ] Finish global drag/resize and rerun shared gesture/dependency paths; consolidate Phase 1/2 matrix and publication verdict.
+- [x] Financial-only editor/denied UI, direct schedule/value/date writes and cross-project denial passed; B1 OFF.
+- [x] Full synthetic issued invoices and confirmed-payment evidence unchanged after stage/retainer changes; concurrent split cap passed.
+- [x] Global/project/CRM drag and end-handle resize/reload passed; all-four adapter dependencies pass; report docs/gantt-release-validation-report.md.
+- [ ] Publication blocked pending project/CRM inspector dependency-control verification; additional project panel automation did not confirm creation. No diagnosed product fix yet.
 
 ## Current request — proposal Cover / Letter / Content
 - [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
@@ -16,7 +17,7 @@
 ## Current request — final Gantt validation before team use
 - [x] Retainer extension/forward values/consent/history and sequential split caps passed on disposable project; report docs/gantt-final-validation-report.md.
 - [x] Global/project/CRM mouse drag, start and duration inputs/reload passed; FS/SS/FF/SF shared-adapter create/remove passed.
-- [ ] Final release evidence incomplete: resize-handle gesture, mouse dependency controls, concurrent splits, financial-only/denied-user UI+server rerun, fiscal frozen-row fixtures, and commercial flows in global/CRM. Not a product decision change; no release-ready claim.
+- [ ] Remaining release scope: project/CRM inspector dependency-control verification and full commercial UI parity in global/CRM; other remaining checks completed in release report.
 - [x] Report matrix and screenshots saved; fixture cleanup readbacks and B1 OFF revision 10 confirmed; no application/data correction or DECISIONS change.
 
 ## Current request — delegated project team management
