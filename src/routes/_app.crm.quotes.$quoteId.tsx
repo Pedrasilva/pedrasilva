@@ -63,6 +63,7 @@ import {
 } from "@/components/quotes/quote-status-rail";
 import { useQuoteSignature } from "@/lib/quotes/use-quote-signature";
 import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
+import { ImportFullTemplateDialog } from "@/components/quotes/import-full-template-dialog";
 import { QuoteLockGuard } from "@/components/quotes/quote-lock-guard";
 import { QuoteRevisionsButton } from "@/components/quotes/quote-revisions-button";
 
@@ -258,6 +259,7 @@ function QuoteDetail() {
   const [convertOpen, setConvertOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [importTemplateOpen, setImportTemplateOpen] = useState(false);
   const [revisionsOpen, setRevisionsOpen] = useState(false);
   const [buildSettingsOpen, setBuildSettingsOpen] = useState(false);
 
@@ -465,6 +467,9 @@ function QuoteDetail() {
                 <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.constructionSettings")} </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setSaveTemplateOpen(true)}>
                 {t("templates.actions.saveAs")}
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={isLocked} onSelect={() => setImportTemplateOpen(true)}>
+                {t("quoteEditor.importTemplate")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -814,6 +819,7 @@ function QuoteDetail() {
         defaultName={quote.titulo}
         defaultCategory={category}
       />
+      <ImportFullTemplateDialog quoteId={quoteId} open={importTemplateOpen} onOpenChange={setImportTemplateOpen}/>
     </div>
   );
 }

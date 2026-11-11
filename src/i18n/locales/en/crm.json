@@ -2427,5 +2427,29 @@
     "search": "Search contacts…",
     "position": "Position",
     "empty": "No contacts. Use “New” at the top."
+  },
+  "quoteTemplate": {
+    "relativeHint": "Relative planning only. Client identity and fiscal records are never imported.",
+    "previewRequired": "Choose a template and review its contents first.",
+    "imported": "Full quote template imported.",
+    "undone": "Import undone; previous quote content restored.",
+    "undo": "Undo template import",
+    "undoHint": "An automatic backup preserves the previous content. Undo is available here after reopening, unless subsequent edits or quote locking make it unsafe.",
+    "choose": "Choose quote template",
+    "legacyHint": "Legacy template: stages and blocks can be recovered, but hierarchy, allocations, exact fees and page layout were not saved. Re-save the source quote for complete financial parity.",
+    "planning": "Planning / Gantt",
+    "planningHint": "Stages, substages, durations, dependencies, client approvals and retainer phases.",
+    "fees": "Fees",
+    "feesHint": "Calculator, Architecture, Suppliers, Travel expenses, billable hourly rates and margin.",
+    "payments": "Payment schedule",
+    "paymentsHint": "Percentage splits and stage triggers only; no invoices, fiscal statuses or source billing descriptions.",
+    "blocks": "Proposal blocks",
+    "blocksHint": "Stage references are rebound to this quote; letter tokens use this quote’s identity.",
+    "layout": "Page layout",
+    "layoutHint": "Master page override for Cover, Letter and Content.",
+    "feeValues": "Import fee values",
+    "overwrite": "Existing content will be replaced in: {{sections}}.",
+    "blankConfirmation": "Import the selected sections into this blank quote?",
+    "confirm": "Confirm replacement and import"
   }
 }
