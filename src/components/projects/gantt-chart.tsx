@@ -1,3 +1,4 @@
+import "@/components/planner/retainer-bar.css";
 import i18n from "@/i18n/index";
 import { marginPercentage, marginLabel } from '@/lib/projects/financial-calculation';
 import { useMemo, useRef, useState } from "react";
@@ -1428,7 +1429,8 @@ export function GanttChart({
                   })()
                 ) : (() => {
                   const stageRole = hierarchy?.get(stage.id)?.role ?? "architecture";
-                  const isSupplierBar = stageRole === "supplier_group" || stageRole === "supplier_phase";
+                  const isRetainerBar=stage.stage_kind==='retainer_monthly';
+                  const isSupplierBar = !isRetainerBar && stageRole === "supplier_group" || stageRole === "supplier_phase";
                   const isClientBar = stageRole === "client";
                   const supplierFill = stage.color || "#94a3b8";
                   const supplierBg = isSupplierBar
@@ -1458,7 +1460,8 @@ export function GanttChart({
                   )}
 
                   <div
-                    className={`absolute left-0 right-0 overflow-hidden ${
+                    data-retainer-bar={isRetainerBar?stage.id:undefined}
+                    className={`absolute left-0 right-0 overflow-hidden ${isRetainerBar?'retainer-gantt-bar ':''}${
                       isSupplierBar
                         ? "rounded-md border-2 border-dashed border-foreground/40"
                         : isClientBar
@@ -1466,7 +1469,7 @@ export function GanttChart({
                           : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"
                     } cursor-grab active:cursor-grabbing`}
                     style={{
-                      backgroundColor: isSupplierBar || isClientBar ? undefined : stage.color,
+                      backgroundColor: isSupplierBar || isClientBar || isRetainerBar ? undefined : stage.color,
                       backgroundImage: supplierBg ?? clientBg,
                       ...(isSupplierBar
                         ? { top: STAGE_ROW_H / 4, height: STAGE_ROW_H / 2 }
@@ -1489,6 +1492,7 @@ export function GanttChart({
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
+                          {isRetainerBar&&<span className="truncate text-[10px]">{t('crm:workspace.planning.retainerMonthly.badge')}</span>}
                           {showFinancials&&(stage.outsideContract||stage.contractedValue!=null&&stage.budget!==stage.contractedValue)&&<span className="shrink-0 text-[10px] font-semibold text-destructive" title={stage.contractedValue==null?t('commercial.outside'):`${euros(stage.contractedValue)} → ${euros(stage.budget)}`}>{t(stage.outsideContract?'commercial.outside':'commercial.changed')}</span>}
                           <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd, relative ? NO_HOLIDAYS : undefined)}{" "}{t("gantt.wdShort")}

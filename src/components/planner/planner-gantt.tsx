@@ -1,3 +1,5 @@
+import {retainerEnd,retainerPaymentDates} from "@/lib/projects/retainer-schedule";
+import {useBillingPlan} from "@/lib/finance/use-billing-plan";
 import { PlannerToolbar } from "./planner-toolbar";
 import {GanttValueDialog,GanttContractSummary} from './gantt-commercial-panel';
 import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
@@ -90,7 +92,8 @@ function shiftIso(iso: string, days: number): string {
 interface Props {
   quoteId: string;
   dayWidth?: number;
-  onAddRetainerPhase?: () => void;
+  onAddRetainerPhase?: () => Promise<string | undefined>;
+  retainerSaving?: boolean;
   canEditPlanning?: boolean;
   canSeeFinancials?: boolean;
 }
@@ -142,7 +145,7 @@ function ConvertedQuoteGantt({ quoteId, projectId, dayWidth, canEditPlanning, ca
     canEdit={canEditPlanning} canSeeFinancials={canSeeFinancials} />;
 }
 
-function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
+function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase,retainerSaving }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
@@ -435,11 +438,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
     mappedStages: StageWithProject[];
     hierarchy: Map<string, GanttHierarchyNode>;
   }>(() => {
-    // Retainer-monthly stages (stage_kind='retainer_monthly') are edited via
-    // RetainerStageEditor and intentionally NOT rendered on the main Gantt.
-    const regular = stages.filter(
-      (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
-    );
+    // Cards and the timeline use the same stored retainer stage.
+    const regular = stages.map(s=>s.stage_kind==='retainer_monthly'?{...s,end_date:retainerEnd(s.start_date,s.retainer_months??12)}:s);
 
     type S = (typeof regular)[number] & {
       stage_role?: string | null;
@@ -559,15 +559,15 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       source_contract_id: null,
       bootstrap_run_id: null,
       source_contract_phase_key: null,
-      retainer_review_months: null,
-      stage_kind: "regular",
+      retainer_review_months: s.retainer_review_months??null,
+      stage_kind: s.stage_kind??"regular",
       archived_at: null,
       origin: null,
       parent_stage_id: s.parent_stage_id ?? null,
-      billing_model: "stage",
-      retainer_monthly_amount: 0,
-      retainer_anchor_month: null,
-      retainer_months: null,
+      billing_model: s.billing_model??"stage",
+      retainer_monthly_amount: s.retainer_monthly_amount??0,
+      retainer_anchor_month: s.retainer_anchor_month??null,
+      retainer_months: s.retainer_months??null,
       retainer_capacity_hours_per_month: 160,
       is_fee_only: true,
       status: "active",
@@ -719,15 +719,16 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
   const paymentsQ = useQuotePaymentSchedule(quoteId);
   const milestones = useMemo<PaymentMilestone[]>(() => {
     const items = paymentsQ.data ?? [];
-    if (items.length === 0 || mappedStages.length === 0) return [];
+    if (mappedStages.length === 0) return [];
     const stageById = new Map(mappedStages.map((s) => [s.id, s]));
     const earliestStart = mappedStages.reduce(
       (min, s) => (s.start_date < min ? s.start_date : min),
       mappedStages[0].start_date,
     );
     const totalValue = mappedStages.reduce((sum, s) => sum + Number(s.budget ?? 0), 0);
-    const out: PaymentMilestone[] = [];
+    const out: PaymentMilestone[] = stages.filter(s=>s.stage_kind==='retainer_monthly').flatMap(s=>retainerPaymentDates(s.start_date,s.retainer_months??12).map((date,i)=>({id:`retainer:${s.id}:${i}`,label:s.name,date,amount:Number(s.retainer_monthly_amount??0),status:'planned' as const})));
     for (const p of items) {
+      if(stages.find(s=>s.id===p.stage_id)?.stage_kind==='retainer_monthly')continue;
       let date: string | null = null;
       switch (p.trigger_type) {
         case "project_start":
@@ -761,7 +762,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       });
     }
     return out;
-  }, [paymentsQ.data, mappedStages]);
+  }, [paymentsQ.data, mappedStages,stages]);
 
 
   // Zoom — local UI state. Default to "week" (matches old detailed view).
@@ -1139,7 +1140,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
         add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
         reflow={handleReflow} reflowing={reflowing} zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
         extras={<><QuoteSaleMarginSettings quoteId={quoteId} disabled={isLocked}/>
-          {onAddRetainerPhase&&<Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onAddRetainerPhase} disabled={isLocked}><Plus className="mr-1 h-3.5 w-3.5"/>{t("workspace.planning.retainerMonthly.addStage")}</Button>}
+          {onAddRetainerPhase&&<Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={async()=>{const id=await onAddRetainerPhase();if(id){setSelectedStageId(id);setCollapsed(new Set());requestAnimationFrame(()=>document.querySelector(`[data-stage-id="${id}"]`)?.scrollIntoView({block:'nearest'}));}}} disabled={isLocked||retainerSaving}><Plus className="mr-1 h-3.5 w-3.5"/>{t("workspace.planning.retainerMonthly.addStage")}</Button>}
           {!relative&&<RelativeScheduleControls quoteId={quoteId} disabled={isLocked}/>}</>}/>
       <PlannerFrame>
         <div
@@ -1277,6 +1278,7 @@ function OperationalScheduleAdapter({
   const projectImpliedHourRate = b1.data ? NaN : teamAvg?.avgSalePerHour ?? 0;
   const projectImpliedCostRate = b1.data ? NaN : teamAvg?.avgCostPerHour ?? 0;
   const { data: invoices } = useProjectInvoices(projectId);
+  const billingPlan=useBillingPlan(canSeeFinancials?projectId:undefined);
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
   const deleteStageMut = useDeleteProjectStage();
@@ -1297,8 +1299,8 @@ function OperationalScheduleAdapter({
   // Payment milestones from issued invoices.
   const milestones = useMemo<PaymentMilestone[]>(() => {
     const list = invoices ?? [];
-    if (list.length === 0) return [];
-    return list
+    const planned:PaymentMilestone[]=(billingPlan.data?.incoming??[]).flatMap(group=>group.items.filter(p=>p.invoiceDate).map(p=>({id:p.id,label:p.description??p.label,date:p.invoiceDate as string,amount:p.amount,status:p.state==='paid'?'paid' as const:p.state==='issued'?'invoiced' as const:'planned' as const})));
+    return [...planned,...list
       .filter((inv) => inv.raised_date)
       .map((inv) => ({
         id: inv.id,
@@ -1312,8 +1314,8 @@ function OperationalScheduleAdapter({
               ? ("invoiced" as const)
               : ("planned" as const),
         note: inv.title ?? null,
-      }));
-  }, [invoices, t]);
+      }))];
+  }, [invoices, t,billingPlan.data]);
 
   // Origin/totalDays
   const { origin, totalDays } = useMemo(() => {
@@ -1721,7 +1723,7 @@ function OperationalScheduleAdapter({
         reflow={async()=>{if(!canEdit)return;try{const state=await readGanttSchedule("project",projectId);await saveGanttSchedule("project",projectId,state,recomputeSchedule(state));await qc.invalidateQueries({queryKey:["pm-project",projectId]});await qc.invalidateQueries({queryKey:["pm-stages-all"]});}catch(error){toast.error(error instanceof Error?error.message:String(error));}}}
         zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
         extras={<><label className="flex items-center gap-2 text-xs"><Switch checked={showActuals} onCheckedChange={setShowActuals} aria-label={t("projects:gantt.actuals.show")}/>{t("projects:gantt.actuals.show")}</label>
-          {canEdit&&<NewRetainerStageDialog projectId={projectId} nextOrder={Math.max(0,...stages.map(s=>s.sort_order))+10}/>}
+          {canEdit&&<NewRetainerStageDialog projectId={projectId} nextOrder={Math.max(0,...stages.map(s=>s.sort_order))+10} onCreated={id=>{setSelectedStageId(id);setCollapsed(new Set());}}/>}
           {!canEdit&&<span className="text-xs text-muted-foreground">{t("projects:gantt.readOnly.badge")}</span>}</>}/>
       {sourceQuoteId && !mappingReady && <p role="alert" className="text-sm text-destructive">
         {projection ? t("gantt.convertedMappingBlocked", { names: projection.issues.join(", ") }) : t("common:loading")}
