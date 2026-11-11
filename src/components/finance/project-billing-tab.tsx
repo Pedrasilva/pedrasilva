@@ -46,6 +46,7 @@ import { useFinanceAccess } from '@/hooks/use-finance-access';
 import { canMutateProjectBilling } from '@/lib/finance/project-billing-access';
 import { downloadProjectAttachment } from '@/lib/finance/project-attachment';
 import { ProjectBillingPlan } from './project-billing-plan';
+import { useBillingFiscalAccess } from '@/lib/finance/use-billing-plan';
 import { toast } from '@/lib/toast';
 
 const DASH = "—";
@@ -227,7 +228,8 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
   const edit = useCan('finance.documents.edit','all');
   const legacy = useHasPermission('finance.dashboard');
   const finance = useFinanceAccess();
-  const canMutate = canMutateProjectBilling(finance.hasAccess,edit.allowed,legacy.allowed);
+  const fiscal = useBillingFiscalAccess();
+  const canMutate = fiscal.data === true && canMutateProjectBilling(finance.hasAccess,edit.allowed,legacy.allowed);
   const milestones = useInvoiceMilestones(projectId);
 
   const issued = useMemo(
