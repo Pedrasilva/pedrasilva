@@ -1,7 +1,8 @@
 ## Current request — calculator-linked Gantt
-- [ ] Atomic linked stage creation/update, relative months, exact rounding, protected replacement/manual-value/deletion confirmations and shared template undo path.
-- [ ] Payment defaults or explicit undefined plan; all quote financial views refresh.
-- [ ] Disposable Oleiro copy: five-stage/151956, duration retention, conflicts, template/undo, cleanup; SQL/files report and D41.
+- [x] Atomic linked creation/update, relative months, exact rounding, value/deletion confirmations and shared template insertion/warning/undo path implemented.
+- [x] Explicit payment defaults editor and undefined plan implemented; silent auto-generation blocked for unconfigured calculator stages.
+- [x] Disposable Oleiro copy plus blank variant: 151956, five months, two-month Gantt preservation, manual conflict, additions/deletions/template/undo; cleanup independently zero; D41 and report delivered.
+- [ ] Certification blocked: Luis must resolve preserving supplier-linked architecture parents/retainer values versus an overall 151956 total in the faithful copy; practice-default branch requires isolated settings validation rather than real-settings mutation. See calculator-linked-stages-report.md for other non-certified cases.
 
 ## Current request — full quote templates
 - [x] D40 records full-template decision; prior decisions preserved; B1 unchanged.
