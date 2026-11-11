@@ -39,7 +39,7 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       continue;
     }
     try {
-      const css = Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
+      const css = Array.from(sheet.cssRules).map((rule) => rule.cssText.replace(/@media\s*\(/g, "@media all and (")).join("\n");
       if (css) styles.push({ [sheet.href ?? window.location.href]: css });
     } catch {
       // Cross-origin stylesheets cannot be read. The proposal's layout CSS is
