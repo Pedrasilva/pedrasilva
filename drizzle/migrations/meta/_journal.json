@@ -2059,6 +2059,13 @@
       "when": 1794437440808,
       "tag": "0293_template_relative_stage_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 294,
+      "version": "7",
+      "when": 1794437628670,
+      "tag": "0294_template_section_fidelity",
+      "breakpoints": true
     }
   ]
 }

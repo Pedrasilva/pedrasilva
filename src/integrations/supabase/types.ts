@@ -19962,6 +19962,15 @@ export type Database = {
         }
         Returns: string
       }
+      quote_import_full_template_v2: {
+        Args: {
+          _quote_id: string
+          _revision: string
+          _sections: Json
+          _template_id: string
+        }
+        Returns: string
+      }
       quote_instantiate_template: {
         Args: {
           _base_start_date?: string
