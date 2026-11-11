@@ -1,3 +1,9 @@
+## Current request — full quote templates
+- [ ] Record Luis's full-template decision without changing prior decisions; B1 OFF.
+- [ ] Snapshot/import planning, fees, payment rules, blocks and page overrides with section selection, safe remapping, relative dates and transactional undo.
+- [ ] Move import to quote overflow menu; explicit overwrite and legacy completeness warnings.
+- [ ] Validate blank/populated disposable quotes, Gantt and financial parity; cleanup and report SQL/files/limitations.
+
 ## Current request — approved Project Billing plan
 - [x] D39 records explicit 22:19 permission confirmation and conditional approval; D38 approval chronology clarified.
 - [x] Luis resolved both choices: separate Suppliers gate retained; existing fiscal editor used.
