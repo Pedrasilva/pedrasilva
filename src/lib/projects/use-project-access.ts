@@ -29,3 +29,11 @@ export function useChangeProjectAccess(projectId:string){
     const {data,error}=await supabase.rpc('pm_change_project_access',{_project:projectId,_resource:input.row.resource_id,_flags:{[input.area]:!input.row[input.area]},_revision:input.row.revision,_reason:input.reason});if(error)throw error;return data;
   },onSuccess:()=>qc.invalidateQueries({queryKey:['pm-project-access-preview',projectId]})});
 }
+/** The server checks the same project financial grant for every live Gantt write. */
+export function useProjectGanttEditAccess(projectId:string){
+  const {user}=useAuth();
+  return useQuery({queryKey:['pm-gantt-edit-access',projectId,user?.id],enabled:!!projectId&&!!user?.id,staleTime:0,refetchInterval:30_000,queryFn:async()=>{
+    const {data,error}=await supabase.rpc('pm_can_edit_gantt',{_project:projectId});
+    if(error)throw error;return data===true;
+  }});
+}
