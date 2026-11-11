@@ -1,6 +1,7 @@
 import { compareStageDisplay, isConstructionStage, sortStagesByWbs } from "@/lib/quotes/stage-numbering";
 import { ProposalImageEditorHint } from "./document-editor-hints";
 import uiI18n from "@/i18n/index";
+import { LetterPage } from './letter-page';
 import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-proposal/relative-programme";
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
@@ -453,6 +454,8 @@ function BlockBody({
 
 
   switch (block.block_type) {
+    case "letter":
+      return <LetterPage block={block} live={live} lang={lang}/>;
     case "cover":
       return (
         <div className="proposal-cover proposal-avoid-break flex flex-col items-center justify-center py-24 text-center">

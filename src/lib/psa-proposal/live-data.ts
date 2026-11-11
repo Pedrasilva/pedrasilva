@@ -358,7 +358,9 @@ function buildConsultantRows(input: {
 export async function fetchLiveQuoteSnapshot(
   quoteId: string,
   lang: ProposalLang = "pt-PT",
+  callerClient = supabase,
 ): Promise<LiveQuoteSnapshot> {
+      const supabase = callerClient;
       const L = getProposalLabels(lang);
       const missing: string[] = [];
 

@@ -67,7 +67,7 @@ const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
 ];
 
 
-const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_break"];
+const NON_NUMBERED: PsaBlockType[] = ["cover", "letter", "index", "acceptance", "page_break"];
 
 function SortableRow({
   block,
@@ -106,6 +106,7 @@ function SortableRow({
     block.source_type === "mixed" ||
     block.block_type === "stage_item" ||
     block.block_type === "index" ||
+    block.block_type === "letter" ||
     block.block_type === "travel_expenses";
   const liveQuery = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang);
   const live = liveQuery.data;
@@ -166,6 +167,7 @@ function SortableRow({
       data-proposal-block-id={block.id}
       data-live-ready={liveReady ? "true" : "false"}
       data-proposal-block-type={block.block_type}
+      data-page-type={block.block_type==='cover'?'cover':block.block_type==='letter'?'letter':'content'}
       data-keep-with-next={keepBlockWithNext(block) ? "true" : "false"}
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
@@ -187,7 +189,7 @@ function SortableRow({
         (pageBreakBefore || isAppendix || block.block_type === "page_break") &&
           isPrintable &&
           "proposal-page-break-before",
-        block.block_type === "cover" && isPrintable && "proposal-page-break-after",
+        (block.block_type === "cover" || block.block_type === "letter") && isPrintable && "proposal-page-break-after",
         isIndexBlock && isPrintable && pageBreakAfter && "proposal-page-break-after",
         !isIndexBlock && pageBreakAfter && isPrintable && "proposal-page-break-after",
       )}

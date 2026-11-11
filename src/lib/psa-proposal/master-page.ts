@@ -3,6 +3,7 @@ import type { PsaProposalStyleSettings } from './types';
 export type MasterLogo = { alignment: 'left' | 'centre' | 'right'; x: number; y: number; width: number };
 export type MasterPage = {
   version: 1;
+  pageTypes?: { cover: PageTypeLayout; letter: PageTypeLayout };
   margins: { top: number; bottom: number; left: number; right: number };
   header: { show: boolean; height: number };
   footer: { show: boolean; height: number; address: string; fontSize: number };
@@ -10,6 +11,10 @@ export type MasterPage = {
   contact: { x: number; y: number; width: number; email: string; website: string };
   firstPage?: { enabled: boolean; showHeader: boolean; showFooter: boolean; logo: MasterLogo };
 };
+export type PageTypeLayout = { margins: MasterPage['margins']; logo: MasterLogo; bodyY: number; signatureWidth: number };
+export function typeLayout(master: MasterPage, type: 'cover'|'letter'): PageTypeLayout {
+  return master.pageTypes?.[type] ?? {margins:type==='cover'?{top:0,bottom:0,left:0,right:0}:{top:22,bottom:22,left:24,right:24},logo:{...master.logo},bodyY:type==='cover'?70:35,signatureWidth:45};
+}
 
 /** Legacy furniture uses its own frame, independently of body margins. No persistence on read. */
 export function resolveMaster(s: PsaProposalStyleSettings = {}): MasterPage {
