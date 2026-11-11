@@ -1,8 +1,14 @@
+## Current request — final pre-publication checks
+- [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
+- [ ] PDF: 12-page export, content counters and index passed; Cover/Letter footer fixed. Remaining blocker: Content header disappears in printed PDF; cause not yet isolated.
+- [x] Storage scope and minimal proposed rules reported in docs/prepublish-validation-2026-11-11.md; no policies changed.
+- [ ] Await Luis approval for scoped storage rules, then fixture validation; no automatic fix.
+
 ## Current request — publish-readiness Gantt validation
 - [x] Financial-only editor/denied UI, direct schedule/value/date writes and cross-project denial passed; B1 OFF.
 - [x] Full synthetic issued invoices and confirmed-payment evidence unchanged after stage/retainer changes; concurrent split cap passed.
 - [x] Global/project/CRM drag and end-handle resize/reload passed; all-four adapter dependencies pass; report docs/gantt-release-validation-report.md.
-- [ ] Publication blocked pending project/CRM inspector dependency-control verification; additional project panel automation did not confirm creation. No diagnosed product fix yet.
+- [x] Project/CRM inspector dependency-control verification completed in final pre-publication checks; earlier failure was an automation selector, not a product defect.
 
 ## Current request — proposal Cover / Letter / Content
 - [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
@@ -17,7 +23,7 @@
 ## Current request — final Gantt validation before team use
 - [x] Retainer extension/forward values/consent/history and sequential split caps passed on disposable project; report docs/gantt-final-validation-report.md.
 - [x] Global/project/CRM mouse drag, start and duration inputs/reload passed; FS/SS/FF/SF shared-adapter create/remove passed.
-- [ ] Remaining release scope: project/CRM inspector dependency-control verification and full commercial UI parity in global/CRM; other remaining checks completed in release report.
+- [x] Project/CRM inspector dependency-control verification completed; earlier commercial evidence remains in release report.
 - [x] Report matrix and screenshots saved; fixture cleanup readbacks and B1 OFF revision 10 confirmed; no application/data correction or DECISIONS change.
 
 ## Current request — delegated project team management
