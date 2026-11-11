@@ -1,4 +1,6 @@
 import { keepBlockWithNext } from "@/lib/psa-proposal/page-layout";
+import { LetterControls } from './letter-controls';
+import { LETTER_TOKENS } from '@/lib/psa-proposal/letter';
 import { BLOCK_HEADING_LEVELS, blockHeadingLevel } from "@/lib/psa-proposal/heading-levels";
 import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import { SOURCE_UI_KEYS, RELEVANCE_UI_KEYS } from "./editor-labels";
@@ -726,6 +728,7 @@ export function BlockSettingsPanel({
         </div>
       )}
 
+      {block.block_type==='letter'&&<LetterControls proposal={proposal} block={block} live={liveQuery.data}/>}
       {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
           <Label className="text-xs"> {uiI18n.t("common:content")} </Label>
@@ -740,7 +743,7 @@ export function BlockSettingsPanel({
               })
             }
             placeholder={uiI18n.t("crm:quoteEditor.writeBlockHint")}
-            tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            tokenEntries={block.block_type==='letter'?LETTER_TOKENS.map(token=>({token,label:token,group:'Projecto' as const})):buildTokenPickerEntries(liveQuery.data)}
           />
           <p className="text-[10px] text-zinc-500">
              {uiI18n.t("crm:quoteEditor.richTextHint")} {" "}
