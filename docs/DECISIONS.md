@@ -298,6 +298,22 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Motivo:** Proteger os dados pessoais HR sem retirar autonomia de trabalho nem os custos derivados autorizados de projetos.
 - **Relatórios:** [Investigação inicial de permissões](../.lovable/plan.md); retrato detalhado e investigação de exposição serão entregues para revisão, não são decisões adicionais.
 
+### D36 — Exceção HR temporária e execução limitada da etapa 1
+- **Data:** 11/11/2026, confirmado por Luis às 21:36 UTC.
+- **Área:** HR / permissões.
+- **Estado:** Em vigor; exceção temporária a D35 exclusivamente para Ricardo Conceição.
+- **Decisão:** Ricardo Conceição mantém exatamente o papel HR e as dez concessões antigas, sem alterações, até revisão na consolidação de permissões. Bernardo Nadais e Patricia Reis perdem apenas o direito efetivo hr.collaborators.view/team, conservando Project Lead e todos os outros direitos. Retirar apenas a conta de teste luispedrasilva@gmail.com e os seus papéis/concessões. B1 permanece OFF.
+- **Motivo:** Aplicar apenas as perdas individuais confirmadas, preservando uma exceção deliberada e as funções operacionais.
+- **Relatórios:** Lista PSA-permissions-step1-2026-11-11 entregue para confirmação; verificação desta execução será entregue separadamente.
+
+### D37 — Calendário de ausências sem detalhes HR e isolamento de Backoffice
+- **Data:** 11/11/2026, confirmado por Luis às 21:36 UTC.
+- **Área:** HR / calendário / privacidade.
+- **Estado:** Em vigor; complementa D35 com a exceção D36.
+- **Decisão:** Todo o pessoal PSA pode ver quem está ausente e quando: nome, datas e tipo genérico ausente, sem motivos, notas, anexos, saldos ou detalhes de aprovação. Fora de Luis, Irene, Tatiana e da exceção Ricardo, impedir leitura de custos Backoffice e detalhes de férias de terceiros. Separar dias úteis/calendário da leitura de custos autorizada por hr.dias-uteis; preservar dados próprios, remuneração, férias, pedidos e todos os fluxos de escrita/intake, timesheets e projetos.
+- **Motivo:** Disponibilidade partilhada não deve revelar dados pessoais ou custos de estrutura.
+- **Relatórios:** Investigação PSA-hr-direct-exposure-2026-11-11; validação posterior apenas com conta descartável.
+
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.

@@ -105,9 +105,8 @@ function useLeaveByResource() {
       }
 
       const { data: leaves, error: lErr } = await supabase
-        .from("vacation_requests")
-        .select("collaborator_id, data_inicio, data_fim, estado")
-        .in("estado", ["aprovado", "aprovada"]);
+        .from("hr_team_leave_calendar")
+        .select("collaborator_id, data_inicio, data_fim");
       if (lErr) throw lErr;
 
       const map = new Map<string, Array<{ start: Date; end: Date }>>();

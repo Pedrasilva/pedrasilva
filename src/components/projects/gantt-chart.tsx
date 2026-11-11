@@ -304,9 +304,8 @@ export function GanttChart({
         if (r.collaborator_id) collabToRes.set(r.collaborator_id, r.id);
       }
       const { data: lv } = await supabase
-        .from("vacation_requests")
-        .select("collaborator_id, data_inicio, data_fim, estado")
-        .in("estado", ["aprovado", "aprovada"]);
+        .from("hr_team_leave_calendar")
+        .select("collaborator_id, data_inicio, data_fim");
       const m = new Map<string, LeaveInterval[]>();
       for (const l of (lv ?? []) as Array<{ collaborator_id: string; data_inicio: string; data_fim: string }>) {
         const id = collabToRes.get(l.collaborator_id);

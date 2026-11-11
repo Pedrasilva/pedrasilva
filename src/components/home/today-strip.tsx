@@ -81,7 +81,7 @@ export function TodayStrip() {
 
   const itemMeta = (item: AvailabilityItem) => {
     if (item.kind === "remote") return remoteLabel(item);
-    const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
+    const type = item.tipo === "absent" ? t("common:absent") : t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return t("home:off.typeUntil", { type, date: fmtDate(item.end) });
   };
 
@@ -89,7 +89,7 @@ export function TodayStrip() {
   const upcomingMeta = (item: AvailabilityItem) => {
     const day = dayLabel(item.start);
     if (item.kind === "remote") return `${remoteLabel(item)} · ${day}`;
-    const type = t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
+    const type = item.tipo === "absent" ? t("common:absent") : t(`home:absence.${item.tipo}`, { defaultValue: item.tipo ?? "" });
     return item.start === item.end
       ? `${type} · ${day}`
       : `${type} · ${day} – ${fmtDate(item.end)}`;
