@@ -1,8 +1,11 @@
+"""Run only with an explicitly created disposable billing fixture; never point at a real project.
+Fixture JSON needs project, stage and two payment ids. This test performs edits and does not create or delete the fixture.
+"""
 import asyncio,json,os
 from pathlib import Path
 from playwright.async_api import async_playwright
 async def main():
- f=json.loads(Path('/tmp/browser/billing/fixture.json').read_text())
+ f=json.loads(Path(os.environ.get('BILLING_TEST_FIXTURE','/tmp/browser/billing/fixture.json')).read_text())
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True);c=await b.new_context(viewport={'width':1280,'height':1800});page=await c.new_page();await page.goto('http://localhost:8080');await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'],os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']]);await page.goto('http://localhost:8080')
   await page.goto('http://localhost:8080/projects/'+f['project']);await page.get_by_role('button',name='Project billing',exact=True).click();await page.locator('[data-billing-plan="ready"]').wait_for();await page.get_by_role('checkbox').nth(0).check();await page.get_by_role('checkbox').nth(1).check();await page.get_by_role('button',name='Merge planned invoices',exact=True).click();await page.get_by_role('textbox',name='Description',exact=True).fill('[QA DISPOSABLE] Combined study');await page.get_by_role('button',name='Save',exact=True).click();await page.get_by_text('[QA DISPOSABLE] Combined study',exact=True).wait_for();await page.screenshot(path='/tmp/browser/billing/merged.png');print('UI merge/readback passed')
