@@ -1,0 +1,16 @@
+CREATE OR REPLACE FUNCTION public.quote_save_as_template(_quote_id uuid,_name text,_description text,_category public.crm_quote_category,_project_type text) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE tid uuid;snapshot jsonb;r jsonb;maps jsonb:='{}';key_name text;
+BEGIN
+ IF NOT public.has_role(auth.uid(),'admin'::public.app_role) THEN RAISE EXCEPTION 'forbidden' USING ERRCODE='42501';END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.fee_proposals WHERE id=_quote_id) THEN RAISE EXCEPTION 'quote not found';END IF;
+ IF length(trim(coalesce(_name,'')))=0 THEN RAISE EXCEPTION 'name is required';END IF;
+ snapshot:=public.quote_template_snapshot(_quote_id);
+ INSERT INTO public.quote_templates(name,description,category,project_type,created_by,full_quote_snapshot) VALUES(trim(_name),_description,coalesce(_category,'project'),coalesce(nullif(trim(_project_type),''),'generic'),auth.uid(),snapshot) RETURNING id INTO tid;
+ FOR r IN SELECT value FROM jsonb_array_elements(snapshot->'tables'->'quote_stages') LOOP key_name:='s'||(r->>'sort_order')||'_'||substring(r->>'id',1,8);maps:=maps||jsonb_build_object(r->>'id',key_name);
+ INSERT INTO public.quote_template_stages(template_id,stage_temp_key,sort_order,title,duration_days,fee_percentage,fee_amount,color,billing_trigger_default) VALUES(tid,key_name,(r->>'sort_order')::integer,r->>'name',greatest(1,(r->>'end_date')::date-(r->>'start_date')::date+1),0,coalesce((r->>'budget')::numeric,0),r->>'color','stage_end');END LOOP;
+ FOR r IN SELECT value FROM jsonb_array_elements(snapshot->'tables'->'quote_stage_dependencies') LOOP INSERT INTO public.quote_template_dependencies(template_id,predecessor_stage_temp_key,successor_stage_temp_key,dependency_type,lag_days) VALUES(tid,maps->>(r->>'predecessor_stage_id'),maps->>(r->>'successor_stage_id'),(r->>'type')::public.quote_dep_type,(r->>'lag_days')::integer);END LOOP;
+ FOR r IN SELECT value FROM jsonb_array_elements(snapshot->'tables'->'quote_payment_schedule_items') LOOP INSERT INTO public.quote_template_payment_rules(template_id,stage_temp_key,sort_order,label,trigger_type,amount_type,amount_value,payment_terms_days) VALUES(tid,maps->>(r->>'stage_id'),(r->>'sort_order')::integer,r->>'label',(r->>'trigger_type')::public.quote_payment_trigger,(r->>'amount_type')::public.quote_payment_amount_type,(r->>'amount_value')::numeric,coalesce((r->>'payment_offset_days')::integer,30));END LOOP;
+ FOR r IN SELECT value FROM jsonb_array_elements(snapshot->'tables'->'quote_external_services') LOOP INSERT INTO public.quote_template_external_services(template_id,stage_temp_key,description,quantity,unit_cost,markup_type,markup_value) VALUES(tid,maps->>(r->>'stage_id'),r->>'description',(r->>'quantity')::numeric,(r->>'unit_cost')::numeric,(r->>'markup_type')::public.quote_markup_type,(r->>'markup_value')::numeric);END LOOP;
+ FOR r IN SELECT value FROM jsonb_array_elements(snapshot->'blocks') LOOP INSERT INTO public.quote_template_blocks(template_id,block_title,sort_order,required,block_type,source_type,source_ref,content_rich,contract_relevance) VALUES(tid,r->>'title',(r->>'sort_order')::integer,false,(r->>'block_type')::public.psa_block_type,(r->>'source_type')::public.psa_block_source_type,r->'source_ref',r->'content_rich',(r->>'contract_relevance')::public.psa_contract_relevance);END LOOP;
+ RETURN tid;
+END $$;
