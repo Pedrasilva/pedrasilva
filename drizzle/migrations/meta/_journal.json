@@ -2003,6 +2003,13 @@
       "when": 1794435008440,
       "tag": "0285_billing_issuance_before_document_freeze",
       "breakpoints": true
+    },
+    {
+      "idx": 286,
+      "version": "7",
+      "when": 1794435059669,
+      "tag": "0286_billing_queue_and_manual_group_protection",
+      "breakpoints": true
     }
   ]
 }

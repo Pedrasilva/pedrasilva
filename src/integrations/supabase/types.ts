@@ -18254,6 +18254,7 @@ export type Database = {
         Args: { _category: string }
         Returns: string
       }
+      fin_billing_plan_queue: { Args: never; Returns: Json }
       fin_card_by_last4: {
         Args: { _entity: string; _last4: string }
         Returns: string
@@ -19337,6 +19338,10 @@ export type Database = {
         Returns: string
       }
       pm_billing_unmerge: { Args: { _group: string }; Returns: undefined }
+      pm_billing_update_group: {
+        Args: { _date: string; _description: string; _group: string }
+        Returns: undefined
+      }
       pm_calendar_shift: {
         Args: { _date: string; _days: number }
         Returns: string
