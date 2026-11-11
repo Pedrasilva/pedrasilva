@@ -1912,6 +1912,13 @@
       "when": 1794400934521,
       "tag": "0272_gantt_scope_preserve_private_weekly_publication",
       "breakpoints": true
+    },
+    {
+      "idx": 273,
+      "version": "7",
+      "when": 1794408948853,
+      "tag": "0273_project_scoped_hr_rate_reads",
+      "breakpoints": true
     }
   ]
 }
