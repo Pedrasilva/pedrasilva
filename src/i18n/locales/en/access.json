@@ -349,6 +349,9 @@
     }
   },
   "permissions": {
+    "picker": {
+      "fromRole": "From role"
+    },
     "workProfiles": {
       "project": "Project",
       "mixed": "Mixed",

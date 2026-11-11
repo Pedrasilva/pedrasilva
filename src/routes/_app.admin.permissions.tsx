@@ -24,13 +24,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PermissionSearchPicker } from '@/components/permission-search-picker';
+import { matchesPickerSearch } from '@/lib/permission-picker-search';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, Minus, Plus, ShieldCheck, X } from "lucide-react";
 import {
@@ -47,8 +42,8 @@ import {
 } from "@/lib/permissions-v2";
 
 
-const catalogueLabels: Record<string, string> = {"Projects":"access:permissions.catalogue.projects","Edit weekly notes":"access:permissions.catalogue.editWeeklyNotes","Edit project notes and read/edit confidential week notes; no planning or financial access.":"access:permissions.catalogue.editProjectNotesAndReadEditConfidentialWeekNotesNoPlanningOrFinancialAccess","View projects":"access:permissions.catalogue.viewProjects","List and open project details.":"access:permissions.catalogue.listAndOpenProjectDetails","Edit planning":"access:permissions.catalogue.editPlanning","Create/move allocations, stages, and dependencies.":"access:permissions.catalogue.createMoveAllocationsStagesAndDependencies","Edit stages":"access:permissions.catalogue.editStages","Add, rename, baseline and reorder project stages.":"access:permissions.catalogue.addRenameBaselineAndReorderProjectStages","View project financials":"access:permissions.catalogue.viewProjectFinancials","Revenue, cost, budget, and invoicing on the project page.":"access:permissions.catalogue.revenueCostBudgetAndInvoicingOnTheProjectPage","View project margins":"access:permissions.catalogue.viewProjectMargins","Profit and margin % per stage and project.":"access:permissions.catalogue.profitAndMarginPerStageAndProject","Scheduling":"access:permissions.catalogue.scheduling","View Gantt":"access:permissions.catalogue.viewGantt","Open the global Gantt and per-project Gantt.":"access:permissions.catalogue.openTheGlobalGanttAndPerProjectGantt","View team allocations":"access:permissions.catalogue.viewTeamAllocations","See workload and bookings of other people.":"access:permissions.catalogue.seeWorkloadAndBookingsOfOtherPeople","Edit allocations":"access:permissions.catalogue.editAllocations","Move, add, remove allocations and toggle tentative/committed.":"access:permissions.catalogue.moveAddRemoveAllocationsAndToggleTentativeCommitted","Timesheets":"access:permissions.catalogue.timesheet73","Log own time":"access:permissions.catalogue.logOwnTime","Submit your own timesheet entries.":"access:permissions.catalogue.submitYourOwnTimesheetEntries","View team timesheets":"access:permissions.catalogue.viewTeamTimesheets","See entries of other people.":"access:permissions.catalogue.seeEntriesOfOtherPeople","Approve timesheets":"access:permissions.catalogue.approveTimesheets","Mark team timesheets as approved.":"access:permissions.catalogue.markTeamTimesheetsAsApproved","Financials":"access:permissions.catalogue.financials","View financial dashboard":"access:permissions.catalogue.viewFinancialDashboard","Cross-project revenue, cost and profit indicators.":"access:permissions.catalogue.crossProjectRevenueCostAndProfitIndicators","View rates & costs":"access:permissions.catalogue.viewRatesCosts","Internal hourly costs, sale rates and rate overrides.":"access:permissions.catalogue.internalHourlyCostsSaleRatesAndRateOverrides","CRM":"access:permissions.catalogue.crm","View companies":"access:permissions.catalogue.viewCompanies","Client, supplier and prospect records (legacy crm.companies).":"access:permissions.catalogue.clientSupplierAndProspectRecordsLegacyCrmCompanies","Edit companies":"access:permissions.catalogue.editCompanies","Create and update company records.":"access:permissions.catalogue.createAndUpdateCompanyRecords","View contacts":"access:permissions.catalogue.viewContacts","Contact directory (legacy crm.contacts).":"access:permissions.catalogue.contactDirectoryLegacyCrmContacts","Edit contacts":"access:permissions.catalogue.editContacts","Create and update contacts.":"access:permissions.catalogue.createAndUpdateContacts","View pipeline & proposals":"access:permissions.catalogue.viewPipelineProposals","Opportunities, quotes and fee proposals (legacy crm.pipeline).":"access:permissions.catalogue.opportunitiesQuotesAndFeeProposalsLegacyCrmPipeline","Edit pipeline":"access:permissions.catalogue.editPipeline","Move opportunity stages, edit proposals and outcomes.":"access:permissions.catalogue.moveOpportunityStagesEditProposalsAndOutcomes","Manage quotes & templates":"access:permissions.catalogue.manageQuotesTemplates","Build quotes, templates and convert them to projects.":"access:permissions.catalogue.buildQuotesTemplatesAndConvertThemToProjects","HR":"access:permissions.catalogue.hr","View own HR record":"access:permissions.catalogue.viewOwnHRRecord","Own payslip snapshot, working days and personal data.":"access:permissions.catalogue.ownPayslipSnapshotWorkingDaysAndPersonalData","View collaborator list":"access:permissions.catalogue.viewCollaboratorList","People directory without opening individual records.":"access:permissions.catalogue.peopleDirectoryWithoutOpeningIndividualRecords","Open collaborator record":"access:permissions.catalogue.openCollaboratorRecord","Individual HR record, excluding compensation values.":"access:permissions.catalogue.individualHRRecordExcludingCompensationValues","Edit collaborator record":"access:permissions.catalogue.editCollaboratorRecord","Update contracts, capacity and personal HR data.":"access:permissions.catalogue.updateContractsCapacityAndPersonalHRData","View compensation":"access:permissions.catalogue.viewCompensation","Salary snapshots, net/gross, benefits balances and comparison summary values.":"access:permissions.catalogue.salarySnapshotsNetGrossBenefitsBalancesAndComparisonSummaryValues","Submit own benefit expenses":"access:permissions.catalogue.submitOwnBenefitExpenses","Upload receipts and consult own benefit balance.":"access:permissions.catalogue.uploadReceiptsAndConsultOwnBenefitBalance","Approve benefit expenses":"access:permissions.catalogue.approveBenefitExpenses","Approve or reject other collaborators' benefit expenses.":"access:permissions.catalogue.approveOrRejectOtherCollaboratorsBenefitExpenses","Request own leave":"access:permissions.catalogue.requestOwnLeave","Submit and track own vacation requests.":"access:permissions.catalogue.submitAndTrackOwnVacationRequests","Approve leave":"access:permissions.catalogue.approveLeave","Approve or reject vacation requests of others.":"access:permissions.catalogue.approveOrRejectVacationRequestsOfOthers","HR administration":"access:permissions.catalogue.hr2061646d696e697374726174696f6e","Permission matrix, meal allowance table, backoffice hourly value and HR configuration.":"access:permissions.catalogue.permissionMatrixMealAllowanceTableBackofficeHourlyValueAndHRConfiguration","Finance":"access:permissions.catalogue.finance","View finance dashboard":"access:permissions.catalogue.viewFinanceDashboard","Office cash flow, income and expense indicators (legacy finance.dashboard).":"access:permissions.catalogue.officeCashFlowIncomeAndExpenseIndicatorsLegacyFinanceDashboard","View financial documents":"access:permissions.catalogue.viewFinancialDocuments","Invoices, credit notes and receipts, issued and received.":"access:permissions.catalogue.invoicesCreditNotesAndReceiptsIssuedAndReceived","Edit financial documents":"access:permissions.catalogue.editFinancialDocuments","Create, edit and settle documents, expenses and payments.":"access:permissions.catalogue.createEditAndSettleDocumentsExpensesAndPayments","View banking":"access:permissions.catalogue.viewBanking","Bank accounts, balances and transactions.":"access:permissions.catalogue.bankAccountsBalancesAndTransactions","Manage banking":"access:permissions.catalogue.manageBanking","Import statements, classify and reconcile transactions.":"access:permissions.catalogue.importStatementsClassifyAndReconcileTransactions","View finance reports":"access:permissions.catalogue.viewFinanceReports","Cash flow, VAT, forecast and per-project financial reports.":"access:permissions.catalogue.cashFlowVATForecastAndPerProjectFinancialReports","Manage finance settings":"access:permissions.catalogue.manageFinanceSettings","Classifications, VAT rates, classification rules and imports.":"access:permissions.catalogue.classificationsVATRatesClassificationRulesAndImports","Inventory":"access:permissions.catalogue.inventory","View asset register":"access:permissions.catalogue.viewAssetRegister","Open the Inventory module (assets, assignments, reports).":"access:permissions.catalogue.openTheInventoryModuleAssetsAssignmentsReports","Products":"access:permissions.catalogue.products","View product library":"access:permissions.catalogue.viewProductLibrary","Open the Product Library and project schedules.":"access:permissions.catalogue.openTheProductLibraryAndProjectSchedules","Edit product library":"access:permissions.catalogue.editProductLibrary","Create, edit, archive and categorise Product Library items.":"access:permissions.catalogue.createEditArchiveAndCategoriseProductLibraryItems","Portfolio":"access:permissions.catalogue.portfolio","View portfolio":"access:permissions.catalogue.viewPortfolio","Open the studio portfolio.":"access:permissions.catalogue.openTheStudioPortfolio","Marketing":"access:permissions.catalogue.marketing","Contribute to marketing":"access:permissions.catalogue.contributeToMarketing","Create marketing captures from inside the Hub.":"access:permissions.catalogue.createMarketingCapturesFromInsideTheHub","View marketing captures":"access:permissions.catalogue.viewMarketingCaptures","own = only captures I created; all = every capture.":"access:permissions.catalogue.ownOnlyCapturesICreatedAllEveryCapture","Curate marketing captures":"access:permissions.catalogue.curateMarketingCaptures","Edit curation fields, status and clearance of any capture.":"access:permissions.catalogue.editCurationFieldsStatusAndClearanceOfAnyCapture","Edit marketing strategy":"access:permissions.catalogue.editMarketingStrategy","Reserved for a later pass (Marketing Bible).":"access:permissions.catalogue.reservedForALaterPassMarketingBible","Reports":"access:permissions.catalogue.reports","View reports":"access:permissions.catalogue.viewReports","Open the Reports module (hours logged and other studio reports).":"access:permissions.catalogue.openTheReportsModuleHoursLoggedAndOtherStudioReports"};
-const displayPermission = (value: string) => uiI18n.t(catalogueLabels[value] ?? value);
+const catalogueLabels: Record<string, string> = {"Projects":"access:permissions.catalogue.projects","Edit weekly notes":"access:permissions.catalogue.editWeeklyNotes","Edit project notes and read/edit confidential week notes; no planning or financial access.":"access:permissions.catalogue.editProjectNotesAndReadEditConfidentialWeekNotesNoPlanningOrFinancialAccess","View projects":"access:permissions.catalogue.viewProjects","List and open project details.":"access:permissions.catalogue.listAndOpenProjectDetails","Edit planning":"access:permissions.catalogue.editPlanning","Create/move allocations, stages, and dependencies.":"access:permissions.catalogue.createMoveAllocationsStagesAndDependencies","Edit stages":"access:permissions.catalogue.editStages","Add, rename, baseline and reorder project stages.":"access:permissions.catalogue.addRenameBaselineAndReorderProjectStages","View project financials":"access:permissions.catalogue.viewProjectFinancials","Revenue, cost, budget, and invoicing on the project page.":"access:permissions.catalogue.revenueCostBudgetAndInvoicingOnTheProjectPage","View project margins":"access:permissions.catalogue.viewProjectMargins","Profit and margin % per stage and project.":"access:permissions.catalogue.profitAndMarginPerStageAndProject","Scheduling":"access:permissions.catalogue.scheduling","View Gantt":"access:permissions.catalogue.viewGantt","Open the global Gantt and per-project Gantt.":"access:permissions.catalogue.openTheGlobalGanttAndPerProjectGantt","View team allocations":"access:permissions.catalogue.viewTeamAllocations","See workload and bookings of other people.":"access:permissions.catalogue.seeWorkloadAndBookingsOfOtherPeople","Edit allocations":"access:permissions.catalogue.editAllocations","Move, add, remove allocations and toggle tentative/committed.":"access:permissions.catalogue.moveAddRemoveAllocationsAndToggleTentativeCommitted","Timesheets":"access:permissions.catalogue.timesheets","Log own time":"access:permissions.catalogue.logOwnTime","Submit your own timesheet entries.":"access:permissions.catalogue.submitYourOwnTimesheetEntries","View team timesheets":"access:permissions.catalogue.viewTeamTimesheets","See entries of other people.":"access:permissions.catalogue.seeEntriesOfOtherPeople","Approve timesheets":"access:permissions.catalogue.approveTimesheets","Mark team timesheets as approved.":"access:permissions.catalogue.markTeamTimesheetsAsApproved","Financials":"access:permissions.catalogue.financials","View financial dashboard":"access:permissions.catalogue.viewFinancialDashboard","Cross-project revenue, cost and profit indicators.":"access:permissions.catalogue.crossProjectRevenueCostAndProfitIndicators","View rates & costs":"access:permissions.catalogue.viewRatesCosts","Internal hourly costs, sale rates and rate overrides.":"access:permissions.catalogue.internalHourlyCostsSaleRatesAndRateOverrides","CRM":"access:permissions.catalogue.crm","View companies":"access:permissions.catalogue.viewCompanies","Client, supplier and prospect records (legacy crm.companies).":"access:permissions.catalogue.clientSupplierAndProspectRecordsLegacyCrmCompanies","Edit companies":"access:permissions.catalogue.editCompanies","Create and update company records.":"access:permissions.catalogue.createAndUpdateCompanyRecords","View contacts":"access:permissions.catalogue.viewContacts","Contact directory (legacy crm.contacts).":"access:permissions.catalogue.contactDirectoryLegacyCrmContacts","Edit contacts":"access:permissions.catalogue.editContacts","Create and update contacts.":"access:permissions.catalogue.createAndUpdateContacts","View pipeline & proposals":"access:permissions.catalogue.viewPipelineProposals","Opportunities, quotes and fee proposals (legacy crm.pipeline).":"access:permissions.catalogue.opportunitiesQuotesAndFeeProposalsLegacyCrmPipeline","Edit pipeline":"access:permissions.catalogue.editPipeline","Move opportunity stages, edit proposals and outcomes.":"access:permissions.catalogue.moveOpportunityStagesEditProposalsAndOutcomes","Manage quotes & templates":"access:permissions.catalogue.manageQuotesTemplates","Build quotes, templates and convert them to projects.":"access:permissions.catalogue.buildQuotesTemplatesAndConvertThemToProjects","HR":"access:permissions.catalogue.hr","View own HR record":"access:permissions.catalogue.viewOwnHRRecord","Own payslip snapshot, working days and personal data.":"access:permissions.catalogue.ownPayslipSnapshotWorkingDaysAndPersonalData","View collaborator list":"access:permissions.catalogue.viewCollaboratorList","People directory without opening individual records.":"access:permissions.catalogue.peopleDirectoryWithoutOpeningIndividualRecords","Open collaborator record":"access:permissions.catalogue.openCollaboratorRecord","Individual HR record, excluding compensation values.":"access:permissions.catalogue.individualHRRecordExcludingCompensationValues","Edit collaborator record":"access:permissions.catalogue.editCollaboratorRecord","Update contracts, capacity and personal HR data.":"access:permissions.catalogue.updateContractsCapacityAndPersonalHRData","View compensation":"access:permissions.catalogue.viewCompensation","Salary snapshots, net/gross, benefits balances and comparison summary values.":"access:permissions.catalogue.salarySnapshotsNetGrossBenefitsBalancesAndComparisonSummaryValues","Submit own benefit expenses":"access:permissions.catalogue.submitOwnBenefitExpenses","Upload receipts and consult own benefit balance.":"access:permissions.catalogue.uploadReceiptsAndConsultOwnBenefitBalance","Approve benefit expenses":"access:permissions.catalogue.approveBenefitExpenses","Approve or reject other collaborators' benefit expenses.":"access:permissions.catalogue.approveOrRejectOtherCollaboratorsBenefitExpenses","Request own leave":"access:permissions.catalogue.requestOwnLeave","Submit and track own vacation requests.":"access:permissions.catalogue.submitAndTrackOwnVacationRequests","Approve leave":"access:permissions.catalogue.approveLeave","Approve or reject vacation requests of others.":"access:permissions.catalogue.approveOrRejectVacationRequestsOfOthers","HR administration":"access:permissions.catalogue.hrAdministration","Permission matrix, meal allowance table, backoffice hourly value and HR configuration.":"access:permissions.catalogue.permissionMatrixMealAllowanceTableBackofficeHourlyValueAndHRConfiguration","Finance":"access:permissions.catalogue.finance","View finance dashboard":"access:permissions.catalogue.viewFinanceDashboard","Office cash flow, income and expense indicators (legacy finance.dashboard).":"access:permissions.catalogue.officeCashFlowIncomeAndExpenseIndicatorsLegacyFinanceDashboard","View financial documents":"access:permissions.catalogue.viewFinancialDocuments","Invoices, credit notes and receipts, issued and received.":"access:permissions.catalogue.invoicesCreditNotesAndReceiptsIssuedAndReceived","Edit financial documents":"access:permissions.catalogue.editFinancialDocuments","Create, edit and settle documents, expenses and payments.":"access:permissions.catalogue.createEditAndSettleDocumentsExpensesAndPayments","View banking":"access:permissions.catalogue.viewBanking","Bank accounts, balances and transactions.":"access:permissions.catalogue.bankAccountsBalancesAndTransactions","Manage banking":"access:permissions.catalogue.manageBanking","Import statements, classify and reconcile transactions.":"access:permissions.catalogue.importStatementsClassifyAndReconcileTransactions","View finance reports":"access:permissions.catalogue.viewFinanceReports","Cash flow, VAT, forecast and per-project financial reports.":"access:permissions.catalogue.cashFlowVATForecastAndPerProjectFinancialReports","Manage finance settings":"access:permissions.catalogue.manageFinanceSettings","Classifications, VAT rates, classification rules and imports.":"access:permissions.catalogue.classificationsVATRatesClassificationRulesAndImports","Inventory":"access:permissions.catalogue.inventory","View asset register":"access:permissions.catalogue.viewAssetRegister","Open the Inventory module (assets, assignments, reports).":"access:permissions.catalogue.openTheInventoryModuleAssetsAssignmentsReports","Products":"access:permissions.catalogue.products","View product library":"access:permissions.catalogue.viewProductLibrary","Open the Product Library and project schedules.":"access:permissions.catalogue.openTheProductLibraryAndProjectSchedules","Edit product library":"access:permissions.catalogue.editProductLibrary","Create, edit, archive and categorise Product Library items.":"access:permissions.catalogue.createEditArchiveAndCategoriseProductLibraryItems","Portfolio":"access:permissions.catalogue.portfolio","View portfolio":"access:permissions.catalogue.viewPortfolio","Open the studio portfolio.":"access:permissions.catalogue.openTheStudioPortfolio","Marketing":"access:permissions.catalogue.marketing","Contribute to marketing":"access:permissions.catalogue.contributeToMarketing","Create marketing captures from inside the Hub.":"access:permissions.catalogue.createMarketingCapturesFromInsideTheHub","View marketing captures":"access:permissions.catalogue.viewMarketingCaptures","own = only captures I created; all = every capture.":"access:permissions.catalogue.ownOnlyCapturesICreatedAllEveryCapture","Curate marketing captures":"access:permissions.catalogue.curateMarketingCaptures","Edit curation fields, status and clearance of any capture.":"access:permissions.catalogue.editCurationFieldsStatusAndClearanceOfAnyCapture","Edit marketing strategy":"access:permissions.catalogue.editMarketingStrategy","Reserved for a later pass (Marketing Bible).":"access:permissions.catalogue.reservedForALaterPassMarketingBible","Reports":"access:permissions.catalogue.reports","View reports":"access:permissions.catalogue.viewReports","Open the Reports module (hours logged and other studio reports).":"access:permissions.catalogue.openTheReportsModuleHoursLoggedAndOtherStudioReports"};
+const displayPermission = (value: string, lng?: string) => uiI18n.t(catalogueLabels[value] ?? value, { lng });
 
 export const Route = createFileRoute("/_app/admin/permissions")({
   head: () => ({ meta: [
@@ -140,6 +135,7 @@ function UsersTab() {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [activeUser, setActiveUser] = useState(0);
   const [newKey, setNewKey] = useState<V2PermissionKey | "">("");
   const [newScope, setNewScope] = useState<PermissionScope>("assigned");
 
@@ -211,14 +207,10 @@ function UsersTab() {
   });
 
   const users = usersQuery.data ?? [];
-  const filtered = users.filter((u) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      (u.collaborator_nome ?? "").toLowerCase().includes(q) ||
-      (u.email ?? "").toLowerCase().includes(q)
-    );
-  });
+  const filtered = users.filter(u => matchesPickerSearch(search, [
+    u.collaborator_nome ?? '', u.email ?? '',
+    ...(u.assigned_roles ?? []).flatMap(role => ['en', 'pt-PT'].map(lng => uiI18n.t(`access:permissions.roles.${role}`, { lng }))),
+  ]));
   const user = users.find((u) => u.user_id === selected) ?? null;
 
   const baseline = useMemo(() => {
@@ -257,7 +249,19 @@ function UsersTab() {
           <Input
             placeholder={uiI18n.t("common:searchPlaceholder")}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            aria-label={uiI18n.t("access:batchFive.labels.searchAccounts")}
+            onChange={(e) => { setSearch(e.target.value); setActiveUser(0); }}
+            onKeyDown={e => {
+              if (!filtered.length) return;
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveUser(index => (index + (e.key === 'ArrowDown' ? 1 : -1) + filtered.length) % filtered.length);
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const target = filtered[activeUser];
+                if (target) setSelected(target.user_id);
+              }
+            }}
             className="mt-2"
           />
         </CardHeader>
@@ -265,12 +269,12 @@ function UsersTab() {
           {usersQuery.isLoading && (
             <p className="p-2 text-sm text-muted-foreground"> {uiI18n.t("common:loading")} </p>
           )}
-          {filtered.map((u) => (
-            <button
+          {filtered.map((u, index) => (
+            <Button variant="ghost"
               key={u.user_id}
               onClick={() => setSelected(u.user_id)}
-              className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                selected === u.user_id ? "bg-accent" : "hover:bg-muted"
+              className={`h-auto w-full flex-col items-start whitespace-normal rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                selected === u.user_id || (search && activeUser === index) ? "bg-accent" : "hover:bg-muted"
               }`}
             >
               <div className="font-medium">
@@ -287,7 +291,7 @@ function UsersTab() {
                   <span> {uiI18n.t("access:batchFive.labels.noRole")} </span>
                 )}
               </div>
-            </button>
+            </Button>
           ))}
         </CardContent>
       </Card>
@@ -325,49 +329,41 @@ function UsersTab() {
               </CardHeader>
               <CardContent className="flex flex-wrap items-end gap-2">
                 <div className="min-w-[280px] flex-1">
-                  <Select
+                  <PermissionSearchPicker
                     value={newKey}
-                    onValueChange={(v) => {
+                    placeholder={uiI18n.t("access:batchFive.labels.permission")}
+                    disabled={overridesQuery.isLoading || rolePerms.isLoading}
+                    onValueChange={v => {
                       const key = v as V2PermissionKey;
                       setNewKey(key);
                       const def = PERMISSION_BY_KEY.get(key);
                       if (def && !def.scopes.includes(newScope)) setNewScope(def.scopes[0]);
                     }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={uiI18n.t("access:batchFive.labels.permission")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MODULES.map((m) => (
-                        <div key={m}>
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-                            {displayPermission(m)}
-                          </div>
-                          {PERMISSION_CATALOGUE.filter((p) => p.module === m).map((p) => (
-                            <SelectItem key={p.key} value={p.key}>
-                              {p.key === "projects.edit_week_notes" ? t("weekNotes.editPermission") : displayPermission(p.label)}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={PERMISSION_CATALOGUE.map(p => {
+                      const existing = effective.filter(e => e.key === p.key);
+                      const tags = user.is_admin
+                        ? [uiI18n.t("glossary:permissions.roles.admin")]
+                        : [
+                            ...(existing.some(e => e.source === "role") ? [uiI18n.t("access:permissions.picker.fromRole")] : []),
+                            ...(existing.some(e => e.source === "override") ? [uiI18n.t("access:batchFive.labels.granted")] : []),
+                          ];
+                      return {
+                        value: p.key, label: displayPermission(p.label), group: displayPermission(p.module), tags,
+                        searchLabels: [p.key, ...['en', 'pt-PT'].flatMap(lng => [displayPermission(p.label, lng), displayPermission(p.module, lng)])],
+                      };
+                    })}
+                  />
                 </div>
-                <Select
+                <PermissionSearchPicker
                   value={newScope}
-                  onValueChange={(v) => setNewScope(v as PermissionScope)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {scopeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {uiI18n.t(`access:permissions.scopes.${s}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  className="w-[180px] justify-between font-normal"
+                  placeholder={uiI18n.t("glossary:permissions.scopesLabel")}
+                  onValueChange={v => setNewScope(v as PermissionScope)}
+                  options={scopeOptions.map(scope => ({
+                    value: scope, label: uiI18n.t(`access:permissions.scopes.${scope}`),
+                    searchLabels: ['en', 'pt-PT'].map(lng => uiI18n.t(`access:permissions.scopes.${scope}`, { lng })),
+                  }))}
+                />
                 <Button
                   disabled={!newKey || upsert.isPending}
                   onClick={() =>

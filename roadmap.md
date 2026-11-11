@@ -1,3 +1,7 @@
+## Current request — Permissions v2 UX
+- [x] Searchable bilingual/accent-insensitive permission and scope dropdowns; account search keyboard support; existing effective-permission tags.
+- [x] Fix both broken catalogue keys; authenticated read-only EN/PT browser checks, two tests, i18n/parity/build OK; report docs/permissions-v2-ux-report.md. No data/access/B1 changes.
+
 ## Current request — final Gantt validation before team use
 - [x] Retainer extension/forward values/consent/history and sequential split caps passed on disposable project; report docs/gantt-final-validation-report.md.
 - [x] Global/project/CRM mouse drag, start and duration inputs/reload passed; FS/SS/FF/SF shared-adapter create/remove passed.
