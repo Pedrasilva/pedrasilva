@@ -131,8 +131,8 @@
       "team": "Equipa",
       "budget": "Orçamento",
       "cost": "Custo",
-      "profit": "Lucro",
-      "margin": "Margem",
+      "profit": "$t(glossary:financial.profit)",
+      "margin": "$t(glossary:financial.margin)",
       "noClient": "Sem cliente",
       "dateRange": "Calendário"
     },
@@ -140,7 +140,7 @@
       "team": "Equipa",
       "noTeam": "Sem equipa ainda",
       "budgetUsage": "Uso do orçamento",
-      "profit": "Lucro",
+      "profit": "$t(glossary:financial.profit)",
       "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas",
       "editClient": "Alterar cliente",
       "manageTeam": "Gerir equipa",
@@ -265,7 +265,7 @@
       "teamTip": "Equipa: {{count}} pessoas",
       "budget": "Orçam.",
       "budgetTip": "Orçamento consumido: {{pct}}%",
-      "profit": "Lucro",
+      "profit": "$t(glossary:financial.profit)",
       "profitTip": "Lucro face ao orçamento: {{amount}}"
     },
     "ui": {
@@ -527,7 +527,7 @@
     "person": "Pessoa",
     "allTeams": "Todas as equipas",
     "allPeople": "Todas as pessoas",
-    "backOffice": "Back office",
+    "backOffice": "Backoffice",
     "projects": "Projetos",
     "billable": "Faturável",
     "internal": "Interno",
@@ -537,10 +537,10 @@
     "hours": "Horas",
     "hoursLogged": "Horas registadas",
     "hoursPlanned": "Horas planeadas",
-    "revenue": "Receita",
+    "revenue": "$t(glossary:financial.revenue)",
     "cost": "Custo",
-    "profit": "Lucro",
-    "margin": "Margem",
+    "profit": "$t(glossary:financial.profit)",
+    "margin": "$t(glossary:financial.margin)",
     "status": "Estado",
     "category": "Categoria",
     "share": "Quota",
@@ -880,11 +880,11 @@
   "kpi": {
     "businessPerformance": "Desempenho do negócio",
     "productionPerformance": "Desempenho de produção",
-    "revenue": "Receita",
+    "revenue": "$t(glossary:financial.revenue)",
     "revenueSub": "Horas faturáveis × valor de venda",
     "totalCost": "Custo total",
     "totalCostSub": "Todas as horas registadas × custo",
-    "profit": "Lucro",
+    "profit": "$t(glossary:financial.profit)",
     "profitSub": "Receita − custo",
     "utilization": "Utilização",
     "utilizationSub": "Faturável / total registado",
@@ -912,8 +912,8 @@
       "actualRevenue": "Receita real",
       "actualCost": "Custo real",
       "budgetRemaining": "Orçamento restante",
-      "profit": "Lucro",
-      "margin": "Margem",
+      "profit": "$t(glossary:financial.profit)",
+      "margin": "$t(glossary:financial.margin)",
       "status": "Estado",
       "hours": "Horas (usadas / planeadas)"
     },
@@ -1109,11 +1109,11 @@
     "title": "Desempenho mensal",
     "subtitle": "Receita, custo e divisão de tempo para {{month}}",
     "kpi": {
-      "revenue": "Receita",
+      "revenue": "$t(glossary:financial.revenue)",
       "revenueSub": "{{hours}} faturáveis",
       "totalCost": "Custo total",
       "totalCostSub": "{{hours}} de tempo pago",
-      "profit": "Lucro",
+      "profit": "$t(glossary:financial.profit)",
       "profitMarginSub": "{{pct}} de margem"
     },
     "buckets": {
@@ -1148,9 +1148,9 @@
     "trailing": {
       "title": "Últimos 12 meses",
       "subtitle": "Receita, custo e lucro por mês para os filtros actuais",
-      "revenue": "Receita",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Custo",
-      "profit": "Lucro"
+      "profit": "$t(glossary:financial.profit)"
     },
     "weeklyUtil": {
       "title": "Tendência de utilização",
@@ -1173,9 +1173,9 @@
       "nonWork": "Não-trab.",
       "util": "Util.",
       "status": "Estado",
-      "revenue": "Receita",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Custo",
-      "profit": "Lucro",
+      "profit": "$t(glossary:financial.profit)",
       "empty": "Sem horas registadas para os filtros selecionados."
     },
     "internalCenters": {
@@ -1266,7 +1266,7 @@
       "personPlaceholder": "Pessoa",
       "allTeams": "Todas as equipas",
       "allPeople": "Todas as pessoas",
-      "backOffice": "Back office",
+      "backOffice": "Backoffice",
       "projects": "Projetos"
     },
     "timeShare": "{{percent}} do tempo total"
@@ -1322,9 +1322,9 @@
     "trend": {
       "title": "Tendência de previsão (6 meses)",
       "subtitle": "Receita vs custo projetados a partir do Gantt atual",
-      "revenue": "Receita",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Custo",
-      "profit": "Lucro"
+      "profit": "$t(glossary:financial.profit)"
     },
     "variance": {
       "title": "Variância planeado vs real — {{month}}",
@@ -1487,8 +1487,8 @@
       "supplier": "Fornecedor",
       "status": "Estado",
       "cost": "Custo",
-      "revenue": "Receita",
-      "margin": "Margem",
+      "revenue": "$t(glossary:financial.revenue)",
+      "margin": "$t(glossary:financial.margin)",
       "invoiceRef": "Ref. fatura"
     },
     "status": {
@@ -1527,8 +1527,8 @@
     },
     "preview": {
       "cost": "Custo",
-      "revenue": "Receita",
-      "margin": "Margem"
+      "revenue": "$t(glossary:financial.revenue)",
+      "margin": "$t(glossary:financial.margin)"
     },
     "dialog": {
       "createTitle": "Adicionar serviço externo",

@@ -1,3 +1,6 @@
+## Current request — terminology confirmation
+- [x] Apply saved Backoffice, shared financial glossary references and spelled-out EN Total Gross Value; display-only, no calculations/data changes.
+
 ## Current request — 11 November 11:56 simplified Gantt Phase 1
 - [x] Unify CRM/project/global panel, toolbar, colours and supplier styling; preserve supplier identity in new conversions without real-data backfill.
 - [x] Reuse scoped project financial access for all live Gantt writes, enforced server-side; preserve fiscal guards and B1 state.
