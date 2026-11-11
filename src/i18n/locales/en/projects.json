@@ -131,8 +131,8 @@
       "team": "Team",
       "budget": "Budget",
       "cost": "Cost",
-      "profit": "Profit",
-      "margin": "Margin",
+      "profit": "$t(glossary:financial.profit)",
+      "margin": "$t(glossary:financial.margin)",
       "noClient": "No client",
       "dateRange": "Schedule"
     },
@@ -140,7 +140,7 @@
       "team": "Team",
       "noTeam": "No team yet",
       "budgetUsage": "Budget usage",
-      "profit": "Profit",
+      "profit": "$t(glossary:financial.profit)",
       "loggedHours": "{{logged}}h logged / {{planned}}h planned",
       "editClient": "Change client",
       "manageTeam": "Manage team",
@@ -265,7 +265,7 @@
       "teamTip": "Team: {{count}} people",
       "budget": "Budget",
       "budgetTip": "Budget used: {{pct}}%",
-      "profit": "Profit",
+      "profit": "$t(glossary:financial.profit)",
       "profitTip": "Profit vs budget: {{amount}}"
     },
     "ui": {
@@ -527,7 +527,7 @@
     "person": "Person",
     "allTeams": "All teams",
     "allPeople": "All people",
-    "backOffice": "Back office",
+    "backOffice": "Backoffice",
     "projects": "Projects",
     "billable": "Billable",
     "internal": "Internal",
@@ -537,10 +537,10 @@
     "hours": "Hours",
     "hoursLogged": "Hours logged",
     "hoursPlanned": "Hours planned",
-    "revenue": "Revenue",
+    "revenue": "$t(glossary:financial.revenue)",
     "cost": "Cost",
-    "profit": "Profit",
-    "margin": "Margin",
+    "profit": "$t(glossary:financial.profit)",
+    "margin": "$t(glossary:financial.margin)",
     "status": "Status",
     "category": "Category",
     "share": "Share",
@@ -880,11 +880,11 @@
   "kpi": {
     "businessPerformance": "Business performance",
     "productionPerformance": "Production performance",
-    "revenue": "Revenue",
+    "revenue": "$t(glossary:financial.revenue)",
     "revenueSub": "Billable hours × sale rate",
     "totalCost": "Total cost",
     "totalCostSub": "All logged hours × cost rate",
-    "profit": "Profit",
+    "profit": "$t(glossary:financial.profit)",
     "profitSub": "Revenue − cost",
     "utilization": "Utilization",
     "utilizationSub": "Billable / total logged",
@@ -912,8 +912,8 @@
       "actualRevenue": "Actual revenue",
       "actualCost": "Actual cost",
       "budgetRemaining": "Budget remaining",
-      "profit": "Profit",
-      "margin": "Margin",
+      "profit": "$t(glossary:financial.profit)",
+      "margin": "$t(glossary:financial.margin)",
       "status": "Status",
       "hours": "Hours (used / planned)"
     },
@@ -1109,11 +1109,11 @@
     "title": "Monthly performance",
     "subtitle": "Revenue, cost and time breakdown for {{month}}",
     "kpi": {
-      "revenue": "Revenue",
+      "revenue": "$t(glossary:financial.revenue)",
       "revenueSub": "{{hours}} billable",
       "totalCost": "Total cost",
       "totalCostSub": "{{hours}} paid time",
-      "profit": "Profit",
+      "profit": "$t(glossary:financial.profit)",
       "profitMarginSub": "{{pct}} margin"
     },
     "buckets": {
@@ -1148,9 +1148,9 @@
     "trailing": {
       "title": "Trailing 12 months",
       "subtitle": "Revenue, cost and profit per month for the current filters",
-      "revenue": "Revenue",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Cost",
-      "profit": "Profit"
+      "profit": "$t(glossary:financial.profit)"
     },
     "weeklyUtil": {
       "title": "Utilization trend",
@@ -1173,9 +1173,9 @@
       "nonWork": "Non-work",
       "util": "Util.",
       "status": "Status",
-      "revenue": "Revenue",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Cost",
-      "profit": "Profit",
+      "profit": "$t(glossary:financial.profit)",
       "empty": "No time logged for the selected filters."
     },
     "internalCenters": {
@@ -1266,7 +1266,7 @@
       "personPlaceholder": "Person",
       "allTeams": "All teams",
       "allPeople": "All people",
-      "backOffice": "Back office",
+      "backOffice": "Backoffice",
       "projects": "Projects"
     },
     "timeShare": "{{percent}} of total time"
@@ -1322,9 +1322,9 @@
     "trend": {
       "title": "Forecast trend (6 months)",
       "subtitle": "Projected revenue vs cost from the current Gantt",
-      "revenue": "Revenue",
+      "revenue": "$t(glossary:financial.revenue)",
       "cost": "Cost",
-      "profit": "Profit"
+      "profit": "$t(glossary:financial.profit)"
     },
     "variance": {
       "title": "Planned vs actual variance — {{month}}",
@@ -1487,8 +1487,8 @@
       "supplier": "Supplier",
       "status": "Status",
       "cost": "Cost",
-      "revenue": "Revenue",
-      "margin": "Margin",
+      "revenue": "$t(glossary:financial.revenue)",
+      "margin": "$t(glossary:financial.margin)",
       "invoiceRef": "Invoice ref"
     },
     "status": {
@@ -1527,8 +1527,8 @@
     },
     "preview": {
       "cost": "Cost",
-      "revenue": "Revenue",
-      "margin": "Margin"
+      "revenue": "$t(glossary:financial.revenue)",
+      "margin": "$t(glossary:financial.margin)"
     },
     "dialog": {
       "createTitle": "Add external service",

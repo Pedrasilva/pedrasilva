@@ -398,16 +398,16 @@
         "benefitsMonthlyGuaranteed": "+ Guaranteed benefits (monthly average: car + voucher + bonus + others + retirement plan)",
         "bonusAnnualPotential": "+ Potential annual bonus (not guaranteed) — {{amount}} if awarded",
         "bonusMonthlyEquivalent": "{{amount}} /mo equivalent",
-        "totalHrCostMonthly": "= Total HR cost monthly (TGV)"
+        "totalHrCostMonthly": "= Total HR cost monthly (Total Gross Value)"
       },
       "composition": {
         "annualTitle": "Annual composition",
         "monthlyTitle": "Monthly composition",
-        "description": "HR cost (TGV) breakdown.",
+        "description": "HR cost (Total Gross Value) breakdown.",
         "annualToggle": "Annual",
         "monthlyToggle": "Monthly",
-        "centerAnnual": "TGV cost",
-        "centerMonthly": "Monthly TGV cost",
+        "centerAnnual": "Total Gross Value cost",
+        "centerMonthly": "Monthly Total Gross Value cost",
         "slices": {
           "baseNetAnnual": "Annual net base",
           "baseNetMonthly": "Monthly net base",
@@ -1079,8 +1079,8 @@
       "comparative": "Comparative"
     },
     "kpis": {
-      "totalProjectTeam": "Total Project Team (TGV)",
-      "totalBackofficeTeam": "Total Backoffice Team (TGV)",
+      "totalProjectTeam": "Total Project Team (Total Gross Value)",
+      "totalBackofficeTeam": "Total Backoffice Team (Total Gross Value)",
       "totalAtelierAnnualCost": "Total annual studio cost"
     },
     "hybridSplit": {
@@ -1110,11 +1110,11 @@
     },
     "composition": {
       "title": "Composition of the total studio cost",
-      "description": "Total cost = Human Resources (TGV) + Operating Cost = ",
+      "description": "Total cost = Human Resources (Total Gross Value) + Operating Cost = ",
       "hrVsOperational": "Human Resources vs Operational",
       "productionVsStructure": "Production vs Structure",
       "structureSubtitle": "Structure = Backoffice + Operational",
-      "humanResourcesTgv": "Human Resources (TGV)",
+      "humanResourcesTgv": "Human Resources (Total Gross Value)",
       "operationalCost": "Operating Cost",
       "projectResources": "Project Resources",
       "structureLabel": "Backoffice ({{backoffice}}) + Operational ({{operational}})",
@@ -1165,7 +1165,7 @@
         "dependents": "Dependents",
         "dependentsDisability": "Dep. with disability",
         "fiscalYear": "Fiscal year",
-        "tgv": "TGV"
+        "tgv": "Total Gross Value"
       },
       "emptyDepartment": "No team members in this department.",
       "totals": {
@@ -1193,10 +1193,10 @@
     },
     "pricing": {
       "title": "Pricing — Project Team",
-      "description": "TGV/h and BO share/h divide annual cost by BILLABLE hours ({{days}}×{{hours}} h × chargeability). Cost/h sums both and absorbs non-billable time; sale price = cost/h × (1 + margin). When chargeability is unset, 100% is assumed.",
+      "description": "Total Gross Value/h and BO share/h divide annual cost by BILLABLE hours ({{days}}×{{hours}} h × chargeability). Cost/h sums both and absorbs non-billable time; sale price = cost/h × (1 + margin). When chargeability is unset, 100% is assumed.",
       "headers": {
         "collaborator": "Team member",
-        "tgvPerHour": "TGV/h",
+        "tgvPerHour": "Total Gross Value/h",
         "boSharePerHour": "+ BO share/h",
         "costPerHour": "Cost/h",
         "at30": "@ 30%",
