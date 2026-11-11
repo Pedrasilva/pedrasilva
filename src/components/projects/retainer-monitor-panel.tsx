@@ -291,6 +291,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials,projectId
         const sale = Number(ctrl?.actual_value_generated ?? 0) + direct.sale;
         return {
           childId: c.id,
+          fee:Number(c.budget),
           monthDate: c.start_date,
           month: fmtDate(parseISO(c.start_date), "MMM yyyy"),
           usedHours,
@@ -413,14 +414,15 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials,projectId
         const window = base.slice(Math.max(0, i - 2), i + 1);
         const sum = window.reduce((s, w) => s + w.usedHours, 0);
         const rollingAvg = sum / 3;
-        const variance = r.usedHours - includedHours;
-        const rollingVariance = rollingAvg - includedHours;
+        const rowIncludedHours=blendedSaleRate>0?r.fee/blendedSaleRate:0;
+        const variance = r.usedHours - rowIncludedHours;
+        const rollingVariance = rollingAvg - rowIncludedHours;
         return {
           childId: r.childId,
           month: r.month,
           monthDate: r.monthDate,
-          fee: monthlyFee,
-          includedHours,
+          fee: r.fee,
+          includedHours:rowIncludedHours,
           usedHours: r.usedHours,
           cost: r.cost,
           sale: r.sale,

@@ -49,7 +49,7 @@ export interface PaymentMilestone {
   note?: string | null;
 }
 
-export type StageWithProject = StageWithAllocations & { projectId: string };
+export type StageWithProject = StageWithAllocations & { projectId: string;contractedValue?:number|null;outsideContract?:boolean };
 
 import type {
   StageBudgetControl,
@@ -1207,6 +1207,7 @@ export function GanttChart({
                     style={{ left: stageX, maxWidth: Math.max(120, w) }}
                   >
                     {stage.name}
+                    {showFinancials&&(stage.outsideContract||stage.contractedValue!=null&&stage.budget!==stage.contractedValue)&&<span className="ml-2 text-destructive">{t(stage.outsideContract?'commercial.outside':'commercial.changed')}</span>}
                   </div>
                   <svg
                     className="pointer-events-none absolute"
@@ -1489,6 +1490,7 @@ export function GanttChart({
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
+                          {showFinancials&&(stage.outsideContract||stage.contractedValue!=null&&stage.budget!==stage.contractedValue)&&<span className="shrink-0 text-[10px] font-semibold text-destructive" title={stage.contractedValue==null?t('commercial.outside'):`${euros(stage.contractedValue)} → ${euros(stage.budget)}`}>{t(stage.outsideContract?'commercial.outside':'commercial.changed')}</span>}
                           <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd, relative ? NO_HOLIDAYS : undefined)}{" "}{t("gantt.wdShort")}
                           </span>

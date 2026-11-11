@@ -1,5 +1,6 @@
 import { PlannerToolbar } from "./planner-toolbar";
 import {GanttValueDialog,GanttContractSummary} from './gantt-commercial-panel';
+import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
 import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
 import { recomputeSchedule } from "@/lib/projects/schedule-engine";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
@@ -1245,6 +1246,7 @@ function OperationalScheduleAdapter({
   const actualsQ = useGanttActuals(projectId,showActuals,canSeeFinancials);
   const actuals = showActuals ? actualsQ.data : undefined;
   const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
+  const commercialQ=useGanttCommercial(projectId,canSeeFinancials);
   const provenance = useProjectProvenance(linkedQuoteId);
   const sourceQuoteId = provenance.data?.generated ? undefined : linkedQuoteId;
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
@@ -1287,9 +1289,9 @@ function OperationalScheduleAdapter({
   const { mappedStages, hierarchy } = useMemo(
     () =>
       stages.length
-        ? buildProjectGanttTree(stages, projectId, summaryLabel)
+        ? buildProjectGanttTree(stages.map(s=>{const ref=commercialQ.data?.stages.find(r=>r.id===s.id);return {...s,commercial_value_owned:ref?.valueOwned??s.commercial_value_owned,contractedValue:ref?.contracted,outsideContract:ref?.outsideContract};}), projectId, summaryLabel)
         : { mappedStages: [] as StageWithProject[], hierarchy: new Map<string, GanttHierarchyNode>() },
-    [stages, projectId, summaryLabel],
+    [stages, projectId, summaryLabel,commercialQ.data],
   );
 
   // Payment milestones from issued invoices.
