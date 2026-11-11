@@ -1,4 +1,5 @@
 # HR rules
+- Shared absence/working-day readers use hr_team_leave_calendar and hr_working_day_settings; detailed leave and Backoffice reads use hr_can_read_full with stable approved identities. Why: shared dates never authorize reasons, approvals, balances or overhead costs; existing guarded writes remain separate.
 - All displayed vacation balances use the RLS-invoker hr_leave_balances RPC; configured openings override legacy carry-over/extra in their year and following years derive carry-over recursively, while unconfigured people retain legacy rules. Why: one reference-date calculation prevents inconsistent totals without altering requests or approvals.
 - Approval inbox aggregates only server-authorized request types and uses existing leave/change RPCs plus a locked remote-work wrapper; counters count requests separately from vacation-day balances. Why: the inbox must not widen approval rights or double-deduct leave.
 

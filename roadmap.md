@@ -1,9 +1,9 @@
 ## Current request — confirmed HR isolation and temporary exception
-- [ ] Record D36/D37 and temporary Ricardo exception; B1 OFF.
-- [ ] Revoke only Bernardo/Patricia effective HR team list; preserve Ricardo and other rights.
-- [ ] Isolate Backoffice/leave detail reads; provide safe working-day and named generic team-calendar projections; preserve writes.
-- [ ] Remove only confirmed Gmail test account and its roles/grants.
-- [ ] Fresh disposable staff verification, privileged/Project Lead/Ricardo parity, cleanup and fresh security scan.
+- [x] Record D36/D37 and temporary Ricardo exception; B1 OFF.
+- [x] Two individual negative team-list overrides; Project Lead roles/non-target grants and Ricardo hashes unchanged.
+- [x] Migration 0281 isolates Backoffice/leave reads; safe projections and calendar/home/Gantt capacity readers adapted; writes unchanged.
+- [x] Confirmed Gmail test account deleted with roles/grants; independent zero verification.
+- [x] Fresh disposable staff read-boundary regression and own pending-leave save/read passed; record/pay/calendar/working days/projects/timesheet UI checked; fixture zero; quick scan three unchanged storage findings. Deep scan running externally, results pending notification.
 
 ## Current request — approved permissions step 1 and isolated exposure investigation
 - [x] Record confirmed full-HR restriction D35 to Luis, Irene and Tatiana; B1 OFF, no real-account changes.
