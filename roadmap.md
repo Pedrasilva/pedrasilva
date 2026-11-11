@@ -1,3 +1,11 @@
+## Current request — Tatiana Backoffice costing decision
+- [ ] Verify current HR-derived rates, overhead/FTE allocation and any contradictory resource/rate records read-only.
+- [ ] Record Luis's approved rule in DECISIONS.md; no application, policy or data changes.
+
+## Current request — permissions investigation only
+- [x] Investigate 14 accounts, live roles/overrides/policies and B1 OFF; deliver read-only report.
+- [ ] Present consolidation plan and await Luis's approval; no permissions decision recorded.
+
 ## Current request — final pre-publication checks
 - [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
 - [x] PDF: print-safe Content header corrected; all 12 Hotel Chiado screen/PDF pages, content counters, index and painted-header regression passed on disposable copies; original unchanged, zero copies remaining, B1 OFF. Report docs/pdf-header-validation-2026-11-11.md.
