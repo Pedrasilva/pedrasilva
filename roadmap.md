@@ -1,3 +1,8 @@
+## Current request — publish-readiness Gantt validation
+- [ ] Re-run financial editor/denied UI and direct writes on disposable fixtures, B1 OFF.
+- [ ] Exercise issued-document and confirmed-payment protections for stage and retainer changes.
+- [ ] Finish global drag/resize and rerun shared gesture/dependency paths; consolidate Phase 1/2 matrix and publication verdict.
+
 ## Current request — proposal Cover / Letter / Content
 - [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
 - [x] New proposals start with editable/removable Cover and Letter before index; existing proposals unchanged.
