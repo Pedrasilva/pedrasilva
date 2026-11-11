@@ -1,3 +1,8 @@
+## Current request — calculator-linked Gantt
+- [ ] Atomic linked stage creation/update, relative months, exact rounding, protected replacement/manual-value/deletion confirmations and shared template undo path.
+- [ ] Payment defaults or explicit undefined plan; all quote financial views refresh.
+- [ ] Disposable Oleiro copy: five-stage/151956, duration retention, conflicts, template/undo, cleanup; SQL/files report and D41.
+
 ## Current request — full quote templates
 - [x] D40 records full-template decision; prior decisions preserved; B1 unchanged.
 - [x] Versioned full snapshots, relative planning, remapping, selectable fees/payment rules/blocks/layout and guarded undo implemented.
