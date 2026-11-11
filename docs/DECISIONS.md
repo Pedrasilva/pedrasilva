@@ -272,6 +272,14 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Motivo:** Delegar a gestão de equipas sem atribuir o papel de administrador nem permitir alterações sem autorização e auditoria.
 - **Relatórios:** [Gestão de equipas](project-team-management-permission-report.md).
 
+### D33 — Capa, carta e conteúdo de propostas
+- **Data:** 11/11/2026.
+- **Área:** Propostas / Master page / carta.
+- **Estado:** Aprovado; implementação sujeita às verificações descritas no relatório.
+- **Decisão:** Três layouts próprios: Capa sem cabeçalho/rodapé; Carta com papel timbrado e assinatura de Luis, sem número; Conteúdo com numeração 1/n e índice contando apenas conteúdo. Manter prática por administrador, substituição por proposta e propostas existentes intocadas. Novas propostas começam com Capa e Carta editáveis/removíveis antes do índice. Modelo PT-PT/EN e assinatura configurados uma vez; tokens usam dados vivos. IA produz apenas rascunho revisto, sem envio, sem substituir texto editado sem confirmação e sem inventar números; mostrar os valores usados. Paridade e testes apenas numa cópia descartável de Hotel Chiado; B1 OFF.
+- **Motivo:** Apresentação editorial consistente sem modificar documentos existentes nem valores comerciais.
+- **Relatórios:** [Capa e carta — implementação e validação](proposal-cover-letter-report.md).
+
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.

@@ -7,3 +7,6 @@
 - Split side panels overlay equal-width editor/page columns; persist drawer preferences by authenticated user ID in browser storage, and fit the editor through outer zoom without reflowing the A4 source. Why: panel state must not squeeze the document or change exported pagination.
 - Block heading levels are display-only `content_rich.headingLevel` (missing = H1); section numbers and the index come from the shared pure numbering helper, and style-panel edits keep per-proposal local state until saves settle. Why: existing documents render unchanged and live sliders never snap back to an older save.
 - Set default Paged.js page geometry as A4 as well as the content page name; keep the index atomic, generated list markers inside the column, and heading/actions in a fixed panel header with an independent scroll body and application deletion confirmation. Why: unnamed fragments and panel overflow must not hide furniture or controls.
+
+- Typed proposal layouts are opt-in snapshots; Cover and Letter are excluded from content counters, and Letter drafting stays in authenticated server-only helpers. Why: preserve legacy proposals and isolate AI credentials.
+- Guard unsupported CSS media preludes inside the iframe Paged.js runtime only. Why: its older CSS parser must not crash document pagination.
