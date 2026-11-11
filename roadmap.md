@@ -1,4 +1,6 @@
 ## Current request — approved Project Billing plan
+- [x] D39 records explicit 22:19 permission confirmation and conditional approval; D38 approval chronology clarified.
+- [ ] Stop for Luis: Financials-only whole-plan visibility conflicts with proposed separate Suppliers gate; scope of audited issued-line corrections needs confirmation before implementation resumes.
 - [x] Operational Incoming/Outgoing plan visible without documents; live dates, VAT, supplier identity and audited date editor.
 - [x] Audited descriptions and reversible manual groups; disposable UI merge/readback, 10000→12000 reconciliation/unmerge and fiscal description/merge denial passed.
 - [x] Canonical manual no-PDF issuance, milestone links and shared Finance queue implemented; single-fixture issuance/document/lock and queue tests passed.
