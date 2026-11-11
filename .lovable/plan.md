@@ -2,7 +2,7 @@
 
 **Investigação apenas. Aguarda OK de Luis; não é uma decisão registada.**
 
-Relatório completo: [PSA — investigação de permissões]( /mnt/documents/PSA-permissoes-investigacao-2026-11-11.md ).
+Relatório completo: [PSA — investigação de permissões](/mnt/documents/PSA-permissoes-investigacao-2026-11-11.md).
 
 ## Estado confirmado
 
@@ -10,7 +10,7 @@ Relatório completo: [PSA — investigação de permissões]( /mnt/documents/PSA
 - Matriz antiga e exceções v2 usam o mesmo armazenamento pessoal, mas verificações diferentes. Papéis v2 já estão ativos, mesmo com B1 OFF.
 - **Access preview não decide acesso real.** O catálogo é um objetivo independente; ativar B1 não o ativa.
 - 14 contas consultadas; nenhuma conta pendente entre colaboradores ativos sem login.
-- Nenhuma alteração de código, políticas, papéis/permissões ou dados de negócio. DECISIONS.md intacto.
+- Nenhuma alteração de código, políticas, papéis/permissões ou dados de negócio. Sem decisão de consolidação registada; D34 acrescentada apenas para a decisão separada de Tatiana.
 
 ## Que ecrã decide hoje
 
