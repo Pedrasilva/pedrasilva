@@ -42,26 +42,9 @@ Relatório completo: [PSA — investigação de permissões](/mnt/documents/PSA-
 7. **Descrição HR desatualizada:** a base real inclui compensação/edição de fichas/benefícios e financeiros de projetos, não apenas operação. Architect também tem edição de planeamento/fases global apesar da descrição de leitura.
 8. **Achado de proteção de dados:** políticas permissivas PSA FOR ALL coexistem com restrições específicas em colaboradores, salários, Backoffice, saldos de benefícios, férias e objetivos user_access; privilégios de leitura/escrita confirmados. Combinam-se por OU. Portanto a autorização de leitura direta pode ser mais ampla do que qualquer ecrã sugere. Não foi feita escrita ou exploração noutra conta; triggers podem limitar ações específicas. Nenhuma política foi alterada.
 
-## Todas as contas — papéis de base
+## Contas e papéis
 
-| Conta | Papéis v2 | Rever |
-|---|---|---|
-| Adalberto Duarte | Architect | Curadoria Marketing concedida individualmente. |
-| Bernardo Nadais | Project Lead | Base projetos all; aprovação timesheets team. |
-| Francisco Oliveira | Architect | Edição global de planeamento/fases na base. |
-| Irene Cunha | HR + Partner | Sensibilidade HR; Partner não é admin. |
-| João Almeida | Architect | Edição global na base. |
-| Luis Pedra Silva — conta PSA | Admin | Única conta admin efetiva; proteger superadmin. |
-| luispedrasilva@gmail.com | Architect | Sem ficha PSA; confirmar finalidade, não é a conta admin. |
-| Mariana Oliveira | Architect | Edição global na base. |
-| Patricia Reis | Project Lead | Não apenas projetos próprios; finanças por projeto separadas. |
-| Ricardo Cabrita | Architect | Não tem HR; não confundir com Conceição. |
-| Ricardo Conceição | Architect + HR | Salários/fichas globais; detalhe abaixo. |
-| Rita Saragoça | Architect | Financials como gestora por projeto, não por papel HR. |
-| Tatiana Shchenina | Finance + HR | Finance PSA e aprovação global de férias separada. |
-| Teresa — Pedra Rioja | Nenhum | Antiga Finance e associação Pedra Rioja apenas; não conceder PSA. |
-
-HR de Ricardo/Irene/Tatiana atribuído em 30/07/2026, sem autor/nota na linha. Não prova intenção nem erro. Luis/Irene/Ricardo Conceição/Tatiana têm capacidade financeira global auditada e independente; Irene/Ricardo também têm gerir equipas de projeto concedido.
+As 14 contas e respetivos papéis, incluindo sinais a rever, estão discriminadas no relatório completo; nenhuma atribuição alterada.
 
 ### Ricardo Conceição — alcance exato
 
