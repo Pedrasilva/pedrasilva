@@ -556,7 +556,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
             const datesDisabled = isParentStage;
             return (
             <>
-              {relative ? <RelativeStageFields start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
+              {relative ? <RelativeStageFields months={!!(stage as typeof stage & {calculator_row_id?:string}).calculator_row_id} start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">
                     {t("workspace.planning.startDate", { defaultValue: "Start" })}
