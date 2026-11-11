@@ -7,7 +7,9 @@
  * Stages / Dependencies / Allocations in-tab tables have been folded into
  * the Gantt + Inspector.
  */
-import { useEffect, useMemo, useRef } from "react";
+import {supabase} from "@/integrations/supabase/client";
+import {useQueryClient} from "@tanstack/react-query";
+import { useEffect, useMemo, useRef,useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,33 +84,25 @@ export function QuotePlanningTab({
     });
   }, [stages, allocations, externalServices, pricingMultiplier, supplierMarkups]);
 
-  const handleAddRetainerStage = async () => {
-    if (quoteReadOnly) return;
-    const anchor = defaultAnchorMonth();
+  const qc=useQueryClient();
+  const [retainerSaving,setRetainerSaving]=useState(false);
+  const savingRef=useRef(false);
+  const handleAddRetainerStage = async ():Promise<string|undefined> => {
+    if (quoteReadOnly||savingRef.current) return;
+    savingRef.current=true;setRetainerSaving(true);
     try {
-      await upsertStage.mutateAsync({
-        quote_id: quoteId,
-        name: t("workspace.planning.retainerMonthly.defaultName", {
-          defaultValue: "Construction retainer",
-        }),
-        start_date: anchorMonthStart(anchor),
-        end_date: anchorMonthEnd(anchor),
-        budget: 0,
-        sort_order: allStages.length,
-        stage_kind: "retainer_monthly",
-        billing_model: "retainer",
-        retainer_anchor_month: anchor,
-        retainer_months: 12,
-        retainer_capacity_hours_per_month: DEFAULT_RETAINER_CAPACITY_HPM,
-      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      const {data,error}=await supabase.rpc('pm_retainer_create',{_mode:'quote',_scope:quoteId,_name:t('workspace.planning.retainerMonthly.defaultName'),_group_name:t('projects:proposalStagesManager.ui.obra'),_months:12,_amount:0});
+      if(error)throw error;
+      await Promise.all([qc.invalidateQueries({queryKey:['quote-stages',quoteId]}),qc.invalidateQueries({queryKey:['quote-dependencies',quoteId]}),qc.invalidateQueries({queryKey:['quote-payment-schedule',quoteId]})]);
       toast.success(
         t("workspace.planning.retainerMonthly.created", {
           defaultValue: "Retainer phase added",
         }),
       );
+      return data;
     } catch (e) {
       toast.error((e as Error).message);
-    }
+    } finally {savingRef.current=false;setRetainerSaving(false);}
   };
 
   // Auto-seed a retainer stage for retainer-type quotes.
@@ -127,12 +121,12 @@ export function QuotePlanningTab({
     <div className="space-y-2">
       {!isRetainer && <QuoteWarningsBanner warnings={warnings} />}
 
-      {(!isRetainer || converted) && (
-        <QuoteGantt quoteId={quoteId} onAddRetainerPhase={handleAddRetainerStage}
+      {(
+        <QuoteGantt quoteId={quoteId} onAddRetainerPhase={handleAddRetainerStage} retainerSaving={retainerSaving}
           canEditPlanning={canEditPlanning} canSeeFinancials={canSeeFinancials} />
       )}
 
-      {retainerStages.length > 0 && (
+      {!converted && retainerStages.length > 0 && (
         <div className="space-y-2">
           {retainerStages.map((s) => (
             <RetainerStageEditor

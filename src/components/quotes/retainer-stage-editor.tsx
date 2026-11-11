@@ -1,3 +1,4 @@
+import {RetainerSettings} from "@/components/planner/retainer-settings";
 import uiI18n from "@/i18n/index";
 /**
  * RetainerStageEditor — UI for a `stage_kind='retainer_monthly'` quote stage.
@@ -391,42 +392,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations, readOnly = fa
             />
             </>}
           </div>
-          <div>
-            <Label className="text-xs">
-              {t("workspace.planning.retainerMonthly.duration", {
-                defaultValue: "Repeats over",
-              })}
-            </Label>
-            <div className="flex items-center gap-1">
-              {RETAINER_MONTH_PRESETS.map((m) => (
-                <Button
-                  key={m}
-                  type="button"
-                  variant={months === m ? "default" : "outline"}
-                  size="sm"
-                  className="h-9 px-3 text-xs"
-                  onClick={() => setMonths(m)}
-                >
-                  {m}m
-                </Button>
-              ))}
-              <Input
-                type="number"
-                min={1}
-                max={120}
-                className="h-9 w-20"
-                key={`m-${stage.id}-${months}`}
-                defaultValue={months}
-                onBlur={(e) => {
-                  const v = Number(e.target.value) || 0;
-                  if (v >= 1 && v <= 120 && v !== months) setMonths(v);
-                }}
-              />
-              <span className="text-xs text-muted-foreground">
-                {t("workspace.planning.retainerMonthly.monthsUnit", { defaultValue: "months" })}
-              </span>
-            </div>
-          </div>
+          <RetainerSettings stage={stage} scope={quoteId} readOnly={disabled}/>
 
           {/* Live totals badge */}
           <div className="ml-auto flex flex-col items-end text-right">
@@ -463,41 +429,6 @@ export function RetainerStageEditor({ quoteId, stage, allocations, readOnly = fa
       <CardContent className="space-y-3 pt-0">
         {isFeeOnly ? (
           <>
-            {/* Monthly fee input (fee-only mode) */}
-            <div className="flex flex-wrap items-end gap-3 border-t pt-3">
-              <div>
-                <Label className="text-xs">
-                  {t("workspace.planning.retainerMonthly.monthlyAmount", {
-                    defaultValue: "Monthly amount (€)",
-                  })}
-                </Label>
-                <Input
-                  type="number"
-                  min={0}
-                  step={50}
-                  className="h-9 w-40 text-right tabular-nums"
-                  key={`amt-${stage.id}-${manualMonthly}`}
-                  defaultValue={manualMonthly}
-                  onBlur={(e) => {
-                    const v = Number(e.target.value) || 0;
-                    if (Math.abs(v - manualMonthly) > 0.005) {
-                      upsertStage.mutate({
-                        id: stage.id,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        ...({ retainer_monthly_amount: v } as any),
-                      });
-                    }
-                  }}
-                />
-              </div>
-              <p className="text-[11px] text-muted-foreground max-w-md">
-                {t("workspace.planning.retainerMonthly.feeOnlyHint", {
-                  defaultValue:
-                    "Fee-only mode: skip resource planning. Anyone logs hours below; we compute cost & value vs the monthly fee.",
-                })}
-              </p>
-            </div>
-
             {!proposalTiming && !disabled && <RetainerMonthlyReadings
               quoteId={quoteId}
               stageId={stage.id}

@@ -2073,6 +2073,69 @@
       "when": 1794438419864,
       "tag": "0295_calculator_linked_stages",
       "breakpoints": true
+    },
+    {
+      "idx": 296,
+      "version": "7",
+      "when": 1794439465467,
+      "tag": "0296_retainer_gantt_monthly_schedule",
+      "breakpoints": true
+    },
+    {
+      "idx": 297,
+      "version": "7",
+      "when": 1794439677789,
+      "tag": "0297_retainer_quote_value_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 298,
+      "version": "7",
+      "when": 1794439815241,
+      "tag": "0298_retainer_conversion_single_owner",
+      "breakpoints": true
+    },
+    {
+      "idx": 299,
+      "version": "7",
+      "when": 1794439892385,
+      "tag": "0299_retainer_conversion_linked_summary",
+      "breakpoints": true
+    },
+    {
+      "idx": 300,
+      "version": "7",
+      "when": 1794439927112,
+      "tag": "0300_retainer_conversion_construction_budget",
+      "breakpoints": true
+    },
+    {
+      "idx": 301,
+      "version": "7",
+      "when": 1794439948364,
+      "tag": "0301_retainer_conversion_parent_value_rollup",
+      "breakpoints": true
+    },
+    {
+      "idx": 302,
+      "version": "7",
+      "when": 1794439998098,
+      "tag": "0302_retainer_canonical_incoming_dates",
+      "breakpoints": true
+    },
+    {
+      "idx": 303,
+      "version": "7",
+      "when": 1794440064987,
+      "tag": "0303_retainer_preserve_operational_timing_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 304,
+      "version": "7",
+      "when": 1794440110629,
+      "tag": "0304_retainer_extend_construction_summary",
+      "breakpoints": true
     }
   ]
 }

@@ -354,3 +354,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Limites:** B1 OFF, só cópias descartáveis; não alterar propostas reais. Confirmação de substituição não autoriza apagar fornecedores/avenças ou evidência fiscal ligados.
 - **Motivo:** Eliminar honorários sem fases e preservar ajustes manuais e totais coerentes.
 - **Relatórios:** [Implementação, resultados, SQL e limites](calculator-linked-stages-report.md).
+
+### D42 — Avenças visíveis no Gantt partilhado
+- **Data:** 11/11/2026, pedido confirmado por Luis às 23:19 UTC.
+- **Área:** CRM / projetos / avenças / pagamentos.
+- **Estado:** Decisão confirmada; não altera D08 nem outras decisões anteriores.
+- **Decisão:** Desenhar cada avença numa linha própria, distinta, na Obra por defeito; manter cartões abaixo do Gantt. Início por dependência FS da última fase de Arquitetura, editável pelo painel e arrasto; duração e número de meses partilham o mesmo registo. Pagamentos mensais partilham datas com Inflow, Plano de pagamentos e Faturação; propostas relativas e projetos convertidos com datas reais. Acrescentar meses livremente; alterar valor mensal exige acordo do cliente, responsabilidade, motivo e histórico, preservando evidência fiscal. Bloquear criação enquanto guarda e selecionar a nova linha. Duplicados reais só são apagados após confirmação nominal de Luis.
+- **Limites:** B1 OFF; sem alterações de dados reais. Validação parcial e casos não certificados no relatório. A implementação usa início efetivo como primeiro pagamento quando o início FS cai a meio do mês; meses seguintes usam primeiro dia útil do mês. Esta interpretação não substitui a decisão fiscal anterior e carece de confirmação para certificação.
+- **Motivo:** Avenças devem participar no programa e previsões sem perder o editor mensal nem histórico.
+- **Relatórios:** [Resultados, SQL, ficheiros e limites](retainer-gantt-report.md).

@@ -1,3 +1,4 @@
+import {RetainerSettings} from "@/components/planner/retainer-settings";
 import { isConstructionStage } from "@/lib/quotes/stage-numbering";
 import uiI18n from "@/i18n/index";
 /**
@@ -292,7 +293,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
         </Button>
       </header>
 
-      {model.operational&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
+      {model.operational&&stage.stage_kind!=='retainer_monthly'&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
       {pendingValue!=null&&operationalStage&&<GanttValueDialog projectId={quoteId} stage={operationalStage} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       <fieldset disabled={model.readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
@@ -312,6 +313,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
 
         {/* PLAN */}
         <TabsContent value="plan" className="flex-1 space-y-3 overflow-auto px-3 pb-4 pt-3">
+          {stage.stage_kind==='retainer_monthly'&&<RetainerSettings key={stage.id} stage={stage} scope={quoteId} operational={model.operational} readOnly={model.readOnly} onMonthlyChange={setPendingValue}/>}
           <div className="space-y-1">
             <Label className="text-xs">{t("common.name", { defaultValue: "Name" })}</Label>
             <Input
@@ -538,7 +540,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
             type Node = { id: string; start_date: string; end_date: string; parent_stage_id?: string | null };
             const nodes = allStages as unknown as Node[];
             const childrenOf = (id: string) => nodes.filter((c) => (c.parent_stage_id ?? null) === id);
-            const isParentStage = childrenOf(stage.id).length > 0;
+            const isParentStage = stage.stage_kind!=="retainer_monthly" && childrenOf(stage.id).length > 0;
             // Parent rows always mirror the Gantt: their span is the union of
             // their descendants and can never be set manually.
             const span = (n: Node): { start: string; end: string } => {
@@ -556,7 +558,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
             const datesDisabled = isParentStage;
             return (
             <>
-              {relative ? <RelativeStageFields months={!!(stage as typeof stage & {calculator_row_id?:string}).calculator_row_id} start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
+              {relative ? <RelativeStageFields months={stage.stage_kind==='retainer_monthly'||!!(stage as typeof stage & {calculator_row_id?:string}).calculator_row_id} start={startValue} end={endValue} disabled={datesDisabled} onChange={(start_date,end_date)=>{updateStageCascade.mutateAsync({id:stage.id,start_date,end_date}).catch(e=>toast.error(t(e.message)));}}/> : <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">
                     {t("workspace.planning.startDate", { defaultValue: "Start" })}
@@ -650,7 +652,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
             </>
             );
           })()}
-          {model.financialVisible && stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
+          {stage.stage_kind!=='retainer_monthly' && model.financialVisible && stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
               (() => {
                 const sx = stage as typeof stage & {
                   budget_mode?: string | null;

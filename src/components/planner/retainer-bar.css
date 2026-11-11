@@ -1,0 +1,5 @@
+.retainer-gantt-bar {
+  background-color: var(--color-muted);
+  background-image: repeating-linear-gradient(45deg, transparent 0 6px, color-mix(in srgb, var(--color-primary) 20%, transparent) 6px 8px);
+  border: 2px solid var(--color-primary);
+}

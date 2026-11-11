@@ -7,7 +7,7 @@ import i18n from "@/i18n/index";
  * subscription (`retainer_monthly_amount`) over a span of months, with
  * open logging via `pm_time_entries.pm_stage_id`.
  */
-import { useState } from "react";
+import { useState,useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -30,9 +30,10 @@ const COLORS = ["#a78bfa", "#fb7185", "#22d3ee", "#fdba74", "#34d399"];
 interface Props {
   projectId: string;
   nextOrder: number;
+  onCreated?:(id:string)=>void;
 }
 
-export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
+export function NewRetainerStageDialog({ projectId, nextOrder,onCreated }: Props) {
   useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -43,52 +44,18 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
   const [anchor, setAnchor] = useState<string>(format(startOfMonth(today), "yyyy-MM-dd"));
   const [color, setColor] = useState(COLORS[nextOrder % COLORS.length]);
   const [busy, setBusy] = useState(false);
+  const saving=useRef(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || monthlyFee <= 0 || months <= 0) return;
+    if (saving.current||!name.trim() || monthlyFee <= 0 || months <= 0) return;
+    saving.current=true;
     setBusy(true);
     try {
-      const start = startOfMonth(parseISO(anchor));
-      const end = endOfMonth(addMonths(start, months - 1));
-      const parentBudget = monthlyFee * months;
-      const { data: parent, error: pErr } = await supabase
-        .from("pm_stages")
-        .insert({
-          project_id: projectId,
-          name: name.trim(),
-          budget: parentBudget,
-          start_date: format(start, "yyyy-MM-dd"),
-          end_date: format(end, "yyyy-MM-dd"),
-          color,
-          sort_order: nextOrder,
-          stage_kind: "retainer_monthly",
-          retainer_monthly_amount: monthlyFee,
-          retainer_anchor_month: format(start, "yyyy-MM-dd"),
-          retainer_months: months,
-        } as never)
-        .select("id")
-        .single();
-      if (pErr) throw pErr;
-
-      // Monthly children
-      const rows = Array.from({ length: months }, (_, i) => {
-        const m = addMonths(start, i);
-        return {
-          project_id: projectId,
-          parent_stage_id: (parent as { id: string }).id,
-          name: format(m, "MMM yyyy"),
-          budget: monthlyFee,
-          start_date: format(startOfMonth(m), "yyyy-MM-dd"),
-          end_date: format(endOfMonth(m), "yyyy-MM-dd"),
-          color,
-          sort_order: i,
-          stage_kind: "retainer_month",
-        };
-      });
-      const { error: cErr } = await supabase.from("pm_stages").insert(rows as never);
-      if (cErr) throw cErr;
-
+      const {data:id,error}=await supabase.rpc('pm_retainer_create',{_mode:'project',_scope:projectId,_name:name.trim(),_group_name:i18n.t('projects:proposalStagesManager.ui.obra'),_months:months,_amount:monthlyFee});
+      if(error)throw error;
+      onCreated?.(id);
+      await qc.invalidateQueries({queryKey:['billing-plan',projectId]});
       await qc.invalidateQueries({ queryKey: ["pm-project", projectId] });
       await qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
       toast.success(i18n.t("projects:newRetainerStageDialog.ui.retainerStageCreated"));
@@ -96,7 +63,7 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
-      setBusy(false);
+      setBusy(false);saving.current=false;
     }
   }
 
@@ -138,29 +105,6 @@ export function NewRetainerStageDialog({ projectId, nextOrder }: Props) {
                 value={months}
                 onChange={(e) => setMonths(Number(e.target.value))}
               />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="r-anchor"> {i18n.t("projects:newRetainerStageDialog.ui.firstMonth")} </Label>
-            <Input
-              id="r-anchor"
-              type="month"
-              value={anchor.slice(0, 7)}
-              onChange={(e) => setAnchor(`${e.target.value}-01`)}
-            />
-          </div>
-          <div>
-            <Label> {i18n.t("common:color")} </Label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className={`h-7 w-7 rounded-full border-2 ${color === c ? "border-foreground scale-110" : "border-transparent"}`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground">

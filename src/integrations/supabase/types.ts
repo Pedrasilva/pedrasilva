@@ -15752,6 +15752,39 @@ export type Database = {
           },
         ]
       }
+      quote_retainer_value_history: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          new_value: number
+          old_value: number
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          new_value: number
+          old_value: number
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          new_value?: number
+          old_value?: number
+          quote_id?: string
+          reason?: string
+          stage_id?: string
+        }
+        Relationships: []
+      }
       quote_site_trips: {
         Row: {
           created_at: string
@@ -19875,6 +19908,21 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_retainer_create: {
+        Args: {
+          _amount?: number
+          _group_name: string
+          _mode: string
+          _months?: number
+          _name: string
+          _scope: string
+        }
+        Returns: string
+      }
+      pm_retainer_month_date: {
+        Args: { _index: number; _relative?: boolean; _start: string }
+        Returns: string
+      }
       pm_revise_week_plan: {
         Args: { _expected_updated_at: string; _plan_id: string; _slots: Json }
         Returns: Json
@@ -20024,6 +20072,17 @@ export type Database = {
           _template_id: string
         }
         Returns: Json
+      }
+      quote_retainer_change_value: {
+        Args: {
+          _client_agreed: boolean
+          _expected: number
+          _reason: string
+          _responsibility: boolean
+          _stage: string
+          _value: number
+        }
+        Returns: undefined
       }
       quote_save_as_template: {
         Args: {
