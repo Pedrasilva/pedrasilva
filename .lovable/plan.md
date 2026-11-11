@@ -1,6 +1,6 @@
 # Permissões — investigação e consolidação proposta
 
-**Investigação apenas. Aguarda OK de Luis; não é uma decisão registada.**
+**Direção aprovada por Luis em 11/11/2026 às 21:20 UTC, condicionada à etapa 1 e revisão. B1 OFF.**
 
 Relatório completo: [PSA — investigação de permissões](/mnt/documents/PSA-permissoes-investigacao-2026-11-11.md).
 
@@ -40,7 +40,7 @@ Relatório completo: [PSA — investigação de permissões](/mnt/documents/PSA-
 5. **Revogação é chave+âmbito exatos:** revogar own não remove all; eliminar exceção restaura o papel; v2 não elimina uma alternativa antiga.
 6. **Benefícios:** helper antigo não verifica granted; v2 pode permitir leitura mas não a ação de aprovação. Férias, benefícios e remoto não são o mesmo direito.
 7. **Descrição HR desatualizada:** a base real inclui compensação/edição de fichas/benefícios e financeiros de projetos, não apenas operação. Architect também tem edição de planeamento/fases global apesar da descrição de leitura.
-8. **Achado de proteção de dados:** políticas permissivas PSA FOR ALL coexistem com restrições específicas em colaboradores, salários, Backoffice, saldos de benefícios, férias e objetivos user_access; privilégios de leitura/escrita confirmados. Combinam-se por OU. Portanto a autorização de leitura direta pode ser mais ampla do que qualquer ecrã sugere. Não foi feita escrita ou exploração noutra conta; triggers podem limitar ações específicas. Nenhuma política foi alterada.
+8. **Diagnóstico corrigido pelo teste real:** as políticas psa_staff_only são RESTRICTIVE, não ampliam acesso. Conta descartável sem HR/Finance recebeu zero salários/objetivos/saldos de benefícios e só a própria ficha; custos Backoffice e 89 férias aprovadas de outras pessoas ficaram visíveis por portas específicas. Conta eliminada com limpeza zero; nenhuma política alterada.
 
 ## Contas e papéis
 
@@ -60,7 +60,7 @@ As 14 contas e respetivos papéis, incluindo sinais a rever, estão discriminada
 
 ### 1. Retrato e aprovação dos direitos
 
-Produzir pessoa × ação × âmbito × contexto × origem, incluindo papéis/negativas/retiradas, contas pendentes, admin, entidades, projetos, capacidades globais, aprovadores e gestores de Inventário. Luis confirma os sinais sensíveis e diferenças antes de alterar contas.
+Concluída: matriz de 698 linhas e lista exata de perdas propostas entregues. D35 confirmada: HR completo só Luis, Irene e Tatiana; outros apenas próprios. Ricardo: seis direitos HR all e dez antigas; Bernardo/Patricia: lista HR team. Preservar todas as permissões não-HR e preços derivados por projeto. Conta de teste eliminada. Parar agora; remoções só após confirmação de Luis.
 
 ### 2. Uma página Permissions (v2)
 
@@ -91,4 +91,4 @@ Permissions mostra Atual/Proposto. **B1 ON não ativa user_access.** Integraçã
 - Investigação por leitura autenticada e metadados atuais, sem consultar valores salariais/documentos pessoais ou testar escritas. Não certifica todas as exportações/leitores nem publicação segura.
 - As três regras de ficheiros anteriormente reportadas continuam pendentes e intactas. Nenhum achado será corrigido sem OK de Luis.
 
-**Aguardar decisão; não registar em DECISIONS.md antes dela.**
+**Parar para revisão da lista exata. D35 registada porque a regra HR foi confirmada; nenhuma alteração real de conta/política aplicada. Etapas 2–6 aguardam autorização posterior.**
