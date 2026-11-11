@@ -1,0 +1,106 @@
+{
+  "checks": {
+    "quote_stages": [
+      36,
+      36
+    ],
+    "quote_stage_dependencies": [
+      29,
+      29
+    ],
+    "quote_allocations": [
+      41,
+      41
+    ],
+    "quote_external_services": [
+      0,
+      0
+    ],
+    "quote_stage_supplier_costs": [
+      0,
+      0
+    ],
+    "quote_supplier_markups": [
+      0,
+      0
+    ],
+    "quote_supplier_phase_splits": [
+      0,
+      0
+    ],
+    "quote_site_trips": [
+      5,
+      5
+    ],
+    "quote_billable_hourly_rates": [
+      9,
+      9
+    ],
+    "quote_payment_schedule_items": [
+      91,
+      91
+    ]
+  },
+  "blocks": 39,
+  "invalid": 0,
+  "absolute": 0,
+  "sourceTotals": {
+    "internal": {
+      "budget": 1013200,
+      "value": 1013200,
+      "cost": 395244.1400000001,
+      "profit": 617955.8599999999,
+      "invoiced": 0,
+      "hours": 10408.4
+    },
+    "external": {
+      "budget": 0,
+      "value": 0,
+      "cost": 0,
+      "profit": 0,
+      "invoiced": 0
+    },
+    "total": {
+      "budget": 1013200,
+      "value": 1013200,
+      "cost": 395244.1400000001,
+      "profit": 617955.8599999999,
+      "invoiced": 0
+    },
+    "pricingMultiplier": 1,
+    "totalFee": 1013200,
+    "effectiveMargin": 0.6099051125148045
+  },
+  "destinationTotals": {
+    "internal": {
+      "budget": 1013200,
+      "value": 1013200,
+      "cost": 395244.1400000001,
+      "profit": 617955.8599999999,
+      "invoiced": 0,
+      "hours": 10408.4
+    },
+    "external": {
+      "budget": 0,
+      "value": 0,
+      "cost": 0,
+      "profit": 0,
+      "invoiced": 0
+    },
+    "total": {
+      "budget": 1013200,
+      "value": 1013200,
+      "cost": 395244.1400000001,
+      "profit": 617955.8599999999,
+      "invoiced": 0
+    },
+    "pricingMultiplier": 1,
+    "totalFee": 1013200,
+    "effectiveMargin": 0.6099051125148045
+  },
+  "identity": {
+    "title": "[QA DISPOSABLE] Blank full template",
+    "company": null,
+    "contact": null
+  }
+}

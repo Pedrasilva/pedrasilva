@@ -16522,6 +16522,61 @@ export type Database = {
           },
         ]
       }
+      quote_template_imports: {
+        Row: {
+          actor_id: string
+          after_hash: string
+          before_state: Json
+          created_at: string
+          id: string
+          quote_id: string
+          template_id: string | null
+          undone_at: string | null
+        }
+        Insert: {
+          actor_id: string
+          after_hash: string
+          before_state: Json
+          created_at?: string
+          id?: string
+          quote_id: string
+          template_id?: string | null
+          undone_at?: string | null
+        }
+        Update: {
+          actor_id?: string
+          after_hash?: string
+          before_state?: Json
+          created_at?: string
+          id?: string
+          quote_id?: string
+          template_id?: string | null
+          undone_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_imports_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_template_imports_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_template_imports_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_template_payment_rules: {
         Row: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
@@ -16631,6 +16686,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          full_quote_snapshot: Json | null
           id: string
           is_active: boolean
           name: string
@@ -16642,6 +16698,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          full_quote_snapshot?: Json | null
           id?: string
           is_active?: boolean
           name: string
@@ -16653,6 +16710,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          full_quote_snapshot?: Json | null
           id?: string
           is_active?: boolean
           name?: string
@@ -19895,6 +19953,24 @@ export type Database = {
       }
       psa_next_rev_number: { Args: { _proposal_id: string }; Returns: number }
       psa_restore_revision: { Args: { _snapshot_id: string }; Returns: string }
+      quote_import_full_template: {
+        Args: {
+          _quote_id: string
+          _revision: string
+          _sections: Json
+          _template_id: string
+        }
+        Returns: string
+      }
+      quote_import_full_template_v2: {
+        Args: {
+          _quote_id: string
+          _revision: string
+          _sections: Json
+          _template_id: string
+        }
+        Returns: string
+      }
       quote_instantiate_template: {
         Args: {
           _base_start_date?: string
@@ -19912,6 +19988,31 @@ export type Database = {
           _quote_id: string
         }
         Returns: string
+      }
+      quote_template_capture: { Args: { _quote: string }; Returns: Json }
+      quote_template_insert_rows: {
+        Args: {
+          _ids: Json
+          _keep_ids?: boolean
+          _quote: string
+          _rows: Json
+          _table: string
+        }
+        Returns: undefined
+      }
+      quote_template_legacy: { Args: { _template: string }; Returns: Json }
+      quote_template_preview: {
+        Args: { _quote_id: string; _template_id: string }
+        Returns: Json
+      }
+      quote_template_rewrite: {
+        Args: { _ids: Json; _sanitize?: boolean; _value: Json }
+        Returns: Json
+      }
+      quote_template_snapshot: { Args: { _quote: string }; Returns: Json }
+      quote_undo_template_import: {
+        Args: { _import_id: string }
+        Returns: undefined
       }
       quote_unlock_for_revision: {
         Args: { _quote_id: string }

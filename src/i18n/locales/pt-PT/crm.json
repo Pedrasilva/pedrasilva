@@ -2427,5 +2427,29 @@
     "search": "Procurar contactos…",
     "position": "Posição",
     "empty": "Nenhum contacto. Use o botão «Novo» no topo."
+  },
+  "quoteTemplate": {
+    "relativeHint": "Apenas planeamento relativo. Identidade do cliente e registos fiscais nunca são importados.",
+    "previewRequired": "Escolha um template e reveja primeiro o seu conteúdo.",
+    "imported": "Template completo da proposta importado.",
+    "undone": "Importação desfeita; conteúdo anterior da proposta restaurado.",
+    "undo": "Desfazer importação do template",
+    "undoHint": "Uma cópia automática preserva o conteúdo anterior. Pode desfazer aqui ao reabrir, salvo se alterações posteriores ou bloqueio da proposta o impedirem.",
+    "choose": "Escolher template da proposta",
+    "legacyHint": "Template antigo: fases e blocos recuperáveis, mas hierarquia, alocações, honorários exatos e página-mestra não foram guardados. Volte a guardar a proposta de origem para obter paridade financeira completa.",
+    "planning": "Planeamento / Gantt",
+    "planningHint": "Fases, subfases, durações, dependências, aprovações do cliente e fases de avença.",
+    "fees": "Honorários",
+    "feesHint": "Calculadora, Arquitetura, Fornecedores, Despesas de deslocação, preços horários faturáveis e margem.",
+    "payments": "Plano de pagamentos",
+    "paymentsHint": "Apenas percentagens e marcos das fases; sem faturas, estados fiscais ou descrições de faturação de origem.",
+    "blocks": "Blocos da proposta",
+    "blocksHint": "Referências de fases ligadas a esta proposta; tokens da carta usam a identidade desta proposta.",
+    "layout": "Formato das páginas",
+    "layoutHint": "Página-mestra personalizada para Capa, Carta e Conteúdo.",
+    "feeValues": "Importar valores dos honorários",
+    "overwrite": "O conteúdo existente será substituído em: {{sections}}.",
+    "blankConfirmation": "Importar as secções selecionadas para esta proposta vazia?",
+    "confirm": "Confirmar substituição e importar"
   }
 }

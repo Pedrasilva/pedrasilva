@@ -16,7 +16,6 @@ import {
   Send,
   Lock,
   MoreHorizontal,
-  LayoutTemplate,
   History,
 } from "lucide-react";
 import { toast } from '@/lib/toast';
@@ -57,7 +56,6 @@ import { SendProposalDialog } from "./send-proposal-dialog";
 import { ProposalSignatureStatus } from "./signature-status";
 import { useHistoricalRevision } from "@/lib/psa-proposal/revision-context";
 import { VersionsPanel } from "./versions-panel";
-import { ImportTemplateDialog } from "./import-template-dialog";
 import { useNextRevNumber, useProposalRevisions } from "@/lib/psa-proposal/use-proposal-revisions";
 import { useProposalSignatures } from "@/lib/psa-proposal/use-proposal-signatures";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
@@ -92,7 +90,6 @@ export function ComposerTopBar({
   const [sendOpen, setSendOpen] = useState(false);
   const [signOpen, setSignOpen] = useState(false);
   const [signExistingOpen, setSignExistingOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
@@ -224,10 +221,6 @@ export function ComposerTopBar({
           <DropdownMenuContent align="end">
             {isSentLocked && !proposal.quote_id && <DropdownMenuItem onSelect={startNewRevision}>{uiI18n.t("crm:quoteEditor.newRevision")}</DropdownMenuItem>}
             {lifecycle?.state === "approved" && latestSnapshot && !hasSignatureForLatest && <DropdownMenuItem onSelect={()=>setSignExistingOpen(true)}>{uiI18n.t("crm:quoteEditor.sendSignature")}</DropdownMenuItem>}
-            {!isReadOnly && (
-              <DropdownMenuItem onSelect={() => setImportOpen(true)}>
-                <LayoutTemplate className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.importTemplate")} </DropdownMenuItem>
-            )}
             <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
               <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("common:settings")} </DropdownMenuItem>
             {!historical && (
@@ -238,14 +231,6 @@ export function ComposerTopBar({
         </DropdownMenu>
       </div>
 
-      {!isReadOnly && (
-        <ImportTemplateDialog
-          proposalId={proposal.id}
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          hideTrigger
-        />
-      )}
       {!historical && (
         <ProposalHistoryDialog
           proposalId={proposal.id}

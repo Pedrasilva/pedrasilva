@@ -336,3 +336,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Motivo:** Separar planeamento autorizado por projeto dos atos fiscais de Luis/Tatiana, sem reescrever dados ou comprometer evidência.
 - **Relatórios:** [Revisão de conformidade e bloqueios](project-billing-permissions-review-2026-11-11.md).
 - **Clarificações confirmadas nesta revisão:** Luis escolheu manter a autorização separada para ver fornecedores e usar o editor fiscal existente para corrigir emitidas. As ações de planeamento continuam a bloquear emitidas; nenhuma nova ação de desbloqueio. Estes dois desvios estão resolvidos e a execução pode continuar dentro dos restantes limites.
+
+### D40 — Templates importam a proposta completa
+- **Data:** 11/11/2026, pedido confirmado por Luis às 22:41 UTC.
+- **Área:** CRM / templates / propostas.
+- **Estado:** Decisão confirmada; não substitui D14 nem decisões editoriais/fiscais existentes.
+- **Decisão:** Importar no menu geral da proposta, em qualquer passo, com seleção de Planeamento/Gantt, Honorários, regras do Plano de pagamentos, Blocos e formato Capa/Carta/Conteúdo; todas as secções inicialmente selecionadas. Honorários têm opção independente de importar valores; desmarcada preserva estrutura e percentagens para recálculo. Guardar templates cobre estas mesmas áreas. Preservar hierarquia, durações relativas, dependências, aprovações e avenças; remapear identificadores das fases e referências editoriais. Nunca transportar cliente, contactos, nome/número/moradas da proposta nem datas operacionais. Carta reutiliza texto com tokens da proposta destinatária. Pagamentos importam apenas regras, percentagens e marcos, nunca faturas previstas, estados ou descrições fiscais do projeto. Aviso explícito identifica conteúdo a substituir; cópia automática permite desfazer sem sobrescrever edições posteriores ou desbloquear propostas protegidas. Templates antigos que não conservaram informação suficiente exigem nova gravação para paridade completa.
+- **Limites:** B1 OFF; testes só em propostas descartáveis vazia/preenchida, nunca Travessa do Oleiro nem proposta real. Não corrigir dados reais nem regravar templates existentes automaticamente.
+- **Motivo:** Blocos Gantt precisam do programa e honorários completos, não de uma cópia editorial desligada das fases.
+- **Relatórios:** [Implementação, testes e limites](full-quote-templates-report.md).

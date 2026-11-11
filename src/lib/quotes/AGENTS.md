@@ -1,0 +1,2 @@
+# Quote template rules
+- Full quote templates use versioned server-owned snapshots and guarded transactional import/undo with whole-state revision checks; legacy reduced snapshots disclose missing fidelity and never fetch live source data implicitly. Why: stage references, fiscal exclusion and undo must remain atomic without altering source quotes.
