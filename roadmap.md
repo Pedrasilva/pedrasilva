@@ -1,6 +1,6 @@
 ## Current request — final pre-publication checks
 - [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
-- [ ] PDF: validate print-safe Content header geometry and all 12 screen/PDF pages on a disposable Hotel Chiado copy; preserve original and B1 OFF.
+- [x] PDF: print-safe Content header corrected; all 12 Hotel Chiado screen/PDF pages, content counters, index and painted-header regression passed on disposable copies; original unchanged, zero copies remaining, B1 OFF. Report docs/pdf-header-validation-2026-11-11.md.
 - [x] Storage scope and minimal proposed rules reported in docs/prepublish-validation-2026-11-11.md; no policies changed.
 - [ ] Await Luis approval for scoped storage rules, then fixture validation; no automatic fix.
 
@@ -14,7 +14,7 @@
 - [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
 - [x] New proposals start with editable/removable Cover and Letter before index; existing proposals unchanged.
 - [ ] Live-token letter editor and authenticated reviewed AI draft; content-only numbering and same screen/PDF output.
-- [ ] Complete PDF parity and remaining UI/creation/override tests; browser sheets, original equality/cleanup and B1 OFF passed. Report: docs/proposal-cover-letter-report.md.
+- [ ] Remaining UI/creation/override and long-letter/EN tests are outside this PDF-header request; 12-page Hotel Chiado PDF parity now passed. Earlier scope: docs/proposal-cover-letter-report.md; revalidation: docs/pdf-header-validation-2026-11-11.md.
 
 ## Current request — Permissions v2 UX
 - [x] Searchable bilingual/accent-insensitive permission and scope dropdowns; account search keyboard support; existing effective-permission tags.
