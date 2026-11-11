@@ -1,0 +1,139 @@
+{
+  "extension": {
+    "months": [
+      {
+        "budget": 100,
+        "start_date": "2026-10-01"
+      },
+      {
+        "budget": 100,
+        "start_date": "2026-11-01"
+      },
+      {
+        "budget": 100,
+        "start_date": "2026-12-01"
+      },
+      {
+        "budget": 100,
+        "start_date": "2027-01-01"
+      }
+    ],
+    "parent": {
+      "budget": 400,
+      "retainer_months": 4
+    },
+    "history": [
+      {
+        "event_type": "retainer_extension",
+        "old_value": null,
+        "new_value": 100,
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8"
+      },
+      {
+        "event_type": "new_stage",
+        "old_value": null,
+        "new_value": 300,
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8"
+      },
+      {
+        "event_type": "new_stage",
+        "old_value": null,
+        "new_value": 1000,
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8"
+      }
+    ]
+  },
+  "forward": {
+    "months": [
+      {
+        "budget": 100,
+        "start_date": "2026-10-01"
+      },
+      {
+        "budget": 100,
+        "start_date": "2026-11-01"
+      },
+      {
+        "budget": 150,
+        "start_date": "2026-12-01"
+      },
+      {
+        "budget": 150,
+        "start_date": "2027-01-01"
+      }
+    ],
+    "parent": {
+      "budget": 500,
+      "retainer_monthly_amount": 150
+    },
+    "history": [
+      {
+        "event_type": "retainer_month",
+        "old_value": 100,
+        "new_value": 150,
+        "reason": "Disposable client agreed monthly change",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": "2026-12-01"
+      },
+      {
+        "event_type": "retainer_month",
+        "old_value": 100,
+        "new_value": 150,
+        "reason": "Disposable client agreed monthly change",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": "2026-12-01"
+      },
+      {
+        "event_type": "retainer_value",
+        "old_value": 100,
+        "new_value": 150,
+        "reason": "Disposable client agreed monthly change",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": "2026-12-01"
+      },
+      {
+        "event_type": "retainer_extension",
+        "old_value": null,
+        "new_value": 100,
+        "reason": "Construction continued; additional retainer month",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": "2027-01-01"
+      },
+      {
+        "event_type": "new_stage",
+        "old_value": null,
+        "new_value": 300,
+        "reason": "New stage outside the contract",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": null
+      },
+      {
+        "event_type": "new_stage",
+        "old_value": null,
+        "new_value": 1000,
+        "reason": "New stage outside the contract",
+        "actor_id": "ab5a48c0-939b-4502-bd3b-db7801f0f8b8",
+        "effective_month": null
+      }
+    ]
+  },
+  "splits": {
+    "children": [
+      {
+        "id": "ca172f06-0a1e-404b-a88a-cf7bfa46383b",
+        "budget": 400
+      },
+      {
+        "id": "9582271d-adcb-4fc9-a8a3-e2177facbedc",
+        "budget": 200
+      }
+    ],
+    "overLimit": "Substage values cannot exceed the stage value",
+    "parentDecrease": "Substage values cannot exceed the stage value"
+  },
+  "negative": {
+    "past": "Retainer changes apply going forward only",
+    "consent": "Confirm whether the client agreed to the new retainer value",
+    "history": "permission denied for table pm_gantt_value_history"
+  }
+}
