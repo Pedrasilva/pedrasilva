@@ -9861,6 +9861,24 @@ export type Database = {
           },
         ]
       }
+      pm_billing_fiscal_actors: {
+        Row: {
+          granted_at: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pm_billing_groups: {
         Row: {
           created_at: string
@@ -19316,6 +19334,7 @@ export type Database = {
         Args: { _date: string; _user_id: string }
         Returns: number
       }
+      pm_billing_can_act_fiscal: { Args: never; Returns: boolean }
       pm_billing_confirm: { Args: { _items: string[] }; Returns: undefined }
       pm_billing_edit_description: {
         Args: { _description: string; _item: string; _revision: number }
