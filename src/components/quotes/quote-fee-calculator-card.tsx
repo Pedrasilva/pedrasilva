@@ -85,8 +85,10 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
   // every change, debounced. The manual "Save draft" button stays as a
   // visible confirmation, but typing values is enough — no click required.
   const isFirstRender = useRef(true);
+  const reviewInProgress = useRef(false);
   const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   useEffect(() => {
+    if (preview || reviewInProgress.current) return;
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
@@ -107,7 +109,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
       }
     }, 600);
     return () => clearTimeout(handle);
-  }, [inputs, quoteId, qc]);
+  }, [inputs, quoteId, qc, preview]);
 
   const save = useMutation({
     mutationFn: async (apply: boolean) => {
@@ -138,10 +140,13 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
   });
 
   const apply = useMutation({mutationFn:async({action,overwrite,remove,revision}:{action:string;overwrite:boolean;remove:boolean;revision:string})=>{
-    const r=await supabase.rpc('quote_apply_calculator',{_quote_id:quoteId,_inputs:inputs as unknown as import('@/integrations/supabase/types').Json,_revision:revision,_existing_action:action,_overwrite_manual:overwrite,_delete_removed:remove});if(r.error)throw Error(r.error.message);return r.data;
-  },onSuccess:async id=>{setUndoId(id);setPreview(null);await qc.invalidateQueries();onApplied?.(result.finalFee,result.constructionValue,result.feePercentage);toast.success(t('feeCalculator.appliedToast'));},onError:(e:Error)=>toast.error(e.message)});
+    const r=await supabase.rpc('quote_apply_calculator',{_quote_id:quoteId,_inputs:{...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))} as unknown as import('@/integrations/supabase/types').Json,_revision:revision,_existing_action:action,_overwrite_manual:overwrite,_delete_removed:remove});if(r.error)throw Error(r.error.message);return r.data;
+  },onSuccess:async id=>{setUndoId(id);setPreview(null);reviewInProgress.current=false;await qc.invalidateQueries();onApplied?.(result.finalFee,result.constructionValue,result.feePercentage);toast.success(t('feeCalculator.appliedToast'));},onError:(e:Error)=>toast.error(e.message)});
   const review=useMutation({mutationFn:async()=>{
-    const ids=inputs.stages.map((s,i)=>s.id??`legacy-${i}`);
+    reviewInProgress.current=true;
+    const normalized={...inputs,stages:inputs.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))};
+    const saved=await supabase.from('fee_proposals').update({project_fee_calculation:normalized as unknown as import('@/integrations/supabase/types').Json}).eq('id',quoteId);if(saved.error)throw Error(saved.error.message);
+    const ids=normalized.stages.map(s=>s.id);
     const r=await supabase.rpc('quote_calculator_preview',{_quote_id:quoteId,_row_ids:ids});if(r.error)throw Error(r.error.message);return r.data as unknown as CalculatorPreview;
   },onSuccess:p=>{if(calculatorHasConflicts(p))setPreview(p);else apply.mutate({action:'add',overwrite:false,remove:false,revision:p.revision});},onError:(e:Error)=>toast.error(e.message)});
   const undo=useMutation({mutationFn:async()=>{if(!undoId)return;const r=await supabase.rpc('quote_undo_template_import',{_import_id:undoId});if(r.error)throw Error(r.error.message);},onSuccess:async()=>{setUndoId(null);await qc.invalidateQueries();toast.success(t('quoteTemplate.undone'));},onError:(e:Error)=>toast.error(e.message)});
@@ -353,13 +358,13 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
           <Button
             size="sm"
             disabled={busy || result.finalFee <= 0 || Math.abs(stageTotal-1)>0.000001 || inputs.stages.some(s=>!s.name.trim())}
-            onClick={() => {setInputs(p=>({...p,stages:p.stages.map((s,i)=>({...s,id:s.id??`legacy-${i}`}))}));review.mutate();}}
+            onClick={() => review.mutate()}
           >
             {t("feeCalculator.applyToFee")}
           </Button>
         </div>
       </CardContent>
-      <CalculatorApplyDialog key={preview?.revision??'closed'} preview={preview} pending={apply.isPending} onCancel={()=>setPreview(null)} onApply={(action,overwrite,remove)=>{if(preview)apply.mutate({action,overwrite,remove,revision:preview.revision});}}/>
+      <CalculatorApplyDialog key={preview?.revision??'closed'} preview={preview} pending={apply.isPending} onCancel={()=>{reviewInProgress.current=false;setPreview(null);}} onApply={(action,overwrite,remove)=>{if(preview)apply.mutate({action,overwrite,remove,revision:preview.revision});}}/>
     </Card>
   );
 }
