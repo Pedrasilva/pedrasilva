@@ -1,7 +1,8 @@
 ## Current request — final Gantt validation before team use
-- [ ] Repeat retainer, split limits, financial-editor/denied-user and fiscal protection checks on disposable fixtures; fix failures.
-- [ ] Repeat global, project and CRM mouse drag, start, duration, four dependency types and reload persistence.
-- [ ] Report pass/fail matrix, screenshots and changed files; independent cleanup zero, B1 OFF and real-data preservation.
+- [x] Retainer extension/forward values/consent/history and sequential split caps passed on disposable project; report docs/gantt-final-validation-report.md.
+- [x] Global/project/CRM mouse drag, start and duration inputs/reload passed; FS/SS/FF/SF shared-adapter create/remove passed.
+- [ ] Final release evidence incomplete: resize-handle gesture, mouse dependency controls, concurrent splits, financial-only/denied-user UI+server rerun, fiscal frozen-row fixtures, and commercial flows in global/CRM. Not a product decision change; no release-ready claim.
+- [x] Report matrix and screenshots saved; fixture cleanup readbacks and B1 OFF revision 10 confirmed; no application/data correction or DECISIONS change.
 
 ## Current request — delegated project team management
 - [x] Confirm no existing grantable capability; record Luis's decision D32.
@@ -12,7 +13,7 @@
 - [x] Reproduce dependency enum error and linked-stage date rollback on disposable fixture.
 - [x] Fix shared atomic save enum cast with mirrored migration 0278; audit other enum writes; 37 tests pass.
 - [x] CRM/project FS/SS/FF/SF adapter create/delete, mouse drag, start field, duration and reload; screenshots, cleanup zero, B1 OFF. Report docs/shared-gantt-save-regression-report.md.
-- [ ] Global mouse drag/start/duration/reload verification blocked by automated global page becoming unresponsive; shared adapter FS/SS/FF/SF passes. No global UI completion claim.
+- [x] Global mouse drag/start/duration-input/reload passed in final validation; resize-handle and mouse dependency controls remain separately unverified above.
 
 ## Current request — Gantt Phase 2 approved
 - [x] Audited confirmed stage/retainer changes, immutable references, split caps and immediate unfrozen billing reconciliation.
