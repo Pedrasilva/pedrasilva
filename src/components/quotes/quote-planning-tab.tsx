@@ -126,7 +126,7 @@ export function QuotePlanningTab({
           canEditPlanning={canEditPlanning} canSeeFinancials={canSeeFinancials} />
       )}
 
-      {retainerStages.length > 0 && (
+      {!converted && retainerStages.length > 0 && (
         <div className="space-y-2">
           {retainerStages.map((s) => (
             <RetainerStageEditor

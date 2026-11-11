@@ -1,3 +1,4 @@
+import {RetainerSettings} from "./retainer-settings";
 import {retainerEnd,retainerPaymentDates} from "@/lib/projects/retainer-schedule";
 import {useBillingPlan} from "@/lib/finance/use-billing-plan";
 import { PlannerToolbar } from "./planner-toolbar";
@@ -1784,6 +1785,7 @@ function OperationalScheduleAdapter({
           <ResourcePool resources={allResources} collapsed={false} />
         )}
       </PlannerFrame>
+      {stages.filter(s=>s.stage_kind==='retainer_monthly').map(stage=><div key={stage.id} className="border-t border-border py-4"><h3 className="mb-3 text-sm font-semibold">{stage.name}</h3><RetainerSettings stage={stage} scope={projectId} operational readOnly={!canEdit} onMonthlyChange={value=>setPendingCommercial({id:stage.id,value})}/></div>)}
     </div>
   );
 }
