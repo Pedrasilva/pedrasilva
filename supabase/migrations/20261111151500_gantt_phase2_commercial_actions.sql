@@ -15,7 +15,6 @@ CREATE INDEX pm_gantt_value_history_project_idx ON public.pm_gantt_value_history
 CREATE FUNCTION public.pm_gantt_history_immutable() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Commercial history is append-only' USING ERRCODE='42501'; END $$;
 CREATE TRIGGER pm_gantt_history_immutable BEFORE UPDATE OR DELETE ON public.pm_gantt_value_history FOR EACH ROW EXECUTE FUNCTION public.pm_gantt_history_immutable();
 REVOKE ALL ON FUNCTION public.pm_gantt_history_immutable() FROM PUBLIC,anon,authenticated;
-
 CREATE FUNCTION public.pm_gantt_contract_value(_stage uuid) RETURNS numeric LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
  SELECT CASE WHEN public.pm_can_edit_gantt(s.project_id) THEN coalesce(
  (SELECT CASE WHEN count(*)=1 THEN min(b.budget) END FROM pm_project_contract_baseline_stages b JOIN pm_project_contract_baseline h ON h.id=b.baseline_id WHERE h.project_id=s.project_id AND b.live_stage_id=s.id),
@@ -25,7 +24,6 @@ CREATE FUNCTION public.pm_gantt_contract_value(_stage uuid) RETURNS numeric LANG
 $$;
 REVOKE ALL ON FUNCTION public.pm_gantt_contract_value(uuid) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.pm_gantt_contract_value(uuid) TO authenticated,service_role;
-
 CREATE FUNCTION public.pm_gantt_commercial_read(_project uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
 DECLARE stages jsonb; total numeric;
 BEGIN
@@ -36,7 +34,6 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.pm_gantt_commercial_read(uuid) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.pm_gantt_commercial_read(uuid) TO authenticated,service_role;
-
 CREATE FUNCTION public.pm_gantt_record_value(_stage public.pm_stages,_old numeric,_new numeric,_event text,_reason text,_month date DEFAULT NULL) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE actor text;
 BEGIN
@@ -45,9 +42,8 @@ BEGIN
  INSERT INTO pm_gantt_value_history(project_id,stage_id,stage_name,actor_id,actor_name,event_type,old_value,new_value,reason,effective_month) VALUES(_stage.project_id,_stage.id,_stage.name,auth.uid(),coalesce(actor,auth.uid()::text),_event,_old,_new,_reason,_month);
 END $$;
 REVOKE ALL ON FUNCTION public.pm_gantt_record_value(public.pm_stages,numeric,numeric,text,text,date) FROM PUBLIC,anon,authenticated;
-
 CREATE FUNCTION public.pm_gantt_value_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE parent public.pm_stages; sibling_total numeric; parent_id uuid; child_total numeric;
+DECLARE parent public.pm_stages; sibling_total numeric; child_total numeric;
 BEGIN
  IF TG_OP='INSERT' THEN
   NEW.commercial_value_owned:=true;
@@ -80,7 +76,6 @@ BEGIN
 END $$;
 CREATE TRIGGER z2_pm_gantt_new_stage_history AFTER INSERT ON public.pm_stages FOR EACH ROW EXECUTE FUNCTION public.pm_gantt_new_stage_history();
 REVOKE ALL ON FUNCTION public.pm_gantt_value_guard(),public.pm_gantt_new_stage_history() FROM PUBLIC,anon,authenticated;
-
 CREATE FUNCTION public.pm_gantt_payment_amount_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 BEGIN
  IF (NEW.amount_type,NEW.amount_value) IS DISTINCT FROM (OLD.amount_type,OLD.amount_value) AND (OLD.dates_frozen_at IS NOT NULL OR OLD.billing_status::text IN ('issued','paid','cancelled') OR EXISTS(SELECT 1 FROM pm_invoice_items i JOIN pm_invoices inv ON inv.id=i.invoice_id WHERE i.stage_id=OLD.stage_id AND (inv.status::text<>'draft' OR inv.financial_document_id IS NOT NULL))) THEN RAISE EXCEPTION 'Issued invoices and confirmed payments are protected'; END IF;
@@ -88,12 +83,10 @@ BEGIN
 END $$;
 CREATE TRIGGER z3_pm_gantt_payment_amount_guard BEFORE UPDATE ON public.pm_payment_schedule_items FOR EACH ROW EXECUTE FUNCTION public.pm_gantt_payment_amount_guard();
 REVOKE ALL ON FUNCTION public.pm_gantt_payment_amount_guard() FROM PUBLIC,anon,authenticated;
-
 CREATE FUNCTION public.pm_gantt_reconcile_value(_stage uuid,_old numeric,_new numeric) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE s public.pm_stages; rows_ids uuid[]; frozen numeric; weights numeric; n integer; original_n integer; r public.pm_payment_schedule_items; target numeric; used numeric:=0; v numeric;
 BEGIN
  SELECT * INTO s FROM pm_stages WHERE id=_stage;
- -- Splits consume their parent, not a second client fee. Structural containers are different.
  IF s.stage_kind<>'retainer_month' AND s.parent_stage_id IS NOT NULL AND EXISTS(SELECT 1 FROM pm_stages WHERE id=s.parent_stage_id AND coalesce(stage_role,'architecture') NOT IN ('client','supplier_group')) THEN RETURN; END IF;
  WITH RECURSIVE family AS(SELECT id FROM pm_stages WHERE id=_stage UNION ALL SELECT c.id FROM pm_stages c JOIN family f ON c.parent_stage_id=f.id)
  SELECT array_agg(p.id) INTO rows_ids FROM pm_payment_schedule_items p WHERE p.project_id=s.project_id AND p.direction='inflow' AND p.stage_id IN(SELECT id FROM family);
@@ -108,7 +101,6 @@ BEGIN
   IF _new>0 AND coalesce(s.stage_role,'architecture') NOT IN ('client','supplier_group') THEN INSERT INTO pm_payment_schedule_items(project_id,stage_id,label,trigger_type,amount_type,amount_value,expected_invoice_date,expected_payment_date,direction,generator_source,entity_id) VALUES(s.project_id,s.id,s.name,'stage_end','fixed',_new,s.end_date,s.end_date,'inflow','gantt_value',(SELECT entity_id FROM pm_invoice_settings WHERE singleton=true LIMIT 1)); END IF;
   RETURN;
  END IF;
- -- Keep percentage semantics; readers resolve them against current values.
  IF EXISTS(SELECT 1 FROM pm_payment_schedule_items WHERE id=ANY(rows_ids) AND amount_type::text<>'fixed') THEN RAISE EXCEPTION 'Review mixed payment amount types before changing this value'; END IF;
  SELECT coalesce(sum(amount_value) FILTER(WHERE dates_frozen_at IS NOT NULL OR billing_status::text IN ('issued','paid','cancelled') OR EXISTS(SELECT 1 FROM pm_invoice_items i JOIN pm_invoices inv ON inv.id=i.invoice_id WHERE i.stage_id=p.stage_id AND (inv.status::text<>'draft' OR inv.financial_document_id IS NOT NULL))),0) INTO frozen FROM pm_payment_schedule_items p WHERE id=ANY(rows_ids);
  target:=coalesce(target,_new)-frozen;
@@ -125,7 +117,6 @@ BEGIN
  PERFORM public.pm_invoice_regroup('pm_payment_schedule_items',s.project_id);
 END $$;
 REVOKE ALL ON FUNCTION public.pm_gantt_reconcile_value(uuid,numeric,numeric) FROM PUBLIC,anon,authenticated;
-
 CREATE FUNCTION public.pm_gantt_change_value(_stage uuid,_expected numeric,_value numeric,_reason text,_responsibility boolean,_client_agreed boolean DEFAULT false,_effective_month date DEFAULT NULL) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE s public.pm_stages; c public.pm_stages; old_total numeric; new_total numeric; m date;
 BEGIN
@@ -161,7 +152,6 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.pm_gantt_change_value(uuid,numeric,numeric,text,boolean,boolean,date) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.pm_gantt_change_value(uuid,numeric,numeric,text,boolean,boolean,date) TO authenticated,service_role;
-
 CREATE FUNCTION public.pm_gantt_extend_retainer(_stage uuid,_months integer) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE s public.pm_stages; child public.pm_stages; d date; n integer; old_budget numeric; next_order integer;
 BEGIN
