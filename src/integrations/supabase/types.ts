@@ -19315,6 +19315,7 @@ export type Database = {
         Args: { _date: string; _user_id: string }
         Returns: number
       }
+      pm_billing_confirm: { Args: { _items: string[] }; Returns: undefined }
       pm_billing_edit_description: {
         Args: { _description: string; _item: string; _revision: number }
         Returns: undefined
