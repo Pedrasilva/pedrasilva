@@ -289,6 +289,15 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Verificação:** O cálculo HR atual de Projetos devolve 11 pessoas com preços e exclui Tatiana; a quota Backoffice é distribuída por FTE. O caminho de preços de propostas, possíveis overrides e a análise interna histórica de Backoffice são ressalvas separadas no relatório, não corrigidas nem apagadas por este registo.
 - **Relatórios:** [Verificação Tatiana/Backoffice](tatiana-backoffice-costing-verification-2026-11-11.md), [11 preços de projeto já verificados](project-financials-approved-fix-report.md).
 
+### D35 — HR completo limitado a Luis, Irene e Tatiana
+- **Data:** 11/11/2026, confirmado por Luis às 21:20 UTC.
+- **Área:** HR / privacidade / permissões.
+- **Estado:** Regra confirmada; execução condicionada à confirmação da lista exata de perdas por conta. B1 permanece OFF.
+- **Decisão:** HR completo — fichas de todos os colaboradores, salários/compensação, benefícios, custos de Backoffice e saldos de férias — fica limitado a Luis Pedra Silva, Irene Cunha e Tatiana Shchenina. Todas as outras pessoas, incluindo Ricardo Conceição, veem apenas a sua própria ficha HR, remuneração e férias. Preservar acesso próprio, timesheets, projetos e pedidos de férias. Os custos/preços horários derivados que sejam autorizados pelo acesso financeiro a um projeto mantêm-se independentes; esta regra não altera D09 nem os valores calculados.
+- **Condição de execução:** Luis autoriza a remoção dos direitos HR das restantes pessoas, mas antes exige lista exata por conta, papel, exceção e concessão antiga, com direitos perdidos e preservados; aplicar só depois de confirmar essa lista. Nenhuma outra alteração de papel/permissão sem aprovação explícita por pessoa. Primeiro entregar o retrato pessoa × ação × âmbito × origem e parar; em paralelo investigar leituras diretas com uma conta PSA descartável sem HR/Finance, eliminá-la e propor regras mínimas sem as aplicar. As fases posteriores da consolidação não estão autorizadas por esta aprovação da direção.
+- **Motivo:** Proteger os dados pessoais HR sem retirar autonomia de trabalho nem os custos derivados autorizados de projetos.
+- **Relatórios:** [Investigação inicial de permissões](../.lovable/plan.md); retrato detalhado e investigação de exposição serão entregues para revisão, não são decisões adicionais.
+
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.
