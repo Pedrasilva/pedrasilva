@@ -1,4 +1,18 @@
 {
+  "letter": {
+    "title": "Letter",
+    "settings": "Letter template and signatory",
+    "signature": "Luis’s signature image",
+    "draftAi": "Draft with AI",
+    "figures": "Proposal figures used",
+    "replaceTitle": "Replace the letter draft?",
+    "replaceHint": "This replaces the current letter text with an AI draft for you to review. Nothing is sent.",
+    "imageLimit": "Use a PNG or JPEG image up to 1 MB.",
+    "cover": "Cover",
+    "content": "Content",
+    "bodyY": "Body position Y",
+    "signatureWidth": "Signature width"
+  },
   "masterPage": {
     "title": "Master page",
     "allPages": "All pages",

@@ -1,3 +1,5 @@
+import { DEFAULT_LETTER_SETTINGS } from "@/lib/psa-proposal/letter";
+import { useProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import { BLOCK_UI_KEYS } from "./editor-labels";
 import { useTranslation } from "react-i18next";
 import uiI18n from "@/i18n/index";
@@ -31,6 +33,7 @@ export function BlockLibraryPanel({
   onInserted?: (id: string) => void;
 }) {
   useTranslation();
+  const proposal = useProposal(proposalId);
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
   const live = useLiveQuoteSnapshot(quoteIdHint ?? null);
@@ -47,6 +50,7 @@ export function BlockLibraryPanel({
   const afterOrder = selectedBlock ? selectedBlock.sort_order : lastOrder;
 
   const manualEntries: PsaLibraryEntry[] = [
+    {id:'letter',kind:'letter',label:'Carta',default_title:'Carta',default_content_rich:{html:(proposal.data?.style_settings.letterSettings??DEFAULT_LETTER_SETTINGS).templates[proposal.data?.language??'pt-PT']??DEFAULT_LETTER_SETTINGS.templates['pt-PT'],letterSettings:proposal.data?.style_settings.letterSettings??DEFAULT_LETTER_SETTINGS},default_source_type:'mixed',default_source_ref:{},default_contract_relevance:'proposal_only',sort_hint:1,is_system:false},
     {
       id: "custom",
       kind: "custom_text",
