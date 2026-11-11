@@ -16,19 +16,22 @@ export function ImportFullTemplateDialog({quoteId,open,onOpenChange}:{quoteId:st
  const [template,setTemplate]=useState('');const [selection,setSelection]=useState({...defaultTemplateSelection});
  const [confirm,setConfirm]=useState(false);const [undoId,setUndoId]=useState<string|null>(null);
  const templates=useQuoteTemplates();
+ const lastImport=useQuery({queryKey:['last-template-import',quoteId],enabled:open,queryFn:async()=>{const r=await supabase.from('quote_template_imports').select('id').eq('quote_id',quoteId).is('undone_at',null).order('created_at',{ascending:false}).limit(1);if(r.error)throw Error(r.error.message);return r.data[0]?.id??null;}});
+ const activeUndoId=undoId??lastImport.data;
  const preview=useQuery({queryKey:['full-template-preview',quoteId,template],enabled:open && !!template,queryFn:async()=>{
   const r=await supabase.rpc('quote_template_preview',{_quote_id:quoteId,_template_id:template});if(r.error)throw Error(r.error.message);return r.data as unknown as TemplatePreview;
  }});
  const refresh=()=>qc.invalidateQueries();
  const apply=useMutation({mutationFn:async()=>{
   if(!preview.data)throw Error(t('quoteTemplate.previewRequired'));
-  const r=await supabase.rpc('quote_import_full_template',{_quote_id:quoteId,_template_id:template,_sections:selection,_revision:preview.data.revision});if(r.error)throw Error(r.error.message);return r.data;
+  const r=await supabase.rpc('quote_import_full_template_v2',{_quote_id:quoteId,_template_id:template,_sections:selection,_revision:preview.data.revision});if(r.error)throw Error(r.error.message);return r.data;
  },onSuccess:async id=>{setUndoId(id);setConfirm(false);await refresh();toast.success(t('quoteTemplate.imported'));},onError:(e:Error)=>toast.error(e.message)});
- const undo=useMutation({mutationFn:async()=>{if(!undoId)return;const r=await supabase.rpc('quote_undo_template_import',{_import_id:undoId});if(r.error)throw Error(r.error.message);},onSuccess:async()=>{setUndoId(null);await refresh();toast.success(t('quoteTemplate.undone'));},onError:(e:Error)=>toast.error(e.message)});
+ const undo=useMutation({mutationFn:async()=>{if(!activeUndoId)return;const r=await supabase.rpc('quote_undo_template_import',{_import_id:activeUndoId});if(r.error)throw Error(r.error.message);},onSuccess:async()=>{setUndoId(null);await refresh();toast.success(t('quoteTemplate.undone'));},onError:(e:Error)=>toast.error(e.message)});
  const replacements=preview.data?replacedSections(preview.data,selection):[];
  const pending=apply.isPending||undo.isPending;
  return <Dialog open={open} onOpenChange={v=>{onOpenChange(v);setConfirm(false);}}><DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto"><DialogHeader><DialogTitle>{t('quoteEditor.importTemplate')}</DialogTitle><DialogDescription>{t('quoteTemplate.relativeHint')}</DialogDescription></DialogHeader>
- {undoId?<><p>{t('quoteTemplate.imported')}</p><p className="text-sm text-muted-foreground">{t('quoteTemplate.undoHint')}</p><Button variant="outline" onClick={()=>undo.mutate()} disabled={pending}>{t('quoteTemplate.undo')}</Button></>:<>
+ {activeUndoId && <Button variant="outline" onClick={()=>undo.mutate()} disabled={pending}>{t('quoteTemplate.undo')}</Button>}
+ {undoId?<><p>{t('quoteTemplate.imported')}</p><p className="text-sm text-muted-foreground">{t('quoteTemplate.undoHint')}</p></>:<>
  <Select value={template} onValueChange={v=>{setTemplate(v);setConfirm(false);}}><SelectTrigger aria-label={t('quoteTemplate.choose')}><SelectValue placeholder={t('quoteTemplate.choose')}/></SelectTrigger><SelectContent>{templates.data?.filter(x=>x.is_active).map(x=><SelectItem key={x.id} value={x.id}>{x.name} · {t('quoteEditor.stageCount',{count:x.stages_count})} · {t('quoteEditor.blockCount',{count:x.blocks_count})}</SelectItem>)}</SelectContent></Select>
  {preview.isFetching && <p>{t('common:loading')}</p>}{preview.error && <p className="text-destructive">{preview.error.message}</p>}
  {preview.data && <>{preview.data.version<2 && <p className="text-sm text-destructive">{t('quoteTemplate.legacyHint')}</p>}
