@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
-import { resolveMaster, pageVariant, masterVariables, type MasterPage } from '@/lib/psa-proposal/master-page';
+import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayout } from '@/lib/psa-proposal/master-page';
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 
 const inlinedImages = new Map<string, Promise<string>>();
@@ -26,7 +26,7 @@ function inlineImage(url: string): Promise<string> {
 let paginationQueue: Promise<void> = Promise.resolve();
 type PagedListeners = { chunker?: { pages?: Array<{ removeListeners: () => void }> } };
 
-function collectDocumentStyles(source: HTMLDivElement, furniture: { header: boolean; footer: boolean }): Array<Record<string, string>> {
+function collectDocumentStyles(source: HTMLDivElement, furniture: { header: boolean; footer: boolean }, typedMaster?: MasterPage): Array<Record<string, string>> {
   const styles: Array<Record<string, string>> = [];
 
   for (const sheet of Array.from(document.styleSheets)) {
@@ -39,7 +39,7 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       continue;
     }
     try {
-      const css = Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
+      const css = Array.from(sheet.cssRules).map((rule) => rule.cssText.replace(/@media\s*\(/g, "@media all and (")).join("\n");
       if (css) styles.push({ [sheet.href ?? window.location.href]: css });
     } catch {
       // Cross-origin stylesheets cannot be read. The proposal's layout CSS is
@@ -121,6 +121,19 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
     `,
   });
 
+  if (typedMaster) {
+    const cover=typeLayout(typedMaster,'cover'),letter=typeLayout(typedMaster,'letter');
+    const margin=(m:typeof letter.margins)=>`${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm`;
+    styles.push({'page-types.css':`
+      @page psa-cover {size:A4;margin:${margin(cover.margins)};@top-center{content:none}@bottom-left{content:none}@bottom-right{content:none}}
+      @page psa-letter {size:A4;margin:${margin(letter.margins)};@top-center{content:none}@bottom-left{content:none}@bottom-right{content:none}}
+      [data-page-type="cover"]{page:psa-cover;break-before:page;break-after:page}
+      [data-page-type="letter"]{page:psa-letter;break-before:page;break-after:page}
+      [data-page-type="cover"] .proposal-cover{min-height:${297-cover.margins.top-cover.margins.bottom}mm;box-sizing:border-box;padding-top:${cover.bodyY}mm}
+      .psa-letter-letterhead{display:flex;justify-content:space-between;align-items:start;font-size:9pt}
+      .psa-letter-page{font-size:11pt;line-height:1.55}
+    `});
+  }
   return styles;
 }
 
@@ -224,10 +237,11 @@ export function PaginatedPreview({
         if (!frameDoc || !frameWindow.Paged) throw new Error("Pagination frame unavailable");
         const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
         if (!frameTarget) throw new Error("Pagination target unavailable");
+        const typed = !!masterNode?.dataset.pageTypesEnabled;
         const styles = collectDocumentStyles(source, {
           header: runningElements.some((element) => element.classList.contains("proposal-page-header")),
           footer: runningElements.some((element) => element.classList.contains("proposal-page-footer")),
-        });
+        }, typed ? master : undefined);
         for (const entry of styles) {
           const style = frameDoc.createElement("style");
           style.textContent = Object.values(entry).join("\n");
@@ -255,11 +269,14 @@ export function PaginatedPreview({
           pageBox.classList.add("proposal-print-document", "proposal-generated-pagebox");
           pageBox.classList.add('proposal-master-document');
           pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
-          const variant = pageVariant(master, index === 0);
+          const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
+          pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
+          const variant = type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
           Object.entries(masterVariables(variant)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
+            if (typed && type !== "content") return;
             const selector = element.classList.contains("proposal-page-header")
               ? ".pagedjs_margin-top-center .pagedjs_margin-content"
               : ".pagedjs_margin-bottom-left .pagedjs_margin-content";
@@ -293,13 +310,19 @@ export function PaginatedPreview({
         const sheetGap = rootStyle.getPropertyValue("--muted").trim() || "#e5e5e5";
         const sheetEdge = rootStyle.getPropertyValue("--border").trim() || "#d4d4d4";
         const labelInk = rootStyle.getPropertyValue("--muted-foreground").trim() || "#737373";
-        frameTarget.querySelectorAll<HTMLElement>(".pagedjs_page").forEach((page) => {
-          page.setAttribute("data-page-label", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
+        const pages=Array.from(frameTarget.querySelectorAll<HTMLElement>('.pagedjs_page'));
+        const contentTotal=typed?pages.filter(p=>p.dataset.pageType==='content').length:result.total;
+        let contentNumber=0;
+        const anchorPages=new Map<string,number>();
+        pages.forEach(page=>{if(!typed||page.dataset.pageType==='content'){contentNumber++;page.dataset.contentNumber=String(contentNumber);page.querySelectorAll<HTMLElement>('[id]').forEach(n=>anchorPages.set(n.id,contentNumber));}});
+        pages.forEach((page) => {
+          page.setAttribute("data-page-label", `${page.dataset.contentNumber ?? page.dataset.pageType ?? ""}${page.dataset.contentNumber ? ` / ${contentTotal}` : ""}`);
           const footerNumber = page.querySelector<HTMLElement>(".pagedjs_margin-bottom-right .pagedjs_margin-content");
           if (footerNumber && runningElements.some((element) => element.classList.contains("proposal-page-footer"))) {
-            footerNumber.setAttribute("data-footer-page", `${page.dataset.pageNumber ?? ""} / ${result.total}`);
+            footerNumber.setAttribute("data-footer-page", `${page.dataset.contentNumber ?? page.dataset.pageType ?? ""}${page.dataset.contentNumber ? ` / ${contentTotal}` : ""}`);
           }
         });
+        if(typed) frameTarget.querySelectorAll<HTMLAnchorElement>('.proposal-toc-link').forEach(a=>{const n=anchorPages.get(a.hash.slice(1));if(n){const label=frameDoc.createElement('span');label.textContent=String(n);label.className='ml-auto';a.appendChild(label);}});
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}

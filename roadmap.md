@@ -1,3 +1,9 @@
+## Current request — proposal Cover / Letter / Content
+- [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
+- [x] New proposals start with editable/removable Cover and Letter before index; existing proposals unchanged.
+- [ ] Live-token letter editor and authenticated reviewed AI draft; content-only numbering and same screen/PDF output.
+- [ ] Complete PDF parity and remaining UI/creation/override tests; browser sheets, original equality/cleanup and B1 OFF passed. Report: docs/proposal-cover-letter-report.md.
+
 ## Current request — Permissions v2 UX
 - [x] Searchable bilingual/accent-insensitive permission and scope dropdowns; account search keyboard support; existing effective-permission tags.
 - [x] Fix both broken catalogue keys; authenticated read-only EN/PT browser checks, two tests, i18n/parity/build OK; report docs/permissions-v2-ux-report.md. No data/access/B1 changes.

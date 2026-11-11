@@ -2,6 +2,7 @@
 import type { PsaBlockType, PsaContractRelevance, PsaSourceType } from "@/lib/psa-proposal/types";
 export const BLOCK_UI_KEYS: Record<PsaBlockType, string> = {
   cover: "crm:composer.blocks.cover",
+  letter: "common:letter.title",
   index: "crm:composer.blocks.index",
   about: "crm:composer.blocks.about",
   scope: "crm:composer.blocks.scope",

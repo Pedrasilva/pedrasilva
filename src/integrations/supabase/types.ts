@@ -14766,6 +14766,36 @@ export type Database = {
         }
         Relationships: []
       }
+      psa_letter_settings: {
+        Row: {
+          id: boolean
+          revision: number
+          signatory_name: string
+          signature_data: string | null
+          templates: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          revision?: number
+          signatory_name?: string
+          signature_data?: string | null
+          templates?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          revision?: number
+          signatory_name?: string
+          signature_data?: string | null
+          templates?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       psa_master_page_defaults: {
         Row: {
           id: boolean
@@ -20130,6 +20160,7 @@ export type Database = {
         | "gantt_partial"
         | "billable_hourly_rate"
         | "image"
+        | "letter"
       psa_contract_relevance:
         | "proposal_only"
         | "contract_relevant"
@@ -20647,6 +20678,7 @@ export const Constants = {
         "gantt_partial",
         "billable_hourly_rate",
         "image",
+        "letter",
       ],
       psa_contract_relevance: [
         "proposal_only",

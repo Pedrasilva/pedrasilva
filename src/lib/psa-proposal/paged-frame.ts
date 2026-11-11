@@ -20,7 +20,9 @@ export function installPagedFrame(frame: HTMLIFrameElement): PagedFrameWindow {
   base.href = document.baseURI;
   doc.head.appendChild(base);
   const script = doc.createElement("script");
-  script.textContent = pagedRuntime;
+  // CSS range-query preludes can be Raw in Paged.js' older parser.
+  // Treat unsupported media as non-print instead of crashing all pagination.
+  script.textContent = pagedRuntime.replaceAll('media.includes(', '(media || []).includes(');
   doc.head.appendChild(script);
   if (!win.Paged) throw new Error("Proposal pagination runtime unavailable");
   return win;

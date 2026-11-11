@@ -8,7 +8,7 @@
 ## Interface
 - No editor da página-mestre, seletor **Capa / Carta / Conteúdo**, com os mesmos controlos de posição, dimensões e pré-visualização.
 - **Capa:** página inteira, imagem opcional do projeto/cliente, título, cliente, número e data; sem cabeçalho ou rodapé.
-- **Carta:** logo, morada PSA, data, nome/morada do cliente, saudação, texto e assinatura/nome de Luis; sem número de página. Inserção explícita após a capa, sem acrescentar blocos a propostas existentes automaticamente.
+- **Carta:** logo, morada PSA, data, nome/morada do cliente, saudação, texto e assinatura/nome de Luis; sem número de página. Propostas novas começam com Capa e Carta editáveis/removíveis, antes do índice; propostas existentes não recebem blocos automaticamente.
 - **Conteúdo:** preservar a página-mestre atual. Numeração começa em **1** na primeira página de conteúdo; o total e as referências do índice contam apenas páginas de conteúdo. Se a carta ocupar mais de uma página, as suas páginas continuam sem numeração e excluídas do total.
 - No bloco Carta: editor rico, inserção de tokens, valores utilizados e botão **Rascunho com IA**. Gerar na língua da proposta, não na língua da interface. Confirmar antes de substituir texto já editado; não enviar nada.
 
@@ -23,4 +23,4 @@
 - Verificar que a proposta original permanece idêntica, eliminar a cópia e confirmar B1 OFF. Não testar uploads/predefinições reais do atelier: usar configurações isoladas descartáveis.
 - Após aprovação, acrescentar estas decisões a `docs/DECISIONS.md`, mantendo D14–D17 e assinalando apenas o âmbito substituído do modelo de primeira página. Entregar relatório com capturas, resultados e ficheiros alterados.
 
-**Aguardar o OK de Luis antes de implementar.**
+**Aprovado por Luis em 11/11/2026 às 17:35 UTC, incluindo os dois blocos iniciais nas propostas novas.**

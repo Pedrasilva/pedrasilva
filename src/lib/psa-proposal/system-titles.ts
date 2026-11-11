@@ -15,6 +15,7 @@ type Pair = { en: string; pt: string; aliases?: string[] };
 
 export const SYSTEM_BLOCK_TITLES: Record<string, Pair> = {
   cover: { en: "Cover", pt: "Capa" },
+  letter: { en: "Letter", pt: "Carta" },
   index: { en: "Index", pt: "Índice", aliases: ["Contents", "Table of Contents"] },
   about: { en: "About PSA", pt: "Sobre a PSA" },
   scope: { en: "Scope & Project Description", pt: "Âmbito e Descrição do Projeto", aliases: ["Scope and Project Description"] },

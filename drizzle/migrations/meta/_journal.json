@@ -1961,6 +1961,13 @@
       "when": 1794414619738,
       "tag": "0279_project_team_management_capability",
       "breakpoints": true
+    },
+    {
+      "idx": 280,
+      "version": "7",
+      "when": 1794418623502,
+      "tag": "0280_proposal_letter_settings",
+      "breakpoints": true
     }
   ]
 }

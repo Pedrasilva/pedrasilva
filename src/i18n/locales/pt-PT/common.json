@@ -1,4 +1,18 @@
 {
+  "letter": {
+    "title": "Carta",
+    "settings": "Modelo da carta e signatário",
+    "signature": "Imagem da assinatura de Luis",
+    "draftAi": "Rascunho com IA",
+    "figures": "Valores da proposta utilizados",
+    "replaceTitle": "Substituir o rascunho da carta?",
+    "replaceHint": "O texto atual será substituído por um rascunho de IA para rever. Nada será enviado.",
+    "imageLimit": "Use uma imagem PNG ou JPEG até 1 MB.",
+    "cover": "Capa",
+    "content": "Conteúdo",
+    "bodyY": "Posição Y do texto",
+    "signatureWidth": "Largura da assinatura"
+  },
   "masterPage": {
     "title": "Página-mestre",
     "allPages": "Todas as páginas",

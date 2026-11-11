@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from '@/components/ui/dialog';
 import { toast } from '@/lib/toast';
 import psaLogo from '@/assets/logotipo-psa.jpg.asset.json';
-import { resolveMaster, pageVariant, masterVariables, snapMm, validMaster, type MasterPage, type MasterLogo } from '@/lib/psa-proposal/master-page';
+import { resolveMaster, pageVariant, masterVariables, snapMm, validMaster, type MasterPage, type MasterLogo, typeLayout } from '@/lib/psa-proposal/master-page';
 import { useMasterDefault, useSaveMasterDefault } from '@/lib/psa-proposal/use-master-page';
 import { useUpdateProposal } from '@/lib/psa-proposal/use-psa-proposal';
 import type { PsaProposal } from '@/lib/psa-proposal/types';
@@ -18,11 +18,14 @@ import type { PsaProposal } from '@/lib/psa-proposal/types';
 export function MasterPageEditor({ initial, onSave, onReset, saving = false, customized = false }: { initial: MasterPage; onSave: (m: MasterPage) => Promise<unknown>; onReset?: () => void; saving?: boolean; customized?: boolean }) {
   const { t } = useTranslation('common');
   const [m, setM] = useState(() => structuredClone(initial));
+  const [pageType,setPageType]=useState<'content'|'cover'|'letter'>('content');
   const [first, setFirst] = useState(false);
   const [zoom, setZoom] = useState('1');
   const sheet = useRef<HTMLDivElement>(null);
-  const current = pageVariant(m, first);
-  const patchLogo = (p: Partial<MasterLogo>) => setM(prev => first && prev.firstPage?.enabled ? { ...prev, firstPage: { ...prev.firstPage, logo: { ...prev.firstPage.logo, ...p } } } : { ...prev, logo: { ...prev.logo, ...p } });
+  const layout=pageType==='content'?null:typeLayout(m,pageType);
+  const current = layout?{...m,margins:layout.margins,logo:layout.logo,header:{...m.header,show:pageType==='letter'},footer:{...m.footer,show:false}}:pageVariant(m, first);
+  const patchLayout=(patch:Partial<NonNullable<typeof layout>>)=>{if(pageType==='content')return;setM(prev=>({...prev,pageTypes:{cover:typeLayout(prev,'cover'),letter:typeLayout(prev,'letter'),[pageType]:{...typeLayout(prev,pageType),...patch}}}));};
+  const patchLogo = (p: Partial<MasterLogo>) => layout?patchLayout({logo:{...layout.logo,...p}}):setM(prev => first && prev.firstPage?.enabled ? { ...prev, firstPage: { ...prev.firstPage, logo: { ...prev.firstPage.logo, ...p } } } : { ...prev, logo: { ...prev.logo, ...p } });
   const field = (key: string, value: number, change: (v: number) => void, unit = 'mm') => <div className="space-y-1"><Label htmlFor={`master-${key}`}>{t(`masterPage.${key}`)} ({unit})</Label><Input id={`master-${key}`} type="number" step="0.1" value={Math.round(value * 100) / 100} onChange={e => change(Number(e.target.value))} /></div>;
   function startDrag(event: React.PointerEvent<HTMLDivElement>, kind: 'logo' | 'contact') {
     const bounds = sheet.current?.getBoundingClientRect();
@@ -42,6 +45,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
   }
   return <div className="master-editor">
     <div className="flex flex-wrap items-center gap-2 border-b pb-3">
+      {(['cover','letter','content'] as const).map(type=><Button key={type} variant={pageType===type?'default':'outline'} onClick={()=>{setPageType(type);setFirst(false);}}>{t(`letter.${type==='letter'?'title':type}`)}</Button>)}
       <Button variant={!first ? 'default' : 'outline'} onClick={() => setFirst(false)}>{t('masterPage.allPages')}</Button>
       <Button variant={first ? 'default' : 'outline'} onClick={() => setFirst(true)}>{t('masterPage.firstPage')}</Button>
       <Select value={zoom} onValueChange={setZoom}><SelectTrigger className="w-24" aria-label={t('masterPage.zoom')}><SelectValue /></SelectTrigger><SelectContent>{['0.5','0.75','1'].map(v => <SelectItem key={v} value={v}>{Number(v)*100}%</SelectItem>)}</SelectContent></Select>
@@ -57,6 +61,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
         </div>
       </div></div>
       <div className="master-controls space-y-4">
+        {layout&&<><h3>{t('masterPage.margins')}</h3><div className="grid grid-cols-2 gap-2">{(['top','bottom','left','right'] as const).map(k=><div key={k}>{field(k,layout.margins[k],v=>patchLayout({margins:{...layout.margins,[k]:v}}))}</div>)}</div><Label>{t('letter.bodyY')}</Label><Input type="number" value={layout.bodyY} onChange={e=>patchLayout({bodyY:Number(e.target.value)})}/><Label>{t('letter.signatureWidth')}</Label><Input type="number" value={layout.signatureWidth} onChange={e=>patchLayout({signatureWidth:Number(e.target.value)})}/></>}
         {first && <div className="flex items-center justify-between"><Label>{t('masterPage.useFirstPage')}</Label><Switch checked={m.firstPage?.enabled ?? false} onCheckedChange={enabled => setM(prev => ({ ...prev, firstPage: { enabled, showHeader: prev.firstPage?.showHeader ?? prev.header.show, showFooter: prev.firstPage?.showFooter ?? prev.footer.show, logo: prev.firstPage?.logo ?? { ...prev.logo } } }))} /></div>}
         <fieldset disabled={first && !m.firstPage?.enabled} className="space-y-4">
           {!first && <><h3 className="font-semibold">{t('masterPage.margins')}</h3><div className="grid grid-cols-2 gap-2">{(['top','bottom','left','right'] as const).map(k => <div key={k}>{field(k, m.margins[k], v => setM(prev => ({ ...prev, margins: { ...prev.margins, [k]: v } })))}</div>)}</div></>}
@@ -79,7 +84,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
 export function ProposalMasterButton({ proposal, readOnly = false }: { proposal: PsaProposal; readOnly?: boolean }) {
   const { t } = useTranslation('common'); const [open, setOpen] = useState(false);
   const update = useUpdateProposal(proposal.id); const defaults = useMasterDefault();
-  const save = async (master: MasterPage, customized = true) => { await update.mutateAsync({ style_settings: { ...proposal.style_settings, masterPage: master, masterRevision: defaults.data?.revision ?? 0, masterCustomized: customized } }); setOpen(false); };
+  const save = async (master: MasterPage, customized = true) => { await update.mutateAsync({ style_settings: { ...proposal.style_settings, pageTypesEnabled:true, masterPage: master, masterRevision: defaults.data?.revision ?? 0, masterCustomized: customized } }); setOpen(false); };
   return <><Button variant="outline" size="sm" disabled={readOnly} onClick={() => setOpen(true)}><LayoutTemplate className="mr-2 h-4 w-4" />{t('masterPage.title')}</Button><Dialog open={open} onOpenChange={setOpen}><DialogContent className="master-dialog"><DialogHeader><DialogTitle>{t('masterPage.title')}</DialogTitle></DialogHeader>{open && <MasterPageEditor initial={resolveMaster(proposal.style_settings)} customized={proposal.style_settings.masterCustomized !== false} saving={update.isPending} onSave={m => save(m)} onReset={defaults.data ? () => void save(defaults.data.template, false).catch(e => toast.error(e.message)) : undefined} />}</DialogContent></Dialog></>;
 }
 
