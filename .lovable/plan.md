@@ -57,7 +57,7 @@ Datas seguem o Gantt vivo; exceções manuais auditadas prevalecem até serem re
 
 Selecionar **duas ou mais linhas de entrada do mesmo projeto**, não emitidas/pagas, e confirmar uma única fatura prevista com descrição combinada editável. Conservar cada marco/valor/regra por baixo do grupo, sem apagar linhas.
 
-Proposta de data inicial do grupo: **a mais tardia das datas dos marcos selecionados**, exibida na pré-visualização e editável. Mantém-se o detalhe de IVA por linha; nunca fazer média de taxas nem misturar entidades/clientes/moedas/condições incompatíveis. Uma só linha visível na fila Finance, sem duplicar os membros nos totais.
+Data proposta do grupo: **a mais tardia dos marcos**, pré-visualizada e editável. Mantém-se o detalhe de IVA por linha; nunca fazer média de taxas nem misturar entidades/clientes/moedas/condições incompatíveis. Uma só linha visível na fila Finance, sem duplicar os membros nos totais.
 
 Desfazer antes da emissão repõe os marcos e descrições originais, mantendo os valores/datas vivos entretanto recalculados. Junções manuais não são desfeitas pelo agrupador automático. Qualquer alteração relevante invalida confirmação anterior, sem apagar auditoria. Depois de emitida, não há desfazer nem reatribuição fiscal automática.
 
@@ -87,7 +87,7 @@ Não codificar nomes/emails como autorização. Antes de restringir atos fiscais
 
 A fila global reutiliza a mesma projeção de Faturação: grupos, valores atuais, descrição, prontidão e avisos iguais nos dois ecrãs. Preservar isolamento por projeto/entidade e previsão de recebimento distinta da data de emissão.
 
-Reservar no modelo a ligação do grupo ao documento, linhas detalhadas, revisão confirmada, origem e campos externos existentes. Acrescentar apenas o que faltar para idempotência, estado externo e evidência de envio (data/destinatário/resultado/erro). **Emitida não significa enviada**: são factos separados. Uma futura ação InvoiceXpress poderá emitir e enviar com esses dados; nenhuma credencial, chamada, botão funcional, emissão ou email será construída agora.
+Reservar ligação grupo/documento, linhas, revisão, origem e campos externos. Acrescentar apenas o que faltar para idempotência, estado externo e evidência de envio (data/destinatário/resultado/erro). **Emitida não significa enviada**: são factos separados. Uma futura ação InvoiceXpress poderá emitir e enviar com esses dados; nenhuma credencial, chamada, botão funcional, emissão ou email será construída agora.
 
 ## 4. Detalhes técnicos e implementação após OK
 
