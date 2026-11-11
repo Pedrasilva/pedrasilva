@@ -1,6 +1,7 @@
 -- Disposable, rolled-back database verification. No existing user permission is changed.
 BEGIN;
 DO $$
+#variable_conflict use_variable
 DECLARE
  admin_id uuid;
  actor uuid := gen_random_uuid();
