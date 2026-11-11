@@ -16,6 +16,7 @@ export type PsaProposalStatus =
 
 export type PsaBlockType =
   | "cover"
+  | "letter"
   | "index"
   | "about"
   | "scope"
@@ -62,6 +63,8 @@ export type PsaContractRelevance =
   | "internal_only";
 
 export interface PsaProposalStyleSettings {
+  pageTypesEnabled?: boolean;
+  letterSettings?: import('./letter').LetterSettings;
   masterPage?: import('./master-page').MasterPage;
   masterRevision?: number;
   masterCustomized?: boolean;

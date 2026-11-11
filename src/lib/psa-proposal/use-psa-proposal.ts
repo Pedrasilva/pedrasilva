@@ -7,6 +7,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_LETTER_SETTINGS } from './letter';
 import { useHistoricalRevision } from "./revision-context";
 import type {
   PsaLibraryEntry,
@@ -131,7 +132,13 @@ export function useCreateProposal() {
         .select("*")
         .order("sort_hint", { ascending: true });
       if (libErr) throw libErr;
-      const seed = (lib ?? []).map((row: PsaLibraryEntry, idx: number) => ({
+      const settings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
+      const rows = [
+        {kind:'cover',default_title:'Capa',default_source_type:'mixed',default_source_ref:{},default_content_rich:{},default_contract_relevance:'proposal_only'},
+        {kind:'letter',default_title:'Carta',default_source_type:'mixed',default_source_ref:{},default_content_rich:{html:settings.templates[proposal.language] ?? DEFAULT_LETTER_SETTINGS.templates[proposal.language==='en'?'en':'pt-PT'],letterSettings:settings},default_contract_relevance:'proposal_only'},
+        ...(lib ?? []).filter((row:PsaLibraryEntry)=>row.kind!=='cover' && row.kind!=='letter'),
+      ];
+      const seed = rows.map((row: PsaLibraryEntry, idx: number) => ({
         proposal_id: proposal.id,
         sort_order: (idx + 1) * 10,
         block_type: row.kind,
@@ -290,6 +297,7 @@ export function useReorderBlocks(proposalId: string | undefined) {
 
 export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   cover: "Capa",
+  letter: "Carta",
   index: "Índice",
   about: "Sobre a PSA",
   scope: "Âmbito",
