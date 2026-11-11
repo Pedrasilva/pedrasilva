@@ -1,7 +1,7 @@
 ## Current request — approved permissions step 1 and isolated exposure investigation
-- [ ] Record confirmed full-HR restriction to Luis, Irene and Tatiana; B1 OFF, no real-account changes.
-- [ ] Deliver person × action × scope × origin and exact proposed losses; preserve own HR/pay/leave requests, timesheets/projects; wait for Luis's confirmation.
-- [ ] Create authorized disposable PSA staff account without HR/Finance, test direct reads, remove it and confirm cleanup; propose minimal policies only, no policy changes.
+- [x] Record confirmed full-HR restriction D35 to Luis, Irene and Tatiana; B1 OFF, no real-account changes.
+- [x] Deliver 698-row person × action × scope × origin and exact proposed losses; preserve own HR/pay/leave requests, timesheets/projects; execution waits for Luis's confirmation.
+- [x] Disposable Architect account without HR/Finance tested direct reads: salaries/fiches/benefit balances/objectives blocked; Backoffice costs and 89 approved leave rows visible. Restrictive PSA policies confirmed, correcting initial inference. Cleanup independently zero; minimal policies proposed only; fixture SQL in docs (migration directories reject direct writes).
 - [ ] Stop after the review tables and exposure report; later consolidation and per-person changes await explicit approval.
 
 ## Current request — Tatiana Backoffice costing decision
