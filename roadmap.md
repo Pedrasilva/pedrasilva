@@ -1,3 +1,10 @@
+## Current request — approved Project Billing plan
+- [ ] Operational Incoming/Outgoing plan visible without documents; live dates, VAT and supplier identity.
+- [ ] Audited descriptions and reversible manual groups; preserve fiscal guards and Gantt history.
+- [ ] Canonical manual issuance/group links and Finance queue parity; fiscal actor changes require reviewed per-person confirmation.
+- [ ] Disposable verification, regression tests and cleanup; B1 OFF, historical plans/storage policies intact.
+- [x] Investigation report and plan approved; retain PM confirmation.
+
 ## Current request — confirmed HR isolation and temporary exception
 - [x] Record D36/D37 and temporary Ricardo exception; B1 OFF.
 - [x] Two individual negative team-list overrides; Project Lead roles/non-target grants and Ricardo hashes unchanged.
