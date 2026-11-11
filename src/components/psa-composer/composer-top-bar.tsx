@@ -378,6 +378,10 @@ export async function printProposalDocument(
           .proposal-export-sheets .pagedjs_page { page: auto !important; width: 210mm !important; height: 297mm !important; margin: 0 !important; break-after: page !important; break-inside: avoid !important; box-shadow: none !important; }
           .proposal-export-sheets .pagedjs_page:last-child { break-after: auto !important; }
           .proposal-export-sheets .pagedjs_pagebox { width: 210mm !important; height: 297mm !important; }
+          /* Chromium drops the absolutely positioned top margin furniture when
+             fragmenting the completed sheets. Keep it in its grid flow, with
+             the same page-edge origin used by the preview master geometry. */
+          .proposal-export-sheets .proposal-master-document .pagedjs_margin-top-center { position: relative !important; left: calc(-1 * var(--pagedjs-margin-left)) !important; }
           .proposal-export-sheets .pagedjs_area { overflow: hidden !important; }
           .proposal-export-sheets .pagedjs_page_content, .proposal-export-sheets .pagedjs_page_content * { break-before: auto !important; break-after: auto !important; }
           .proposal-export-sheets .proposal-print-document { min-height: 0 !important; width: auto !important; padding: 0 !important; margin: 0 !important; }

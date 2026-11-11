@@ -1,6 +1,6 @@
 ## Current request — final pre-publication checks
 - [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
-- [ ] PDF: 12-page export, content counters and index passed; Cover/Letter footer fixed. Remaining blocker: Content header disappears in printed PDF; cause not yet isolated.
+- [ ] PDF: validate print-safe Content header geometry and all 12 screen/PDF pages on a disposable Hotel Chiado copy; preserve original and B1 OFF.
 - [x] Storage scope and minimal proposed rules reported in docs/prepublish-validation-2026-11-11.md; no policies changed.
 - [ ] Await Luis approval for scoped storage rules, then fixture validation; no automatic fix.
 
