@@ -1,4 +1,5 @@
 {
+  "sharedGantt": { "referencePending": "Reference to confirm" },
   "insightsFinance": {
     "conclusionMargin": "Estimated margin at completion:",
     "remainingPlan": "Remaining plan",

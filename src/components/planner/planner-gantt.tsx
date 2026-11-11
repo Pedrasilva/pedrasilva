@@ -460,14 +460,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
     const ordered: S[] = [];
     const hier = new Map<string, GanttHierarchyNode>();
 
-    const roleOf = (s: S): "architecture" | "client" | "supplier_group" | "supplier_phase" => {
-      // "This is us" overrides supplier role — render as architecture
-      // (solid bar, no dashed supplier hatching, no outflow).
-      if (s.stage_role !== "client" && (s as { is_self?: boolean | null }).is_self === true) return "architecture";
-      const r = (s.stage_role ?? "architecture") as string;
-      if (r === "supplier_group" || r === "supplier_phase" || r === "client") return r;
-      return "architecture";
-    };
+    const roleOf = plannerStageRole;
     const isSupplierRole = (s: S) => {
       const role = roleOf(s);
       return role === "supplier_group" || role === "supplier_phase";
@@ -576,7 +569,12 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
       is_self: (s as { is_self?: boolean }).is_self ?? true,
       source_quote_stage_id: null,
-      stage_role: s.stage_role ?? "architecture",
+      stage_role: plannerStageRole(s),
+      supplier_id: s.supplier_id ?? null,
+      supplier_placeholder: s.supplier_placeholder ?? null,
+      budget_mode: s.budget_mode ?? "calculated",
+      stage_billing_timing: s.stage_billing_timing ?? "end",
+      is_optional: s.is_optional ?? false,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
