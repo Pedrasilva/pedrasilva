@@ -16,7 +16,7 @@ export function useGanttValueHistory(projectId:string,enabled=true){
 }
 export function useGanttValueActions(projectId:string){
  const qc=useQueryClient();
- const invalidate=async()=>{await Promise.all(['pm-project','pm-stages-all','pm-gantt-commercial','pm-gantt-value-history','pm-incoming-timing','pm-invoices','pm-invoices-all'].map(key=>qc.invalidateQueries({queryKey:[key]})));};
+ const invalidate=async()=>{await Promise.all(['pm-project','pm-stages-all','pm-gantt-commercial','pm-gantt-value-history','pm-incoming-timing','pm-invoices','pm-invoices-all','billing-plan'].map(key=>qc.invalidateQueries({queryKey:[key]})));};
  const change=useMutation({mutationFn:async(a:{id:string;expected:number;value:number;reason:string;responsibility:boolean;clientAgreed:boolean;effectiveMonth?:string})=>{
   const {data,error}=await supabase.rpc('pm_gantt_change_value',{_stage:a.id,_expected:a.expected,_value:a.value,_reason:a.reason,_responsibility:a.responsibility,_client_agreed:a.clientAgreed,_effective_month:a.effectiveMonth});
   if(error)throw error;return data;

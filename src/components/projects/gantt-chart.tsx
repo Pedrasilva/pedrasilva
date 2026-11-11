@@ -1477,6 +1477,7 @@ export function GanttChart({
                           ? { top: STAGE_ROW_H * 0.35, height: STAGE_ROW_H * 0.3 }
                           : {}),
                     }}
+                    onClick={()=>onSelectStage?.(stage.id)}
                     onPointerDown={(e) =>
                       startDrag(e, {
                         type: "stage-move",
