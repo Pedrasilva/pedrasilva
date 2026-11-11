@@ -459,6 +459,7 @@ function BlockBody({
     case "cover":
       return (
         <div className="proposal-cover proposal-avoid-break flex flex-col items-center justify-center py-24 text-center">
+          {block.content_rich.image_id&&<ProposalImageBlock block={{...block,content_rich:{...block.content_rich,size:"full"}}} lang={lang}/>}
           <div className="text-xs tracking-[0.3em] text-zinc-500">
             {L.proposalCover}
           </div>

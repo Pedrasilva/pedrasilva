@@ -728,6 +728,7 @@ export function BlockSettingsPanel({
         </div>
       )}
 
+      {block.block_type==='cover'&&<div className="space-y-2"><Label>{uiI18n.t('common:name')}</Label><Input value={String(block.content_rich.cover_title??liveQuery.data?.projectName??'')} onChange={e=>update.mutate({id:block.id,patch:{content_rich:{...block.content_rich,cover_title:e.target.value}}})}/></div>}
       {block.block_type==='letter'&&<LetterControls proposal={proposal} block={block} live={liveQuery.data}/>}
       {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
@@ -804,7 +805,7 @@ export function BlockSettingsPanel({
         );
       })()}
 
-      {block.block_type === "image" && (
+      {(block.block_type === "image" || block.block_type === "cover") && (
         <ImageBlockPanel
           block={block}
           onPatch={(patch) =>
