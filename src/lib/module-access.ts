@@ -75,6 +75,8 @@ const under = (p: string, prefix: string) => p === prefix || p.startsWith(prefix
  * admin pages), then rail items in order (projects excludes the time paths).
  */
 export function moduleForPath(pathname: string): ModuleId | null {
+  // The safe working-day projection is HR self-service, not Settings administration.
+  if (under(pathname, "/hr/dias-uteis")) return "hr";
   const settings = RAIL_ITEMS.find((r) => r.moduleId === "settings");
   if (settings && isRailItemActive(settings, pathname)) return "settings";
   for (const item of RAIL_ITEMS) {
