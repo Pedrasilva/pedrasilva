@@ -1,8 +1,9 @@
 ## Current request — full quote templates
-- [ ] Record Luis's full-template decision without changing prior decisions; B1 OFF.
-- [ ] Snapshot/import planning, fees, payment rules, blocks and page overrides with section selection, safe remapping, relative dates and transactional undo.
-- [ ] Move import to quote overflow menu; explicit overwrite and legacy completeness warnings.
-- [ ] Validate blank/populated disposable quotes, Gantt and financial parity; cleanup and report SQL/files/limitations.
+- [x] D40 records full-template decision; prior decisions preserved; B1 unchanged.
+- [x] Versioned full snapshots, relative planning, remapping, selectable fees/payment rules/blocks/layout and guarded undo implemented.
+- [x] Quote overflow import, explicit populated-section warning, legacy re-save notice and reopening undo.
+- [x] Blank/populated disposable UI/import/undo, 36-stage new/legacy, Gantt 5/3 rows, exact financial UI parity; cleanup zero; report SQL/files.
+- [ ] Remaining certification: free-text identity/address coverage, fixed payment rules without stage denominator, selective/supplier/letter/nested-date/concurrency cases; see report. Do not certify full release.
 
 ## Current request — approved Project Billing plan
 - [x] D39 records explicit 22:19 permission confirmation and conditional approval; D38 approval chronology clarified.
