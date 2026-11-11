@@ -1091,6 +1091,28 @@
     "exempt": "0% / Exempt",
     "reverseCharge": "Reverse charge (autoliquidação)"
   },
+  "billingPlan": {
+    "incoming": "Planned client invoices",
+    "outgoing": "Planned supplier payments",
+    "net": "Net amount",
+    "vat": "VAT",
+    "merge": "Merge planned invoices",
+    "unmerge": "Undo invoice merge",
+    "editDescription": "Edit invoice description",
+    "selectInvoice": "Select {{description}}",
+    "merged_one": "{{count}} milestone",
+    "merged_other": "{{count}} milestones",
+    "unconfirmed": "To confirm",
+    "groupDate": "Invoice date override",
+    "noPlan": "Billing plan to define",
+    "noSupplierPlan": "No planned supplier payments",
+    "states": {
+      "planned": "Planned",
+      "due": "Ready to issue",
+      "issued": "Issued",
+      "paid": "Paid"
+    }
+  },
   "projectBilling": {
     "title": "Project billing",
     "subtitle": "Read-only view of financial documents and payments linked to this project. Source of truth: Finance.",

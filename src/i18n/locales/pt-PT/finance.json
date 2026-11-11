@@ -1091,6 +1091,28 @@
     "exempt": "0% / Isento",
     "reverseCharge": "Autoliquidação"
   },
+  "billingPlan": {
+    "incoming": "Faturas previstas a clientes",
+    "outgoing": "Pagamentos previstos a fornecedores",
+    "net": "Valor líquido",
+    "vat": "IVA",
+    "merge": "Juntar faturas previstas",
+    "unmerge": "Desfazer junção de faturas",
+    "editDescription": "Editar descrição da fatura",
+    "selectInvoice": "Selecionar {{description}}",
+    "merged_one": "{{count}} marco",
+    "merged_other": "{{count}} marcos",
+    "unconfirmed": "Por confirmar",
+    "groupDate": "Data de emissão manual",
+    "noPlan": "Plano de faturação por definir",
+    "noSupplierPlan": "Sem pagamentos previstos a fornecedores",
+    "states": {
+      "planned": "Planeada",
+      "due": "Pronta a emitir",
+      "issued": "Emitida",
+      "paid": "Paga"
+    }
+  },
   "projectBilling": {
     "title": "Faturação do projeto",
     "subtitle": "Vista só de leitura dos documentos financeiros e pagamentos associados a este projeto. Fonte de verdade: Finanças.",

@@ -1,0 +1,46 @@
+import {useMemo,useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {Merge,Undo2,Pencil,CheckCheck,LockKeyhole} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Textarea} from '@/components/ui/textarea';
+import {Checkbox} from '@/components/ui/checkbox';
+import {Badge} from '@/components/ui/badge';
+import {Dialog,DialogContent,DialogHeader,DialogTitle} from '@/components/ui/dialog';
+import {Table,TableBody,TableHead,TableHeader,TableRow,TableCell} from '@/components/ui/table';
+import {useBillingPlan,useBillingPlanAction} from '@/lib/finance/use-billing-plan';
+import {groupBillingPlan,billingPlanState,type BillingPlanGroup} from '@/lib/finance/billing-plan';
+import {buildStageNumberMap,formatStageLabel} from '@/lib/quotes/stage-numbering';
+import {displayPaymentDate} from '@/lib/projects/payment-timing';
+import {toast} from '@/lib/toast';
+export function ProjectBillingPlan({projectId}:{projectId:string}){
+ const {t,i18n}=useTranslation();const q=useBillingPlan(projectId);const action=useBillingPlanAction(projectId);
+ const [selected,setSelected]=useState<string[]>([]);const [editing,setEditing]=useState<BillingPlanGroup|null>(null);const [merging,setMerging]=useState(false);const [description,setDescription]=useState('');const [date,setDate]=useState('');
+ const incoming=useMemo(()=>groupBillingPlan((q.data?.rows??[]).filter(r=>r.direction==='inflow')),[q.data]);
+ const outgoing=useMemo(()=>groupBillingPlan((q.data?.rows??[]).filter(r=>r.direction==='outflow')),[q.data]);
+ const stageNumbers=buildStageNumberMap(q.data?.stages??[]);
+ const money=(n:number)=>new Intl.NumberFormat(i18n.language,{style:'currency',currency:'EUR'}).format(n);
+ const formatDate=(value:string|null)=>displayPaymentDate(value,i18n.language)??'—';
+ async function run(name:string,args:Record<string,unknown>){try{await action.mutateAsync({name,args});toast.success(t('common:saved'));return true;}catch(e){toast.error((e as Error).message);return false;}}
+ function startMerge(){const picked=incoming.filter(g=>selected.includes(g.id));setDescription(picked.map(g=>g.description).join('\n'));setDate('');setMerging(true);}
+ if(q.isPending)return <div>{t('common:loading')}</div>;
+ if(q.error)return <div className="text-destructive">{q.error.message}</div>;
+ const table=(groups:BillingPlanGroup[],supplier:boolean)=><div className="overflow-x-auto"><Table><TableHeader><TableRow>
+ {!supplier&&q.data?.can_edit&&<TableHead/>}<TableHead>{t('common:description')}</TableHead><TableHead>{supplier?t('common:supplier'):t('glossary:entity.stage')}</TableHead><TableHead>{t('projects:incomingTiming.invoiceDate')}</TableHead><TableHead>{t('projects:incomingTiming.paymentDate')}</TableHead><TableHead className="text-right">{t('finance:billingPlan.net')}</TableHead><TableHead className="text-right">{t('finance:billingPlan.vat')}</TableHead><TableHead className="text-right">{t('common:total')}</TableHead><TableHead>{t('common:status')}</TableHead><TableHead/>
+ </TableRow></TableHeader><TableBody>{groups.map(g=><TableRow key={g.id}>
+ {!supplier&&q.data?.can_edit&&<TableCell><Checkbox aria-label={t('finance:billingPlan.selectInvoice',{description:g.description})} checked={selected.includes(g.id)} disabled={g.protected||g.manual} onCheckedChange={checked=>setSelected(s=>checked?[...s,g.id]:s.filter(id=>id!==g.id))}/></TableCell>}
+ <TableCell className="min-w-60 max-w-80 whitespace-pre-line break-words"><span>{g.description}</span><div className="text-xs text-muted-foreground">{g.members.map(m=>t(`projects:incomingTiming.triggers.${m.trigger_type}`)).join(' · ')}</div>{g.manual&&<Badge variant="secondary">{t('finance:billingPlan.merged',{count:g.members.length})}</Badge>}</TableCell>
+ <TableCell className="min-w-40">{g.members.map(m=><div key={m.id}>{supplier?m.supplier_name??t('finance:billingPlan.unconfirmed'):m.stage_name?formatStageLabel({id:m.stage_id??'',name:m.stage_name},stageNumbers.get(m.stage_id??'')):t('finance:billingPlan.unconfirmed')}</div>)}</TableCell>
+ <TableCell className="whitespace-nowrap">{formatDate(g.date)}</TableCell><TableCell className="whitespace-nowrap">{g.members.map(m=><div key={m.id}>{formatDate(m.planned_payment_date)}</div>)}</TableCell>
+ <TableCell className="text-right tabular-nums whitespace-nowrap">{money(g.amount)}</TableCell><TableCell className="text-right tabular-nums whitespace-nowrap">{money(g.vat)}</TableCell><TableCell className="text-right tabular-nums whitespace-nowrap">{money(g.total)}</TableCell>
+ <TableCell><Badge variant="outline">{t(`finance:billingPlan.states.${billingPlanState(g,q.data?.today??'0000-01-01')}`)}</Badge>{g.confirmed&&<div className="text-xs text-muted-foreground">{t('finance:issueQueue.confirmationStates.confirmed')}</div>}{g.protected&&<LockKeyhole className="mt-1 size-3 text-muted-foreground"/>}</TableCell>
+ <TableCell><div className="flex gap-1">{!supplier&&!g.protected&&<>
+ {q.data?.can_edit&&!g.manual&&<Button variant="ghost" size="icon" aria-label={t('finance:billingPlan.editDescription')} title={t('finance:billingPlan.editDescription')} onClick={()=>{setEditing(g);setDescription(g.description);}}><Pencil className="size-4"/></Button>}
+ {q.data?.can_edit&&g.manual&&<Button variant="ghost" size="icon" aria-label={t('finance:billingPlan.unmerge')} title={t('finance:billingPlan.unmerge')} disabled={action.isPending} onClick={()=>run('pm_billing_unmerge',{_group:g.id})}><Undo2 className="size-4"/></Button>}
+ {q.data?.can_confirm&&<Button variant="ghost" size="icon" aria-label={t('finance:issueQueue.ready')} title={t('finance:issueQueue.ready')} disabled={action.isPending||!g.date} onClick={()=>run('pm_billing_confirm',{_items:g.members.map(m=>m.id)})}><CheckCheck className="size-4"/></Button>}
+ </>}</div></TableCell></TableRow>)}</TableBody></Table></div>;
+ return <div className="space-y-6" data-billing-plan="ready"><section className="space-y-3"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">{t('finance:billingPlan.incoming')}</h2>{q.data?.can_edit&&<Button variant="outline" size="sm" disabled={selected.length<2||action.isPending} onClick={startMerge}><Merge className="mr-2 size-4"/>{t('finance:billingPlan.merge')}</Button>}</div>{incoming.length?table(incoming,false):<p className="py-4 text-muted-foreground">{t('finance:billingPlan.noPlan')}</p>}</section>
+ {q.data?.can_read_suppliers&&<section className="space-y-3 border-t border-border pt-5"><h2 className="font-semibold">{t('finance:billingPlan.outgoing')}</h2>{outgoing.length?table(outgoing,true):<p className="py-4 text-muted-foreground">{t('finance:billingPlan.noSupplierPlan')}</p>}</section>}
+ <Dialog open={!!editing||merging} onOpenChange={open=>{if(!open){setEditing(null);setMerging(false);}}}><DialogContent><DialogHeader><DialogTitle>{t(merging?'finance:billingPlan.merge':'finance:billingPlan.editDescription')}</DialogTitle></DialogHeader><Textarea aria-label={t('common:description')} value={description} maxLength={4000} onChange={e=>setDescription(e.target.value)}/>{merging&&<label className="text-sm">{t('finance:billingPlan.groupDate')}<Input type="date" value={date} onChange={e=>setDate(e.target.value)}/></label>}<div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>{setEditing(null);setMerging(false);}}>{t('common:cancel')}</Button><Button disabled={action.isPending||!description.trim()} onClick={async()=>{const members=incoming.filter(g=>selected.includes(g.id)).flatMap(g=>g.members);const ok=merging?await run('pm_billing_merge',{_project:projectId,_items:members.map(m=>m.id),_revisions:Object.fromEntries(members.map(m=>[m.id,m.revision])),_description:description,_date:date||null}):editing?.members[0]?await run('pm_billing_edit_description',{_item:editing.members[0].id,_revision:editing.members[0].revision,_description:description}):false;if(ok){setEditing(null);setMerging(false);setSelected([]);}}}>{t('common:save')}</Button></div></DialogContent></Dialog>
+ </div>;
+}
