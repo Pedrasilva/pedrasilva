@@ -1,8 +1,13 @@
+## Current request — final pre-publication checks
+- [x] Projects and CRM inspector: FS/SS/FF/SF create (+2 lag), edit (type and −3 lag), remove and reload passed on disposable fixtures.
+- [ ] Validate actual PDF export page-by-page against Cover/Letter/Content sheets and index references.
+- [ ] Report storage policy scope and minimal proposed rules; do not change policies before Luis approves.
+
 ## Current request — publish-readiness Gantt validation
 - [x] Financial-only editor/denied UI, direct schedule/value/date writes and cross-project denial passed; B1 OFF.
 - [x] Full synthetic issued invoices and confirmed-payment evidence unchanged after stage/retainer changes; concurrent split cap passed.
 - [x] Global/project/CRM drag and end-handle resize/reload passed; all-four adapter dependencies pass; report docs/gantt-release-validation-report.md.
-- [ ] Publication blocked pending project/CRM inspector dependency-control verification; additional project panel automation did not confirm creation. No diagnosed product fix yet.
+- [x] Project/CRM inspector dependency-control verification completed in final pre-publication checks; earlier failure was an automation selector, not a product defect.
 
 ## Current request — proposal Cover / Letter / Content
 - [x] Add backward-compatible three-type master layouts, letter template/signature Settings and explicit proposal overrides.
