@@ -19332,6 +19332,10 @@ export type Database = {
         Returns: string
       }
       pm_billing_plan: { Args: { _project: string }; Returns: Json }
+      pm_billing_register_issued: {
+        Args: { _date: string; _items: string[]; _number: string }
+        Returns: string
+      }
       pm_billing_unmerge: { Args: { _group: string }; Returns: undefined }
       pm_calendar_shift: {
         Args: { _date: string; _days: number }

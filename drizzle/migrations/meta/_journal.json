@@ -1989,6 +1989,13 @@
       "when": 1794434746612,
       "tag": "0283_billing_group_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 284,
+      "version": "7",
+      "when": 1794434826669,
+      "tag": "0284_billing_canonical_manual_issuance",
+      "breakpoints": true
     }
   ]
 }
