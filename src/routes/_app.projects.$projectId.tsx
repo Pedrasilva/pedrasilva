@@ -332,60 +332,7 @@ function ProjectDetail() {
       }
       // A failed aggregate must not fall back to a potentially partial own-entry set.
       if (summary.error) throw summary.error;
-      if (summary.data == null) throw new Error('Saved hour classification unavailable');
-      const allocIds = data.stages.flatMap((s) =>
-        s.allocations.map((a) => a.id),
-      );
-
-      // task ids belong to allocations
-      const { data: tasks } = await supabase
-        .from("pm_tasks")
-        .select("id, allocation_id")
-        .in("allocation_id", allocIds);
-      const taskToAlloc = new Map<string, string>();
-      const allocToStage = new Map<string, string>();
-      for (const s of data.stages)
-        for (const a of s.allocations) allocToStage.set(a.id, s.id);
-      for (const t of tasks ?? []) taskToAlloc.set(t.id, t.allocation_id);
-      const taskIds = (tasks ?? []).map((t) => t.id);
-      const stageIds = data.stages.map((s) => s.id);
-      const entries = await readB1Rows<{id:string;task_id:string|null;pm_stage_id:string|null;entry_date:string;hours:number;billable:boolean;cost_rate_snapshot:number|null}>('entries',projectId);
-      const byStage = new Map<
-        string,
-        { hours: number; billableHours: number; nonBillableHours: number; snapCost: number; unsnapHours: number }
-      >();
-      for (const e of (entries ?? []) as Array<{
-        task_id: string | null;
-        pm_stage_id: string | null;
-        entry_date: string;
-        hours: number;
-        billable: boolean;
-        cost_rate_snapshot: number | string | null;
-      }>) {
-        const allocId = e.task_id ? taskToAlloc.get(e.task_id) : undefined;
-        const stageId = e.pm_stage_id ?? (allocId ? allocToStage.get(allocId) : undefined);
-        if (!stageId) continue;
-        const month = e.entry_date.slice(0, 7);
-        const bucketKey = `${stageId}:${month}`;
-        const h = Number(e.hours);
-        const cur = byStage.get(bucketKey) ?? { hours: 0, billableHours: 0, nonBillableHours: 0, snapCost: 0, unsnapHours: 0 };
-        cur.hours += h;
-        // Locked cost rate per hour; hours without one fall back to current rates below.
-        if (e.cost_rate_snapshot != null) cur.snapCost += h * Number(e.cost_rate_snapshot);
-        else cur.unsnapHours += h;
-        if (e.billable === true) cur.billableHours += h;
-        else if (e.billable === false) cur.nonBillableHours += h;
-        else { cur.billableHours = NaN; cur.nonBillableHours = NaN; }
-        byStage.set(bucketKey, cur);
-      }
-      return Array.from(byStage, ([bucketKey, v]) => {
-        const separator = bucketKey.lastIndexOf(":");
-        return {
-          stage_id: bucketKey.slice(0, separator),
-          month: bucketKey.slice(separator + 1),
-          ...v,
-        };
-      });
+      throw new Error('Saved hour classification unavailable');
     },
   });
 
