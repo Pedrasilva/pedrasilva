@@ -1,3 +1,8 @@
+## Current request — retainer rows on shared Gantt
+- [ ] Render retainer rows with distinct bars, shared settings/cards and Construction summary coverage.
+- [ ] Atomic relative/live start, dependencies, month resize and canonical monthly payments; preserve commercial/fiscal guards and prevent overlapping adds.
+- [ ] Disposable Oleiro quote/conversion validation, real duplicate inventory without deletion, SQL/files/report and D42; B1 OFF.
+
 ## Current request — calculator-linked Gantt
 - [x] Atomic linked creation/update, relative months, exact rounding, value/deletion confirmations and shared template insertion/warning/undo path implemented.
 - [x] Explicit payment defaults editor and undefined plan implemented; silent auto-generation blocked for unconfigured calculator stages.
