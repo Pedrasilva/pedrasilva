@@ -1,0 +1,4 @@
+DO $$ DECLARE body text; BEGIN SELECT pg_get_functiondef('public.pm_retainer_sync()'::regprocedure) INTO body;
+ body:=replace(body,'UPDATE pm_stages SET budget=total WHERE id=NEW.id AND budget IS DISTINCT FROM total;','IF NEW.parent_stage_id IS NOT NULL AND EXISTS(SELECT 1 FROM pm_stages WHERE id=NEW.parent_stage_id AND name IN (''Construction'',''Obra'')) THEN UPDATE pm_stages SET budget=greatest(budget,total+coalesce((SELECT sum(budget) FROM pm_stages WHERE parent_stage_id=NEW.parent_stage_id AND id<>NEW.id),0)) WHERE id=NEW.parent_stage_id; END IF; UPDATE pm_stages SET budget=total WHERE id=NEW.id AND budget IS DISTINCT FROM total;');
+ EXECUTE body;
+END $$;
