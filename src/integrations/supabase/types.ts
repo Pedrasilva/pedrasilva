@@ -15752,6 +15752,39 @@ export type Database = {
           },
         ]
       }
+      quote_retainer_value_history: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          new_value: number
+          old_value: number
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          new_value: number
+          old_value: number
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          new_value?: number
+          old_value?: number
+          quote_id?: string
+          reason?: string
+          stage_id?: string
+        }
+        Relationships: []
+      }
       quote_site_trips: {
         Row: {
           created_at: string
@@ -20039,6 +20072,17 @@ export type Database = {
           _template_id: string
         }
         Returns: Json
+      }
+      quote_retainer_change_value: {
+        Args: {
+          _client_agreed: boolean
+          _expected: number
+          _reason: string
+          _responsibility: boolean
+          _stage: string
+          _value: number
+        }
+        Returns: undefined
       }
       quote_save_as_template: {
         Args: {

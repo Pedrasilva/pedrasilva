@@ -2080,6 +2080,13 @@
       "when": 1794439465467,
       "tag": "0296_retainer_gantt_monthly_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 297,
+      "version": "7",
+      "when": 1794439677789,
+      "tag": "0297_retainer_quote_value_history",
+      "breakpoints": true
     }
   ]
 }
