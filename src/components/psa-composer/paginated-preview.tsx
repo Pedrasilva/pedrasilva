@@ -319,7 +319,12 @@ export function PaginatedPreview({
           page.setAttribute("data-page-label", `${page.dataset.contentNumber ?? page.dataset.pageType ?? ""}${page.dataset.contentNumber ? ` / ${contentTotal}` : ""}`);
           const footerNumber = page.querySelector<HTMLElement>(".pagedjs_margin-bottom-right .pagedjs_margin-content");
           if (footerNumber && runningElements.some((element) => element.classList.contains("proposal-page-footer"))) {
-            footerNumber.setAttribute("data-footer-page", `${page.dataset.contentNumber ?? page.dataset.pageType ?? ""}${page.dataset.contentNumber ? ` / ${contentTotal}` : ""}`);
+            if (page.dataset.contentNumber) {
+              footerNumber.setAttribute("data-footer-page", `${page.dataset.contentNumber} / ${contentTotal}`);
+            } else {
+              footerNumber.removeAttribute("data-footer-page");
+              footerNumber.replaceChildren();
+            }
           }
         });
         if(typed) frameTarget.querySelectorAll<HTMLAnchorElement>('.proposal-toc-link').forEach(a=>{const n=anchorPages.get(a.hash.slice(1));if(n){const label=frameDoc.createElement('span');label.textContent=String(n);label.className='ml-auto';a.appendChild(label);}});
