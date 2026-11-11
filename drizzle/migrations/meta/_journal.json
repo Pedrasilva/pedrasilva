@@ -1898,6 +1898,13 @@
       "when": 1794398460479,
       "tag": "0270_shared_gantt_financial_scope_and_supplier_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 271,
+      "version": "7",
+      "when": 1794400609572,
+      "tag": "0271_gantt_scope_preserve_authorized_cascade_cleanup",
+      "breakpoints": true
     }
   ]
 }

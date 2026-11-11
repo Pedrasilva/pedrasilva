@@ -1,5 +1,5 @@
 {
-  "sharedGantt": { "referencePending": "Reference to confirm" },
+  "sharedGantt": { "supplierIdentityHint": "Operational supplier identity; issued documents and confirmed payments remain protected.", "referencePending": "Reference to confirm" },
   "insightsFinance": {
     "conclusionMargin": "Estimated margin at completion:",
     "remainingPlan": "Remaining plan",

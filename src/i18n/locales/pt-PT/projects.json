@@ -1,5 +1,5 @@
 {
-  "sharedGantt": { "referencePending": "Referência por confirmar" },
+  "sharedGantt": { "supplierIdentityHint": "Identidade operacional do fornecedor; documentos emitidos e pagamentos confirmados mantêm-se protegidos.", "referencePending": "Referência por confirmar" },
   "insightsFinance": {
     "conclusionMargin": "Margem estimada na conclusão:",
     "remainingPlan": "Saldo do plano",
