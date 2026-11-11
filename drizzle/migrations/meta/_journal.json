@@ -1954,6 +1954,13 @@
       "when": 1794413135383,
       "tag": "0278_gantt_dependency_enum_cast",
       "breakpoints": true
+    },
+    {
+      "idx": 279,
+      "version": "7",
+      "when": 1794414619738,
+      "tag": "0279_project_team_management_capability",
+      "breakpoints": true
     }
   ]
 }
