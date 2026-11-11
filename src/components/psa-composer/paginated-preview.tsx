@@ -276,6 +276,7 @@ export function PaginatedPreview({
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
+            if (typed && type !== "content") return;
             const selector = element.classList.contains("proposal-page-header")
               ? ".pagedjs_margin-top-center .pagedjs_margin-content"
               : ".pagedjs_margin-bottom-left .pagedjs_margin-content";
