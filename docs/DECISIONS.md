@@ -280,6 +280,15 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Motivo:** Apresentação editorial consistente sem modificar documentos existentes nem valores comerciais.
 - **Relatórios:** [Capa e carta — implementação e validação](proposal-cover-letter-report.md).
 
+### D34 — Tatiana é Backoffice, sem preço próprio de recurso de projeto
+- **Data:** 11/11/2026, decisão de Luis às 21:08 UTC.
+- **Área:** HR / custos / Backoffice / recursos de projeto.
+- **Estado:** Em vigor. Registo documental; nenhuma alteração de código ou dados autorizada neste pedido.
+- **Decisão:** Tatiana Shchenina é Backoffice. Não tem custo horário nem preço de venda próprios enquanto recurso de projeto e não deve aparecer como recurso de projeto com preço. O seu custo integra o overhead de Backoffice, distribuído pelos FTE do departamento Projecto e incluído no custo horário de cada pessoa de projeto, nunca acrescentado uma segunda vez como custo próprio de Tatiana no projeto.
+- **Motivo:** Manter a distribuição de custos de estrutura sem duplicação nem preços fictícios de produção para Backoffice.
+- **Verificação:** O cálculo HR atual de Projetos devolve 11 pessoas com preços e exclui Tatiana; a quota Backoffice é distribuída por FTE. O caminho de preços de propostas, possíveis overrides e a análise interna histórica de Backoffice são ressalvas separadas no relatório, não corrigidas nem apagadas por este registo.
+- **Relatórios:** [Verificação Tatiana/Backoffice](tatiana-backoffice-costing-verification-2026-11-11.md), [11 preços de projeto já verificados](project-financials-approved-fix-report.md).
+
 ## Acrescentar novas decisões
 
 Usar um identificador novo e os campos acima. Se a decisão substituir outra, manter o texto anterior e acrescentar estado/sucessora na entrada anterior. Não promover propostas, recomendações ou testes bem-sucedidos a decisões sem acordo de Luis. Não atualizar datas históricas com a data de uma implementação posterior.
