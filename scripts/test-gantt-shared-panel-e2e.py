@@ -1,7 +1,7 @@
 import asyncio,json,os
 from pathlib import Path
 from playwright.async_api import async_playwright
-D=Path(__file__).parent
+D=Path('/tmp/browser/gantt-phase1');D.mkdir(parents=True,exist_ok=True)
 async def main():
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True);c=await b.new_context(viewport={'width':1280,'height':1800});page=await c.new_page()
