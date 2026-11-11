@@ -15560,6 +15560,27 @@ export type Database = {
           },
         ]
       }
+      quote_planning_defaults: {
+        Row: {
+          id: boolean
+          stage_end_percent: number | null
+          stage_start_percent: number | null
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          stage_end_percent?: number | null
+          stage_start_percent?: number | null
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          stage_end_percent?: number | null
+          stage_start_percent?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quote_proposal_document_blocks: {
         Row: {
           assembly_locked: string | null
@@ -16002,6 +16023,9 @@ export type Database = {
           billing_model: string
           budget: number
           budget_mode: string
+          calculator_last_value: number | null
+          calculator_payment_unconfigured: boolean
+          calculator_row_id: string | null
           children_bill_independently: boolean
           color: string
           created_at: string
@@ -16047,6 +16071,9 @@ export type Database = {
           billing_model?: string
           budget?: number
           budget_mode?: string
+          calculator_last_value?: number | null
+          calculator_payment_unconfigured?: boolean
+          calculator_row_id?: string | null
           children_bill_independently?: boolean
           color?: string
           created_at?: string
@@ -16092,6 +16119,9 @@ export type Database = {
           billing_model?: string
           budget?: number
           budget_mode?: string
+          calculator_last_value?: number | null
+          calculator_payment_unconfigured?: boolean
+          calculator_row_id?: string | null
           children_bill_independently?: boolean
           color?: string
           created_at?: string
@@ -19953,6 +19983,22 @@ export type Database = {
       }
       psa_next_rev_number: { Args: { _proposal_id: string }; Returns: number }
       psa_restore_revision: { Args: { _snapshot_id: string }; Returns: string }
+      quote_apply_calculator: {
+        Args: {
+          _delete_removed?: boolean
+          _existing_action?: string
+          _inputs: Json
+          _overwrite_manual?: boolean
+          _quote_id: string
+          _revision: string
+        }
+        Returns: string
+      }
+      quote_calculator_preview: {
+        Args: { _quote_id: string; _row_ids: Json }
+        Returns: Json
+      }
+      quote_calculator_value: { Args: { _inputs: Json }; Returns: number }
       quote_import_full_template: {
         Args: {
           _quote_id: string
@@ -19988,6 +20034,10 @@ export type Database = {
           _quote_id: string
         }
         Returns: string
+      }
+      quote_stage_snapshot_insert: {
+        Args: { _quote: string; _row: Json }
+        Returns: undefined
       }
       quote_template_capture: { Args: { _quote: string }; Returns: Json }
       quote_template_insert_rows: {
