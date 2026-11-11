@@ -34,6 +34,12 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     // Same caller-scoped client as gate ON; a preview marker is forwarded so preview and ON share one path.
     const { withB1PreviewHeader } = await import('./b1-preview.server');
     const supabase = await withB1PreviewHeader(context.supabase, userId);
+    // Project authorization precedes any privileged HR reads in both gate states.
+    if (data.projectId) {
+      const { data: allowed, error } = await supabase.rpc('pm_project_rate_access', { _project: data.projectId });
+      if (error) throw error;
+      if (!allowed) return [];
+    }
     const {data:b1State,error:b1Error}=await supabase.rpc('pm_project_b1_active');
     if(b1Error)throw b1Error;
     // Explicit review uses the same caller-scoped areas without changing the gate.
@@ -49,14 +55,8 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
         if(!globalAllowed)return [];
         ({budgetAllowed,saleAllowed}=b1RateScope(undefined,true));
       } else {
-      const {data:visible,error:visibleError}=await supabase.rpc('pm_b1_projects',{_project:data.projectId});
-      if(visibleError)throw visibleError;
-      if(!visible?.length)return [];
-      const {data:areas,error}=await supabase.rpc('pm_project_viewer_areas',{_project:data.projectId});
-      if(error)throw error;
-      const flags=areas as unknown as {budget_cost:boolean;financials:boolean};
-      ({budgetAllowed,saleAllowed}=b1RateScope(data.projectId,false,flags));
-      if(!budgetAllowed&&!saleAllowed)return [];
+      budgetAllowed = true;
+      saleAllowed = true;
       }
     }
     const [{ data: isAdmin }, { data: hasFinance }, { data: hasProjFin }] = await Promise.all([
@@ -67,7 +67,7 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     // No financials access: return an empty set instead of throwing. Throwing a
     // raw Response across the RPC boundary surfaces as `Error: [object Response]`
     // and blanks the page for every non-financial user.
-    if (!b1 && !isAdmin && !hasFinance && !hasProjFin) {
+    if (!data.projectId && !b1 && !isAdmin && !hasFinance && !hasProjFin) {
       return [];
     }
 

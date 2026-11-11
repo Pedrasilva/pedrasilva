@@ -19400,6 +19400,7 @@ export type Database = {
           snapshot_cost: number
         }[]
       }
+      pm_project_rate_access: { Args: { _project: string }; Returns: boolean }
       pm_project_stage_hours: {
         Args: { p_project_id: string }
         Returns: {
