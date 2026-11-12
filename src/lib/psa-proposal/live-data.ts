@@ -377,6 +377,13 @@ export async function fetchLiveQuoteSnapshot(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const q = (quote ?? {}) as any;
 
+      let numberedReference: string | null = null;
+      if (q.work_version_id) {
+        const numbered = await supabase.rpc('crm_work_reference', { _version: String(q.work_version_id), _ordinal: Number(q.work_revision_ordinal ?? 0) });
+        if (numbered.error) throw numbered.error;
+        numberedReference = numbered.data;
+      }
+
       // Resolve client name from company_id (→ companies.nome) or
       // account_id (→ crm_accounts.name).
       let clientName: string | null = null;
@@ -1006,8 +1013,8 @@ export async function fetchLiveQuoteSnapshot(
 
       return {
         quoteId: quoteId!,
-        projectNumber: q.proposal_number ? String(q.proposal_number) : null,
-        proposalRevision: Math.max(0, Number(q.revision_number ?? 1) - 1),
+        projectNumber: numberedReference ?? (q.proposal_number ? String(q.proposal_number) : null),
+        proposalRevision: numberedReference ? 0 : Math.max(0, Number(q.revision_number ?? 1) - 1),
         projectName: q.titulo ?? null,
         client: clientName,
         location: null,
