@@ -472,3 +472,4 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Mapa final e resultado:** [Antigo → proposto por registo](numbering-final-mapping-2026-11-12.md), [CSV](numbering-final-mapping-2026-11-12.csv), [Preparação e limites](numbering-preparation-result-2026-11-12.md).
 
 - 2026-11-12 D53 ronda 1: correções de Luis aplicadas só ao mapa (v2): 2616/2604 apenas evidência, testes em série QA, contador Hub e South Perth em 26019+ (26019–26033, próximo 26034). Nada aplicado a dados reais.
+- 2026-11-12 D53 ronda 2: Quelhas 2520, Cabo Verde 2507, Clinica Mulher 2404, Greg 2530, N10GLED 2524, Sakur 2428, Museu Zer0 2315; lista de pastas reservada. Só mapa v3; nada aplicado.
