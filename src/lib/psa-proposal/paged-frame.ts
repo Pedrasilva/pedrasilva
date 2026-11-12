@@ -38,6 +38,13 @@ export function installPagedFrame(frame: HTMLIFrameElement): PagedFrameWindow {
           const previous = block.previousElementSibling;
           if (previous) previous.setAttribute('data-next-break-before', 'page');
         }
+        for (const block of root.querySelectorAll('.proposal-document-gantt-block')) {
+          block.setAttribute('data-page', 'psa-gantt');
+          block.setAttribute('data-break-before', 'page');
+          block.setAttribute('data-break-after', 'page');
+          const next = block.nextElementSibling;
+          if (next) next.setAttribute('data-previous-break-after', 'page');
+        }
       }
     }
     Paged.registerHandlers(ProposalExplicitBreaks);

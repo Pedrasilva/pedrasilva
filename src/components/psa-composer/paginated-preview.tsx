@@ -217,6 +217,10 @@ export function PaginatedPreview({
           for (const sheet of sheets) {
             const wrapper=block.cloneNode(false) as HTMLElement;
             wrapper.className='proposal-print-block proposal-document-gantt-block';
+            wrapper.removeAttribute('style');
+            wrapper.removeAttribute('data-page-aligned');
+            wrapper.removeAttribute('data-page-align-x');
+            wrapper.removeAttribute('data-page-align-y');
             wrapper.dataset.pageType='content';
             wrapper.dataset.explicitPageBreakBefore='true';
             wrapper.dataset.keepWithNext='false';

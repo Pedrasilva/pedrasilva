@@ -11,6 +11,9 @@ export function documentGanttRows(stages: LiveStage[], kind: string, parentId?: 
   const mapped = stages.filter(s => s.isSelf).map(s => ({ ...s, sort_order: s.sortOrder, parent_stage_id: s.parentStageId }));
   const ordered = numberStages(mapped);
   const construction = constructionStageIds(mapped);
+  // Document legacy groups can be named simply "Construction"/"Obra".
+  for (const s of mapped) if (/^(construction|obra|construção)$/i.test(s.name.trim()) || /concurso.*constru[cç]|construction.*tender/i.test(s.name)) construction.add(s.id);
+  for (let i=0;i<mapped.length;i++) for(const s of mapped) if(s.parentStageId && construction.has(s.parentStageId)) construction.add(s.id);
   const optional = new Set(mapped.filter(s => s.isOptional).map(s => s.id));
   for (let i = 0; i < mapped.length; i++) for (const s of mapped) if (s.parentStageId && optional.has(s.parentStageId)) optional.add(s.id);
   const descendants = new Set(parentId ? [parentId] : []);
