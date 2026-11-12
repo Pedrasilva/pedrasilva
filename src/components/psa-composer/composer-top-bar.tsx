@@ -325,7 +325,7 @@ export async function printProposalDocument(
       const observer = new MutationObserver(check);
       function check() {
         if (host?.dataset.paginationStatus === "error") { cleanup(); reject(new Error("Proposal pagination failed")); }
-        else if (host && completedPagedDocument(host)) { cleanup(); resolve(); }
+        else if (host && completedPagedDocument(host) && !document.querySelector('.proposal-source-host [data-live-ready="false"]')) { cleanup(); resolve(); }
       }
       function cleanup() { observer.disconnect(); clearTimeout(deadline); }
       observer.observe(host, { attributes: true, childList: true, subtree: true });
