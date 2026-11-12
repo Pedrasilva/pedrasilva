@@ -9,7 +9,7 @@ CREATE = r'''async(sourceId)=>{
  const orig=ck(await s.from('psa_proposals').select('*').eq('id',sourceId).single());
  if(!orig.quote_id)throw Error('Source requires a quote');
  const quote=ck(await s.from('fee_proposals').select('*').eq('id',orig.quote_id).single());
- const {id,created_at,updated_at,proposal_number,parent_quote_id,main_proposal_id,pm_project_id,locked_project_id,accepted_snapshot_id,accepted_content_hash,acceptance_actor,acceptance_date,acceptance_note,acceptance_attachment_path,approved_at,approved_by_contact_id,approved_by_collaborator_id,signed_at,signed_method,signed_notes,signed_by_collaborator_id,archived_at,archived_by,deleted_at,deleted_by,...copy}=quote;
+ const {id,created_at,updated_at,proposal_number,parent_quote_id,main_proposal_id,work_version_id,work_revision_ordinal,pm_project_id,locked_project_id,accepted_snapshot_id,accepted_content_hash,acceptance_actor,acceptance_date,acceptance_note,acceptance_attachment_path,approved_at,approved_by_contact_id,approved_by_collaborator_id,signed_at,signed_method,signed_notes,signed_by_collaborator_id,archived_at,archived_by,deleted_at,deleted_by,...copy}=quote;
  const testId=crypto.randomUUID();
  const q=ck(await s.from('fee_proposals').insert({...copy,id:testId,titulo:'[QA DISPOSABLE] isolated composer',quote_status:'draft',is_locked:false,locked_at:null,revision_number:1,company_id:null,contact_id:null,account_id:null,opportunity_id:null}).select('id').single());
  if(q.id===orig.quote_id || q.id!==testId)throw Error('Unsafe quote copy');

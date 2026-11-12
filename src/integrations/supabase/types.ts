@@ -2791,6 +2791,7 @@ export type Database = {
           source: string | null
           stage: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at: string
+          work_version_id: string | null
         }
         Insert: {
           company_id?: string | null
@@ -2818,6 +2819,7 @@ export type Database = {
           source?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
+          work_version_id?: string | null
         }
         Update: {
           company_id?: string | null
@@ -2845,6 +2847,7 @@ export type Database = {
           source?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
+          work_version_id?: string | null
         }
         Relationships: [
           {
@@ -2859,6 +2862,196 @@ export type Database = {
             columns: ["primary_contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_opportunities_work_version_id_fkey"
+            columns: ["work_version_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_work_identities: {
+        Row: {
+          canonical_number: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_fixture: boolean
+          name: string
+          original_created_at: string
+          revision: number
+        }
+        Insert: {
+          canonical_number: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_fixture?: boolean
+          name: string
+          original_created_at?: string
+          revision?: number
+        }
+        Update: {
+          canonical_number?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_fixture?: boolean
+          name?: string
+          original_created_at?: string
+          revision?: number
+        }
+        Relationships: []
+      }
+      crm_work_identity_audit: {
+        Row: {
+          action: string
+          actor_id: string
+          after_value: Json
+          before_value: Json | null
+          created_at: string
+          id: string
+          reason: string
+          work_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          after_value: Json
+          before_value?: Json | null
+          created_at?: string
+          id?: string
+          reason: string
+          work_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          after_value?: Json
+          before_value?: Json | null
+          created_at?: string
+          id?: string
+          reason?: string
+          work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_work_identity_audit_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_identities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_work_number_counters: {
+        Row: {
+          last_sequence: number
+          year: number
+        }
+        Insert: {
+          last_sequence?: number
+          year: number
+        }
+        Update: {
+          last_sequence?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      crm_work_number_registry: {
+        Row: {
+          created_at: string
+          number: string
+          reason: string
+          work_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          number: string
+          reason: string
+          work_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          number?: string
+          reason?: string
+          work_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_work_number_registry_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_identities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_work_numbering_gate: {
+        Row: {
+          activated_at: string
+          activated_by: string
+          active: boolean
+          mapping_hash: string
+          singleton: boolean
+        }
+        Insert: {
+          activated_at?: string
+          activated_by: string
+          active?: boolean
+          mapping_hash: string
+          singleton?: boolean
+        }
+        Update: {
+          activated_at?: string
+          activated_by?: string
+          active?: boolean
+          mapping_hash?: string
+          singleton?: boolean
+        }
+        Relationships: []
+      }
+      crm_work_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          reason: string | null
+          restart_ordinal: number | null
+          restart_year: number | null
+          version_key: string
+          work_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          restart_ordinal?: number | null
+          restart_year?: number | null
+          version_key?: string
+          work_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          restart_ordinal?: number | null
+          restart_year?: number | null
+          version_key?: string
+          work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_work_versions_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_identities"
             referencedColumns: ["id"]
           },
         ]
@@ -3189,6 +3382,8 @@ export type Database = {
           trip_billing_mode: string
           updated_at: string
           valor: number
+          work_revision_ordinal: number | null
+          work_version_id: string | null
         }
         Insert: {
           acceptance_actor?: string | null
@@ -3257,6 +3452,8 @@ export type Database = {
           trip_billing_mode?: string
           updated_at?: string
           valor?: number
+          work_revision_ordinal?: number | null
+          work_version_id?: string | null
         }
         Update: {
           acceptance_actor?: string | null
@@ -3325,6 +3522,8 @@ export type Database = {
           trip_billing_mode?: string
           updated_at?: string
           valor?: number
+          work_revision_ordinal?: number | null
+          work_version_id?: string | null
         }
         Relationships: [
           {
@@ -3451,6 +3650,13 @@ export type Database = {
             columns: ["signed_by_collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_work_version_id_fkey"
+            columns: ["work_version_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -12076,6 +12282,7 @@ export type Database = {
           status: Database["public"]["Enums"]["pm_project_status"]
           sync_status: Database["public"]["Enums"]["pm_sync_status"]
           updated_at: string
+          work_version_id: string | null
         }
         Insert: {
           account_id?: string | null
@@ -12106,6 +12313,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["pm_project_status"]
           sync_status?: Database["public"]["Enums"]["pm_sync_status"]
           updated_at?: string
+          work_version_id?: string | null
         }
         Update: {
           account_id?: string | null
@@ -12136,6 +12344,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["pm_project_status"]
           sync_status?: Database["public"]["Enums"]["pm_sync_status"]
           updated_at?: string
+          work_version_id?: string | null
         }
         Relationships: [
           {
@@ -12185,6 +12394,13 @@ export type Database = {
             columns: ["source_contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_work_version_id_fkey"
+            columns: ["work_version_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -18436,6 +18652,40 @@ export type Database = {
         }
         Returns: Json
       }
+      crm_work_can_read: { Args: { _work: string }; Returns: boolean }
+      crm_work_edit_number: {
+        Args: {
+          _expected_revision: number
+          _number: string
+          _reason: string
+          _work: string
+        }
+        Returns: Json
+      }
+      crm_work_letters: { Args: { _ordinal: number }; Returns: string }
+      crm_work_new: {
+        Args: { _created?: string; _name: string }
+        Returns: string
+      }
+      crm_work_numbering_active: { Args: never; Returns: boolean }
+      crm_work_numbering_fixture_check: {
+        Args: { _source: string }
+        Returns: Json
+      }
+      crm_work_reference: {
+        Args: { _ordinal?: number; _version: string }
+        Returns: string
+      }
+      crm_work_restart: {
+        Args: {
+          _expected_revision: number
+          _reason: string
+          _work: string
+          _year: number
+        }
+        Returns: string
+      }
+      crm_work_view: { Args: { _kind: string; _record: string }; Returns: Json }
       current_finance_entity: { Args: never; Returns: string }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }

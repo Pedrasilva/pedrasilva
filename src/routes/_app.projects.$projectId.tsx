@@ -1,4 +1,5 @@
 import {HourBudgetPanel} from '@/components/projects/hour-budget-panel';
+import { WorkIdentityControl } from '@/components/crm/work-identity-control';
 import {useHourBudgets} from '@/lib/projects/use-hour-budgets';
 import { numberStages, buildStageNumberMap, compareStageDisplay, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import { useDateLocale } from "@/i18n/use-date-locale";
@@ -545,6 +546,7 @@ function ProjectDetail() {
               }
             />
             <StatusBadge status={project.status} />
+            <WorkIdentityControl kind="project" recordId={project.id} canRestart={project.status === 'paused' || project.status === 'archived'} />
             <ProjectSyncStatusBadge projectId={project.id} sourceQuoteId={sourceQuoteId} canEdit={isAdmin} />
           </div>
 
