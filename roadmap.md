@@ -1,3 +1,8 @@
+## Current request — authorized Oleiro corrections and outline moves
+- [ ] Fix shared retainer/group up/down and indent/outdent; test only on separate copied quotes.
+- [ ] Apply authorized Oleiro substage billing, Programa role, FS retainer start/nesting and 12 × 3000 payments; preserve current unrelated values/content and B1 OFF.
+- [ ] Delete authorized quote 102948d5; report numbering/payment lines, SQL and validation.
+
 ## Current request — Oleiro test-document incident
 - [x] Read-only inventory: original 34 blocks and 22 automatic snapshots preserved; PT terms intact; test-copy linkage and latest-updated selection explain contamination of document selection. D46 records separate copied-QUOTE rule.
 - [ ] Await Luis approval for canonical document selection, isolated-test script correction and any scoped content restoration; no restoration/deletion/application changes performed. Historical deleted fixture inventory is incomplete.
