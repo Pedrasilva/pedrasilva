@@ -19,7 +19,7 @@ export function DocumentGantt({block,stages,lang,title,variant='annex'}:{block:P
     const span=Math.max(86400000,max-min);
     const months=Math.max(1,Math.ceil(span/(30.4375*86400000)));
     // All gridlines are months. Label thinning retains an 8pt floor for long programmes.
-    const every=Math.max(1,Math.ceil(months/14));
+    const every=Math.max(1,Math.ceil(months/(summary?7:14)));
     const ticks=Array.from({length:months},(_,i)=>({left:i/months*100,label:relative?relativeMonthLabel(i+1,lang):formatMonthShort(new Date(min+i*30.4375*86400000),lang)}));
     return <section key={index} className={summary?'proposal-document-gantt-summary':'proposal-document-gantt-sheet'} data-gantt-sheet={summary?undefined:'true'} data-gantt-kind={block.block_type}>
       <h2>{block.block_type==='appendix_gantt'?`${labels.appendix} ${String(block.content_rich?.appendix_letter||'B')} – ${title}`:title}{index>0?` (${index+1})`:''}</h2>
