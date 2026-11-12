@@ -15,7 +15,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getPmDefaultResourceRates } from "./default-rates.functions";
 import {useB1CacheScope} from './b1-projection';
 
-export const PROJECT_DEFAULT_MARGIN = 0.75;
+export { PROJECT_DEFAULT_MARGIN } from './sale-margin';
 
 export type DefaultRateInfo = {
   sale: number; // 75% band — project default

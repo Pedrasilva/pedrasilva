@@ -14,7 +14,7 @@ import type { Json } from "@/integrations/supabase/types";
 
 type Db = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
-const MARGIN = 0.75; // irrelevant for cost; mirrors default-rates
+import { PROJECT_DEFAULT_MARGIN as MARGIN } from './sale-margin';
 const FAR_PAST = "1900-01-01";
 
 type CollabRow = Collaborator & { archived_at: string | null };
@@ -126,6 +126,12 @@ function hrRate(inp: Inputs, c: CollabRow, salaryDate: string, bo: ReturnType<ty
 }
 
 type Period = { resource_id: string; valid_from: string; valid_to: string | null; cost_rate: number; inputs: Record<string, unknown> };
+
+/** Read-only current HR costs; never rebuild periods or stamp entries here. */
+export function currentHrCosts(inp: Inputs, date: string) {
+  const bo = boPerFte(inp, date, date);
+  return new Map(inp.collabs.filter(c => !c.archived_at && c.departamento === 'Projecto').map(c => [c.id, hrRate(inp,c,date,bo)?.rate ?? null]));
+}
 
 export function computePeriods(inp: Inputs): Period[] {
   const bps = new Set<string>();
