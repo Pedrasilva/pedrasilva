@@ -5,22 +5,24 @@ import { useTranslation } from 'react-i18next';
 import { relativeProgrammeRows, relativeProgrammeTiming } from '@/lib/psa-proposal/relative-programme';
 import './document-gantt.css';
 
-export function DocumentGantt({block,stages,lang,title}:{block:PsaProposalBlock;stages:LiveStage[];lang:ProposalLang;title:string}) {
+/** Annex = detailed landscape sheets; body blocks = one compact inline summary in the portrait flow. */
+export function DocumentGantt({block,stages,lang,title,variant='annex'}:{block:PsaProposalBlock;stages:LiveStage[];lang:ProposalLang;title:string;variant?:'annex'|'summary'}) {
   const labels=getProposalLabels(lang);
   const {t}=useTranslation('common');
   const override=relativeProgrammeRows(block.content_rich?.relative_programme);
   const rows=documentGanttRows(stages,block.block_type,(block.source_ref as {parent_stage_id?:string})?.parent_stage_id,block.content_rich?.relative_programme);
-  return <>{documentGanttSheets(rows).map((sheet,index)=>{
+  const summary=variant==='summary';
+  const sheets=summary?[rows]:documentGanttSheets(rows);
+  return <>{sheets.map((sheet,index)=>{
     const min=Math.min(...sheet.map(r=>r.start)),max=Math.max(...sheet.map(r=>r.end));
     const relative=override.length>0||new Date(min).getUTCFullYear()<2010;
     const span=Math.max(86400000,max-min);
     const months=Math.max(1,Math.ceil(span/(30.4375*86400000)));
     // All gridlines are months. Label thinning retains an 8pt floor for long programmes.
-    const every=Math.max(1,Math.ceil(months/14));
+    const every=Math.max(1,Math.ceil(months/(summary?7:14)));
     const ticks=Array.from({length:months},(_,i)=>({left:i/months*100,label:relative?relativeMonthLabel(i+1,lang):formatMonthShort(new Date(min+i*30.4375*86400000),lang)}));
-    return <section key={index} className="proposal-document-gantt-sheet" data-gantt-sheet="true" data-gantt-kind={block.block_type}>
-      {block.block_type==='appendix_gantt'&&<div className="proposal-document-gantt-caption">{labels.appendix} {String(block.content_rich?.appendix_letter??'B')}</div>}
-      <h2>{title}{index>0?` (${index+1})`:''}</h2>
+    return <section key={index} className={summary?'proposal-document-gantt-summary':'proposal-document-gantt-sheet'} data-gantt-sheet={summary?undefined:'true'} data-gantt-kind={block.block_type}>
+      <h2>{block.block_type==='appendix_gantt'?`${labels.appendix} ${String(block.content_rich?.appendix_letter||'B')} – ${title}`:title}{index>0?` (${index+1})`:''}</h2>
       {!sheet.length?<p>{labels.scheduleUnavailable}</p>:<>
         <div className="proposal-document-gantt-caption">{override.length?relativeProgrammeTiming({...override[0],start:Math.min(...override.map(r=>r.start)),end:Math.max(...override.map(r=>r.end))},lang):`${formatDatePT(new Date(min).toISOString(),lang)} → ${formatDatePT(new Date(max).toISOString(),lang)}`}</div>
         <table className="proposal-document-gantt-table"><thead><tr><th className="gantt-name">{labels.phase}</th><th className="gantt-duration">{labels.duration}</th><th><div className="proposal-document-gantt-axis">{ticks.filter((_,i)=>i%every===0).map(t=><span key={t.left} className="proposal-document-gantt-tick" style={{left:`${t.left}%`}}>{t.label}</span>)}</div></th></tr></thead>

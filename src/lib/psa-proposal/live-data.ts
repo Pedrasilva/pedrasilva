@@ -1,3 +1,4 @@
+import { retainerPaymentDates } from "@/lib/projects/retainer-schedule";
 import { sortStagesByWbs, sortStageLinkedRows } from "@/lib/quotes/stage-numbering";
 /**
  * Live Quote data resolver for the PSA Proposal Composer.
@@ -693,8 +694,11 @@ export async function fetchLiveQuoteSnapshot(
         return y && m && d ? `${d}/${m}/${y}` : iso;
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let timingItems: any[] = (pay ?? []) as any[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dateFor = (p: any): string => {
-        return proposalTimingToken(proposalPaymentTiming(p, stageArr, pay ?? [], lang));
+        return proposalTimingToken(proposalPaymentTiming(p, stageArr, timingItems, lang));
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const triggerSentence = (p: any): string => {
@@ -759,12 +763,31 @@ export async function fetchLiveQuoteSnapshot(
         p.trigger_type === "project_start" &&
         String(p.label ?? "").toLowerCase().startsWith("adjudicação");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const inflows = ((pay ?? []) as any[]).filter(
+      // Monthly retainers bill on the same dates as the Gantt PAYMENTS row
+      // (first working day of each retainer month); stored rows for these
+      // stages are replaced by that shared series so dates never diverge.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const retainerStages = stageArr.filter((s: any) => s.stage_kind === "retainer_monthly" && !s.archived_at && !s.is_optional);
+      const retainerIds = new Set(retainerStages.map((s: { id: string }) => s.id));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const retainerRows = retainerStages.flatMap((s: any) => {
+        const monthly = Number(s.retainer_monthly_amount ?? 0);
+        if (!s.start_date || monthly <= 0) return [];
+        const vatRow = ((pay ?? []) as any[]).find((p) => p.stage_id === s.id);
+        return retainerPaymentDates(s.start_date, Number(s.retainer_months ?? 12) || 12).map((date, i) => ({
+          id: `retainer:${s.id}:${i}`, stage_id: s.id, trigger_type: "monthly", sort_order: i, amount_type: "fixed",
+          amount_value: monthly, direction: "inflow", expected_invoice_date: date, label: s.name,
+          vat_rate: vatRow?.vat_rate ?? null, payment_terms: vatRow?.payment_terms ?? null, invoice_group_id: null,
+        }));
+      });
+      const inflows = [...((pay ?? []) as any[]).filter(
         (p) =>
           (p.direction ?? "inflow") === "inflow" &&
+          !(p.stage_id && retainerIds.has(p.stage_id)) &&
           !(dpDisabled && isAdjudicacaoRow(p)) &&
           !(p.stage_id && clientStageIds.has(p.stage_id)),
-      );
+      ), ...retainerRows];
+      timingItems = [...timingItems.filter((p) => !(p.stage_id && retainerIds.has(p.stage_id))), ...retainerRows];
 
 
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };

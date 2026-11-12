@@ -14,4 +14,8 @@
 .proposal-document-gantt-bar[data-construction="true"] { background: var(--muted-foreground); }
 .proposal-document-gantt-bar[data-group="true"] { height: 1mm; top: 1.5mm; }
 .proposal-document-gantt-row[data-group="true"] { background: var(--muted); font-weight: 600; }
-.proposal-source-host .proposal-document-gantt-sheet { width: 100%; }
+.proposal-source-host .proposal-document-gantt-sheet { width: 100%; }.proposal-document-gantt-summary { width: 100%; color: var(--foreground); }
+.proposal-document-gantt-summary h2 { font-size: 13pt; margin: 0 0 3mm; font-weight: 600; }
+.proposal-document-gantt-summary .proposal-document-gantt-table { font-size: 8pt; }
+.proposal-document-gantt-summary .proposal-document-gantt-table th, .proposal-document-gantt-summary .proposal-document-gantt-table td { height: 4.5mm; padding: .6mm 1mm; }
+.proposal-document-gantt-summary { break-inside: avoid; page-break-inside: avoid; }

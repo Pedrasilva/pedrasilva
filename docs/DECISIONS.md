@@ -407,3 +407,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Motivo:** Impedir que cópias ou revisões de teste substituam o original na interface.
 - **Estado:** Confirmada, reforça D46 sem autorizar alterações editoriais.
 - **Relatório:** [Correção, ficheiros e SQL](oleiro-main-document-fix-2026-11-12.md).
+
+### D48 — Papéis dos Gantt na proposta e plano de pagamentos com avenças
+- **Data:** 12/11/2026, pedido de Luis às 12:15 UTC.
+- **Área:** Propostas / impressão / pagamentos.
+- **Decisão:** Os blocos Gantt do corpo (Cronograma de Projeto/Obra/parcial) são resumos compactos dentro do texto vertical (uma linha por fase, meses como colunas, sem página própria). Só o Anexo — Programa do Projeto usa páginas A4 horizontais detalhadas, separando Projeto/Obra se necessário; o título lê «Anexo B – Título», sem número de secção. O plano de pagamentos lista as faturas guardadas por fase e gera as mensalidades das avenças com a mesma regra de datas do Gantt (primeiro dia útil de cada mês), substituindo linhas guardadas dessas avenças.
+- **Estado:** Substitui apenas «cada Gantt numa página horizontal» de D45; resto de D45 mantém-se. Dados reais do Oleiro (plano guardado, faturação por subfases, papel de «Programa», dependência da avença) aguardam OK de Luis. B1 OFF.
+- **Motivo:** Evitar duplicar o programa e manter datas/valores iguais entre Gantt, plano e faturação.
+- **Relatório:** [Resultados e propostas de dados](proposal-gantt-roles-payments-2026-11-12.md).

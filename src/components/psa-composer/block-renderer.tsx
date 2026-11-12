@@ -418,7 +418,9 @@ function BlockBody({
   const relativeRows = relativeProgrammeRows(block.content_rich?.relative_programme);
   if (['gantt_design','gantt_construction','gantt_partial','appendix_gantt'].includes(block.block_type)) {
     if (block.content_rich?.enabled === false) return null;
-    return <DocumentGantt block={block} stages={live?.stages ?? []} lang={lang} title={`${num}${block.title}`} />;
+    return block.block_type === 'appendix_gantt'
+      ? <DocumentGantt block={block} stages={live?.stages ?? []} lang={lang} title={block.title} />
+      : <DocumentGantt block={block} stages={live?.stages ?? []} lang={lang} title={`${num}${block.title}`} variant="summary" />;
   }
   if (relativeRows.length && ["timeline", "gantt_design", "gantt_construction"].includes(block.block_type)) {
     const chart = block.block_type !== "timeline";
