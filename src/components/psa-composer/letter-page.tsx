@@ -5,6 +5,7 @@ import { resolveMaster, typeLayout } from '@/lib/psa-proposal/master-page';
 import type { PsaProposalBlock } from '@/lib/psa-proposal/types';
 import type { LiveQuoteSnapshot, ProposalLang } from '@/lib/psa-proposal/live-data';
 import psaLogo from '@/assets/logotipo-psa.jpg.asset.json';
+import './letter.css';
 import { letterDateLine, LETTER_SIGNATORY, type LetterFields } from '@/lib/psa-proposal/letter-fields';
 export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQuoteSnapshot;lang:ProposalLang}) {
   const query=useProposal(block.proposal_id);const proposal=query.data;

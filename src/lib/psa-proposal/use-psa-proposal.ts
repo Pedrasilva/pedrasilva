@@ -8,6 +8,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_LETTER_SETTINGS } from './letter';
+import { letterFieldDefaults } from './letter-fields';
+import { resolveMaster } from './master-page';
 import { useHistoricalRevision } from "./revision-context";
 import type {
   PsaLibraryEntry,
@@ -133,9 +135,11 @@ export function useCreateProposal() {
         .order("sort_hint", { ascending: true });
       if (libErr) throw libErr;
       const settings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
+      const editorialDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      const letterFields=letterFieldDefaults({},undefined,resolveMaster(proposal.style_settings),proposal.language==='en'?'en':'pt-PT',editorialDate);
       const rows = [
         {kind:'cover',default_title:'Capa',default_source_type:'mixed',default_source_ref:{},default_content_rich:{},default_contract_relevance:'proposal_only'},
-        {kind:'letter',default_title:'Carta',default_source_type:'mixed',default_source_ref:{},default_content_rich:{html:settings.templates[proposal.language] ?? DEFAULT_LETTER_SETTINGS.templates[proposal.language==='en'?'en':'pt-PT'],letterSettings:settings},default_contract_relevance:'proposal_only'},
+        {kind:'letter',default_title:'Carta',default_source_type:'mixed',default_source_ref:{},default_content_rich:{html:settings.templates[proposal.language] ?? DEFAULT_LETTER_SETTINGS.templates[proposal.language==='en'?'en':'pt-PT'],letterSettings:settings,letterVersion:2,letterFields,letterNeedsSources:true},default_contract_relevance:'proposal_only'},
         ...(lib ?? []).filter((row:PsaLibraryEntry)=>row.kind!=='cover' && row.kind!=='letter'),
       ];
       const seed = rows.map((row: PsaLibraryEntry, idx: number) => ({
