@@ -11,10 +11,10 @@ export const getProjectHourBudgets=createServerFn({method:'GET'})
   if(error)throw error;
   const allowed:string[]=[];const financial=new Set<string>();
   const staff=await supabase.rpc('is_psa_staff');if(staff.error)throw staff.error;if(!staff.data)return [];
-  for(const p of visible??[]){if(data.projectId&&data.projectId!==p.id)continue;
+  await Promise.all((visible??[]).filter(p=>!data.projectId||data.projectId===p.id).map(async p=>{
    // Visible rows already passed caller RLS. Financial-area helpers are not operational-access gates.
    allowed.push(p.id);const gate=await supabase.rpc('pm_project_rate_access',{_project:p.id});if(gate.error)throw gate.error;if(gate.data)financial.add(p.id);
-  }
+  }));
   if(!allowed.length)return [];
   const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
   const {loadInputs,currentHrCosts}=await import('./cost-rates.server');
@@ -40,6 +40,8 @@ export const getProjectHourBudgets=createServerFn({method:'GET'})
   const used=new Map<string,number>();const spent=new Map<string,number|null>();
   for(const e of entries){const id=e.pm_stage_id??(e.task_id?taskMap.get(e.task_id):undefined);if(!id)continue;used.set(id,(used.get(id)??0)+Number(e.hours));const previous=spent.get(id);spent.set(id,previous===null||e.cost_rate_snapshot==null?null:(previous??0)+Number(e.hours)*Number(e.cost_rate_snapshot));}
   const byResource=new Map((resources.data??[]).map(r=>[r.id,r]));
+  const historical=await db.from('historical_time_entries').select('project_id,stage_id,billable_hours,non_billable_hours,cost').in('project_id',allowed);if(historical.error)throw historical.error;
+  for(const h of historical.data??[]){if(!h.stage_id)continue;used.set(h.stage_id,(used.get(h.stage_id)??0)+Number(h.billable_hours??0)+Number(h.non_billable_hours??0));const previous=spent.get(h.stage_id);spent.set(h.stage_id,previous===null||h.cost==null?null:(previous??0)+Number(h.cost));}
   const practice=Array.from(costs.values()).filter((n):n is number=>n!=null&&n>0).map(defaultSale);
   return (projects.data??[]).map(p=>{
    const team=(teams.data??[]).filter(t=>t.project_id===p.id).map(t=>byResource.get(t.resource_id)).filter(r=>r?.collaborator_id&&costs.has(r.collaborator_id));
@@ -47,9 +49,9 @@ export const getProjectHourBudgets=createServerFn({method:'GET'})
    const pool=team.length?sales:practice;const avg=pool.length&&pool.every((n):n is number=>n!=null&&n>0)?pool.reduce((n,r)=>n+r,0)/pool.length:null;
    const stagesForProject=ss.filter(s=>s.project_id===p.id) as BudgetStage[];
    const budgets=stageHourBudgets(stagesForProject,avg,used);const roots=stagesForProject.filter(s=>s.is_self&&s.stage_kind!=='retainer_month'&&(!s.parent_stage_id||!stagesForProject.some(c=>c.id===s.parent_stage_id)));
-   const rows=roots.map(s=>budgets.get(s.id)).filter((r):r is HourBudget=>!!r);const meaningful=rows.filter(r=>r.planned!=null);const log=rows.reduce((n,r)=>n+r.used,0);
+   const rows=roots.map(s=>budgets.get(s.id)).filter((r):r is HourBudget=>!!r);const meaningful=rows.filter(r=>r.planned!=null);const log=rows.reduce((n,r)=>n+r.used,0)+(historical.data??[]).filter(h=>h.project_id===p.id&&!h.stage_id).reduce((n,h)=>n+Number(h.billable_hours??0)+Number(h.non_billable_hours??0),0);
    let total=hourBudget(p.sold_internal_fee,avg,log,p.planned_hours_target);
-   if(p.planned_hours_target==null&&stagesForProject.length){const planned=meaningful.length&&!rows.some(r=>r.origin==='rateMissing')?meaningful.reduce((n,r)=>n+(r.planned??0),0):null;total={planned,used:log,remaining:planned==null?null:planned-log,origin:planned==null?'feeMissing':'estimate',status:hoursStatus(planned,log)};}
+   if(p.planned_hours_target==null&&stagesForProject.length){const missingRate=rows.some(r=>r.origin==='rateMissing');const planned=meaningful.length&&!missingRate?meaningful.reduce((n,r)=>n+(r.planned??0),0):null;total={planned,used:log,remaining:planned==null?null:planned-log,origin:planned==null?(missingRate?'rateMissing':'feeMissing'):meaningful.every(r=>r.origin==='manual')?'manual':'estimate',status:hoursStatus(planned,log)};}
    function stageSpent(id:string,seen=new Set<string>()):number|null{if(seen.has(id))return null;seen.add(id);let sum=spent.get(id)??0;if(spent.get(id)===null)return null;for(const child of stagesForProject.filter(s=>s.parent_stage_id===id)){const n=stageSpent(child.id,seen);if(n==null)return null;sum+=n;}return sum;}
    return {projectId:p.id,total,stages:ss.filter(s=>s.project_id===p.id).map(s=>{const h=budgets.get(s.id)??hourBudget(null,null,0);const cost=stageSpent(s.id);return {id:s.id,name:s.name,parentId:s.parent_stage_id,kind:s.stage_kind,hours:h,...(financial.has(p.id)?{financial:{spent:cost,remaining:s.budget==null||cost==null?null:Number(s.budget)-cost}}:{})};}),...(financial.has(p.id)?{financial:{averageSale:avg,rateSource:team.length?'team' as const:'practice' as const}}:{})};
   });

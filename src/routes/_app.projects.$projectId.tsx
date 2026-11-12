@@ -3310,20 +3310,22 @@ function UsageBudgetCell({
   planned: number;
   over: boolean;
 }) {
-  const hoursOver = planned > 0 && logged > planned;
+  const {t}=useTranslation('projects');
+  const hoursOver = Number.isFinite(planned) && logged > planned;
+  const amber=Number.isFinite(planned)&&planned>0&&logged/planned>=0.85&&!hoursOver;
   return (
     <div className="flex items-center justify-end gap-2 font-mono text-xs tabular-nums">
-      <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
+      <span className={hoursOver ? "text-destructive font-semibold" : "text-foreground"}>
         <Num value={logged} kind="hours" />
       </span>
       <span className="text-muted-foreground">/</span>
       <span
         className={cn(
           "min-w-[4.5rem] rounded px-1.5 py-0.5 text-right text-[11px]",
-          hoursOver ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground",
+          hoursOver ? "bg-destructive/15 text-destructive" : amber?'bg-warning/15 text-warning':"bg-muted text-muted-foreground",
         )}
       >
-        <Num value={planned} kind="hours" />
+        {Number.isFinite(planned)?<Num value={planned} kind="hours" />:t('hourBudget.feeMissing')}
       </span>
     </div>
   );

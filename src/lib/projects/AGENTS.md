@@ -1,4 +1,5 @@
 # Projects module rules
+- Fee-derived hour budgets use the server-only project-hour projection; allocation reservations never override explicit targets, and hours-only readers strip money before serialization. Why: consistent effort budgets must not reveal financial figures or rewrite planning/history. Direct legacy Data API/RPC financial exposure remains an explicit certification blocker until scoped boundary migration is reviewed.
 - Live fee changes use confirmed atomic commercial actions and append-only history; new value-owned stages retain their fee independently of substage allocation, and split totals are server-capped. Why: operational adaptation must preserve contracted references, real actors and protected fiscal amounts.
 
 - Global Gantt financial headers, outline, bars and popovers require caller-scoped project area approval; empty allocations never make a denied cost zero and rollups propagate missing budgets. Why: operational visibility must not manufacture financial values.
