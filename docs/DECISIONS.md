@@ -363,3 +363,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Limites:** B1 OFF; sem alterações de dados reais. Validação parcial e casos não certificados no relatório. A implementação usa início efetivo como primeiro pagamento quando o início FS cai a meio do mês; meses seguintes usam primeiro dia útil do mês. Esta interpretação não substitui a decisão fiscal anterior e carece de confirmação para certificação.
 - **Motivo:** Avenças devem participar no programa e previsões sem perder o editor mensal nem histórico.
 - **Relatórios:** [Resultados, SQL, ficheiros e limites](retainer-gantt-report.md).
+
+### D43 — Primeiro mês da avença após Arquitetura
+- **Data:** Confirmação de Luis na resposta às perguntas de D42.
+- **Área:** Avenças / calendário / pagamentos.
+- **Decisão:** Quando o fim de Arquitetura cai a meio do mês, a avença e a primeira mensalidade começam no primeiro dia útil do mês seguinte. As seguintes vencem no primeiro dia útil de cada mês. Luis confirmou que já eliminou o duplicado; não realizar qualquer eliminação adicional.
+- **Estado:** Substitui apenas a interpretação provisória do primeiro mês descrita nos limites de D42; restante decisão preservada.
+- **Motivo:** Cumprir vencimento mensal sem faturar antes do início da avença.
+- **Relatórios:** [Resultados e limites](retainer-gantt-report.md).

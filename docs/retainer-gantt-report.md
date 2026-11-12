@@ -35,10 +35,10 @@ Implementação parcial validada em cópia descartável de Travessa do Oleiro e 
 | `7f2fcf5d-fda9-42cd-a8e0-de531187effe` | Construction retainer | retainer_monthly | 12 × 3 000 € = 36 000 € |
 | `2d7938b4-3d71-4c8b-bf7c-3002391d5de3` | Monthly Assistance | regular, supplier_group, sob Construction | sem meses, 0 € |
 
-Não foram encontradas duas avenças `retainer_monthly` idênticas. Luis deve confirmar se se refere a estes dois registos ou a outra proposta; nenhum será eliminado sem indicação exata.
+Luis confirmou que já eliminou o duplicado. Nenhuma eliminação adicional foi realizada pelo agente.
 
-## Interpretação do primeiro mês — decisão necessária
-Com FS em 22 junho 2027, o primeiro pagamento usa 22 junho; seguintes usam primeiro dia útil de cada mês civil. Isto evita faturar antes do início mas pode não corresponder à leitura literal «primeiro dia útil de cada mês de construção». Confirmar se o início deve passar para o mês seguinte ou se esta primeira mensalidade parcial é aceite; não alterar registos reais antes dessa decisão.
+## Primeiro mês — confirmado por Luis
+Luis escolheu «No mês seguinte»: com Arquitetura a terminar a meio de junho, avença e primeira mensalidade começam no primeiro dia útil de julho. Regra aplicada à criação, dependências e conversão sem backfill real; teste concreto de 22 junho → 1 julho passou. D43 acrescentada, sem reescrever D42. As imagens e o ensaio convertido anteriores documentam a versão anterior a esta confirmação; a nova regra ainda não foi revalidada por conversão completa no navegador.
 
 ## Ficheiros alterados
 - `src/components/planner/planner-gantt.tsx`, `retainer-settings.tsx`, `retainer-bar.css`.
@@ -46,7 +46,7 @@ Com FS em 22 junho 2027, o primeiro pagamento usa 22 junho; seguintes usam prime
 - `src/components/quotes/quote-planning-tab.tsx`, `quote-planner-inspector.tsx`, `retainer-stage-editor.tsx`.
 - `src/lib/projects/retainer-schedule.ts`, `retainer-schedule.test.ts`, `schedule-engine.ts`, `build-project-gantt-tree.ts`, `use-project-planner-adapter.ts`, `use-gantt-commercial.ts`.
 - `src/lib/quotes/use-quote-stages.ts`, `src/lib/finance/use-billing-plan.ts`.
-- `docs/DECISIONS.md` (D42 acrescentada), `AGENTS.md`, `roadmap.md`, este relatório; tipos regenerados automaticamente.
+- `docs/DECISIONS.md` (D42/D43 acrescentadas), `roadmap.md`, este relatório; tipos regenerados automaticamente. Regra estrutural não gravada em AGENTS.md por limite de tamanho; nenhuma regra existente encurtada.
 
 ## Migrações SQL
 Pares idênticos em `drizzle/migrations` e `supabase/migrations`:
@@ -59,5 +59,6 @@ Pares idênticos em `drizzle/migrations` e `supabase/migrations`:
 - 0302 / `20261111233500_retainer_canonical_incoming_dates.sql`
 - 0303 / `20261111233600_retainer_preserve_operational_timing_evidence.sql`
 - 0304 / `20261111233700_retainer_extend_construction_summary.sql`
+- 0305 / `20261111233800_retainer_next_month_start.sql` — confirmação do primeiro mês; 45 testes puros/regressão passaram após a alteração.
 
 Todas aplicadas; sem backfill de registos existentes nem políticas de armazenamento alteradas. Nova tabela de histórico tem grants, RLS e revogação TRUNCATE.
