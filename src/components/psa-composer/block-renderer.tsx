@@ -2,6 +2,7 @@ import { compareStageDisplay, isConstructionStage, sortStagesByWbs } from "@/lib
 import { ProposalImageEditorHint } from "./document-editor-hints";
 import uiI18n from "@/i18n/index";
 import { LetterPage } from './letter-page';
+import { DocumentGantt } from './document-gantt';
 import { relativeProgrammeRows, relativeProgrammeTiming } from "@/lib/psa-proposal/relative-programme";
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
@@ -415,6 +416,10 @@ function BlockBody({
 
   // Explicit, proposal-owned programme: opt-in only, never a Gantt/date write.
   const relativeRows = relativeProgrammeRows(block.content_rich?.relative_programme);
+  if (['gantt_design','gantt_construction','gantt_partial','appendix_gantt'].includes(block.block_type)) {
+    if (block.content_rich?.enabled === false) return null;
+    return <DocumentGantt block={block} stages={live?.stages ?? []} lang={lang} title={`${num}${block.title}`} />;
+  }
   if (relativeRows.length && ["timeline", "gantt_design", "gantt_construction"].includes(block.block_type)) {
     const chart = block.block_type !== "timeline";
     const span = Math.max(...relativeRows.map((row) => row.end));
