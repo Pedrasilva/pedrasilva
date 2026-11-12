@@ -2,7 +2,8 @@
 - [x] Render retainer rows with distinct bars, shared settings/cards and Construction summary coverage.
 - [x] Relative/live creation, dependencies, month resize, monthly payments and value-confirmation history implemented; existing fiscal date evidence remains untouched.
 - [x] Disposable Oleiro quote 12/18 months and accepted conversion/live extension passed; operational copies deleted, source quote unchanged, B1 OFF; D42 and report.
-- [ ] First partial-month payment interpretation and reported duplicate choice await Luis; full fiscal/concurrency/drag/monthly-value/history UI certification and six immutable disposable audit rows need reviewed cleanup. See retainer-gantt-report.md.
+- [x] Luis confirmed following-month start and already deleted duplicate; D43 and migration 0305 implement it without real backfill; 45 tests passed.
+- [ ] Full fiscal/concurrency/drag/monthly-value/history UI certification, final following-month browser conversion and six immutable disposable audit rows need reviewed cleanup. See retainer-gantt-report.md.
 
 ## Current request — calculator-linked Gantt
 - [x] Atomic linked creation/update, relative months, exact rounding, value/deletion confirmations and shared template insertion/warning/undo path implemented.

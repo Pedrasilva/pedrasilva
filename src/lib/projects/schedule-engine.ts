@@ -1,4 +1,4 @@
-import {retainerEnd,retainerMonths} from "./retainer-schedule";
+import {retainerEnd,retainerMonths,nextRetainerMonth} from "./retainer-schedule";
 import { addDays, format, isWeekend, parseISO } from "date-fns";
 import type { DepType, StageDependency } from "./dependencies";
 
@@ -188,7 +188,7 @@ export function recomputeSchedule(state: ScheduleState, deps = state.dependencie
         if (!pred) continue;
         const candidate = constraintBounds({...pred, ...summary.get(pred.id)}, dep.type, dep.lag_days,
           durations.get(stage.id) ?? 1, calendar);
-        if(stage.stage_kind==='retainer_monthly')candidate.end_date=retainerEnd(candidate.start_date,retainerMonths(stage.start_date,stage.end_date));
+        if(stage.stage_kind==='retainer_monthly'){candidate.start_date=nextRetainerMonth(candidate.start_date,state.relative?[]:state.holidays);candidate.end_date=retainerEnd(candidate.start_date,retainerMonths(stage.start_date,stage.end_date));}
         if (!best || candidate.start_date > best.start_date) best = candidate;
       }
       if (!best) continue; // Last link removed: retain current explicit position.
