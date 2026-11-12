@@ -4,6 +4,9 @@ describe('approved fee hour rules',()=>{
  it('50 percent markup',()=>expect(defaultSale(100)).toBe(150));
  it('100000 fee at 100 per hour is 1000 hours',()=>expect(hourBudget(100000,100,75).planned).toBe(1000));
  it('manual hour budget wins',()=>expect(hourBudget(100000,100,75,250).remaining).toBe(175));
+ it('a missing fee does not override an explicit zero hour target',()=>expect(hourBudget(null,100,5,0).remaining).toBe(-5));
+ it('allocation bookings are not a manual budget',()=>expect(hourBudget(100000,100,0).planned).toBe(1000));
+ it('summary and its children are not counted twice',()=>{const base:BudgetStage={id:'p',parent_stage_id:null,budget:0,stage_kind:'regular',is_self:true,commercial_value_owned:false,planned_hours_target:null,retainer_monthly_amount:0,retainer_months:null};const rows=stageHourBudgets([base,{...base,id:'a',parent_stage_id:'p',budget:100000},{...base,id:'b',parent_stage_id:'p',budget:50000}],100,new Map());expect(rows.get('p')?.planned).toBe(1500);});
  it('fee missing is not zero',()=>expect(hourBudget(0,100,75).planned).toBeNull());
  it('rate missing is not free',()=>expect(hourBudget(100000,null,75).origin).toBe('rateMissing'));
  it('amber begins at 85 percent',()=>{expect(hoursStatus(100,84.99)).toBe('ok');expect(hoursStatus(100,85)).toBe('warn');});
