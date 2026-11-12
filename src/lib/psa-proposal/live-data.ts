@@ -694,8 +694,11 @@ export async function fetchLiveQuoteSnapshot(
         return y && m && d ? `${d}/${m}/${y}` : iso;
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let timingItems: any[] = (pay ?? []) as any[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dateFor = (p: any): string => {
-        return proposalTimingToken(proposalPaymentTiming(p, stageArr, pay ?? [], lang));
+        return proposalTimingToken(proposalPaymentTiming(p, stageArr, timingItems, lang));
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const triggerSentence = (p: any): string => {
@@ -772,7 +775,7 @@ export async function fetchLiveQuoteSnapshot(
         if (!s.start_date || monthly <= 0) return [];
         const vatRow = ((pay ?? []) as any[]).find((p) => p.stage_id === s.id);
         return retainerPaymentDates(s.start_date, Number(s.retainer_months ?? 12) || 12).map((date, i) => ({
-          id: `retainer:${s.id}:${i}`, stage_id: s.id, trigger_type: "manual_date", amount_type: "fixed",
+          id: `retainer:${s.id}:${i}`, stage_id: s.id, trigger_type: "monthly", sort_order: i, amount_type: "fixed",
           amount_value: monthly, direction: "inflow", expected_invoice_date: date, label: s.name,
           vat_rate: vatRow?.vat_rate ?? null, payment_terms: vatRow?.payment_terms ?? null, invoice_group_id: null,
         }));
@@ -784,6 +787,7 @@ export async function fetchLiveQuoteSnapshot(
           !(dpDisabled && isAdjudicacaoRow(p)) &&
           !(p.stage_id && clientStageIds.has(p.stage_id)),
       ), ...retainerRows];
+      timingItems = [...timingItems.filter((p) => !(p.stage_id && retainerIds.has(p.stage_id))), ...retainerRows];
 
 
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
