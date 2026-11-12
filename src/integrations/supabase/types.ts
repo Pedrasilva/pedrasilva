@@ -12054,6 +12054,7 @@ export type Database = {
           notes: string | null
           opportunity_id: string | null
           origin: string
+          planned_hours_target: number | null
           quote_id: string | null
           sold_at: string | null
           sold_external_fee: number | null
@@ -12083,6 +12084,7 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           origin?: string
+          planned_hours_target?: number | null
           quote_id?: string | null
           sold_at?: string | null
           sold_external_fee?: number | null
@@ -12112,6 +12114,7 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           origin?: string
+          planned_hours_target?: number | null
           quote_id?: string | null
           sold_at?: string | null
           sold_external_fee?: number | null
@@ -12806,6 +12809,7 @@ export type Database = {
           origin: string | null
           outside_contract: boolean
           parent_stage_id: string | null
+          planned_hours_target: number | null
           project_id: string
           retainer_anchor_month: string | null
           retainer_capacity_hours_per_month: number
@@ -12856,6 +12860,7 @@ export type Database = {
           origin?: string | null
           outside_contract?: boolean
           parent_stage_id?: string | null
+          planned_hours_target?: number | null
           project_id: string
           retainer_anchor_month?: string | null
           retainer_capacity_hours_per_month?: number
@@ -12906,6 +12911,7 @@ export type Database = {
           origin?: string | null
           outside_contract?: boolean
           parent_stage_id?: string | null
+          planned_hours_target?: number | null
           project_id?: string
           retainer_anchor_month?: string | null
           retainer_capacity_hours_per_month?: number
@@ -19926,6 +19932,10 @@ export type Database = {
       pm_revise_week_plan: {
         Args: { _expected_updated_at: string; _plan_id: string; _slots: Json }
         Returns: Json
+      }
+      pm_set_hours_target: {
+        Args: { _hours: number; _project: string; _stage: string }
+        Returns: undefined
       }
       pm_team_resource_ids: {
         Args: { _user_id: string }
