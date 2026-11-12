@@ -438,3 +438,13 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Motivo:** A elaboração de uma proposta não constitui uma alteração a um contrato existente.
 - **Relatório/plano:** [Investigação e plano para aprovação](proposal-precontract-values-plan-2026-11-12.md).
 - **Execução:** [Resultados e limites](proposal-precontract-values-result-2026-11-12.md). Histórico Draft Hotel Chiado c16cb84d-bc34-4842-89c9-05cbc9d3a287 criado durante a investigação, às 16:25:41 UTC, preservado; nenhuma limpeza autorizada.
+
+### D51 — Carta de apresentação formal e Master Carta
+- **Data:** 12/11/2026, pedido de Luis às 19:25 UTC.
+- **Área:** Propostas / Carta / Master page / IA.
+- **Estado:** Requisitos confirmados; plano e maquete submetidos, implementação aguarda OK de Luis. Clarifica o layout Carta de D33; Capa e Conteúdo permanecem inalterados.
+- **Decisão:** Carta empresarial de uma página no idioma da proposta (PT-PT/EN), por esta ordem: destinatário no topo direito a partir da empresa/contacto CRM ligados à quote; remetente abaixo à esquerda a partir das definições da empresa; local/data editorial; assunto com projeto/número; saudação; corpo rico editável com agradecimento, resumo executivo baseado apenas na proposta e disponibilidade; despedida, imagem de assinatura quando carregada, Luís Pedra Silva, cargo editável e Pedra Silva Arquitectos. Campos ausentes são espaços reservados editáveis, nunca dados inventados. Regeneração por IA pede confirmação antes de substituir edições manuais e não altera os restantes campos.
+- **Master Carta:** Logótipo PSA no topo esquerdo, destinatário em posição de janela de envelope, sem texto de cabeçalho corrente nem número de página; margens adequadas ao corpo e morada/contactos na linha de rodapé. A numeração começa no Conteúdo, depois da carta. Preservar snapshots existentes e overrides explícitos conforme D15/D33.
+- **Preservação:** Sem edição de propostas reais nesta fase; testes apenas numa QUOTE copiada separada (D46/D47), sem documentos/revisões ligados ao original. B1 OFF. Nenhuma alteração de valores, Gantt, pagamentos, permissões, histórico ou exclusões documentais reais.
+- **Motivo:** Transformar o bloco atual numa carta profissional editável, sem inventar identidade, valores ou compromissos e sem alterar a paginação do restante documento.
+- **Plano/maquete:** [Plano para aprovação](../.lovable/plan.md); arquivo automático após aprovação. Sem relatório de execução nesta fase.
