@@ -176,7 +176,7 @@ export function ProjectEffortTable({
                     r.remainingHours < 0 ? "text-destructive" : "text-foreground",
                   )}
                 >
-                  {Math.round(r.remainingHours)} {i18n.t("common:units.hoursShort")} </td>
+                  {Number.isFinite(r.remainingHours)?Math.round(r.remainingHours):'—'} {Number.isFinite(r.remainingHours)&&i18n.t("common:units.hoursShort")} </td>
                 <td className="px-3 py-2.5 text-right">
                   <EfficiencyBadge
                     efficiencyPct={r.efficiencyPct}

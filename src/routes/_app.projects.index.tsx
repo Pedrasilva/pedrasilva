@@ -136,7 +136,7 @@ function useMonthEntries(periodStart: string, periodEnd: string,financials:boole
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
-      return (data ?? []).map((r) => ({
+      return ((data ?? []) as unknown as TimeEntryRow[]).map((r) => ({
         ...r,
         hours: Number(r.hours ?? 0),
         cost_rate_snapshot: (r as unknown as TimeEntryRow).cost_rate_snapshot == null ? null : Number((r as unknown as TimeEntryRow).cost_rate_snapshot),
