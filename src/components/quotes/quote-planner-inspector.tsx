@@ -51,6 +51,8 @@ import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
 import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import {GanttStageCommercial,GanttValueDialog} from '@/components/planner/gantt-commercial-panel';
+import {QuoteValueDialog} from '@/components/planner/quote-value-dialog';
+import {useQuoteCommercial} from '@/lib/quotes/use-quote-commercial';
 
 interface Props {
   relative?:boolean;
@@ -97,6 +99,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
     deleteAllocation:delAlloc, resources:poolResources, defaultRates, quoteMargin}=model;
   const stage = model.stages.find(s=>s.id===stageId);
   const operationalStage=model.operationalStages?.find(s=>s.id===stageId);
+  const quoteCommercial=useQuoteCommercial(quoteId,!model.operational);
   const allStages=model.stages;
   const deps=model.dependencies;
   const allocs=model.allocations.filter(a=>a.stage_id===stageId);
@@ -295,6 +298,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
 
       {model.operational&&stage.stage_kind!=='retainer_monthly'&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
       {pendingValue!=null&&operationalStage&&<GanttValueDialog projectId={quoteId} stage={operationalStage} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
+      {pendingValue!=null&&!model.operational&&<QuoteValueDialog stageId={stage.id} expected={Number(stage.budget)} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       <fieldset disabled={model.readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
@@ -742,7 +746,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                           value={Number(stage.budget ?? 0)}
                           onCommit={(v: number) => {
                             if (v !== Number(stage.budget)) {
-                              if(model.operational)setPendingValue(v);
+                              if(model.operational||quoteCommercial.data?.hasContract!==false)setPendingValue(v);
                               else upsertStage.mutate({ id: stage.id, budget: v });
                             }
                           }}
