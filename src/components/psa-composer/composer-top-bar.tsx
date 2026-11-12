@@ -376,13 +376,13 @@ export async function printProposalDocument(
           .proposal-export-sheets .proposal-page-header, .proposal-export-sheets .proposal-page-footer { position: static !important; }
           .proposal-export-sheets .proposal-page-break-before, .proposal-export-sheets .proposal-page-break-after { break-before: auto !important; break-after: auto !important; }
 
-          html, body { width: 210mm; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: white !important; }
+          html, body { width: auto !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: white !important; }
           body.proposal-pdf-export,
           body.proposal-pdf-export * { visibility: visible !important; }
           body.proposal-pdf-export > .proposal-export-sheets {
             position: static !important;
             inset: auto !important;
-            width: 210mm !important;
+            width: auto !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
