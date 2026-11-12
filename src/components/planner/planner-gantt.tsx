@@ -1,3 +1,4 @@
+import { outlineMove } from "@/lib/quotes/outline-moves";
 import {RetainerSettings} from "./retainer-settings";
 import {retainerEnd,retainerPaymentDates} from "@/lib/projects/retainer-schedule";
 import {useBillingPlan} from "@/lib/finance/use-billing-plan";
@@ -346,36 +347,12 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
    * siblings sharing role + parent_stage_id, splice the target to the new
    * 1-based position, and rewrite sort_order sequentially.
    */
-  const handleReorder = useCallback(
-    async (id: string, newPosition: number) => {
-      if (blockIfLocked()) return;
-      const target = stages.find((s) => s.id === id) as
-        | (typeof stages)[number] & { parent_stage_id?: string | null }
-        | undefined;
-      if (!target) return;
-      // Group siblings by parent_stage_id ONLY — the outline WBS numbers
-      // children of the same parent regardless of stage_role, so reorder
-      // must operate over the same sibling set to keep positions consistent.
-      const parentId = target.parent_stage_id ?? null;
-      const siblings = (stages as typeof stages & Array<{ parent_stage_id?: string | null }>)
-        .filter(
-          (s) => ((s as { parent_stage_id?: string | null }).parent_stage_id ?? null) === parentId,
-        )
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const without = siblings.filter((s) => s.id !== id);
-      const clamped = Math.max(1, Math.min(newPosition, siblings.length));
-      without.splice(clamped - 1, 0, target);
-      // Write only rows whose sort_order changes.
-      await Promise.all(
-        without.map((s, i) => {
-          const next = (i + 1) * 10;
-          if ((s.sort_order ?? 0) === next) return Promise.resolve();
-          return upsertStage.mutateAsync({ id: s.id, sort_order: next });
-        }),
-      );
-    },
-    [stages, upsertStage, blockIfLocked],
-  );
+  const applyOutlineMove = useCallback(async (id: string, action: 'up' | 'down' | 'indent' | 'outdent' | 'position', position = 1) => {
+    if (blockIfLocked()) return;
+    for (const patch of outlineMove(stages, id, action, position)) await upsertStage.mutateAsync(patch);
+  }, [stages, upsertStage, blockIfLocked]);
+  const handleReorder = useCallback((id: string, position: number) => applyOutlineMove(id, 'position', position), [applyOutlineMove]);
+  const handleMove = useCallback((id: string, direction: 'up' | 'down') => applyOutlineMove(id, direction), [applyOutlineMove]);
 
   // Index resources for fast lookup when building per-allocation snapshots.
   const resourceById = useMemo(
@@ -987,77 +964,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
    * sibling (same current parent). Stage role/category is preserved — the
    * parent simply becomes a group header. No role demotion.
    */
-  const handleIndent = useCallback(
-    async (id: string) => {
-      if (blockIfLocked()) return;
-      type S = (typeof stages)[number] & {
-        parent_stage_id?: string | null;
-      };
-      const all = stages as S[];
-      const target = all.find((s) => s.id === id);
-      if (!target) return;
-      const parentId = target.parent_stage_id ?? null;
-      const siblings = all
-        .filter((s) => (s.parent_stage_id ?? null) === parentId)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const idx = siblings.findIndex((s) => s.id === id);
-      const prev = siblings[idx - 1];
-      if (!prev) {
-        toast.error(t("workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
-        return;
-      }
-      const newKids = all
-        .filter((s) => (s.parent_stage_id ?? null) === prev.id)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const nextSort = ((newKids[newKids.length - 1]?.sort_order ?? 0) || 0) + 10;
-      await upsertStage.mutateAsync({
-        id,
-        parent_stage_id: prev.id,
-        sort_order: nextSort,
-      } as Parameters<typeof upsertStage.mutateAsync>[0]);
-      toast.success(t("workspace.planning.indented", { defaultValue: "Row indented." }));
-    },
-    [stages, upsertStage, t, blockIfLocked],
-  );
-
-  /**
-   * Outdent (Merlin-style): promote one level — new parent = current parent's
-   * parent. Placed right after the former parent in the new sibling group.
-   * Stage role/category is preserved.
-   */
-  const handleOutdent = useCallback(
-    async (id: string) => {
-      if (blockIfLocked()) return;
-      type S = (typeof stages)[number] & {
-        parent_stage_id?: string | null;
-      };
-      const all = stages as S[];
-      const target = all.find((s) => s.id === id);
-      if (!target) return;
-      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
-      if (!parent) {
-        toast.error(t("workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
-        return;
-      }
-      const newParentId = (parent as S).parent_stage_id ?? null;
-      const siblings = all
-        .filter((s) => (s.parent_stage_id ?? null) === newParentId)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const parentIdx = siblings.findIndex((s) => s.id === parent.id);
-      const a = siblings[parentIdx]?.sort_order ?? 0;
-      const b = siblings[parentIdx + 1]?.sort_order ?? a + 20;
-      let sort = Math.floor((a + b) / 2);
-      if (sort === a || sort === b) sort = a + 5;
-      await upsertStage.mutateAsync({
-        id,
-        parent_stage_id: newParentId,
-        sort_order: sort,
-      } as Parameters<typeof upsertStage.mutateAsync>[0]);
-      toast.success(t("workspace.planning.outdented", { defaultValue: "Row outdented." }));
-    },
-    [stages, upsertStage, t, blockIfLocked],
-  );
-
+  const handleIndent = useCallback((id: string) => applyOutlineMove(id, 'indent'), [applyOutlineMove]);
+  const handleOutdent = useCallback((id: string) => applyOutlineMove(id, 'outdent'), [applyOutlineMove]);
 
   // Measure chart container width so "Fit" stretches to fill it.
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -1187,6 +1095,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
             onSelectStage={(id) => setSelectedStageId(id)}
             onRenameStage={handleRename}
             onReorderStage={handleReorder}
+            onMoveStage={handleMove}
             onInsertStage={handleInsert}
             onDeleteStage={handleDelete}
             onUpdateStageBounds={handleUpdateBounds}
@@ -1255,7 +1164,7 @@ function OperationalScheduleAdapter({
   const provenanceReady = !linkedQuoteId || provenance.isSuccess;
   const rolesQ = useProjectStageRoles(projectId);
   const projection = useMemo(() => detailQ.data && rolesQ.isSuccess ? {
-    stages: detailQ.data.stages.map(s => ({ ...s,is_locked:false, sort_order: s.stage_kind === "retainer_monthly" ? Math.max(0, ...detailQ.data.stages.map(x => x.sort_order)) + 1 : s.sort_order, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
+    stages: detailQ.data.stages.map(s => ({ ...s,is_locked:false, stage_role: plannerStageRole({...s,stage_role:s.stage_role ?? rolesQ.data.find(r => r.stage_id === s.id)?.stage_role ?? null}) })),
     issues: sourceQuoteId ? liveStageIdentityIssues(detailQ.data.stages) : [],
   } : null, [detailQ.data, rolesQ.data, rolesQ.isSuccess, sourceQuoteId]);
   const mappingReady = provenanceReady && !!projection && projection.issues.length === 0;
@@ -1487,30 +1396,12 @@ function OperationalScheduleAdapter({
     [canEdit, updateStage, projectId],
   );
 
-  const handleReorder = useCallback(
-    async (id: string, newPosition: number) => {
-      if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
-      const target = stages.find((s) => s.id === id) as
-        | (StageWithAllocations & { parent_stage_id?: string | null })
-        | undefined;
-      if (!target) return;
-      const parentId = target.parent_stage_id ?? null;
-      const siblings = (stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>)
-        .filter((s) => (s.parent_stage_id ?? null) === parentId)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const without = siblings.filter((s) => s.id !== id);
-      const clamped = Math.max(1, Math.min(newPosition, siblings.length));
-      without.splice(clamped - 1, 0, target);
-      await Promise.all(
-        without.map((s, i) => {
-          const next = (i + 1) * 10;
-          if ((s.sort_order ?? 0) === next) return Promise.resolve();
-          return updateStage.mutateAsync({ id: s.id, patch: { sort_order: next }, projectId });
-        }),
-      );
-    },
-    [canEdit, stages, updateStage, projectId],
-  );
+  const applyOutlineMove = useCallback(async (id: string, action: 'up' | 'down' | 'indent' | 'outdent' | 'position', position = 1) => {
+    if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
+    for (const {id: rowId, ...patch} of outlineMove(stages, id, action, position)) await updateStage.mutateAsync({id:rowId,patch,projectId});
+  }, [canEdit, stages, updateStage, projectId]);
+  const handleReorder = useCallback((id: string, position: number) => applyOutlineMove(id, 'position', position), [applyOutlineMove]);
+  const handleMove = useCallback((id: string, direction: 'up' | 'down') => applyOutlineMove(id, direction), [applyOutlineMove]);
 
   const handleInsert = useCallback(
     async (anchorId: string | null, where: "above" | "below" | "child" | "milestone") => {
@@ -1626,65 +1517,8 @@ function OperationalScheduleAdapter({
     [canEdit, deleteStageMut, projectId, selectedStageId, t],
   );
 
-  const handleIndent = useCallback(
-    async (id: string) => {
-      if (!canEdit) return;
-      const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
-      const target = all.find((s) => s.id === id);
-      if (!target) return;
-      const parentId = target.parent_stage_id ?? null;
-      const siblings = all
-        .filter((s) => (s.parent_stage_id ?? null) === parentId)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const idx = siblings.findIndex((s) => s.id === id);
-      const prev = siblings[idx - 1];
-      if (!prev) {
-        toast.error(t("crm:workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
-        return;
-      }
-      const newKids = all
-        .filter((s) => (s.parent_stage_id ?? null) === prev.id)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const nextSort = ((newKids[newKids.length - 1]?.sort_order ?? 0) || 0) + 10;
-      await updateStage.mutateAsync({
-        id,
-        patch: { parent_stage_id: prev.id, sort_order: nextSort },
-        projectId,
-      });
-      toast.success(t("crm:workspace.planning.indented", { defaultValue: "Row indented." }));
-    },
-    [canEdit, stages, updateStage, projectId, t],
-  );
-
-  const handleOutdent = useCallback(
-    async (id: string) => {
-      if (!canEdit) return;
-      const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
-      const target = all.find((s) => s.id === id);
-      if (!target) return;
-      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
-      if (!parent) {
-        toast.error(t("crm:workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
-        return;
-      }
-      const newParentId = (parent as { parent_stage_id?: string | null }).parent_stage_id ?? null;
-      const siblings = all
-        .filter((s) => (s.parent_stage_id ?? null) === newParentId)
-        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const parentIdx = siblings.findIndex((s) => s.id === parent.id);
-      const a = siblings[parentIdx]?.sort_order ?? 0;
-      const b = siblings[parentIdx + 1]?.sort_order ?? a + 20;
-      let sort = Math.floor((a + b) / 2);
-      if (sort === a || sort === b) sort = a + 5;
-      await updateStage.mutateAsync({
-        id,
-        patch: { parent_stage_id: newParentId, sort_order: sort },
-        projectId,
-      });
-      toast.success(t("crm:workspace.planning.outdented", { defaultValue: "Row outdented." }));
-    },
-    [canEdit, stages, updateStage, projectId, t],
-  );
+  const handleIndent = useCallback((id: string) => applyOutlineMove(id, 'indent'), [applyOutlineMove]);
+  const handleOutdent = useCallback((id: string) => applyOutlineMove(id, 'outdent'), [applyOutlineMove]);
 
   if (detailQ.isLoading) {
     return (
@@ -1761,6 +1595,7 @@ function OperationalScheduleAdapter({
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_MODE_SUMMARY_ID ? null : (id === selectedStageId ? null : id))}
             onRenameStage={canEdit ? handleRename : undefined}
             onReorderStage={canEdit ? handleReorder : undefined}
+            onMoveStage={canEdit ? handleMove : undefined}
             onInsertStage={canEdit ? handleInsert : undefined}
             onDeleteStage={canEdit ? handleDelete : undefined}
             onUpdateStageBounds={canEdit ? adapter.updateStage : undefined}

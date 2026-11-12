@@ -22,6 +22,7 @@ import type { GanttActuals } from "@/lib/projects/gantt-actuals";
 import { GanttActualMetrics, ACTUAL_METRIC_HEIGHT, ACTUAL_ROW_HEIGHT } from "./gantt-actuals-layer";
 import { getWorkingCalendarHolidays } from "@/lib/projects/gantt-utils";
 import {useTranslation} from "react-i18next";
+import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -73,6 +74,7 @@ interface Props {
   onSelectStage?: (id: string) => void;
   onRenameStage?: (id: string, name: string) => Promise<unknown> | unknown;
   onReorderStage?: (id: string, newPosition: number) => Promise<unknown> | unknown;
+  onMoveStage?: (id: string, direction: "up" | "down") => Promise<unknown> | unknown;
   onInsertStage?: (
     anchorId: string,
     where: "above" | "below" | "child" | "milestone",
@@ -150,6 +152,7 @@ export function GanttOutlineColumn({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onMoveStage,
   onInsertStage,
   onDeleteStage,
   resourcesCollapsed,
@@ -294,24 +297,24 @@ export function GanttOutlineColumn({
                     const lastSeg = parseInt((wbs.split(".").pop() ?? "1"), 10) || 1;
                     return (
                       <div className="mt-0.5 flex shrink-0 flex-col opacity-0 group-hover/row:opacity-100 transition-opacity">
-                        <button
+                        <Button variant="ghost" size="icon"
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg - 1); }}
+                          onClick={(e) => { e.stopPropagation(); onMoveStage ? onMoveStage(stage.id, "up") : onReorderStage(stage.id, lastSeg - 1); }}
                           className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
                           aria-label={i18n.t("projects:ganttOutlineColumn.ui.moveUp")}
                           title={i18n.t("projects:ganttOutlineColumn.ui.moveUp")}
                         >
                           <ChevronUp className="h-2.5 w-2.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="ghost" size="icon"
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg + 1); }}
+                          onClick={(e) => { e.stopPropagation(); onMoveStage ? onMoveStage(stage.id, "down") : onReorderStage(stage.id, lastSeg + 1); }}
                           className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
                           aria-label={i18n.t("projects:ganttOutlineColumn.ui.moveDown")}
                           title={i18n.t("projects:ganttOutlineColumn.ui.moveDown")}
                         >
                           <ChevronDown className="h-2.5 w-2.5" />
-                        </button>
+                        </Button>
                       </div>
                     );
                   })()}
