@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ import type { QuoteLifecycle } from '@/lib/quotes/quote-lifecycle';
 import { needsRevisionSend } from '@/lib/quotes/quote-lifecycle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SendProposalDialog } from '@/components/psa-composer/send-proposal-dialog';
-import type { PsaProposal } from '@/lib/psa-proposal/types';
+import { useMainProposal } from '@/lib/psa-proposal/use-main-proposal';
 import { useNextRevNumber } from '@/lib/psa-proposal/use-proposal-revisions';
 export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignature,isConverting}: {
  quoteId:string; lifecycle:QuoteLifecycle; onConvert:()=>void; onGoToSignature?:()=>void;
@@ -26,11 +26,12 @@ export function QuoteWorkflowActions({quoteId,lifecycle,onConvert,onGoToSignatur
  const [date,setDate]=useState(''); const [note,setNote]=useState(''); const [attachment,setAttachment]=useState<File|null>(null);
  const [selected,setSelected]=useState('');
  const [sendOpen,setSendOpen]=useState(false);
- const proposal=useQuery({queryKey:['quote-workflow-proposal',quoteId],queryFn:async()=>{const {data,error}=await supabase.from('psa_proposals').select('*').eq('quote_id',quoteId).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data as unknown as PsaProposal|null;}});
+ const proposal=useMainProposal(quoteId);
+ useEffect(()=>{setSelected('');setSendOpen(false);setOpen(false);},[proposal.data?.id]);
  const nextRev=useNextRevNumber(proposal.data?.id);
- const revisions=useQuery({queryKey:['quote-acceptance-revisions',quoteId],enabled:open,queryFn:async()=>{
-  const {data:proposals,error:pError}=await supabase.from('psa_proposals').select('id').eq('quote_id',quoteId);if(pError)throw pError;
-  const {data,error}=await supabase.from('psa_proposal_snapshots').select('id,rev_number,pdf_filename').in('proposal_id',(proposals??[]).map(p=>p.id)).eq('kind','sent').order('created_at',{ascending:false});if(error)throw error;return data??[];
+ const revisions=useQuery({queryKey:['quote-acceptance-revisions',quoteId,proposal.data?.id],enabled:open&&!!proposal.data,queryFn:async()=>{
+  if(!proposal.data)return [];
+  const {data,error}=await supabase.from('psa_proposal_snapshots').select('id,rev_number,pdf_filename').eq('proposal_id',proposal.data.id).eq('kind','sent').order('created_at',{ascending:false});if(error)throw error;return data??[];
  }});
  const snapshotId=selected||lifecycle.latestSentSnapshotId;
  const match=useQuery({queryKey:['quote-acceptance-match',quoteId,snapshotId],enabled:open&&!!snapshotId,staleTime:0,queryFn:async()=>{

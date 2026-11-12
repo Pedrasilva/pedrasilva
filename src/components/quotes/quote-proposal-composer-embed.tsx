@@ -7,17 +7,13 @@ import uiI18n from "@/i18n/index";
  * mounts <ComposerShell />.
  */
 import { useEffect, useMemo, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useMainProposal } from "@/lib/psa-proposal/use-main-proposal";
 import { ComposerShell } from "@/components/psa-composer/composer-shell";
 import {
   useCreateProposal,
   useProposal,
   useUpdateProposal,
 } from "@/lib/psa-proposal/use-psa-proposal";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sb = supabase as any;
 
 export function QuoteProposalComposerEmbed({
   quoteId,
@@ -27,19 +23,7 @@ export function QuoteProposalComposerEmbed({
   quoteTitle?: string | null;
 }) {
   useTranslation();
-  const lookup = useQuery({
-    queryKey: ["psa-proposal-by-quote", quoteId],
-    queryFn: async (): Promise<{ id: string } | null> => {
-      const { data, error } = await sb
-        .from("psa_proposals")
-        .select("id")
-        .eq("quote_id", quoteId)
-        .order("updated_at", { ascending: false })
-        .limit(1);
-      if (error) throw error;
-      return (data && data[0]) ?? null;
-    },
-  });
+  const lookup = useMainProposal(quoteId);
 
   const create = useCreateProposal();
   const proposalId = lookup.data?.id ?? null;
@@ -61,9 +45,10 @@ export function QuoteProposalComposerEmbed({
 
   const ready = useMemo(() => !!proposalId, [proposalId]);
 
-  return ready ? (
+  return ready && proposalId ? (
     <ProposalTitleSync
-      proposalId={proposalId!}
+      key={proposalId}
+      proposalId={proposalId}
       quoteTitle={quoteTitle ?? null}
     />
   ) : (

@@ -156,6 +156,7 @@ export function useCreateProposal() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["psa-proposals"] });
+      qc.invalidateQueries({ queryKey: ["quote-main-proposal"] });
     },
   });
 }
