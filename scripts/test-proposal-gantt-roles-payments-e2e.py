@@ -38,7 +38,7 @@ async def main():
    text='\n'.join(await frame.locator('.pagedjs_page').evaluate_all('els=>els.map(p=>p.innerText)'))
    assert 'Anexo B – ' in text and 'Anexo B 16' not in text
    assert sum(i['sheets'] for i in info)>=1 and all(i['o']=='landscape' for i in info if i['sheets'])
-   assert sum(len(i['summaries']) for i in info)==2 and all(i['o']=='portrait' for i in info if i['summaries'])
+   assert {s['kind'] for i in info for s in i['summaries']}=={'gantt_design','gantt_construction'} and all(i['o']=='portrait' for i in info if i['summaries'])
    for i in info:
     if i['summaries'] or i['sheets'] or 'Total' in i['head']:await frame.locator('.pagedjs_page').nth(i['page']-1).screenshot(path=str(D/f"p{i['page']}.png"))
    pay=[l for l in text.split('\n') if 'FT ' in l or 'Total' in l or '€' in l]
