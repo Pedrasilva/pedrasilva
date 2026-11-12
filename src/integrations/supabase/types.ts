@@ -19741,6 +19741,7 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      pm_has_gantt_contract: { Args: { _project: string }; Returns: boolean }
       pm_has_team_access: {
         Args: { _target_user_id: string; _user_id: string }
         Returns: boolean
@@ -20142,6 +20143,19 @@ export type Database = {
         Returns: Json
       }
       quote_calculator_value: { Args: { _inputs: Json }; Returns: number }
+      quote_commercial_state: { Args: { _quote: string }; Returns: Json }
+      quote_gantt_change_value: {
+        Args: {
+          _client_agreed?: boolean
+          _expected: number
+          _reason?: string
+          _responsibility?: boolean
+          _stage: string
+          _value: number
+        }
+        Returns: undefined
+      }
+      quote_has_contract: { Args: { _quote: string }; Returns: boolean }
       quote_import_full_template: {
         Args: {
           _quote_id: string
