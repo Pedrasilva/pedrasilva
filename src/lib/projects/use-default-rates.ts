@@ -1,14 +1,14 @@
 // Default project rates derived from the HR pricing table.
 //
 // The HR Resumo Comparativo computes sale rates at multiple margin bands
-// (30%, 50%, 100%). For Project Team billing we standardise on the 75% band
+// (30%, 50%, 100%). For Project Team billing we standardise on the 50% band
 // as the default sale rate, and also expose the 100% band for reference.
 //
 //   1. cota BO/colaborador = (custos op. + VBG total backoffice) / nº colab. projecto
 //   2. custo/h = (VBG_próprio + cota_BO) / (dias_uteis × horas_dia)
 //   3. venda/h @ X% = custo/h × (1 + X)
 //
-// Returns Map<resource_id, { sale (75% band), sale100 (100% band), cost }>.
+// Returns Map<resource_id, { sale (50% band), sale100 (100% band), cost }>.
 
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,7 +18,7 @@ import {useB1CacheScope} from './b1-projection';
 export { PROJECT_DEFAULT_MARGIN } from './sale-margin';
 
 export type DefaultRateInfo = {
-  sale: number; // 75% band — project default
+  sale: number; // 50% band — project default
   sale100?: number; // 100% band — reference
   cost: number;
 };
