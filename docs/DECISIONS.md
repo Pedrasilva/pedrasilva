@@ -457,3 +457,13 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Resultado:** Cópia/documento/blocos/snapshots eliminados; nenhuma ligação de quotes de teste a quotes/projetos reais encontrada, nem documentos de teste identificados sob quotes reais. Plano existente tem 18 linhas mensais de 3.000 € (54.000 €), 31 linhas totais, 221.300 € sem IVA + 50.899 € de IVA = 272.199 €. Meses e valores não foram alterados. Assinatura carregada e visível na Carta; B1 OFF confirmado.
 - **Motivo:** Limpar apenas a cópia autorizada e confirmar os dados atuais sem regenerar ou sobrescrever as alterações de Luis.
 - **Relatório:** [Housekeeping e assinatura](letter-housekeeping-2026-11-12.md).
+
+### D53 — Identidade numérica desde a lead, revisões e retoma
+- **Data:** 12/11/2026, pedido explícito de Luis às 21:29 UTC.
+- **Área:** CRM / propostas / projetos / pastas / numeração.
+- **Estado:** Regras confirmadas; plano e inventário apenas. Implementação, ponto inicial de 2026 e qualquer renumeração real aguardam aprovação de Luis sobre o mapa exato.
+- **Decisão:** Cada lead recebe número ao criar; o mesmo segue para proposta e projeto, com pasta «P + número + nome». Formato novo: dois dígitos do ano original de criação + três da sequência anual (26001, 26002…). Números legados de quatro dígitos, incluindo P2601–P2618, permanecem até decisão explícita. Revisões mantêm número com letra (26019A, 26019B), nunca novo número nem rev1. Trabalho parado/retomado mantém identidade original e informação/histórico na mesma pasta, como nova versão. Números únicos e atribuição concorrente segura; edição manual apenas por administradores com validação no servidor.
+- **Por aprovar:** Opção A continua a sequência de pastas em 26019; B conserva a contagem do Hub. Notação original + ano de retoma (22014-26 / 22014-26A) é sugestão, não decisão implementada. Identidades antigas discordantes, anos originais/importados e correspondência de revisões dependem de aprovação por registo. Esta regra substitui o formato anterior de sequência variável para novos trabalhos, sem autorizar renumeração ou reescrita documental histórica.
+- **Preservação:** Nenhuma alteração a dados reais, pastas, PDFs enviados, snapshots, horas, custos ou permissões nesta fase; B1 OFF, revisão 10 confirmada. Testes futuros apenas em QUOTE copiada separada segundo D46/D47.
+- **Motivo:** Conservar idade e continuidade de cada trabalho ao longo da captação, proposta, projeto e retomas, sem contadores ou pastas duplicadas.
+- **Relatórios:** [Inventário integral e mapas A/B](numbering-investigation-2026-11-12.md), [CSV por registo](numbering-inventory-2026-11-12.csv), [Plano para aprovação](../.lovable/plan.md).

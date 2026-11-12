@@ -1,3 +1,7 @@
+## Current request — lead / proposal / project numbering
+- [x] Read-only inventory: 31 leads, 41 quotes, 21 projects, 35 documents; current counter 129; options A/B next provisional 26034/26143; D53 and full Markdown/CSV reports. B1 OFF revision 10 confirmed; no writes to real data.
+- [ ] Await Luis's choice and approval of the exact mapping before implementation or real-data changes; B1 OFF, separate copied-quote tests only.
+
 ## Current request — business letter and Letter master (D51)
 - [x] Read decisions and letter/master code; read-only Oleiro recipient, stages and document scope audit; prepare PT mock-up and plan.
 - [x] Luis approved; formal opt-in letter, editable fields, document-only AI, PT/EN generation and single-page pagination, long-text refusal and content counter 1 validated on quote 218c7ecc. Real blocks unchanged, B1 OFF; fixture preserved. See docs/proposal-business-letter-result-2026-11-12.md for remaining checks.
