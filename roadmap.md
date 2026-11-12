@@ -1,6 +1,7 @@
 ## Current request — free pre-contract proposal values (D50)
 - [x] Read-only prompt/server/history inventory; 0 quote retainer histories, 0 surviving pre-contract quote-linked project histories; B1 OFF revision 10. D50 recorded; plan prepared.
-- [ ] Implementation and disposable copied-quote tests await Luis's OK; no application/database changes or history deletion authorized yet.
+- [x] Approved implementation applied through mirrored migrations 0310–0312; Draft UI/RPC saves without prompts/history, signature protection/reference stability and calculator manual reapply verified on separate copied quotes; 10 tests/i18n/build PASS. Original 34 blocks unchanged and 133 project histories retained; B1 OFF.
+- [ ] Sent/Approved edits remain blocked by the independent existing autolock; changing that lock needs Luis's separate decision. Conversion/operational end-to-end validation not certified. Preserve both disposable quotes and Hotel Chiado Draft history pending explicit cleanup OK; see result report.
 
 ## Current request — authorized Oleiro corrections and outline moves
 - [x] Shared retainer/group movement fixed; four UI moves/reload on separate quote, 24 tests PASS. Operational adapter uses same helper; separate operational browser test not run.
