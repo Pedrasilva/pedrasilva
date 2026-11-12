@@ -18668,6 +18668,10 @@ export type Database = {
         Returns: string
       }
       crm_work_numbering_active: { Args: never; Returns: boolean }
+      crm_work_numbering_fixture_check: {
+        Args: { _source: string }
+        Returns: Json
+      }
       crm_work_reference: {
         Args: { _ordinal?: number; _version: string }
         Returns: string
