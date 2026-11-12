@@ -1,4 +1,5 @@
 import i18n from "@/i18n/index";
+import {hoursStatus,type HourOrigin} from '@/lib/projects/hour-budget';
 /**
  * Per-stage hours breakdown shown inside an expanded dashboard table row.
  *
@@ -18,14 +19,12 @@ export interface StageHoursRow {
   loggedHours: number;
   remainingHours: number;
   status: StageHoursStatus;
+  origin?:HourOrigin;
+  financial?:{spent:number|null;remaining:number|null};
 }
 
 export function stageHoursStatus(planned: number, logged: number): StageHoursStatus {
-  if (planned <= 0) return logged > 0 ? "warn" : "none";
-  const ratio = logged / planned;
-  if (ratio > 1) return "bad";
-  if (ratio >= 0.8) return "warn";
-  return "ok";
+  return hoursStatus(Number.isFinite(planned)?planned:null,logged);
 }
 
 export function StageDot({ status }: { status: StageHoursStatus }) {
@@ -74,7 +73,7 @@ export function StageHoursBreakdown({ stages }: { stages: StageHoursRow[] }) {
                 </td>
                 <td className="max-w-[18rem] truncate py-1.5 pr-3">{s.name}</td>
                 <td className="py-1.5 text-right font-mono text-muted-foreground">
-                  {s.plannedHours > 0 ? i18n.t("projects:stageHoursBreakdown.ui.hoursValue", { value1: Math.round(s.plannedHours) }) : "—"}
+                  {Number.isFinite(s.plannedHours) ? i18n.t("projects:stageHoursBreakdown.ui.hoursValue", { value1: Math.round(s.plannedHours) }) : t(`hourBudget.${s.origin==='rateMissing'?'rateMissing':'feeMissing'}`)} {s.origin==='estimate'&&t('hourBudget.estimate')}
                 </td>
                 <td className="py-1.5 text-right font-mono">{Math.round(s.loggedHours)} {i18n.t("common:units.hoursShort")} </td>
                 <td

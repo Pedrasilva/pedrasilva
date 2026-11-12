@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {HourBudgetPanel} from '@/components/projects/hour-budget-panel';
 import { SharedPlannerInspector } from '@/components/quotes/quote-planner-inspector';
 import type { PlannerInspectorModel } from './planner-inspector-model';
 import { useStageDependencies,useResources,useUpdateStage,useCreateStage,useDeleteStage,useUpdateStageWithCascade,useCreateDependency,useUpdateDependency,useDeleteDependency,useCreateAllocation,useUpdateAllocation,useDeleteAllocation } from '@/lib/projects/use-planner';
@@ -50,5 +51,5 @@ export function ProjectInspectorAdapter({projectId,stages,stageId,onClose,readOn
     commercialReferences:commercial.data?.stages,
     operationalStages:stages,
   };
-  return <SharedPlannerInspector model={model} scopeId={projectId} stageId={stageId} onClose={onClose}/>;
+  return <div className="flex w-[360px] shrink-0 flex-col"><HourBudgetPanel projectId={projectId} stageId={stageId} editable={!readOnly&&financialVisible}/><SharedPlannerInspector model={model} scopeId={projectId} stageId={stageId} onClose={onClose}/></div>;
 }

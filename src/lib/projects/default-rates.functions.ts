@@ -21,7 +21,7 @@ export type DefaultRateEntry = {
   cost: number;
 };
 
-const PROJECT_DEFAULT_MARGIN = 0.75;
+import { PROJECT_DEFAULT_MARGIN } from './sale-margin';
 
 export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -179,12 +179,12 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
         diasUteis,
         horasDia: collabHorasDia,
       };
-      const p75 = computePricing({ ...baseArgs, margemLucroPct: PROJECT_DEFAULT_MARGIN });
+      const projectPricing = computePricing({ ...baseArgs, margemLucroPct: PROJECT_DEFAULT_MARGIN });
       const p100 = computePricing({ ...baseArgs, margemLucroPct: 1.0 });
       byCollabRate.set(a.collab.id, {
-        sale: Math.round(p75.vendaHora * 100) / 100,
+        sale: Math.round(projectPricing.vendaHora * 100) / 100,
         sale100: Math.round(p100.vendaHora * 100) / 100,
-        cost: Math.round(p75.custoHoraDesperdicio * 100) / 100,
+        cost: Math.round(projectPricing.custoHoraDesperdicio * 100) / 100,
       });
     }
 

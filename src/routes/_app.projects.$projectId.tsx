@@ -1,3 +1,5 @@
+import {HourBudgetPanel} from '@/components/projects/hour-budget-panel';
+import {useHourBudgets} from '@/lib/projects/use-hour-budgets';
 import { numberStages, buildStageNumberMap, compareStageDisplay, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import i18n from "@/i18n/index";
@@ -192,6 +194,8 @@ function ProjectDetail() {
   const dateLocale = useDateLocale();
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
+  const hourBudgets=useHourBudgets(projectId);
+  const hourProjection=hourBudgets.data?.[0];
   const viewerAreas = useProjectViewerAreas(projectId);
   const b1=useProjectB1State();
   // Loading signal for cutover checks: totals are final only when no query is fetching.
@@ -233,9 +237,9 @@ function ProjectDetail() {
   const canSeeFinancials=!!viewerAreas.data?.financials;
   const canSeeIntegrated=b1.data ? canSeeFinancials && !!viewerAreas.data?.expenses && !!viewerAreas.data?.supplier_fees : canSeeFinancials;
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
-  const { data: teamAvg } = useTeamPricingAverages(!b1.data);
+  const { data: teamAvg } = useTeamPricingAverages(false);
   const allowedSales=Array.from(defaultRates?.values()??[]).map(r=>r.sale).filter(Number.isFinite);
-  const avgSaleRate = b1.data ? (allowedSales.length?allowedSales.reduce((n,r)=>n+r,0)/allowedSales.length:NaN) : teamAvg?.avgSalePerHour ?? 0;
+  const avgSaleRate = hourProjection?.financial?.averageSale??NaN;
   const entryFiguresQ = useProjectEntryFigures(projectId, data?.stages, resources, defaultRates, canSeeFinancials);
 
   useRecordRecentlyViewed({
@@ -429,27 +433,7 @@ function ProjectDetail() {
       0,
     );
   };
-  const stagePlannedHours = (stageId: string) => {
-    const s = stages.find((x) => x.id === stageId);
-    if (!s) return 0;
-    const fromAllocs = s.allocations.filter(a => !a.planning_removed_at).reduce(
-      (acc, a) =>
-        acc +
-        allocationHours({
-          start_date: a.start_date,
-          end_date: a.end_date,
-          hours_per_day: Number(a.hours_per_day),
-        }),
-      0,
-    );
-    if (fromAllocs > 0) return fromAllocs;
-    // Fallback — implied hours from quote-derived budget ÷ avg sale rate.
-    // Mirrors the Financial Summary formula so the single-source Gantt
-    // (quote stages) drives planned hours for fixed-fee work.
-    const budget = Number(s.budget ?? 0);
-    if (budget <= 0 || avgSaleRate <= 0) return 0;
-    return budget / avgSaleRate;
-  };
+  const stagePlannedHours = (stageId:string)=>hourProjection?.stages.find(s=>s.id===stageId)?.hours.planned??NaN;
   const stageLoggedHours = (stageId: string) =>
     timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.hours : 0), 0) ?? 0;
   const stageBillableHours = (stageId: string) =>
@@ -472,10 +456,7 @@ function ProjectDetail() {
     (acc, s) => acc + stageLoggedHours(s.id),
     0,
   );
-  const totalPlannedHours = stages.reduce(
-    (acc, s) => acc + stagePlannedHours(s.id),
-    0,
-  );
+  const totalPlannedHours = hourProjection?.total.planned??NaN;
   // Same pure path as the B1 parity test (scripts/test-b1-gate-on-parity.*).
   const actualTotals = projectActualTotals({
     stageIds: stages.map(s => s.id), ready: figuresReady, timeRows, entries: entryFiguresQ.data,
@@ -885,6 +866,7 @@ function ProjectDetail() {
                   />
 
                 </div>
+                <HourBudgetPanel projectId={projectId} editable={canSeeFinancials&&canEditPlanning}/>
                 <ContractBaselineCard projectId={projectId} />
                 <ContractDiffCard projectId={projectId} />
               </div>
@@ -1840,9 +1822,7 @@ function MilestonesTable({
               const aggLogged = (s: Row): number =>
                 stageLoggedHours(s.id) +
                 descendantsOf(s.id).reduce((acc, d) => acc + stageLoggedHours(d.id), 0);
-              const aggPlanned = (s: Row): number =>
-                stagePlannedHours(s.id) +
-                descendantsOf(s.id).reduce((acc, d) => acc + stagePlannedHours(d.id), 0);
+              const aggPlanned = (s: Row): number => stagePlannedHours(s.id);
 
               const rows: ReactElement[] = [];
 

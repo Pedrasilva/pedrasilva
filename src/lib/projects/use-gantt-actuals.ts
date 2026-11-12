@@ -1,3 +1,4 @@
+import {getProjectHourBudgets} from './hour-budget.functions';
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAll } from "@/lib/reports/use-hours-logged";
@@ -93,7 +94,11 @@ export function useGanttActuals(projectId: string, enabled: boolean, financials:
         } else {current.cost=null;current.missingHours+=Math.max(0,Number(row.hours)-rawHours);}
         aggregates.set(row.stage_id,current);
       }
-      return buildGanttActuals({stages,activities,asOf:today,holidays:getWorkingCalendarHolidays(),summaryId:PROJECT_SUMMARY_ID,aggregates,limited});
+      const result=buildGanttActuals({stages,activities,asOf:today,holidays:getWorkingCalendarHolidays(),summaryId:PROJECT_SUMMARY_ID,aggregates,limited});
+      const projection=(await getProjectHourBudgets({data:{projectId}}))[0];
+      for(const stage of projection?.stages??[]){const totals=result.totals.get(stage.id);if(totals){totals.planned=stage.hours.planned??NaN;totals.logged=stage.hours.used;}}
+      const summaryTotals=result.totals.get(PROJECT_SUMMARY_ID);if(summaryTotals&&projection){summaryTotals.planned=projection.total.planned??NaN;summaryTotals.logged=projection.total.used;}
+      return result;
     },
   });
 }

@@ -1,4 +1,5 @@
 {
+  "hourBudget": {"feeMissing": "Honorários por definir", "rateMissing": "Preço de venda por definir", "estimate": "est.", "manual": "Orçamento manual de horas", "summary": "Resumo", "external": "Fornecedor externo", "target": "Horas previstas manuais", "reset": "Usar estimativa", "remaining": "Restante", "spent": "Gasto"},
   "commercial": {
     "contracted": "Contratado",
     "current": "Atual",

@@ -1,4 +1,5 @@
 {
+  "hourBudget": {"feeMissing": "Fee not set", "rateMissing": "Sale price not set", "estimate": "est.", "manual": "Manual hour budget", "summary": "Summary", "external": "External supplier", "target": "Manual planned hours", "reset": "Use estimate", "remaining": "Remaining", "spent": "Spent"},
   "commercial": {
     "contracted": "Contracted",
     "current": "Current",

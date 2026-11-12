@@ -2143,6 +2143,13 @@
       "when": 1794441632442,
       "tag": "0305_retainer_next_month_start",
       "breakpoints": true
+    },
+    {
+      "idx": 306,
+      "version": "7",
+      "when": 1794442776143,
+      "tag": "0306_project_manual_hour_targets",
+      "breakpoints": true
     }
   ]
 }

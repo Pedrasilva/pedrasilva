@@ -1,0 +1,1 @@
+export const PROJECT_DEFAULT_MARGIN = 0.5;

@@ -1,3 +1,5 @@
+import {readB1Rows} from '@/lib/projects/b1-projection';
+import {useHourBudgets} from '@/lib/projects/use-hour-budgets';
 import { financialResult } from "@/lib/projects/financial-calculation";
 import { fetchAll } from "@/lib/reports/use-hours-logged";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -124,20 +126,20 @@ interface TimeEntryRow {
   pm_stage_id?: string | null;
 }
 
-function useMonthEntries(periodStart: string, periodEnd: string) {
+function useMonthEntries(periodStart: string, periodEnd: string,financials:boolean) {
   return useQuery({
-    queryKey: ["pm-time-entries-dashboard", periodStart, periodEnd],
+    queryKey: ["pm-time-entries-dashboard", periodStart, periodEnd,financials],
     queryFn: async (): Promise<TimeEntryRow[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id")
+        .select(financials?"id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id":"id,user_id,task_id,entry_date,hours,billable,entry_type,internal_category,leave_type,pm_stage_id")
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
       return (data ?? []).map((r) => ({
         ...r,
         hours: Number(r.hours ?? 0),
-        cost_rate_snapshot: r.cost_rate_snapshot == null ? null : Number(r.cost_rate_snapshot),
+        cost_rate_snapshot: (r as unknown as TimeEntryRow).cost_rate_snapshot == null ? null : Number((r as unknown as TimeEntryRow).cost_rate_snapshot),
       })) as TimeEntryRow[];
     },
   });
@@ -243,6 +245,7 @@ function DashboardPage() {
   const myAuthId = user?.id ?? null;
   const myResourceId = profile?.resource_id ?? null;
   const { data: projects, isLoading: pLoading } = useProjects();
+  const hourBudgets=useHourBudgets();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
   const { data: resourceSchedules } = useResourceSchedules();
@@ -279,7 +282,7 @@ function DashboardPage() {
   const periodEndISO = format(periodEnd, "yyyy-MM-dd");
   const periodLabel = period === "month" ? format(today, "MMMM yyyy") : t("dashboard.thisWeek");
 
-  const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
+  const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO,canSeeFinancials);
   const { data: taskToStage } = useTaskMap();
   const { data: identityMap } = useUserIdentityMap();
   const { data: periodCalendar } = usePeriodCalendar(periodStartISO, periodEndISO);
@@ -331,12 +334,13 @@ function DashboardPage() {
 
   // ---------- per-project actuals (using all entries, not just period) ----------
   const { data: allEntries } = useQuery({
-    queryKey: ["pm-time-entries-all-project"],
+    queryKey: ["pm-time-entries-all-project",myAuthId,projects?.map(p=>p.id)],
+    enabled:!!projects,
     // Heavy roll-up read: keep it cached across navigations within the module.
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     queryFn: async () => {
-      const data = await fetchAll<{id:string;user_id:string;pm_stage_id:string|null;sale_rate_snapshot:number|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null}>((a,b) => supabase.from("pm_time_entries").select("id,user_id,pm_stage_id,sale_rate_snapshot,task_id,hours,billable,cost_rate_snapshot").eq("entry_type","project").order("id").range(a,b) as never);
+      const data=(await Promise.all((projects??[]).map(p=>readB1Rows<{id:string;user_id:string;pm_stage_id:string|null;sale_rate_snapshot:number|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null}>('entries',p.id)))).flat();
       return (data ?? []).map((r) => ({
         ...r,
         task_id: r.task_id as string | null,
@@ -479,46 +483,8 @@ function DashboardPage() {
     return m;
   }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraByProject, invoicedByProject, identityMap]);
 
-  // Planned hours per project = Σ allocationHours across stages.
-  const projectPlannedHours = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const s of allStages ?? []) {
-      let h = 0;
-      for (const a of s.allocations) h += allocationHours(a);
-      m.set(s.project_id, (m.get(s.project_id) ?? 0) + h);
-    }
-    return m;
-  }, [allStages]);
-
-  // Per-stage hours: attributed (allocations) vs used (logged entries).
-  const stageHoursByProject = useMemo(() => {
-    const loggedByStage = new Map<string, number>();
-    if (allEntries && taskToStage) {
-      for (const e of allEntries) {
-        const stageId = e.pm_stage_id ?? (e.task_id ? taskToStage.get(e.task_id) : undefined);
-        if (!stageId) continue;
-        loggedByStage.set(stageId, (loggedByStage.get(stageId) ?? 0) + e.hours);
-      }
-    }
-    const m = new Map<string, StageHoursRow[]>();
-    for (const s of allStages ?? []) {
-      let planned = 0;
-      for (const a of s.allocations) planned += allocationHours(a);
-      const logged = loggedByStage.get(s.id) ?? 0;
-      const gantt = (s as { gantt_number?: string | null }).gantt_number;
-      const arr = m.get(s.project_id) ?? [];
-      arr.push({
-        stageId: s.id,
-        name: gantt ? `${gantt} ${s.name}` : s.name,
-        plannedHours: planned,
-        loggedHours: logged,
-        remainingHours: planned - logged,
-        status: stageHoursStatus(planned, logged),
-      });
-      m.set(s.project_id, arr);
-    }
-    return m;
-  }, [allStages, allEntries, taskToStage]);
+  const projectPlannedHours=useMemo(()=>new Map((hourBudgets.data??[]).map(p=>[p.projectId,p.total.planned??NaN])),[hourBudgets.data]);
+  const stageHoursByProject=useMemo(()=>new Map((hourBudgets.data??[]).map(p=>[p.projectId,p.stages.filter(s=>s.kind!=='retainer_month'&&s.hours.origin!=='external').map(s=>({stageId:s.id,name:s.name,plannedHours:s.hours.planned??NaN,loggedHours:s.hours.used,remainingHours:s.hours.remaining??NaN,status:s.hours.status,origin:s.hours.origin,financial:s.financial}))])),[hourBudgets.data]);
 
   // ---------- filtered project list ----------
   const filteredProjects = useMemo(() => {
@@ -603,7 +569,8 @@ function DashboardPage() {
         isTM,
         tmRevenue: actual.tmRevenue,
         nonBillableHours: actual.nonBillableHours,
-        plannedHours: projectPlannedHours.get(p.id) ?? 0,
+        plannedHours: projectPlannedHours.get(p.id) ?? NaN,
+        hourOrigin:hourBudgets.data?.find(h=>h.projectId===p.id)?.total.origin,
         loggedHours: actual.loggedHours,
         stageHours: stageHoursByProject.get(p.id) ?? [],
         status,
@@ -632,7 +599,7 @@ function DashboardPage() {
       } else if (planned > 0 && logged > planned) {
         status = "bad";
         statusReason = `Overrun (${Math.round((logged / planned) * 100)}% of plan)`;
-      } else if (planned > 0 && logged / planned > 0.8) {
+      } else if (planned > 0 && logged / planned >= 0.85) {
         status = "warn";
         statusReason = `Approaching plan (${Math.round((logged / planned) * 100)}%)`;
       } else if (planned === 0 && logged > 0) {
@@ -643,6 +610,7 @@ function DashboardPage() {
       return {
         project: p,
         plannedHours: planned,
+        hourOrigin:hourBudgets.data?.find(h=>h.projectId===p.id)?.total.origin,
         loggedHours: logged,
         remainingHours: remaining,
         efficiencyPct,
