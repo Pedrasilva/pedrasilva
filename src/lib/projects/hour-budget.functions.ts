@@ -26,8 +26,10 @@ export const getProjectHourBudgets=createServerFn({method:'GET'})
    db.from('pm_project_rate_overrides').select('*').in('project_id',allowed),
   ]);for(const r of [projects,stages,teams,resources,overrides])if(r.error)throw r.error;
   const ss=stages.data??[];const ids=ss.map(s=>s.id);
-  const tasks=ids.length?await db.from('pm_tasks').select('id,stage_id').in('stage_id',ids):{data:[],error:null};if(tasks.error)throw tasks.error;
-  const taskMap=new Map((tasks.data??[]).map(t=>[t.id,t.stage_id]));
+  const allocations=ids.length?await db.from('pm_allocations').select('id,stage_id').in('stage_id',ids):{data:[],error:null};if(allocations.error)throw allocations.error;
+  const allocationMap=new Map((allocations.data??[]).map(a=>[a.id,a.stage_id]));
+  const tasks=allocationMap.size?await db.from('pm_tasks').select('id,allocation_id').in('allocation_id',Array.from(allocationMap.keys())):{data:[],error:null};if(tasks.error)throw tasks.error;
+  const taskMap=new Map((tasks.data??[]).map(t=>[t.id,allocationMap.get(t.allocation_id)]));
   // Paginate all project entries; direct stage and task attribution are equivalent.
   const entries: {hours:number;pm_stage_id:string|null;task_id:string|null;cost_rate_snapshot:number|null}[]=[];
   if(ids.length){for(let offset=0;;offset+=1000){

@@ -1,3 +1,4 @@
+import {HourBudgetPanel} from '@/components/projects/hour-budget-panel';
 import {useHourBudgets} from '@/lib/projects/use-hour-budgets';
 import { numberStages, buildStageNumberMap, compareStageDisplay, formatStageLabel } from "@/lib/quotes/stage-numbering";
 import { useDateLocale } from "@/i18n/use-date-locale";
@@ -865,6 +866,7 @@ function ProjectDetail() {
                   />
 
                 </div>
+                <HourBudgetPanel projectId={projectId} editable={canSeeFinancials&&canEditPlanning}/>
                 <ContractBaselineCard projectId={projectId} />
                 <ContractDiffCard projectId={projectId} />
               </div>

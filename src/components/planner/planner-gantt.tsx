@@ -555,6 +555,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
       baseline_notes: null,
       baseline_start_date: null,
       baseline_target_hours: null,
+      planned_hours_target:null,
       source: null,
       is_locked: false,
       source_contract_id: null,
