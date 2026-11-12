@@ -1,4 +1,5 @@
 import { formatEUR } from "@/lib/product-ui-format";
+import { WorkIdentityControl } from '@/components/crm/work-identity-control';
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -326,6 +327,7 @@ function OpportunityDetail() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
+          <WorkIdentityControl kind="lead" recordId={opportunityId} canRestart={opp.stage === 'lost'} />
           <InlineEditableTitle
             value={opp.name}
             onSave={(name: string) => updateField.mutateAsync({ name })}

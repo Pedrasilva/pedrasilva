@@ -1,0 +1,1 @@
+export default { test: { include: ['scripts/test-work-numbering.test.ts'], environment: 'node' } };

@@ -1,4 +1,5 @@
 import { useQuoteLifecycle } from "@/lib/quotes/use-quote-lifecycle";
+import { WorkIdentityControl } from '@/components/crm/work-identity-control';
 import { canConvertQuote } from "@/lib/quotes/quote-lifecycle";
 import uiI18n from "@/i18n/index";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -390,6 +391,7 @@ function QuoteDetail() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
+          <WorkIdentityControl kind="quote" recordId={quoteId} />
           <InlineEditableTitle
             value={quote.titulo}
             onSave={async (titulo: string) => {

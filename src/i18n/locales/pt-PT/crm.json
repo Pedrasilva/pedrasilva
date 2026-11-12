@@ -1,4 +1,15 @@
 {
+  "workNumbering": {
+    "edit": "Editar número do trabalho",
+    "restart": "Retomar / Reativar",
+    "number": "Número do trabalho",
+    "reason": "Motivo da alteração",
+    "confirm": "Confirmar alteração",
+    "saved": "Identidade do trabalho guardada",
+    "unmapped": "Este trabalho aguarda aprovação do mapa de numeração.",
+    "numberImpact": "Os números anteriores ficam reservados como aliases. Documentos históricos e pastas externas não serão reescritos.",
+    "restartImpact": "Criar uma nova versão, mantendo {{folder}} e todo o histórico anterior. Não altera o estado do projeto, planeamento ou contratos."
+  },
   "module": {
     "title": "CRM",
     "subtitle": "Empresas",
