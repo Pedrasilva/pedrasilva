@@ -1,3 +1,7 @@
+## Current request — Oleiro test-document incident
+- [x] Read-only inventory: original 34 blocks and 22 automatic snapshots preserved; PT terms intact; test-copy linkage and latest-updated selection explain contamination of document selection. D46 records separate copied-QUOTE rule.
+- [ ] Await Luis approval for canonical document selection, isolated-test script correction and any scoped content restoration; no restoration/deletion/application changes performed. Historical deleted fixture inventory is incomplete.
+
 ## Current request — PT terms, signage and landscape Gantt
 - [x] Approved PT HTML copied exactly, EN 11.6 added; named landscape Gantts verified in PT/EN disposable Oleiro copy and actual mixed-size PDFs; 5 tests/i18n/build PASS; original intact, copy removed, B1 OFF; D45/report. Oversized browser stress test not run; splitting unit-tested.
 
