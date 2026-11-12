@@ -398,3 +398,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Decisão:** Testes descartáveis devem usar uma QUOTE copiada separada, com identificador próprio. Nunca criar documentos de proposta ou revisões de teste ligados a uma quote real, mesmo quando os blocos são cópias e a eliminação está prevista. B1 permanece OFF. No incidente Oleiro, investigar e apresentar inventário e proposta de recuperação; aguardar OK de Luis antes de restaurar ou apagar qualquer dado.
 - **Motivo:** A seleção do documento mais recentemente atualizado permitiu que documentos de teste ligados à quote real fossem apresentados ao utilizador.
 - **Relatório:** [Investigação Oleiro e proposta não executada](oleiro-test-document-incident-2026-11-12.md).
+
+### D47 — Documento principal persistente por quote
+- **Data:** 12/11/2026, aprovação de Luis às 01:23 UTC.
+- **Área:** CRM / composer / workflow / versões / isolamento de testes.
+- **Decisão:** A quote tem um documento principal explícito e persistente; composer, ações e versões usam esse identificador, nunca título ou recência de atualização. Oleiro d73deb33-a0f9-41bb-ad4d-637cd5d159b6 abre o original 84e54031-64db-41d8-aa30-b22d882a6017. Atualizar a seleção aberta, descartando caches antigos. Testes criam primeiro uma QUOTE copiada separada e abortam perante documentos/revisões ligados à quote real; não executar os scripts antigos.
+- **Preservação:** Não apagar nem restaurar documentos, blocos ou snapshots; os 22 snapshots e o conteúdo atual do original permanecem exatamente como estão. B1 OFF.
+- **Motivo:** Impedir que cópias ou revisões de teste substituam o original na interface.
+- **Estado:** Confirmada, reforça D46 sem autorizar alterações editoriais.
+- **Relatório:** [Correção, ficheiros e SQL](oleiro-main-document-fix-2026-11-12.md).

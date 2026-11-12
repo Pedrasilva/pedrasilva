@@ -2150,6 +2150,27 @@
       "when": 1794442776143,
       "tag": "0306_project_manual_hour_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 307,
+      "version": "7",
+      "when": 1794446673074,
+      "tag": "0307_quote_main_proposal_document",
+      "breakpoints": true
+    },
+    {
+      "idx": 308,
+      "version": "7",
+      "when": 1794446756804,
+      "tag": "0308_quote_revision_uses_main_document",
+      "breakpoints": true
+    },
+    {
+      "idx": 309,
+      "version": "7",
+      "when": 1794446970788,
+      "tag": "0309_quote_template_uses_main_document",
+      "breakpoints": true
     }
   ]
 }

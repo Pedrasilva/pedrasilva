@@ -3156,6 +3156,7 @@ export type Database = {
           is_locked: boolean
           locked_at: string | null
           locked_project_id: string | null
+          main_proposal_id: string | null
           notas: string | null
           ontology_bootstrapped_at: string | null
           ontology_delivery_mode: string | null
@@ -3223,6 +3224,7 @@ export type Database = {
           is_locked?: boolean
           locked_at?: string | null
           locked_project_id?: string | null
+          main_proposal_id?: string | null
           notas?: string | null
           ontology_bootstrapped_at?: string | null
           ontology_delivery_mode?: string | null
@@ -3290,6 +3292,7 @@ export type Database = {
           is_locked?: boolean
           locked_at?: string | null
           locked_project_id?: string | null
+          main_proposal_id?: string | null
           notas?: string | null
           ontology_bootstrapped_at?: string | null
           ontology_delivery_mode?: string | null
@@ -3379,6 +3382,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pm_projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_main_document_fk"
+            columns: ["id", "main_proposal_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposals"
+            referencedColumns: ["quote_id", "id"]
           },
           {
             foreignKeyName: "fee_proposals_ontology_delivery_fk"

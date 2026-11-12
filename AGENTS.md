@@ -58,3 +58,4 @@
 - CRM opportunity projection and conversion rules are scoped in src/lib/crm/AGENTS.md and must be read before changing CRM views. Why: presentation-only visibility and shared guarded conversion must stay consistent.
 
 
+
