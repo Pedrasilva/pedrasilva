@@ -432,8 +432,9 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 ### D50 — Valores livres durante a elaboração da proposta
 - **Data:** 12/11/2026, decisão explícita de Luis às 16:23 UTC.
 - **Área:** Gantt Fase 2 / propostas / Estimate / avenças / histórico comercial.
-- **Estado:** Regra confirmada; implementação aguarda OK de Luis ao plano. Exceção de âmbito a D04–D08 e D42, não revogação das proteções pós-contrato.
+- **Estado:** Plano aprovado por Luis; implementação aplicada, com limites de validação no relatório. Exceção de âmbito a D04–D08 e D42, não revogação das proteções pós-contrato.
 - **Decisão:** Confirmação de responsabilidade, motivo, «≠ Contrato», Contratado vs Atual, histórico de valores apenas por acréscimo e pergunta de acordo do cliente para mensalidades só se aplicam após assinatura ou conversão da proposta em projeto. A referência contratada é fixada nessa fronteira. Enquanto Draft/Sent/Approved sem assinatura/conversão, valores de fases, meses e mensalidades alteram-se livremente no construtor de propostas e Estimate, sem esses avisos, motivos ou linhas de histórico comercial. Servidor e apresentação seguem a mesma regra.
 - **Preservação:** Não apagar históricos existentes sem OK. Não alterar dados reais, permissões, provas de aceitação/envio, versões documentais, horas ou proteções fiscais. Testes apenas numa quote copiada separada (D46/D47). B1 OFF.
 - **Motivo:** A elaboração de uma proposta não constitui uma alteração a um contrato existente.
 - **Relatório/plano:** [Investigação e plano para aprovação](proposal-precontract-values-plan-2026-11-12.md).
+- **Execução:** [Resultados e limites](proposal-precontract-values-result-2026-11-12.md). Histórico Draft Hotel Chiado c16cb84d-bc34-4842-89c9-05cbc9d3a287 criado durante a investigação, às 16:25:41 UTC, preservado; nenhuma limpeza autorizada.

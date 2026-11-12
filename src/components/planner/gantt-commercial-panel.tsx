@@ -40,6 +40,7 @@ export function GanttCommercialHistory({projectId,stages,stageId}:{projectId:str
 
 export function GanttContractSummary({projectId,stages}:{projectId:string;stages:StageWithAllocations[]}){
  const {t}=useTranslation('projects');const q=useGanttCommercial(projectId);const current=commercialProjectValue(stages);
+ if(q.data?.hasContract===false)return null;
  return <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-2 text-sm" data-contract-totals><div className="flex flex-wrap gap-4"><span>{t('commercial.contracted')}: <strong>{q.data?.contractedTotal==null?t('sharedGantt.referencePending'):formatMoney(q.data.contractedTotal)}</strong></span><span>{t('commercial.current')}: <strong>{Number.isFinite(current)?formatMoney(current):'—'}</strong></span>{q.data?.contractedTotal!=null&&current!==q.data.contractedTotal&&<span className="font-semibold text-destructive">{t('commercial.changed')} · {formatMoney(current-q.data.contractedTotal)}</span>}</div><GanttCommercialHistory projectId={projectId} stages={stages}/></div>;
 }
 

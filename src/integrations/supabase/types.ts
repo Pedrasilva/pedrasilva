@@ -15333,6 +15333,48 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_contract_references: {
+        Row: {
+          boundary: string
+          captured_at: string
+          evidence_snapshot_id: string | null
+          quote_id: string
+          stages: Json
+          total: number | null
+        }
+        Insert: {
+          boundary: string
+          captured_at?: string
+          evidence_snapshot_id?: string | null
+          quote_id: string
+          stages: Json
+          total?: number | null
+        }
+        Update: {
+          boundary?: string
+          captured_at?: string
+          evidence_snapshot_id?: string | null
+          quote_id?: string
+          stages?: Json
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_contract_references_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "fee_proposal_values"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "quote_contract_references_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_external_services: {
         Row: {
           created_at: string
@@ -15435,6 +15477,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      quote_gantt_value_history: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          new_value: number
+          old_value: number | null
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: string
+          new_value: number
+          old_value?: number | null
+          quote_id: string
+          reason: string
+          stage_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          new_value?: number
+          old_value?: number | null
+          quote_id?: string
+          reason?: string
+          stage_id?: string
+        }
+        Relationships: []
       }
       quote_payment_schedule_items: {
         Row: {
@@ -19666,6 +19741,7 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      pm_has_gantt_contract: { Args: { _project: string }; Returns: boolean }
       pm_has_team_access: {
         Args: { _target_user_id: string; _user_id: string }
         Returns: boolean
@@ -20067,6 +20143,19 @@ export type Database = {
         Returns: Json
       }
       quote_calculator_value: { Args: { _inputs: Json }; Returns: number }
+      quote_commercial_state: { Args: { _quote: string }; Returns: Json }
+      quote_gantt_change_value: {
+        Args: {
+          _client_agreed?: boolean
+          _expected: number
+          _reason?: string
+          _responsibility?: boolean
+          _stage: string
+          _value: number
+        }
+        Returns: undefined
+      }
+      quote_has_contract: { Args: { _quote: string }; Returns: boolean }
       quote_import_full_template: {
         Args: {
           _quote_id: string

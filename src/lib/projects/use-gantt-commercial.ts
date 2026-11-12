@@ -1,7 +1,7 @@
 import {useMutation,useQuery,useQueryClient} from '@tanstack/react-query';
 import {supabase} from '@/integrations/supabase/client';
 export interface CommercialReference {id:string;contracted:number|null;outsideContract:boolean;valueOwned:boolean}
-export interface CommercialRead {stages:CommercialReference[];contractedTotal:number|null}
+export interface CommercialRead {stages:CommercialReference[];contractedTotal:number|null;hasContract?:boolean}
 export function useGanttCommercial(projectId:string,enabled=true){
  return useQuery({queryKey:['pm-gantt-commercial',projectId],enabled,queryFn:async()=>{
   const {data,error}=await supabase.rpc('pm_gantt_commercial_read',{_project:projectId});if(error)throw error;

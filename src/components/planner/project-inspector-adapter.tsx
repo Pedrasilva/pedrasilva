@@ -49,6 +49,7 @@ export function ProjectInspectorAdapter({projectId,stages,stageId,onClose,readOn
     upsertAllocation,deleteAllocation:removeAllocation,readOnly,financialVisible,operational:true,
     contractReferencePending:financialVisible && baseline.isSuccess && (!baseline.data || baseline.data.stages.length===0),
     commercialReferences:commercial.data?.stages,
+    hasContract:commercial.data?.hasContract,
     operationalStages:stages,
   };
   return <div className="flex w-[360px] shrink-0 flex-col"><HourBudgetPanel projectId={projectId} stageId={stageId} editable={!readOnly&&financialVisible}/><SharedPlannerInspector model={model} scopeId={projectId} stageId={stageId} onClose={onClose}/></div>;
