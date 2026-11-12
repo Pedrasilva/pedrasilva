@@ -1,3 +1,6 @@
+## Current request — proposal page breaks and verbatim text
+- [ ] Fix explicit breaks in Pages/PDF; verify on disposable Oleiro copy; investigate text divergence without editing real content; B1 OFF.
+
 ## Current request — stage hours from fees
 - [x] Read-only investigation, four project comparisons, 75% markup inventory and scoped permission design; D44 records confirmed rule.
 - [x] Approved plan implemented partially: 50% default, server hour estimates/manual targets, list/detail/Gantt integration, redacted readers, EN/PT; 16 tests and disposable admin/staff target/read checks passed; fixtures removed, B1 OFF.
