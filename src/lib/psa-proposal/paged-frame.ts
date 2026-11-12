@@ -25,6 +25,24 @@ export function installPagedFrame(frame: HTMLIFrameElement): PagedFrameWindow {
   script.textContent = pagedRuntime.replaceAll('media.includes(', '(media || []).includes(');
   doc.head.appendChild(script);
   if (!win.Paged) throw new Error("Proposal pagination runtime unavailable");
+  const breaks = doc.createElement('script');
+  // Run after Paged.js' CSS break handler: that handler aggregates selectors
+  // rather than following the CSS cascade, so broad avoid/auto rules can erase
+  // a computed break:page. Pin only explicit boundaries, never natural splits.
+  breaks.textContent = `
+    class ProposalExplicitBreaks extends Paged.Handler {
+      afterParsed(root) {
+        for (const block of root.querySelectorAll('[data-explicit-page-break-before="true"]')) {
+          block.setAttribute('data-break-before', 'page');
+          block.setAttribute('data-previous-break-after', 'page');
+          const previous = block.previousElementSibling;
+          if (previous) previous.setAttribute('data-next-break-before', 'page');
+        }
+      }
+    }
+    Paged.registerHandlers(ProposalExplicitBreaks);
+  `;
+  doc.head.appendChild(breaks);
   return win;
 }
 

@@ -10,3 +10,4 @@
 
 - Typed proposal layouts are opt-in snapshots; Cover and Letter are excluded from content counters, and Letter drafting stays in authenticated server-only helpers. Why: preserve legacy proposals and isolate AI credentials.
 - Guard unsupported CSS media preludes inside the iframe Paged.js runtime only. Why: its older CSS parser must not crash document pagination.
+- Collapse print-hidden page-break markers onto the next printable block and pin explicit boundaries after Paged.js CSS parsing; never rewrite prose during pagination. Why: empty markers and aggregated CSS selectors must not swallow user-requested breaks.

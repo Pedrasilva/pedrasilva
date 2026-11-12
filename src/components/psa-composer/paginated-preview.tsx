@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
 import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayout } from '@/lib/psa-proposal/master-page';
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
+import { prepareExplicitPageBreaks } from "@/lib/psa-proposal/explicit-page-breaks";
 
 const inlinedImages = new Map<string, Promise<string>>();
 function inlineImage(url: string): Promise<string> {
@@ -197,6 +198,7 @@ export function PaginatedPreview({
         clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
           node.removeAttribute("contenteditable");
         });
+        prepareExplicitPageBreaks(clone);
         const firstPrintable = clone.querySelector<HTMLElement>(
           '.proposal-print-block[data-first-printable="true"]',
         );
