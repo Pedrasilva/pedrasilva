@@ -1,3 +1,4 @@
+import {readB1Rows} from '@/lib/projects/b1-projection';
 import {useHourBudgets} from '@/lib/projects/use-hour-budgets';
 import { financialResult } from "@/lib/projects/financial-calculation";
 import { fetchAll } from "@/lib/reports/use-hours-logged";
@@ -125,20 +126,20 @@ interface TimeEntryRow {
   pm_stage_id?: string | null;
 }
 
-function useMonthEntries(periodStart: string, periodEnd: string) {
+function useMonthEntries(periodStart: string, periodEnd: string,financials:boolean) {
   return useQuery({
-    queryKey: ["pm-time-entries-dashboard", periodStart, periodEnd],
+    queryKey: ["pm-time-entries-dashboard", periodStart, periodEnd,financials],
     queryFn: async (): Promise<TimeEntryRow[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id")
+        .select(financials?"id, sale_rate_snapshot, user_id, task_id, entry_date, hours, billable, entry_type, cost_rate_snapshot, cost_rate_source, internal_category, leave_type, pm_stage_id":"id,user_id,task_id,entry_date,hours,billable,entry_type,internal_category,leave_type,pm_stage_id")
         .gte("entry_date", periodStart)
         .lte("entry_date", periodEnd);
       if (error) throw error;
       return (data ?? []).map((r) => ({
         ...r,
         hours: Number(r.hours ?? 0),
-        cost_rate_snapshot: r.cost_rate_snapshot == null ? null : Number(r.cost_rate_snapshot),
+        cost_rate_snapshot: (r as unknown as TimeEntryRow).cost_rate_snapshot == null ? null : Number((r as unknown as TimeEntryRow).cost_rate_snapshot),
       })) as TimeEntryRow[];
     },
   });
@@ -281,7 +282,7 @@ function DashboardPage() {
   const periodEndISO = format(periodEnd, "yyyy-MM-dd");
   const periodLabel = period === "month" ? format(today, "MMMM yyyy") : t("dashboard.thisWeek");
 
-  const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
+  const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO,canSeeFinancials);
   const { data: taskToStage } = useTaskMap();
   const { data: identityMap } = useUserIdentityMap();
   const { data: periodCalendar } = usePeriodCalendar(periodStartISO, periodEndISO);
@@ -333,12 +334,13 @@ function DashboardPage() {
 
   // ---------- per-project actuals (using all entries, not just period) ----------
   const { data: allEntries } = useQuery({
-    queryKey: ["pm-time-entries-all-project"],
+    queryKey: ["pm-time-entries-all-project",myAuthId,projects?.map(p=>p.id)],
+    enabled:!!projects,
     // Heavy roll-up read: keep it cached across navigations within the module.
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     queryFn: async () => {
-      const data = await fetchAll<{id:string;user_id:string;pm_stage_id:string|null;sale_rate_snapshot:number|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null}>((a,b) => supabase.from("pm_time_entries").select("id,user_id,pm_stage_id,sale_rate_snapshot,task_id,hours,billable,cost_rate_snapshot").eq("entry_type","project").order("id").range(a,b) as never);
+      const data=(await Promise.all((projects??[]).map(p=>readB1Rows<{id:string;user_id:string;pm_stage_id:string|null;sale_rate_snapshot:number|null;task_id:string|null;hours:number;billable:boolean;cost_rate_snapshot:number|null}>('entries',p.id)))).flat();
       return (data ?? []).map((r) => ({
         ...r,
         task_id: r.task_id as string | null,
