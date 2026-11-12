@@ -1,3 +1,7 @@
+## Current request — free pre-contract proposal values (D50)
+- [x] Read-only prompt/server/history inventory; 0 quote retainer histories, 0 surviving pre-contract quote-linked project histories; B1 OFF revision 10. D50 recorded; plan prepared.
+- [ ] Implementation and disposable copied-quote tests await Luis's OK; no application/database changes or history deletion authorized yet.
+
 ## Current request — authorized Oleiro corrections and outline moves
 - [x] Shared retainer/group movement fixed; four UI moves/reload on separate quote, 24 tests PASS. Operational adapter uses same helper; separate operational browser test not run.
 - [x] Authorized Oleiro corrections applied; 25 rows/12 monthly payments, 203300 + VAT; original blocks and every pre-existing snapshot preserved; B1 OFF. Current hierarchy numbers retainer 1.6.2, not 2.6.2.

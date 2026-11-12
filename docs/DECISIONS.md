@@ -36,6 +36,7 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Data:** 11/11/2026; Fase 2 aprovada às 15:05 UTC.
 - **Área:** Gantt Fase 2 / valores / recursos.
 - **Estado:** Em vigor.
+- **Exceção de âmbito:** D50 limita referência/proteções contratadas à assinatura ou conversão; propostas em elaboração não têm comparação contratual.
 - **Decisão:** Cada fase conserva o valor contratado como referência imutável e um valor atual independente. Criar subfases/divisões e alocar pessoas livremente dentro da fase; a soma dos valores das subfases pode ser inferior, mas nunca superior ao valor atual da fase. Mostrar «Alocado / Restante». Custos de pessoas/horas superiores ao valor da fase geram aviso âmbar/vermelho de margem, nunca bloqueio. Uma referência contratual ausente em projetos antigos, incluindo Mastercard, mostra «Referência por confirmar», nunca 0 €.
 - **Motivo:** Manter visível o acordo original, evitando duplicação de honorários e permitindo planeamento com riscos explícitos.
 - **Relatórios:** [Fase 1](project-proposal-gantt-phase1-report.md), [Fase 2](project-proposal-gantt-phase2-report.md).
@@ -44,6 +45,7 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Data:** 11/11/2026; Fase 2 aprovada às 15:05 UTC.
 - **Área:** Gantt Fase 2 / honorários / faturação.
 - **Estado:** Em vigor; substitui D10 e o modelo pesado de D11 neste âmbito.
+- **Exceção de âmbito:** D50 exclui Draft/Sent/Approved sem assinatura/conversão destes diálogos e motivos.
 - **Decisão:** Alterar o valor atual de uma fase exige um diálogo que identifique a diferença face ao contratado, confirmação explícita de responsabilidade e motivo curto. Não existe circuito de aprovação. Ao confirmar, atualizar imediatamente o valor da fase e o plano de faturação/pagamentos, sem modificar montantes já emitidos ou pagamentos confirmados. Mostrar «≠ Contrato», contratado, atual e diferença na fase; totais do projeto mostram «Contratado vs Atual».
 - **Motivo:** Manter agilidade e responsabilização, sem esconder divergências face ao que o cliente acordou.
 - **Relatórios:** [Plano substituído e investigação](project-proposal-gantt-investigation-2026-11-11.md), [Fase 2](project-proposal-gantt-phase2-report.md).
@@ -52,6 +54,7 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Data:** 11/11/2026; Fase 2 aprovada às 15:05 UTC.
 - **Área:** Gantt Fase 2 / auditoria.
 - **Estado:** Em vigor.
+- **Exceção de âmbito:** D50 exclui alterações pré-contrato de novos registos de histórico comercial; históricos existentes permanecem intocados.
 - **Decisão:** Registar cada alteração de valores de fases, avenças e criação de novas fases: utilizador real, momento, projeto, fase, valor anterior, valor novo e motivo. Histórico imutável, apenas por acréscimo, visível na fase e numa lista do projeto. Não substituir a identidade do autor por uma identidade técnica ou por quem consulta o histórico.
 - **Motivo:** Permitir responder ao cliente sobre quem alterou um valor, quando e porquê.
 - **Relatórios:** [Fase 2 e limites de verificação](project-proposal-gantt-phase2-report.md).
@@ -68,6 +71,7 @@ Este registo descreve acordos, não certifica implementações. Os relatórios c
 - **Data:** 11/11/2026; Fase 2 aprovada às 15:05 UTC.
 - **Área:** Gantt Fase 2 / avenças.
 - **Estado:** Em vigor.
+- **Exceção de âmbito:** D50 reserva acordo do cliente/responsabilidade/motivo/histórico a avenças após assinatura ou conversão.
 - **Decisão:** Acrescentar meses livremente quando a obra se prolonga. Mudar o valor mensal exige a pergunta «O cliente concordou com o novo valor da avença?», confirmação de responsabilidade e motivo. Aplicar o novo valor daqui para a frente, atualizar faturação/pagamentos protegendo histórico fiscal e registar a alteração. Não exigir aprovação adicional.
 - **Motivo:** Acompanhar a duração real da obra sem reescrever meses passados ou evidência fiscal.
 - **Relatórios:** [Fase 2](project-proposal-gantt-phase2-report.md). O relatório identifica testes de avenças ainda pendentes; o acordo não equivale a validação completa.
@@ -359,6 +363,7 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Data:** 11/11/2026, pedido confirmado por Luis às 23:19 UTC.
 - **Área:** CRM / projetos / avenças / pagamentos.
 - **Estado:** Decisão confirmada; não altera D08 nem outras decisões anteriores.
+- **Exceção posterior:** D50 limita as proteções de valor à existência de contrato; estrutura, datas e proteções fiscais mantêm-se.
 - **Decisão:** Desenhar cada avença numa linha própria, distinta, na Obra por defeito; manter cartões abaixo do Gantt. Início por dependência FS da última fase de Arquitetura, editável pelo painel e arrasto; duração e número de meses partilham o mesmo registo. Pagamentos mensais partilham datas com Inflow, Plano de pagamentos e Faturação; propostas relativas e projetos convertidos com datas reais. Acrescentar meses livremente; alterar valor mensal exige acordo do cliente, responsabilidade, motivo e histórico, preservando evidência fiscal. Bloquear criação enquanto guarda e selecionar a nova linha. Duplicados reais só são apagados após confirmação nominal de Luis.
 - **Limites:** B1 OFF; sem alterações de dados reais. Validação parcial e casos não certificados no relatório. A implementação usa início efetivo como primeiro pagamento quando o início FS cai a meio do mês; meses seguintes usam primeiro dia útil do mês. Esta interpretação não substitui a decisão fiscal anterior e carece de confirmação para certificação.
 - **Motivo:** Avenças devem participar no programa e previsões sem perder o editor mensal nem histórico.
@@ -423,3 +428,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Estado:** Confirma as correções reais pendentes em D48; não autoriza alterações editoriais ou outros projetos.
 - **Motivo:** Alinhar estrutura, vencimentos mensais e plano vivo, sem perder edições recentes de Luis.
 - **Relatório:** [Resultado, numeração, pagamentos e SQL](oleiro-authorized-corrections-2026-11-12.md).
+
+### D50 — Valores livres durante a elaboração da proposta
+- **Data:** 12/11/2026, decisão explícita de Luis às 16:23 UTC.
+- **Área:** Gantt Fase 2 / propostas / Estimate / avenças / histórico comercial.
+- **Estado:** Regra confirmada; implementação aguarda OK de Luis ao plano. Exceção de âmbito a D04–D08 e D42, não revogação das proteções pós-contrato.
+- **Decisão:** Confirmação de responsabilidade, motivo, «≠ Contrato», Contratado vs Atual, histórico de valores apenas por acréscimo e pergunta de acordo do cliente para mensalidades só se aplicam após assinatura ou conversão da proposta em projeto. A referência contratada é fixada nessa fronteira. Enquanto Draft/Sent/Approved sem assinatura/conversão, valores de fases, meses e mensalidades alteram-se livremente no construtor de propostas e Estimate, sem esses avisos, motivos ou linhas de histórico comercial. Servidor e apresentação seguem a mesma regra.
+- **Preservação:** Não apagar históricos existentes sem OK. Não alterar dados reais, permissões, provas de aceitação/envio, versões documentais, horas ou proteções fiscais. Testes apenas numa quote copiada separada (D46/D47). B1 OFF.
+- **Motivo:** A elaboração de uma proposta não constitui uma alteração a um contrato existente.
+- **Relatório/plano:** [Investigação e plano para aprovação](proposal-precontract-values-plan-2026-11-12.md).
