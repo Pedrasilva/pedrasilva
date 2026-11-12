@@ -207,6 +207,12 @@ export function PaginatedPreview({
         const masterNode = source.matches('[data-master-page]') ? source : source.querySelector<HTMLElement>('[data-master-page]');
         const master: MasterPage = masterNode?.dataset.masterPage ? JSON.parse(masterNode.dataset.masterPage) : resolveMaster();
         const clone = source.cloneNode(true) as HTMLDivElement;
+        const letterFooters=new Map<string,HTMLElement>();
+        clone.querySelectorAll<HTMLElement>('.psa-letter-footer').forEach(footer=>{
+          const id=footer.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
+          if(id)letterFooters.set(id,footer.cloneNode(true) as HTMLElement);
+          footer.remove();
+        });
         clone.removeAttribute("id");
         // Never copy the hidden source state into Paged.js. The clone must be
         // ordinary document flow before the fragmentation engine measures it.
@@ -311,6 +317,11 @@ export function PaginatedPreview({
           pageBox.classList.add('proposal-master-document');
           pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
           const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
+          if(type==='letter'){
+            const id=pageBox.querySelector<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
+            const footer=id?letterFooters.get(id):undefined;
+            if(footer){const placed=frameDoc.importNode(footer,true);placed.classList.add('psa-letter-page-footer');pageBox.appendChild(placed);}
+          }
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
           const variant = type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
@@ -355,7 +366,7 @@ export function PaginatedPreview({
         for(const letterNode of letters){
           const id=letterNode.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
           const fragments=letters.filter(n=>n.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId===id);
-          const footer=letterNode.querySelector<HTMLElement>('.psa-letter-footer');
+          const footer=letterNode.closest('.pagedjs_pagebox')?.querySelector<HTMLElement>('.psa-letter-page-footer');
           const signature=letterNode.querySelector<HTMLElement>('.psa-letter-signoff');
           if(fragments.length!==1||letterNode.scrollHeight>letterNode.clientHeight+2||(footer&&signature&&signature.getBoundingClientRect().bottom>footer.getBoundingClientRect().top))letterOverflow=true;
         }

@@ -9,3 +9,4 @@
 .psa-business-letter .psa-letter-signoff { margin-top:4mm; font-size:10pt; }
 .psa-letter-signoff img { display:block; width:var(--letter-signature-width); max-height:12mm; object-fit:contain; object-position:left; margin:1mm 0; }
 .psa-letter-footer { position:absolute; bottom:-12mm; left:0; right:0; font-size:7.5pt; line-height:1.2; border-top:0.2mm solid var(--border); padding-top:2mm; text-align:center; }
+.psa-letter-page-footer { bottom:8mm; left:24mm; right:24mm; }
