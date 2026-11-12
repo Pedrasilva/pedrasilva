@@ -1,6 +1,7 @@
 ## Current request — lead / proposal / project numbering
 - [x] Read-only inventory: 31 leads, 41 quotes, 21 projects, 35 documents; current counter 129; options A/B next provisional 26034/26143; D53 and full Markdown/CSV reports. B1 OFF revision 10 confirmed; no writes to real data.
-- [ ] Await Luis's choice and approval of the exact mapping before implementation or real-data changes; B1 OFF, separate copied-quote tests only.
+- [ ] Implement D53 approved Option A schema/code, correct legacy identities and restart notation; test only isolated copied quote. No real-record renumbering or identity relinking before final mapping approval.
+- [ ] Show recalculated per-record final mapping including folder mismatches; wait for Luis's separate OK before applying it. B1 OFF.
 
 ## Current request — business letter and Letter master (D51)
 - [x] Read decisions and letter/master code; read-only Oleiro recipient, stages and document scope audit; prepare PT mock-up and plan.
