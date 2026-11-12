@@ -449,3 +449,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Motivo:** Transformar o bloco atual numa carta profissional editável, sem inventar identidade, valores ou compromissos e sem alterar a paginação do restante documento.
 - **Plano/maquete:** [Plano aprovado](../.lovable/plan/carta-de-apresentação-e-master-carta-2026-11-12.md). [Implementação e limites](proposal-business-letter-result-2026-11-12.md).
 - **Assinatura fornecida (12/11/2026, 21:11 UTC):** Luis enviou Assinatura.jpg para a carta. Imagem guardada como predefinição para novas cartas e adoção explícita do formato; não substituir snapshots nem editar propostas reais existentes.
+
+### D52 — Limpeza limitada e assinatura da carta do Oleiro
+- **Data:** 12/11/2026, autorização de Luis às 21:13 UTC.
+- **Área:** Propostas / limpeza / Carta / pagamentos.
+- **Decisão:** Eliminar exclusivamente a quote de teste 7d7accd8-706b-424d-8e91-14feae419d30 e os seus documentos; as restantes cópias não estão autorizadas para limpeza. Usar a assinatura enviada na Carta do Oleiro, sem alterar o texto nem snapshots. Preservar a alteração de Luis para 18 meses × 3.000 €.
+- **Resultado:** Cópia/documento/blocos/snapshots eliminados; nenhuma ligação de quotes de teste a quotes/projetos reais encontrada, nem documentos de teste identificados sob quotes reais. Plano existente tem 18 linhas mensais de 3.000 € (54.000 €), 31 linhas totais, 221.300 € sem IVA + 50.899 € de IVA = 272.199 €. Meses e valores não foram alterados. Assinatura carregada e visível na Carta; B1 OFF confirmado.
+- **Motivo:** Limpar apenas a cópia autorizada e confirmar os dados atuais sem regenerar ou sobrescrever as alterações de Luis.
+- **Relatório:** [Housekeeping e assinatura](letter-housekeeping-2026-11-12.md).

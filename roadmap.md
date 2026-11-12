@@ -829,3 +829,8 @@
 - [x] Persistent quote-owned main proposal shared by composer/workflow/versions; Oleiro explicitly points to original; refresh stale selection.
 - [x] Repair unsafe proposal tests with separate copied quote and fail-closed guards; do not run old scripts.
 - [x] Verify original content and 22 snapshots untouched, B1 OFF; record D47 and report files/SQL.
+
+## Housekeeping — Luis, 12 November 2026 21:13 UTC
+- [x] Delete only quote 7d7accd8-706b-424d-8e91-14feae419d30 and its documents; audit test-to-real links.
+- [x] Confirm Oleiro's existing 18 monthly invoices of €3,000 and totals without editing months/value.
+- [x] Apply uploaded signature to the existing Oleiro Letter block; preserve prose, snapshots and B1 OFF.

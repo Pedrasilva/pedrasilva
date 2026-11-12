@@ -1,0 +1,10 @@
+# Housekeeping — 12 November 2026
+
+- Authorized quote `7d7accd8-706b-424d-8e91-14feae419d30` deleted with document `4bcbe516-8a33-42d1-97bf-4844887cca1e`; fresh reads show zero quote, document, blocks and snapshots. Prechecks found no project, contract, child quote or contract reference. Other fixtures remain untouched.
+- Audit found zero test-labelled quotes linked to real parent quotes/projects, zero test-labelled PSA documents linked to real quotes, and zero matching test markers in legacy quote documents under real quotes. This is a marker/link audit, not a claim that every unidentified record can be classified automatically.
+- Oleiro already has 18 distinct monthly dates, each €3,000: September 2000 through February 2002 in the relative-date representation. Monthly total €54,000. All 31 inflow lines total €221,300 before VAT, €50,899 VAT, €272,199 including VAT. No regeneration or change to months, values or dates.
+- Signature applied only to Letter block `36752430-456a-4072-90d1-5721c6b37570` in original document `84e54031-64db-41d8-aa30-b22d882a6017`. Update merges the signature URL into saved settings and does not replace prose or other fields. Existing layout was not adopted/reformatted. No snapshot changes requested or performed.
+- Letter renderer now merges partial saved settings over defaults, so adding a signature alone does not remove template fallback. Browser read-only check on Oleiro: signature decoded at 1308×652, visibly rendered, no page errors. B1 RPC returned false. Eleven letter/nested-retainer tests passed; latest build OK. Final PDF export remains uncertified from D51.
+- Data changes were executed transactionally through the data tool. Attempt to save identical operations in the two migration directories was refused by the environment, which protects migration history and requires data changes through the data tool; no schema migration was fabricated to bypass that restriction.
+
+Changed: `src/components/psa-composer/letter-page.tsx`, `src/lib/psa-proposal/AGENTS.md`, `docs/DECISIONS.md`, `roadmap.md`, this report; database: exact authorized quote cleanup and Letter signature only.

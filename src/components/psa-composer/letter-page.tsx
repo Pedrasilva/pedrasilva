@@ -11,7 +11,8 @@ import { letterDateLine, letterSignoff, LETTER_SIGNATORY, type LetterFields } fr
 export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQuoteSnapshot;lang:ProposalLang}) {
   const query=useProposal(block.proposal_id);const proposal=query.data;
   if(!proposal)return null;
-  const settings=(block.content_rich.letterSettings as LetterSettings|undefined)??proposal.style_settings.letterSettings??DEFAULT_LETTER_SETTINGS;
+  const savedSettings=(block.content_rich.letterSettings as Partial<LetterSettings>|undefined)??proposal.style_settings.letterSettings;
+  const settings={...DEFAULT_LETTER_SETTINGS,...savedSettings,templates:{...DEFAULT_LETTER_SETTINGS.templates,...savedSettings?.templates}};
   const map=letterTokenMap(live,proposal);const master=resolveMaster(proposal.style_settings);const layout=typeLayout(master,'letter');
   const html=String(block.content_rich.html??settings.templates[lang]??DEFAULT_LETTER_SETTINGS.templates[lang]);
   const fields=block.content_rich.letterFields as LetterFields | undefined;
