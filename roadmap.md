@@ -809,3 +809,8 @@
 ## Priority — expense submission and intake visibility blockers
 - [x] Replace ambiguous expense-function locals and scope intake counterparty checks to the queue entity; no record changes.
 - [x] Both old errors reproduced; applied 0213/0214, all ten branches/card/6 entity checks passed on isolated schema copy; live expense and queue hashes unchanged. Current matching live expense is already submitted and EUR is null; no submit/edit performed.
+
+## Current request — approved Oleiro main document correction
+- [ ] Persistent quote-owned main proposal shared by composer/workflow/versions; Oleiro explicitly points to original; refresh stale selection.
+- [ ] Repair unsafe proposal tests with separate copied quote and fail-closed guards; do not run old scripts.
+- [ ] Verify original content and 22 snapshots untouched, B1 OFF; record D47 and report files/SQL.
