@@ -381,3 +381,12 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Por decidir no plano:** Média simples da equipa versus ponderação; recomendar média simples e fallback de pessoas faturáveis ativas do atelier.
 - **Motivo:** Orçamento de esforço útil sem confundir reservas de capacidade ou divulgar salários/taxas.
 - **Relatórios:** [Investigação e cálculos atuais](stage-hours-investigation.md).
+
+
+### D45 — Termos Gerais portugueses e páginas Gantt horizontais
+- **Data:** 12/11/2026, pedido confirmado por Luis às 00:49 UTC.
+- **Área:** Propostas / termos / impressão.
+- **Decisão:** Usar literalmente o HTML português aprovado do bloco d4282d4d-c976-4c7c-a9fc-830d810f9b68 como padrão para propostas Português (Portugal), incluindo novos documentos/templates; preservar artigos H3, números em negrito e os estilos ingleses. Acrescentar ao padrão inglês a cláusula 11.6 Site Signage integral aprovada, depois de 11.5. Não substituir conteúdo editorial guardado nem alterar Oleiro. Cada Gantt fica numa página A4 horizontal nomeada, com cabeçalho/rodapé do master adaptados, meses e texto legível; separar Projeto/Obra se necessário. PDF exporta as mesmas páginas; rotação apenas como fallback.
+- **Estado:** Confirmada; não substitui decisões anteriores. B1 OFF e testes só em cópias descartáveis.
+- **Motivo:** Termos adequados ao idioma/jurisdição e programas legíveis sem fragmentação ou duplicação.
+- **Relatório:** [Resultados e limites](proposal-terms-gantt-report-2026-11-12.md).
