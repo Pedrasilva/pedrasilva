@@ -1,5 +1,12 @@
 import asyncio,json,os
 from pathlib import Path
+import importlib.util
+_spec=importlib.util.spec_from_file_location("proposal_fixture",Path(__file__).with_name("proposal-test-fixture.py"))
+assert _spec and _spec.loader
+_fixture=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_fixture)
+create_fixture=_fixture.create_fixture
+assert_fixture=_fixture.assert_fixture
+finish_fixture=_fixture.finish_fixture
 from playwright.async_api import async_playwright
 D=Path("/tmp/browser/proposal-terms-gantt-regression")
 D.mkdir(parents=True, exist_ok=True)
@@ -7,9 +14,10 @@ async def main():
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True);c=await b.new_context(viewport={'width':1280,'height':1800});page=await c.new_page()
   await page.goto('http://localhost:8080');await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'],os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']]);await page.reload();await page.wait_for_timeout(5000)
-  f=await page.evaluate('''async()=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const ck=r=>{if(r.error)throw Error(r.error.message);return r.data};const orig=ck(await s.from('psa_proposals').select('*').eq('quote_id','d73deb33-a0f9-41bb-ad4d-637cd5d159b6').order('created_at',{ascending:false}).limit(1).single());const blocks=ck(await s.from('psa_proposal_blocks').select('*').eq('proposal_id',orig.id).order('sort_order'));const {id,created_at,updated_at,locked_at,sent_at,...copy}=orig;const np=ck(await s.from('psa_proposals').insert({...copy,title:'[QA DISPOSABLE] Oleiro page breaks',status:'draft'}).select('*').single());ck(await s.from('psa_proposal_blocks').insert(blocks.map(({id,created_at,updated_at,...r})=>({...r,proposal_id:np.id,is_locked:false}))));return {id:np.id,original:orig,blocks,b1:ck(await s.rpc('pm_project_b1_gate_state'))}}''')
+  f=await create_fixture(page, '84e54031-64db-41d8-aa30-b22d882a6017')
   try:
    for language in ['pt-PT','en']:
+    await assert_fixture(page, f)
     await page.evaluate("""async([id,language])=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const ck=r=>{if(r.error)throw Error(r.error.message);return r.data};ck(await s.from('psa_proposals').update({language}).eq('id',id));const terms=ck(await s.from('psa_proposal_blocks').select('id,content_rich').eq('proposal_id',id).eq('block_type','appendix_general_terms'));for(const b of terms)ck(await s.from('psa_proposal_blocks').update({content_rich:{...b.content_rich,html:'',text:''}}).eq('id',b.id));const mod=await import('/src/lib/psa-proposal/general-terms-content.ts');return {ptLength:mod.PSA_GENERAL_TERMS_HTML_PT.length,enLength:mod.PSA_GENERAL_TERMS_HTML_EN.length}}""",[f['id'],language])
     await page.goto('http://localhost:8080/proposals/'+f['id']+'/composer');await page.wait_for_timeout(11000)
     for name in ['Pages','Páginas','Split']:
@@ -35,6 +43,6 @@ async def main():
     (D/(language+'-pages.json')).write_text(json.dumps(info,ensure_ascii=False));await pdf.close();print('PT PAGES/PDF PASS')
 
   finally:
-   result=await page.evaluate('''async(f)=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const r=await s.from('psa_proposals').delete().eq('id',f.id);if(r.error)throw Error(r.error.message);return {unchanged:JSON.stringify((await s.from('psa_proposal_blocks').select('*').eq('proposal_id',f.original.id).order('sort_order')).data)===JSON.stringify(f.blocks),removed:(await s.from('psa_proposals').select('id').eq('id',f.id)).data.length===0,b1:(await s.rpc('pm_project_b1_gate_state')).data}}''',f);print('CLEANUP',result)
+   await finish_fixture(page, f)
   await b.close()
 asyncio.run(main())

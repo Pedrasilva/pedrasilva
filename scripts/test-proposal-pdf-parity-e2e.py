@@ -1,12 +1,20 @@
 import asyncio,json,os,subprocess
 from pathlib import Path
+import importlib.util
+_spec=importlib.util.spec_from_file_location("proposal_fixture",Path(__file__).with_name("proposal-test-fixture.py"))
+assert _spec and _spec.loader
+_fixture=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_fixture)
+create_fixture=_fixture.create_fixture
+assert_fixture=_fixture.assert_fixture
+finish_fixture=_fixture.finish_fixture
 from playwright.async_api import async_playwright
-D=Path(__file__).parent
+D=Path("/tmp/browser/proposal-pdf-parity")
+D.mkdir(parents=True, exist_ok=True)
 async def main():
  async with async_playwright() as p:
   b=await p.chromium.launch(headless=True);c=await b.new_context(viewport={'width':1280,'height':1800});page=await c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('console',lambda m:print('CONSOLE',m.text) if m.type=='error' else None)
   await page.goto('http://localhost:8080');await page.evaluate('([k,v])=>localStorage.setItem(k,v)',[os.environ['LOVABLE_BROWSER_SUPABASE_STORAGE_KEY'],os.environ['LOVABLE_BROWSER_SUPABASE_SESSION_JSON']]);await page.reload();await page.wait_for_timeout(6000)
-  f=await page.evaluate('''async()=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const ck=r=>{if(r.error)throw Error(r.error.message);return r.data};ck(await s.from('psa_proposals').delete().eq('title','[QA DISPOSABLE] Hotel Chiado Letter'));const orig=ck(await s.from('psa_proposals').select('*').eq('id','3d0db6b3-4bf5-4681-a875-c553f8c64656').single());const blocks=ck(await s.from('psa_proposal_blocks').select('*').eq('proposal_id',orig.id).order('sort_order'));const {id,created_at,updated_at,locked_at,sent_at,...copy}=orig;const np=ck(await s.from('psa_proposals').insert({...copy,title:'[QA DISPOSABLE] Hotel Chiado Letter',status:'draft',style_settings:{...orig.style_settings,pageTypesEnabled:true}}).select('*').single());const {DEFAULT_LETTER_SETTINGS:d}=await import('/src/lib/psa-proposal/letter.ts');const rows=blocks.map(({id,created_at,updated_at,...r})=>({...r,proposal_id:np.id,sort_order:r.sort_order+20,is_locked:false}));const cover=rows.find(r=>r.block_type==='cover');if(cover)cover.sort_order=10;else rows.unshift({proposal_id:np.id,block_type:'cover',title:'Capa',sort_order:10,source_type:'mixed',is_visible:true,is_locked:false,source_ref:{},content_rich:{},contract_relevance:'proposal_only'});rows.push({proposal_id:np.id,block_type:'letter',title:'Carta',sort_order:20,source_type:'mixed',is_visible:true,is_locked:false,source_ref:{},content_rich:{html:d.templates[orig.language==='en'?'en':'pt-PT'],letterSettings:d},contract_relevance:'proposal_only'});ck(await s.from('psa_proposal_blocks').insert(rows));return {id:np.id,original:orig,blocks,letter:ck(await s.from('psa_proposal_blocks').select('id').eq('proposal_id',np.id).eq('block_type','letter').single()).id}}''');(D/'fixture-id.json').write_text(json.dumps({'id':f['id'],'letter':f['letter']}))
+  f=await create_fixture(page, '3d0db6b3-4bf5-4681-a875-c553f8c64656')
   try:
    await page.goto('http://localhost:8080/proposals/'+f['id']+'/composer');await page.wait_for_timeout(12000);print('buttons',await page.get_by_role('button').all_text_contents());await page.screenshot(path=str(D/'start.png'))
    for name in ['Pages','Páginas','Split']:
@@ -47,6 +55,6 @@ async def main():
    print('PDF SAVED',flush=True)
 
   finally:
-   check=await page.evaluate('''async(f)=>{const {supabase:s}=await import('/src/integrations/supabase/client.ts');const r=await s.from('psa_proposals').delete().eq('id',f.id);if(r.error)throw Error(r.error.message);const p=(await s.from('psa_proposals').select('*').eq('id',f.original.id).single()).data;const rows=(await s.from('psa_proposal_blocks').select('*').eq('proposal_id',f.original.id).order('sort_order')).data;return {originalEqual:JSON.stringify(p)===JSON.stringify(f.original),blocksEqual:JSON.stringify(rows)===JSON.stringify(f.blocks),remaining:(await s.from('psa_proposals').select('id').eq('id',f.id)).data.length,b1:(await s.rpc('pm_project_b1_gate_state')).data}}''',f);print('CLEANUP',check)
+   await finish_fixture(page, f)
   await b.close()
 asyncio.run(main())
