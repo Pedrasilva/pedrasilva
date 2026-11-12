@@ -1,3 +1,6 @@
+## Current request — PT terms, signage and landscape Gantt
+- [ ] Copy approved PT terms verbatim; add EN 11.6; render and validate standalone landscape Gantts in PT/EN disposable proposals, preserve source/B1 OFF; record decision/report.
+
 ## Current request — proposal page breaks and verbatim text
 - [x] Explicit breaks fixed and verified independently in Pages/actual PDFs on disposable Oleiro copies; immediate typed bold/capital/spacing parity passed; source intact, copies removed, B1 OFF. Saved source already contains eProjecto de Arquitectura: no pagination rewrite found; real prose not changed. See proposal-page-break-report-2026-11-12.md.
 
