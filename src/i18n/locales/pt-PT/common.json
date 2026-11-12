@@ -4,7 +4,7 @@
     "title": "Carta",
     "settings": "Modelo da carta e signatário",
     "signature": "Imagem da assinatura de Luis",
-    "draftAi": "Rascunho com IA",
+    "draftAi": "Gerar com IA",
     "figures": "Valores da proposta utilizados",
     "replaceTitle": "Substituir o rascunho da carta?",
     "replaceHint": "O texto atual será substituído por um rascunho de IA para rever. Nada será enviado.",
@@ -12,7 +12,23 @@
     "cover": "Capa",
     "content": "Conteúdo",
     "bodyY": "Posição Y do texto",
-    "signatureWidth": "Largura da assinatura"
+    "signatureWidth": "Largura da assinatura",
+    "fields": {
+      "recipientCompany": "Empresa destinatária",
+      "recipientContact": "Nome e cargo do contacto",
+      "recipientAddress": "Morada do destinatário",
+      "recipientPostalCode": "Código postal do destinatário",
+      "recipientCity": "Cidade do destinatário",
+      "sender": "Remetente",
+      "place": "Local",
+      "date": "Data da carta",
+      "subject": "Assunto",
+      "salutation": "Saudação",
+      "signatoryRole": "Cargo do signatário"
+    },
+    "adoptLayout": "Usar formato de carta formal",
+    "changedDuringGeneration": "A carta foi editada durante a geração. As suas alterações foram preservadas.",
+    "overflow": "A carta excede uma página. Encurte o texto antes de exportar ou registar uma versão."
   },
   "masterPage": {
     "title": "Página-mestre",

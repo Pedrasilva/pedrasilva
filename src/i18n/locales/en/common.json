@@ -4,7 +4,7 @@
     "title": "Letter",
     "settings": "Letter template and signatory",
     "signature": "Luis’s signature image",
-    "draftAi": "Draft with AI",
+    "draftAi": "Generate with AI",
     "figures": "Proposal figures used",
     "replaceTitle": "Replace the letter draft?",
     "replaceHint": "This replaces the current letter text with an AI draft for you to review. Nothing is sent.",
@@ -12,7 +12,23 @@
     "cover": "Cover",
     "content": "Content",
     "bodyY": "Body position Y",
-    "signatureWidth": "Signature width"
+    "signatureWidth": "Signature width",
+    "fields": {
+      "recipientCompany": "Recipient company",
+      "recipientContact": "Contact name and title",
+      "recipientAddress": "Recipient street address",
+      "recipientPostalCode": "Recipient postcode",
+      "recipientCity": "Recipient city",
+      "sender": "Sender",
+      "place": "Place",
+      "date": "Letter date",
+      "subject": "Subject",
+      "salutation": "Salutation",
+      "signatoryRole": "Signatory title"
+    },
+    "adoptLayout": "Use business letter layout",
+    "changedDuringGeneration": "The letter changed while AI was drafting. Your edits were preserved.",
+    "overflow": "The letter exceeds one page. Shorten the text before exporting or recording a revision."
   },
   "masterPage": {
     "title": "Master page",
