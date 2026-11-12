@@ -1,4 +1,5 @@
 # Quote template rules
+- Quote value controls use quote_commercial_state and quote_gantt_change_value; signature/conversion capture immutable references without historical backfill. Why: UI and direct database writes must agree on the contract boundary.
 - Quote/project outline controls share persisted hierarchy movement; numeric WBS edits stay among siblings while arrows cross groups, and retainer kind never overrides stored sort order. Why: movement must preserve dates, fees and descendants without jumping to a displayed-number position.
 - Billing expands parents with custom-billed children, including nested retainers, before calculating advances. Why: monthly fees must not collapse into a construction lump sum or be deducted by design advances.
 - Full quote templates use versioned server-owned snapshots and guarded transactional import/undo with whole-state revision checks; legacy reduced snapshots disclose missing fidelity and never fetch live source data implicitly. Why: stage references, fiscal exclusion and undo must remain atomic without altering source quotes.
