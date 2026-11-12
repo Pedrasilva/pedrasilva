@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { PsaProposal } from './types';
 
-export function useMainProposal(quoteId: string) {
-  return useQuery({
+export function mainProposalOptions(quoteId: string) {
+  return {
     // New shared key deliberately discards all legacy recency-based caches.
     queryKey: ['quote-main-proposal', quoteId],
     staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: 'always',
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: 'always' as const,
     refetchInterval: 5000,
     queryFn: async (): Promise<PsaProposal | null> => {
       const { data: quote, error } = await supabase.from('fee_proposals')
@@ -27,5 +27,9 @@ export function useMainProposal(quoteId: string) {
       if (documentError) throw documentError;
       return data as unknown as PsaProposal;
     },
-  });
+  };
+}
+
+export function useMainProposal(quoteId: string) {
+  return useQuery(mainProposalOptions(quoteId));
 }
