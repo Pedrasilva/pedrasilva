@@ -5,6 +5,8 @@ import {useBillingPlan} from "@/lib/finance/use-billing-plan";
 import { PlannerToolbar } from "./planner-toolbar";
 import {GanttValueDialog,GanttContractSummary} from './gantt-commercial-panel';
 import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
+import {useQuoteCommercial} from '@/lib/quotes/use-quote-commercial';
+import {QuoteValueDialog} from './quote-value-dialog';
 import { readGanttSchedule,saveGanttSchedule } from "@/lib/projects/gantt-schedule";
 import { recomputeSchedule } from "@/lib/projects/schedule-engine";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
@@ -168,6 +170,8 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
 
   // ---- Quote lock (quote mode only; ProjectGantt below stays always-editable)
   const lockQ = useQuoteLock(quoteId);
+  const quoteCommercial=useQuoteCommercial(quoteId);
+  const [pendingQuoteValue,setPendingQuoteValue]=useState<{id:string;expected:number;value:number}|null>(null);
   const isLocked = !!lockQ.data?.isLocked;
   const isConverted = !!lockQ.data?.isConverted;
   /** Returns true when the write must not proceed (raises the revise dialog). */
@@ -769,9 +773,10 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
       if (blockIfLocked()) return;
+      if(quoteCommercial.data?.hasContract!==false){const stage=stages.find(s=>s.id===id);if(stage)setPendingQuoteValue({id,expected:Number(stage.budget),value:budget});return;}
       await upsertStage.mutateAsync({ id, budget } as Parameters<typeof upsertStage.mutateAsync>[0]);
     },
-    [upsertStage, blockIfLocked],
+    [upsertStage, blockIfLocked,quoteCommercial.data,stages],
   );
   const handleUpdateBounds = useCallback(
     async (args: { id: string; projectId: string; start_date: string; end_date: string }) => {
@@ -1046,6 +1051,7 @@ function ProposalScheduleAdapter({ quoteId, dayWidth: dayWidthProp, onAddRetaine
 
   return (
     <div className="space-y-2">
+      {pendingQuoteValue&&<QuoteValueDialog stageId={pendingQuoteValue.id} expected={pendingQuoteValue.expected} value={pendingQuoteValue.value} onClose={()=>setPendingQuoteValue(null)}/>}
       <PlannerToolbar mode="quote" scope={quoteId} disabled={upsertStage.isPending||isLocked} selected={!!selectedStageId}
         add={()=>handleInsert(null,"below")} indent={()=>{if(selectedStageId)handleIndent(selectedStageId)}} outdent={()=>{if(selectedStageId)handleOutdent(selectedStageId)}}
         reflow={handleReflow} reflowing={reflowing} zoom={zoom} setZoom={setZoom} poolCollapsed={poolCollapsed} togglePool={()=>setPoolCollapsed(v=>!v)} getTarget={()=>chartRef.current}
@@ -1321,9 +1327,10 @@ function OperationalScheduleAdapter({
   const handleUpdateBudget = useCallback(
     async (id: string, _projectId: string, budget: number) => {
       if (!canEdit) return;
+      if(commercialQ.data?.hasContract===false){await updateStage.mutateAsync({id,projectId,patch:{budget}});return;}
       setPendingCommercial({id,value:budget});
     },
-    [canEdit, updateStage, projectId],
+    [canEdit, updateStage, projectId,commercialQ.data],
   );
   useEffect(() => {
     try {
@@ -1393,7 +1400,7 @@ function OperationalScheduleAdapter({
       if (!canEdit || id === PROJECT_MODE_SUMMARY_ID) return;
       await updateStage.mutateAsync({ id, patch: { name }, projectId });
     },
-    [canEdit, updateStage, projectId],
+    [canEdit, updateStage, projectId,commercialQ.data],
   );
 
   const applyOutlineMove = useCallback(async (id: string, action: 'up' | 'down' | 'indent' | 'outdent' | 'position', position = 1) => {

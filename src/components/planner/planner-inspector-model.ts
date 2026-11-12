@@ -26,6 +26,7 @@ export interface PlannerInspectorModel {
   readOnly: boolean;
   financialVisible: boolean;
   operational: boolean;
+  hasContract?:boolean;
   contractReferencePending?: boolean;
   commercialReferences?:CommercialReference[];
   operationalStages?:StageWithAllocations[];

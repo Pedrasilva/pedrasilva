@@ -296,7 +296,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
         </Button>
       </header>
 
-      {model.operational&&stage.stage_kind!=='retainer_monthly'&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
+      {model.operational&&model.hasContract!==false&&stage.stage_kind!=='retainer_monthly'&&model.financialVisible&&model.operationalStages&&operationalStage&&<div className="px-3 pt-3"><GanttStageCommercial key={stage.id} projectId={quoteId} stage={operationalStage} stages={model.operationalStages} reference={model.commercialReferences?.find(s=>s.id===stage.id)} readOnly={model.readOnly} onChange={setPendingValue}/></div>}
       {pendingValue!=null&&operationalStage&&<GanttValueDialog projectId={quoteId} stage={operationalStage} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       {pendingValue!=null&&!model.operational&&<QuoteValueDialog stageId={stage.id} expected={Number(stage.budget)} value={pendingValue} onClose={()=>setPendingValue(null)}/>}
       <fieldset disabled={model.readOnly} className="contents">
@@ -746,7 +746,7 @@ export function SharedPlannerInspector({model, scopeId: quoteId, stageId, onClos
                           value={Number(stage.budget ?? 0)}
                           onCommit={(v: number) => {
                             if (v !== Number(stage.budget)) {
-                              if(model.operational||quoteCommercial.data?.hasContract!==false)setPendingValue(v);
+                              if(model.operational?model.hasContract!==false:quoteCommercial.data?.hasContract!==false)setPendingValue(v);
                               else upsertStage.mutate({ id: stage.id, budget: v });
                             }
                           }}
