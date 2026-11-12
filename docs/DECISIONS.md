@@ -390,3 +390,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Estado:** Confirmada; não substitui decisões anteriores. B1 OFF e testes só em cópias descartáveis.
 - **Motivo:** Termos adequados ao idioma/jurisdição e programas legíveis sem fragmentação ou duplicação.
 - **Relatório:** [Resultados e limites](proposal-terms-gantt-report-2026-11-12.md).
+
+### D46 — Isolamento obrigatório dos testes ao nível da quote
+- **Data:** 12/11/2026, confirmação explícita de Luis às 01:08 UTC.
+- **Área:** CRM / propostas / testes / preservação de dados.
+- **Estado:** Em vigor; clarifica e reforça D13 sem autorizar recuperação ou eliminações.
+- **Decisão:** Testes descartáveis devem usar uma QUOTE copiada separada, com identificador próprio. Nunca criar documentos de proposta ou revisões de teste ligados a uma quote real, mesmo quando os blocos são cópias e a eliminação está prevista. B1 permanece OFF. No incidente Oleiro, investigar e apresentar inventário e proposta de recuperação; aguardar OK de Luis antes de restaurar ou apagar qualquer dado.
+- **Motivo:** A seleção do documento mais recentemente atualizado permitiu que documentos de teste ligados à quote real fossem apresentados ao utilizador.
+- **Relatório:** [Investigação Oleiro e proposta não executada](oleiro-test-document-incident-2026-11-12.md).
