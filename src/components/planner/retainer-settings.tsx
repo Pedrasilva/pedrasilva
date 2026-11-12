@@ -12,16 +12,18 @@ import {Checkbox} from '@/components/ui/checkbox';
 import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter} from '@/components/ui/dialog';
 import {toast} from '@/lib/toast';
 import {useQuoteCommercial} from '@/lib/quotes/use-quote-commercial';
+import {useGanttCommercial} from '@/lib/projects/use-gantt-commercial';
 export interface RetainerSettingsStage {id:string;start_date:string;retainer_months?:number|null;retainer_monthly_amount?:number|null;is_fee_only?:boolean|null}
 export function RetainerSettings({stage,scope,operational=false,readOnly=false,onMonthlyChange}:{stage:RetainerSettingsStage;scope:string;operational?:boolean;readOnly?:boolean;onMonthlyChange?:(value:number)=>void}){
  const {t}=useTranslation('crm');const qc=useQueryClient();const [pending,setPending]=useState<number|null>(null);const [reason,setReason]=useState('');const [agreed,setAgreed]=useState(false);const [responsibility,setResponsibility]=useState(false);
  const commercial=useQuoteCommercial(scope,!operational);
- const protectedValue=operational||commercial.data?.hasContract!==false;
+ const projectCommercial=useGanttCommercial(scope,operational);
+ const protectedValue=operational?projectCommercial.data?.hasContract!==false:commercial.data?.hasContract!==false;
  const save=useMutation({mutationFn:async(input:{months?:number;feeOnly?:boolean;value?:number})=>{
   if(readOnly)return;
   if(input.months!==undefined)await changeGanttStage(operational?'project':'quote',scope,stage.id,stage.start_date,retainerEnd(stage.start_date,input.months));
   if(input.feeOnly!==undefined){const {error}=await supabase.from(operational?'pm_stages':'quote_stages').update({is_fee_only:input.feeOnly}).eq('id',stage.id);if(error)throw error;}
-  if(input.value!==undefined){const {error}=await supabase.rpc('quote_retainer_change_value',{_stage:stage.id,_expected:Number(stage.retainer_monthly_amount??0),_value:input.value,_reason:reason,_responsibility:responsibility,_client_agreed:agreed});if(error)throw error;}
+  if(input.value!==undefined){const {error}=operational?await supabase.rpc('pm_gantt_change_value',{_stage:stage.id,_expected:Number(stage.retainer_monthly_amount??0),_value:input.value,_reason:reason,_responsibility:responsibility,_client_agreed:agreed}):await supabase.rpc('quote_retainer_change_value',{_stage:stage.id,_expected:Number(stage.retainer_monthly_amount??0),_value:input.value,_reason:reason,_responsibility:responsibility,_client_agreed:agreed});if(error)throw error;}
  },onSuccess:async()=>{setPending(null);await Promise.all(['quote-stages','quote-payment-schedule','quote-financials','psa-live-quote','pm-project','pm-stages-all','pm-incoming-timing','billing-plan'].map(key=>qc.invalidateQueries({queryKey:[key]})));},onError:error=>toast.error(error.message)});
  return <div className="space-y-3" data-retainer-settings={stage.id}>
   <p className="text-xs font-medium text-primary">{t('workspace.planning.retainerMonthly.badge')}</p>
