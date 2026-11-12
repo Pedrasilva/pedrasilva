@@ -5,8 +5,8 @@ import { letterProgramme } from './letter-fields';
 export interface LetterSettings { templates: Record<string,string>; signatoryName: string; signatureData?: string | null }
 export const DEFAULT_LETTER_SETTINGS: LetterSettings = {
   signatoryName: 'Luis Pedra Silva', templates: {
-    'pt-PT': '<p>Agradecemos a oportunidade de apresentar a nossa proposta para {{project_name}}.</p><p>O âmbito proposto compreende {{stage_count}} fases, com honorários de {{total_fee}} e uma duração estimada de {{estimated_duration}}.</p><p>Estamos disponíveis para esclarecer qualquer questão e desenvolver este projeto em colaboração convosco.</p><p>Com os melhores cumprimentos,</p>',
-    en: '<p>Thank you for the opportunity to present our proposal for {{project_name}}.</p><p>The proposed scope comprises {{stage_count}} stages, with a fee of {{total_fee}} and an estimated duration of {{estimated_duration}}.</p><p>We look forward to discussing the proposal and developing this project together.</p><p>Kind regards,</p>',
+    'pt-PT': '<p>Agradecemos a oportunidade de apresentar a nossa proposta para {{project_name}}.</p><p>O âmbito proposto compreende {{stage_count}} fases, com honorários de {{total_fee}} e uma duração estimada de {{estimated_duration}}.</p><p>Estamos disponíveis para esclarecer qualquer questão e desenvolver este projeto em colaboração convosco.</p>',
+    en: '<p>Thank you for the opportunity to present our proposal for {{project_name}}.</p><p>The proposed scope comprises {{stage_count}} stages, with a fee of {{total_fee}} and an estimated duration of {{estimated_duration}}.</p><p>We look forward to discussing the proposal and developing this project together.</p>',
   },
 };
 export const LETTER_TOKENS = ['client_name','contact_salutation','project_name','total_fee','stage_count','estimated_duration','proposal_number','proposal_date'] as const;

@@ -2,6 +2,7 @@ import type { LiveQuoteSnapshot, ProposalLang } from './live-data';
 import type { MasterPage } from './master-page';
 
 export const LETTER_SIGNATORY = 'Luís Pedra Silva';
+export function letterSignoff(lang: ProposalLang): string { return lang === 'en' ? 'Yours sincerely,' : 'Com os melhores cumprimentos,'; }
 export type LetterFields = {
   recipientCompany: string; recipientContact: string; recipientAddress: string;
   recipientPostalCode: string; recipientCity: string; sender: string;

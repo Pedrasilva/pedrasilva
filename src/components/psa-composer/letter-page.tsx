@@ -6,7 +6,7 @@ import type { PsaProposalBlock } from '@/lib/psa-proposal/types';
 import type { LiveQuoteSnapshot, ProposalLang } from '@/lib/psa-proposal/live-data';
 import psaLogo from '@/assets/logotipo-psa.jpg.asset.json';
 import './letter.css';
-import { letterDateLine, LETTER_SIGNATORY, type LetterFields } from '@/lib/psa-proposal/letter-fields';
+import { letterDateLine, letterSignoff, LETTER_SIGNATORY, type LetterFields } from '@/lib/psa-proposal/letter-fields';
 export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQuoteSnapshot;lang:ProposalLang}) {
   const query=useProposal(block.proposal_id);const proposal=query.data;
   if(!proposal)return null;
@@ -31,7 +31,7 @@ export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQ
       <p className="psa-letter-salutation">{fields.salutation}</p>
       <div className="psa-rich psa-letter-body" dangerouslySetInnerHTML={{__html:body}}/>
       <div className="psa-letter-signoff proposal-avoid-break">
-        <p>{lang==='en'?'Yours sincerely,':'Com os melhores cumprimentos,'}</p>
+        <p>{letterSignoff(lang)}</p>
         {settings.signatureData&&<img src={settings.signatureData} alt={LETTER_SIGNATORY}/>}
         <div>{LETTER_SIGNATORY}</div><div>{fields.signatoryRole}</div><div>{fields.sender.split('\n')[0]}</div>
       </div>
