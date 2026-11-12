@@ -62,8 +62,7 @@ CREATE FUNCTION public.quote_gantt_change_value(_stage uuid,_expected numeric,_v
 DECLARE s quote_stages; q fee_proposals; contracted boolean; previous text;
 BEGIN
  IF auth.uid() IS NULL OR NOT public.is_psa_staff() OR NOT public.has_role(auth.uid(),'admin') THEN RAISE EXCEPTION 'Forbidden' USING ERRCODE='42501'; END IF;
- SELECT quote_id INTO q.id FROM quote_stages WHERE id=_stage;
- SELECT * INTO q FROM fee_proposals WHERE id=q.id FOR UPDATE;
+ SELECT f.* INTO q FROM fee_proposals f WHERE f.id=(SELECT quote_id FROM quote_stages WHERE id=_stage) FOR UPDATE;
  SELECT * INTO s FROM quote_stages WHERE id=_stage FOR UPDATE;
  IF s.id IS NULL OR q.id IS NULL OR q.is_locked OR q.locked_at IS NOT NULL OR q.pm_project_id IS NOT NULL OR q.locked_project_id IS NOT NULL THEN RAISE EXCEPTION 'gantt.schedule.locked'; END IF;
  contracted:=public.quote_has_contract(q.id);
