@@ -1,0 +1,16 @@
+CREATE TABLE public.quote_contract_references (quote_id uuid PRIMARY KEY REFERENCES public.fee_proposals(id), captured_at timestamptz NOT NULL DEFAULT now(), boundary text NOT NULL, stages jsonb NOT NULL, total numeric, evidence_snapshot_id uuid);
+GRANT SELECT ON public.quote_contract_references TO authenticated;
+GRANT ALL ON public.quote_contract_references TO service_role;
+REVOKE ALL ON public.quote_contract_references FROM anon;
+REVOKE TRUNCATE ON public.quote_contract_references FROM anon,authenticated;
+ALTER TABLE public.quote_contract_references ENABLE ROW LEVEL SECURITY;
+CREATE POLICY quote_contract_reference_read ON public.quote_contract_references FOR SELECT TO authenticated USING(public.is_psa_staff() AND (public.has_role(auth.uid(),'admin') OR public.has_permission(auth.uid(),'crm.pipeline')));
+CREATE TABLE public.quote_gantt_value_history (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),quote_id uuid NOT NULL,stage_id uuid NOT NULL,actor uuid NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),old_value numeric,new_value numeric NOT NULL,reason text NOT NULL);
+GRANT SELECT ON public.quote_gantt_value_history TO authenticated;
+GRANT ALL ON public.quote_gantt_value_history TO service_role;
+REVOKE ALL ON public.quote_gantt_value_history FROM anon;
+REVOKE TRUNCATE ON public.quote_gantt_value_history FROM anon,authenticated;
+ALTER TABLE public.quote_gantt_value_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY quote_gantt_value_history_read ON public.quote_gantt_value_history FOR SELECT TO authenticated USING(public.is_psa_staff() AND (public.has_role(auth.uid(),'admin') OR public.has_permission(auth.uid(),'crm.pipeline')));
+CREATE TRIGGER quote_gantt_history_immutable BEFORE UPDATE OR DELETE ON public.quote_gantt_value_history FOR EACH ROW EXECUTE FUNCTION public.quote_retainer_history_immutable();
+CREATE TRIGGER quote_contract_reference_immutable BEFORE UPDATE OR DELETE ON public.quote_contract_references FOR EACH ROW EXECUTE FUNCTION public.quote_retainer_history_immutable();

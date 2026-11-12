@@ -2171,6 +2171,13 @@
       "when": 1794446970788,
       "tag": "0309_quote_template_uses_main_document",
       "breakpoints": true
+    },
+    {
+      "idx": 310,
+      "version": "7",
+      "when": 1794501020387,
+      "tag": "0310_precontract_values_boundary",
+      "breakpoints": true
     }
   ]
 }
