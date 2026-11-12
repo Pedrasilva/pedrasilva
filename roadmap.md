@@ -1,3 +1,6 @@
+## Current request — PT terms, signage and landscape Gantt
+- [x] Approved PT HTML copied exactly, EN 11.6 added; named landscape Gantts verified in PT/EN disposable Oleiro copy and actual mixed-size PDFs; 5 tests/i18n/build PASS; original intact, copy removed, B1 OFF; D45/report. Oversized browser stress test not run; splitting unit-tested.
+
 ## Current request — proposal page breaks and verbatim text
 - [x] Explicit breaks fixed and verified independently in Pages/actual PDFs on disposable Oleiro copies; immediate typed bold/capital/spacing parity passed; source intact, copies removed, B1 OFF. Saved source already contains eProjecto de Arquitectura: no pagination rewrite found; real prose not changed. See proposal-page-break-report-2026-11-12.md.
 

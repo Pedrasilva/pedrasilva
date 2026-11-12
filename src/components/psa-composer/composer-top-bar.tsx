@@ -359,10 +359,13 @@ export async function printProposalDocument(
       `<!doctype html><html><head><meta charset="utf-8"><base href="${escapeHtml(baseUrl)}"><title>${escapeHtml(filename)}</title>${styles}<style>
         @media print {
           @page { size: A4; margin: 0; }
+          @page proposal-export-landscape { size: A4 landscape; margin: 0; }
           .proposal-export-sheets .pagedjs_pages { display: block !important; }
           .proposal-export-sheets .pagedjs_page { page: auto !important; width: 210mm !important; height: 297mm !important; margin: 0 !important; break-after: page !important; break-inside: avoid !important; box-shadow: none !important; }
           .proposal-export-sheets .pagedjs_page:last-child { break-after: auto !important; }
           .proposal-export-sheets .pagedjs_pagebox { width: 210mm !important; height: 297mm !important; }
+          .proposal-export-sheets .pagedjs_page[data-orientation="landscape"] { page: proposal-export-landscape !important; width: 297mm !important; height: 210mm !important; }
+          .proposal-export-sheets .pagedjs_page[data-orientation="landscape"] .pagedjs_pagebox { width: 297mm !important; height: 210mm !important; }
           /* Chromium drops the absolutely positioned top margin furniture when
              fragmenting the completed sheets. Keep it in its grid flow, with
              the same page-edge origin used by the preview master geometry. */
@@ -373,13 +376,13 @@ export async function printProposalDocument(
           .proposal-export-sheets .proposal-page-header, .proposal-export-sheets .proposal-page-footer { position: static !important; }
           .proposal-export-sheets .proposal-page-break-before, .proposal-export-sheets .proposal-page-break-after { break-before: auto !important; break-after: auto !important; }
 
-          html, body { width: 210mm; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: white !important; }
+          html, body { width: auto !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: white !important; }
           body.proposal-pdf-export,
           body.proposal-pdf-export * { visibility: visible !important; }
           body.proposal-pdf-export > .proposal-export-sheets {
             position: static !important;
             inset: auto !important;
-            width: 210mm !important;
+            width: auto !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;

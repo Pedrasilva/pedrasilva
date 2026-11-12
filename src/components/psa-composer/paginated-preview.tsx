@@ -118,6 +118,25 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       .proposal-paged-content .proposal-print-block-gantt-landscape {
         break-before: page;
       }
+      @page psa-gantt { size: A4 landscape; margin: ${top} ${right} ${bottom} ${left}; }
+      .pagedjs_psa-gantt_page {
+        --pagedjs-width: 297mm !important; --pagedjs-height: 210mm !important;
+        --pagedjs-width-right: 297mm !important; --pagedjs-height-right: 210mm !important;
+        --pagedjs-width-left: 297mm !important; --pagedjs-height-left: 210mm !important;
+        --pagedjs-pagebox-width: 297mm !important; --pagedjs-pagebox-height: 210mm !important;
+      }
+      .proposal-paged-content .proposal-document-gantt-block {
+        page: psa-gantt; break-before: page; break-after: page;
+        break-inside: avoid; width: ${297 - parseFloat(left) - parseFloat(right)}mm !important;
+        margin: 0 !important; padding: 0 !important;
+      }
+      .proposal-paged-content .proposal-document-gantt-sheet {
+        width: 100% !important; max-width: none !important; break-inside: avoid;
+      }
+      .proposal-paged-content .proposal-document-gantt-table { font-size: 9pt !important; }
+      .proposal-paged-content .proposal-document-gantt-table th,
+      .proposal-paged-content .proposal-document-gantt-table td { font-size: 9pt !important; }
+      .proposal-paged-content .proposal-document-gantt-table thead { display: table-header-group !important; }
 
     `,
   });
@@ -199,6 +218,26 @@ export function PaginatedPreview({
           node.removeAttribute("contenteditable");
         });
         prepareExplicitPageBreaks(clone);
+        // One normal-flow landscape block per chart sheet; no rotated duplicate
+        // or transformed subtree is passed to the fragmentation engine.
+        clone.querySelectorAll<HTMLElement>('[data-proposal-block-id]').forEach(block => {
+          const sheets=Array.from(block.querySelectorAll<HTMLElement>('[data-gantt-sheet]'));
+          if (!sheets.length || block.dataset.visiblePrint==='false') return;
+          for (const sheet of sheets) {
+            const wrapper=block.cloneNode(false) as HTMLElement;
+            wrapper.className='proposal-print-block proposal-document-gantt-block';
+            wrapper.removeAttribute('style');
+            wrapper.removeAttribute('data-page-aligned');
+            wrapper.removeAttribute('data-page-align-x');
+            wrapper.removeAttribute('data-page-align-y');
+            wrapper.dataset.pageType='content';
+            wrapper.dataset.explicitPageBreakBefore='true';
+            wrapper.dataset.keepWithNext='false';
+            wrapper.appendChild(sheet);
+            block.before(wrapper);
+          }
+          block.remove();
+        });
         const firstPrintable = clone.querySelector<HTMLElement>(
           '.proposal-print-block[data-first-printable="true"]',
         );
@@ -274,7 +313,11 @@ export function PaginatedPreview({
           const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
           const variant = type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
-          Object.entries(masterVariables(variant)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
+          const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
+          pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-orientation',landscape?'landscape':'portrait');
+          const adapted=landscape?{...variant,logo:{...variant.logo,x:variant.logo.x+(variant.logo.alignment==='right'?87:variant.logo.alignment==='centre'?43.5:0)},contact:{...variant.contact,x:variant.contact.x+87}}:variant;
+          Object.entries(masterVariables(adapted)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
+          pageBox.style.setProperty('--psa-page-width',landscape?'297mm':'210mm');
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
@@ -331,7 +374,7 @@ export function PaginatedPreview({
         });
         if(typed) frameTarget.querySelectorAll<HTMLAnchorElement>('.proposal-toc-link').forEach(a=>{const n=anchorPages.get(a.hash.slice(1));if(n){const label=frameDoc.createElement('span');label.textContent=String(n);label.className='ml-auto';a.appendChild(label);}});
         reset.textContent = `
-          html,body{margin:0!important;padding:0!important;width:210mm!important;overflow:hidden!important}
+          html,body{margin:0!important;padding:0!important;width:297mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}
           /* Running header/footer: fixed position inside the page margins on every sheet (screen and print). */
           .proposal-paginated-preview .pagedjs_margin-top{display:block!important;position:relative!important}
@@ -352,8 +395,8 @@ export function PaginatedPreview({
           .proposal-margin-furniture .proposal-page-footer{position:static!important;margin:0!important;display:block!important}
           /* Master geometry is page-edge based, not margin-box-edge based. */
           .proposal-master-document .pagedjs_margin-top {position:static!important}
-          .proposal-master-document .pagedjs_margin-top-center {left:0!important;right:0!important;top:0!important;bottom:auto!important;width:210mm!important;height:var(--psa-header-height)!important}
-          .proposal-master-document .proposal-margin-furniture .proposal-page-header {position:relative!important;left:0!important;right:auto!important;top:0!important;width:210mm!important;height:var(--psa-header-height)!important;display:block!important}
+          .proposal-master-document .pagedjs_margin-top-center {left:0!important;right:0!important;top:0!important;bottom:auto!important;width:var(--psa-page-width,210mm)!important;height:var(--psa-header-height)!important}
+          .proposal-master-document .proposal-margin-furniture .proposal-page-header {position:relative!important;left:0!important;right:auto!important;top:0!important;width:var(--psa-page-width,210mm)!important;height:var(--psa-header-height)!important;display:block!important}
           .proposal-master-document .proposal-letterhead-brand {position:absolute!important;left:var(--psa-logo-x)!important;top:var(--psa-logo-y)!important;transform:var(--psa-logo-transform)!important}
           .proposal-master-document .proposal-letterhead-logo {width:var(--psa-logo-width)!important;height:var(--psa-logo-height)!important;max-width:none!important}
           .proposal-master-document .proposal-letterhead-contact {position:absolute!important;left:var(--psa-contact-x)!important;top:var(--psa-contact-y)!important;width:var(--psa-contact-width)!important;margin:0!important}
@@ -370,6 +413,7 @@ export function PaginatedPreview({
             .proposal-paginated-preview .pagedjs_page::before{content:attr(data-page-label);position:absolute;left:0;right:0;bottom:-18px;text-align:center;font:500 10px/1 system-ui,sans-serif;color:${labelInk};pointer-events:none}
           }`;
         frameDoc.head.appendChild(reset);
+        frame.style.width = '297mm';
         frame.style.height = `${frameTarget.scrollHeight}px`;
         frameDoc.addEventListener("click", (event) => {
           const element = event.target as HTMLElement;

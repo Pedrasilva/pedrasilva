@@ -98,7 +98,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
   useEffect(() => {
     const pane = pagePaneRef.current; if (!pane) return;
-    const updateScale = () => setScale(zoom === "fit" ? Math.min(1, Math.max(0.1, (pane.clientWidth - 48) / (210 * 96 / 25.4))) : Number(zoom));
+    const updateScale = () => setScale(zoom === "fit" ? Math.min(1, Math.max(0.1, (pane.clientWidth - 48) / (297 * 96 / 25.4))) : Number(zoom));
     const observer = new ResizeObserver(updateScale); observer.observe(pane); updateScale();
     return () => observer.disconnect();
   }, [zoom, layout, proposal.data?.id]);
@@ -305,8 +305,8 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           </div>
         </div>
         <div ref={pagePaneRef} className={`min-h-0 min-w-0 flex-1 overflow-auto bg-muted ${layout === "edit" ? "proposal-pages-hidden" : ""}`}>
-          <div className="proposal-zoom-frame" style={{ zoom: 1, width: `${210 * 96 / 25.4 * scale}px`, margin: "0 auto" }}>
-            <div className="proposal-zoom-sheet" style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+          <div className="proposal-zoom-frame" style={{ zoom: 1, width: `${297 * 96 / 25.4 * scale}px`, margin: "0 auto" }}>
+            <div className="proposal-zoom-sheet" style={{ width: "297mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
               <PaginatedPreview source={source} dataReady={dataReady} invalidateKey={`${revision}:${JSON.stringify(proposal.data.style_settings)}`} selectedId={selectedId} onSelect={selectBlock} />
             </div>
           </div>

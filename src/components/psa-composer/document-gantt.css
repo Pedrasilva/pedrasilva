@@ -1,0 +1,17 @@
+.proposal-document-gantt-sheet { width: 269mm; max-width: none; color: var(--foreground); background: var(--background); }
+.proposal-document-gantt-sheet h2 { font-size: 14pt; margin: 0 0 4mm; font-weight: 600; }
+.proposal-document-gantt-caption { font-size: 9pt; margin-bottom: 3mm; }
+.proposal-document-gantt-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9pt; line-height: 1.25; }
+.proposal-document-gantt-table th, .proposal-document-gantt-table td { border-bottom: 1px solid var(--border); height: 5mm; padding: 1mm; vertical-align: middle; }
+.proposal-document-gantt-table th { font-size: 8pt; font-weight: 600; text-align: left; }
+.proposal-document-gantt-table .gantt-name { width: 32%; overflow-wrap: anywhere; }
+.proposal-document-gantt-table .gantt-duration { width: 12%; text-align: right; }
+.proposal-document-gantt-axis { position: relative; height: 6mm; width: 100%; }
+.proposal-document-gantt-tick { position: absolute; top: 0; font-size: 8pt; white-space: nowrap; }
+.proposal-document-gantt-track { position: relative; height: 4mm; border-left: 1px solid var(--border); }
+.proposal-document-gantt-grid { position: absolute; height: 100%; top: 0; border-left: 1px solid var(--border); }
+.proposal-document-gantt-bar { position: absolute; height: 2.5mm; top: .7mm; background: var(--foreground); }
+.proposal-document-gantt-bar[data-construction="true"] { background: var(--muted-foreground); }
+.proposal-document-gantt-bar[data-group="true"] { height: 1mm; top: 1.5mm; }
+.proposal-document-gantt-row[data-group="true"] { background: var(--muted); font-weight: 600; }
+.proposal-source-host .proposal-document-gantt-sheet { width: 100%; }
