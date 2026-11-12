@@ -11,10 +11,10 @@ export const getProjectHourBudgets=createServerFn({method:'GET'})
   if(error)throw error;
   const allowed:string[]=[];const financial=new Set<string>();
   const staff=await supabase.rpc('is_psa_staff');if(staff.error)throw staff.error;if(!staff.data)return [];
-  for(const p of visible??[]){if(data.projectId&&data.projectId!==p.id)continue;
+  await Promise.all((visible??[]).filter(p=>!data.projectId||data.projectId===p.id).map(async p=>{
    // Visible rows already passed caller RLS. Financial-area helpers are not operational-access gates.
    allowed.push(p.id);const gate=await supabase.rpc('pm_project_rate_access',{_project:p.id});if(gate.error)throw gate.error;if(gate.data)financial.add(p.id);
-  }
+  }));
   if(!allowed.length)return [];
   const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
   const {loadInputs,currentHrCosts}=await import('./cost-rates.server');
