@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useProposal } from '@/lib/psa-proposal/use-psa-proposal';
 import { DEFAULT_LETTER_SETTINGS, letterTokenMap, type LetterSettings } from '@/lib/psa-proposal/letter';
 import { resolveTokens } from '@/lib/psa-proposal/tokens';
@@ -17,7 +18,7 @@ export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQ
   if (block.content_rich.letterVersion === 2 && fields) {
     const missing=(pt:string,en:string)=>lang==='en'?`[${en}]`:`[${pt}]`;
     const body=resolveTokens(html,map).output;
-    return <section className="psa-letter-page psa-business-letter" data-letter-version="2" data-live-ready={query.isFetching?'false':'true'} style={{'--letter-logo-width':`${layout.logo.width}mm`,'--letter-logo-x':`${layout.logo.x-layout.margins.left}mm`,'--letter-logo-y':`${layout.logo.y-layout.margins.top}mm`,'--letter-signature-width':`${layout.signatureWidth}mm`,'--letter-body-y':`${Math.max(0,layout.bodyY-layout.margins.top)}mm`,'--letter-height':`${297-layout.margins.top-layout.margins.bottom}mm`} as React.CSSProperties}>
+    return <section className="psa-letter-page psa-business-letter" data-letter-version="2" data-live-ready={query.isFetching?'false':'true'} style={{'--letter-logo-width':`${layout.logo.width}mm`,'--letter-logo-x':`${layout.logo.x-layout.margins.left}mm`,'--letter-logo-y':`${layout.logo.y-layout.margins.top}mm`,'--letter-signature-width':`${layout.signatureWidth}mm`,'--letter-body-y':`${Math.max(0,layout.bodyY-layout.margins.top)}mm`,'--letter-height':`${297-layout.margins.top-layout.margins.bottom}mm`} as CSSProperties}>
       <div className="psa-business-logo"><img src={psaLogo.url} alt="Pedra Silva"/></div>
       <div className="psa-letter-recipient">
         <div>{fields.recipientCompany||missing('Empresa','Company')}</div>
