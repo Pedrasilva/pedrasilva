@@ -1,6 +1,6 @@
 ## Current request — business letter and Letter master (D51)
 - [x] Read decisions and letter/master code; read-only Oleiro recipient, stages and document scope audit; prepare PT mock-up and plan.
-- [ ] Await Luis's OK before implementation. No real quote/document/settings changes; B1 stays OFF. Validate PT/EN, one-page overflow, editable fields, AI overwrite protection and Pages/PDF only on a separate copied quote.
+- [x] Luis approved; formal opt-in letter, editable fields, document-only AI, PT/EN generation and single-page pagination, long-text refusal and content counter 1 validated on quote 218c7ecc. Real blocks unchanged, B1 OFF; fixture preserved. See docs/proposal-business-letter-result-2026-11-12.md for remaining checks.
 
 ## Current request — free pre-contract proposal values (D50)
 - [x] Read-only prompt/server/history inventory; 0 quote retainer histories, 0 surviving pre-contract quote-linked project histories; B1 OFF revision 10. D50 recorded; plan prepared.
