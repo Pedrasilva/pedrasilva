@@ -1,6 +1,7 @@
 ## Current request — stage hours from fees
 - [x] Read-only investigation, four project comparisons, 75% markup inventory and scoped permission design; D44 records confirmed rule.
-- [ ] Build only after Luis approves the plan; allocations explicitly remain separate from hour budgets.
+- [x] Approved plan implemented partially: 50% default, server hour estimates/manual targets, list/detail/Gantt integration, redacted readers, EN/PT; 16 tests and disposable admin/staff target/read checks passed; fixtures removed, B1 OFF.
+- [ ] Certification blocked: direct legacy Data API/RPC still exposes stage budgets without Financials; scoped permission migration needs exact-loss review, plus complete same-number UI, pagination/history/missing-cost and override coverage. See stage-hours-implementation-report.md; do not certify publication.
 
 ## Current request — retainer rows on shared Gantt
 - [x] Render retainer rows with distinct bars, shared settings/cards and Construction summary coverage.
