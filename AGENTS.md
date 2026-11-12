@@ -59,5 +59,3 @@
 
 
 
-- Quote document selection uses the persistent quote-owned main_proposal_id through shared query options; lifecycle, revision cloning and template capture use the same pointer, excluded from commercial snapshot comparisons. Missing/ambiguous links fail closed; composite FK prevents cross-quote selection. Why: timestamps, titles and fixtures must never choose the operative document.
-- Persisted composer tests use the shared separate-quote fixture factory and validate document/snapshot quote links before mutations; never auto-clean by title or touch real quote documents. Why: disposable documents are safe only inside independently identified quotes.
