@@ -207,6 +207,12 @@ export function PaginatedPreview({
         const masterNode = source.matches('[data-master-page]') ? source : source.querySelector<HTMLElement>('[data-master-page]');
         const master: MasterPage = masterNode?.dataset.masterPage ? JSON.parse(masterNode.dataset.masterPage) : resolveMaster();
         const clone = source.cloneNode(true) as HTMLDivElement;
+        const letterFooters=new Map<string,HTMLElement>();
+        clone.querySelectorAll<HTMLElement>('.psa-letter-footer').forEach(footer=>{
+          const id=footer.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
+          if(id)letterFooters.set(id,footer.cloneNode(true) as HTMLElement);
+          footer.remove();
+        });
         clone.removeAttribute("id");
         // Never copy the hidden source state into Paged.js. The clone must be
         // ordinary document flow before the fragmentation engine measures it.
@@ -278,7 +284,7 @@ export function PaginatedPreview({
         if (!frameDoc || !frameWindow.Paged) throw new Error("Pagination frame unavailable");
         const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
         if (!frameTarget) throw new Error("Pagination target unavailable");
-        const typed = !!masterNode?.dataset.pageTypesEnabled;
+        const typed = !!masterNode?.dataset.pageTypesEnabled || !!source.querySelector('[data-letter-version="2"]');
         const styles = collectDocumentStyles(source, {
           header: runningElements.some((element) => element.classList.contains("proposal-page-header")),
           footer: runningElements.some((element) => element.classList.contains("proposal-page-footer")),
@@ -311,6 +317,11 @@ export function PaginatedPreview({
           pageBox.classList.add('proposal-master-document');
           pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
           const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
+          if(type==='letter'){
+            const id=pageBox.querySelector<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
+            const footer=id?letterFooters.get(id):undefined;
+            if(footer){const placed=frameDoc.importNode(footer,true);placed.classList.add('psa-letter-page-footer');pageBox.appendChild(placed);}
+          }
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
           const variant = type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
@@ -350,6 +361,15 @@ export function PaginatedPreview({
         }
         frameTarget.replaceChildren(completedPages.cloneNode(true));
         staging.remove();
+        let letterOverflow=false;
+        const letters=Array.from(frameTarget.querySelectorAll<HTMLElement>('[data-letter-version="2"]'));
+        for(const letterNode of letters){
+          const id=letterNode.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
+          const fragments=letters.filter(n=>n.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId===id);
+          const footer=letterNode.closest('.pagedjs_pagebox')?.querySelector<HTMLElement>('.psa-letter-page-footer');
+          const signature=letterNode.querySelector<HTMLElement>('.psa-letter-signoff');
+          if(fragments.length!==1||letterNode.scrollHeight>letterNode.clientHeight+2||(footer&&signature&&signature.getBoundingClientRect().bottom>footer.getBoundingClientRect().top))letterOverflow=true;
+        }
         const reset = frameDoc.createElement("style");
         const rootStyle = getComputedStyle(document.documentElement);
         const sheetGap = rootStyle.getPropertyValue("--muted").trim() || "#e5e5e5";
@@ -421,8 +441,10 @@ export function PaginatedPreview({
           if (id) onSelect(id);
         });
         target.dataset.pageCount = String(result.total);
-        setStatus("ready");
-        onStatusChange?.("ready");
+        target.dataset.letterOverflow=String(letterOverflow);
+        target.dataset.paginationStatus=letterOverflow?'error':'ready';
+        setStatus(letterOverflow?"error":"ready");
+        onStatusChange?.(letterOverflow?"error":"ready");
       } catch (error) {
         if (cancelled) return;
         console.error("Proposal pagination failed", error);
@@ -469,7 +491,7 @@ export function PaginatedPreview({
       )}
       {status === "error" && (
         <div className="proposal-pagination-status proposal-pagination-status-error" role="alert">
-          {t("proposalComposer.pagination.error")}
+          {t(targetRef.current?.dataset.letterOverflow==='true'?"letter.overflow":"proposalComposer.pagination.error")}
         </div>
       )}
       <div

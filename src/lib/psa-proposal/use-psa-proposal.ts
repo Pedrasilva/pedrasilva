@@ -8,6 +8,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_LETTER_SETTINGS } from './letter';
+import { letterFieldDefaults } from './letter-fields';
+import { resolveMaster } from './master-page';
+import { loadLetterSources } from './use-letter-sources';
+import { fetchLiveQuoteSnapshot } from './live-data';
 import { useHistoricalRevision } from "./revision-context";
 import type {
   PsaLibraryEntry,
@@ -133,9 +137,13 @@ export function useCreateProposal() {
         .order("sort_hint", { ascending: true });
       if (libErr) throw libErr;
       const settings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
+      const editorialDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      const lang=proposal.language==='en'?'en':'pt-PT';
+      const [sources,live]=await Promise.all([loadLetterSources(proposal.quote_id),proposal.quote_id?fetchLiveQuoteSnapshot(proposal.quote_id,lang,supabase,true):Promise.resolve(undefined)]);
+      const letterFields=letterFieldDefaults(sources,live,resolveMaster(proposal.style_settings),lang,editorialDate);
       const rows = [
         {kind:'cover',default_title:'Capa',default_source_type:'mixed',default_source_ref:{},default_content_rich:{},default_contract_relevance:'proposal_only'},
-        {kind:'letter',default_title:'Carta',default_source_type:'mixed',default_source_ref:{},default_content_rich:{html:settings.templates[proposal.language] ?? DEFAULT_LETTER_SETTINGS.templates[proposal.language==='en'?'en':'pt-PT'],letterSettings:settings},default_contract_relevance:'proposal_only'},
+        {kind:'letter',default_title:'Carta',default_source_type:'mixed',default_source_ref:{},default_content_rich:{html:settings.templates[proposal.language] ?? DEFAULT_LETTER_SETTINGS.templates[proposal.language==='en'?'en':'pt-PT'],letterSettings:settings,letterVersion:2,letterFields},default_contract_relevance:'proposal_only'},
         ...(lib ?? []).filter((row:PsaLibraryEntry)=>row.kind!=='cover' && row.kind!=='letter'),
       ];
       const seed = rows.map((row: PsaLibraryEntry, idx: number) => ({
@@ -179,11 +187,13 @@ export function useUpdateProposal(id: string | undefined) {
 export function useUpdateBlock(proposalId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { id: string; patch: Partial<PsaProposalBlock> }) => {
-      const { error } = await sb
+    mutationFn: async (args: { id: string; patch: Partial<PsaProposalBlock>; expectedContent?: PsaProposalBlock['content_rich'] }) => {
+      let query = sb
         .from("psa_proposal_blocks")
         .update(args.patch)
         .eq("id", args.id);
+      if(args.expectedContent)query=query.eq('content_rich',JSON.stringify(args.expectedContent));
+      const { error } = args.expectedContent ? await query.select('id').single() : await query;
       if (error) throw error;
     },
     onSuccess: () => {

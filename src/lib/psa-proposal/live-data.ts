@@ -360,6 +360,7 @@ export async function fetchLiveQuoteSnapshot(
   quoteId: string,
   lang: ProposalLang = "pt-PT",
   callerClient = supabase,
+  documentOnly = false,
 ): Promise<LiveQuoteSnapshot> {
       const supabase = callerClient;
       const L = getProposalLabels(lang);
@@ -868,13 +869,13 @@ export async function fetchLiveQuoteSnapshot(
 
       // ── Billable hourly rates catalog (proposal_roles + quote overrides) ──
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: roleRows } = await (supabase as any)
+      const { data: roleRows } = documentOnly ? { data: [] } : await (supabase as any)
         .from("proposal_roles")
         .select("code,label_pt,label_en,hourly_rate,sort_order,archived_at")
         .is("archived_at", null)
         .order("sort_order", { ascending: true });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: saleRows } = await (supabase as any)
+      const { data: saleRows } = documentOnly ? { data: [] } : await (supabase as any)
         .from("quote_billable_hourly_rates")
         .select("role_name,sale_rate")
         .eq("quote_id", quoteId!);
@@ -890,6 +891,7 @@ export async function fetchLiveQuoteSnapshot(
       // collaborator's computed cost/hour by their proposal_role and average.
       const costByRoleCode = new Map<string, number>();
       try {
+        if (!documentOnly) {
         const [collabRes, snapRes, boRes] = await Promise.all([
           supabase.from("collaborators").select("*").is("archived_at", null),
           supabase.from("salary_snapshots").select("*").eq("is_effective", true),
@@ -955,6 +957,7 @@ export async function fetchLiveQuoteSnapshot(
         }
         for (const [code, { sum, n }] of roleAgg) {
           if (n > 0) costByRoleCode.set(code, sum / n);
+        }
         }
       } catch {
         // HR access may be restricted for some users — fall back silently.

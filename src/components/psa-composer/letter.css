@@ -1,0 +1,12 @@
+.psa-business-letter { position:relative; box-sizing:border-box; width:100%; height:var(--letter-height); min-height:var(--letter-height); font-size:10.5pt; line-height:1.32; padding-top:var(--letter-body-y); break-inside:avoid; }
+.psa-business-letter .psa-business-logo { position:absolute; left:var(--letter-logo-x); top:var(--letter-logo-y); }
+.psa-business-logo img { width:var(--letter-logo-width); max-width:none; height:auto; }
+.psa-letter-recipient { width:49%; margin-left:auto; margin-bottom:7mm; white-space:pre-line; overflow-wrap:anywhere; font-size:10pt; }
+.psa-letter-sender { white-space:pre-line; margin-bottom:3mm; font-size:9.5pt; }
+.psa-business-letter p { margin:0 0 3mm !important; font-size:inherit; line-height:inherit; }
+.psa-letter-subject { margin-top:4mm !important; }
+.psa-business-letter .psa-rich { font-size:inherit; line-height:inherit; }
+.psa-business-letter .psa-letter-signoff { margin-top:4mm; font-size:10pt; }
+.psa-letter-signoff img { display:block; width:var(--letter-signature-width); max-height:12mm; object-fit:contain; object-position:left; margin:1mm 0; }
+.psa-letter-footer { position:absolute; bottom:-12mm; left:0; right:0; font-size:7.5pt; line-height:1.2; border-top:0.2mm solid var(--border); padding-top:2mm; text-align:center; }
+.psa-letter-page-footer { bottom:8mm; left:24mm; right:24mm; }

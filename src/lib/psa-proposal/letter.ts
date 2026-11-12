@@ -1,26 +1,26 @@
 import type { LiveQuoteSnapshot, ProposalLang } from './live-data';
 import { formatCurrencyEUR, formatDatePT } from './live-data';
 import type { PsaProposal } from './types';
+import { letterProgramme } from './letter-fields';
 export interface LetterSettings { templates: Record<string,string>; signatoryName: string; signatureData?: string | null }
 export const DEFAULT_LETTER_SETTINGS: LetterSettings = {
   signatoryName: 'Luis Pedra Silva', templates: {
-    'pt-PT': '<p>Agradecemos a oportunidade de apresentar a nossa proposta para {{project_name}}.</p><p>O âmbito proposto compreende {{stage_count}} fases, com honorários de {{total_fee}} e uma duração estimada de {{estimated_duration}}.</p><p>Estamos disponíveis para esclarecer qualquer questão e desenvolver este projeto em colaboração convosco.</p><p>Com os melhores cumprimentos,</p>',
-    en: '<p>Thank you for the opportunity to present our proposal for {{project_name}}.</p><p>The proposed scope comprises {{stage_count}} stages, with a fee of {{total_fee}} and an estimated duration of {{estimated_duration}}.</p><p>We look forward to discussing the proposal and developing this project together.</p><p>Kind regards,</p>',
+    'pt-PT': '<p>Agradecemos a oportunidade de apresentar a nossa proposta para {{project_name}}.</p><p>O âmbito proposto compreende {{stage_count}} fases, com honorários de {{total_fee}} e uma duração estimada de {{estimated_duration}}.</p><p>Estamos disponíveis para esclarecer qualquer questão e desenvolver este projeto em colaboração convosco.</p>',
+    en: '<p>Thank you for the opportunity to present our proposal for {{project_name}}.</p><p>The proposed scope comprises {{stage_count}} stages, with a fee of {{total_fee}} and an estimated duration of {{estimated_duration}}.</p><p>We look forward to discussing the proposal and developing this project together.</p>',
   },
 };
 export const LETTER_TOKENS = ['client_name','contact_salutation','project_name','total_fee','stage_count','estimated_duration','proposal_number','proposal_date'] as const;
 export function letterTokenMap(live: LiveQuoteSnapshot | undefined, proposal: Pick<PsaProposal,'client_snapshot'|'title'|'language'|'created_at'>): Record<string,string> {
   const lang: ProposalLang = proposal.language === 'en' ? 'en' : 'pt-PT';
-  const stages = live?.stages.filter(s => s.isSelf && !s.isOptional && !s.isMilestone && !s.parentStageId) ?? [];
-  const dates = stages.flatMap(s => s.startDate && s.endDate ? [{start: Date.parse(s.startDate),end: Date.parse(s.endDate)}] : []);
-  const weeks = dates.length === stages.length && dates.length ? Math.ceil((Math.max(...dates.map(s=>s.end))-Math.min(...dates.map(s=>s.start))+86400000)/604800000) : null;
+  const programme = letterProgramme(live?.stages ?? []);
+  const weeks = programme.weeks;
   const client = proposal.client_snapshot ?? {};
   return {
     client_name: live?.client ?? String(client.name ?? client.nome ?? '—'),
     contact_salutation: String(client.salutation ?? client.contact_salutation ?? '—'),
     project_name: live?.projectName ?? proposal.title,
     total_fee: live ? formatCurrencyEUR(live.totalArchitectureFee,lang) : '—',
-    stage_count: live ? String(stages.length) : '—',
+    stage_count: live ? String(programme.count) : '—',
     estimated_duration: weeks == null ? '—' : `${weeks} ${lang==='en'?'weeks':'semanas'}`,
     proposal_number: live?.projectNumber ?? '—',
     proposal_date: formatDatePT(live?.date ?? proposal.created_at,lang),

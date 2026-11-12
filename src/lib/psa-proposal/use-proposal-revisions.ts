@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { captureQuoteData } from "./snapshot-capture";
 import type { FrozenQuoteData, HistoricalRevision } from "./revision-context";
 import type { PsaProposal, PsaProposalBlock } from "./types";
+import i18n from '@/i18n';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
@@ -138,6 +139,8 @@ export function useSendProposal(proposalId: string | undefined) {
   return useMutation({
     mutationFn: async (args: { pdfBlob: Blob; filename: string }) => {
       if (!proposalId) throw new Error("No proposal id");
+      const pagination=document.querySelector<HTMLElement>('.proposal-paginated-preview');
+      if(pagination?.dataset.letterOverflow==='true')throw new Error(i18n.t('common:letter.overflow'));
       const { pdfBlob, filename } = args;
 
       // Fetch current proposal + blocks for the immutable snapshot payload.
