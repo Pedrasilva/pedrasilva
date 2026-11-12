@@ -119,6 +119,12 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
         break-before: page;
       }
       @page psa-gantt { size: A4 landscape; margin: ${top} ${right} ${bottom} ${left}; }
+      .pagedjs_psa-gantt_page {
+        --pagedjs-width: 297mm !important; --pagedjs-height: 210mm !important;
+        --pagedjs-width-right: 297mm !important; --pagedjs-height-right: 210mm !important;
+        --pagedjs-width-left: 297mm !important; --pagedjs-height-left: 210mm !important;
+        --pagedjs-pagebox-width: 297mm !important; --pagedjs-pagebox-height: 210mm !important;
+      }
       .proposal-paged-content .proposal-document-gantt-block {
         page: psa-gantt; break-before: page; break-after: page;
         break-inside: avoid; width: ${297 - parseFloat(left) - parseFloat(right)}mm !important;
@@ -127,6 +133,9 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       .proposal-paged-content .proposal-document-gantt-sheet {
         width: 100% !important; max-width: none !important; break-inside: avoid;
       }
+      .proposal-paged-content .proposal-document-gantt-table { font-size: 9pt !important; }
+      .proposal-paged-content .proposal-document-gantt-table th,
+      .proposal-paged-content .proposal-document-gantt-table td { font-size: 9pt !important; }
       .proposal-paged-content .proposal-document-gantt-table thead { display: table-header-group !important; }
 
     `,
