@@ -98,7 +98,7 @@ export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
   const out: QuoteStage[] = [];
   const visit = (s: QuoteStage) => {
     const kids = getChildren(s.id, stages);
-    if (kids.length > 0 && (childrenBillIndependently(s) || kids.some(subtreeHasFlag))) {
+    if (kids.length > 0 && (childrenBillIndependently(s) || kids.some(hasCustomBilling) || kids.some(subtreeHasFlag))) {
       for (const k of kids) visit(k);
     } else {
       out.push(s);
