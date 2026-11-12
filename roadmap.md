@@ -1,4 +1,5 @@
 ## Current request — lead / proposal / project numbering
+- [ ] D53 round 3: update v4 per-record map, validate Luis's exact 26019–26030 sequence, isolate orphan test documents in QA, delete only authorized Moradia XXL document, record decisions; no real renumbering, B1 OFF.
 - [x] Read-only inventory: 31 leads, 41 quotes, 21 projects, 35 documents; current counter 129; options A/B next provisional 26034/26143; D53 and full Markdown/CSV reports. B1 OFF revision 10 confirmed; no writes to real data.
 - [x] D53 additive identity/registry/versions/counters/gate/guarded actions and detail controls prepared, mapped document letters; mirrored 0313–0315. Eight pure tests and seven copied-quote rollback checks pass, original rows unchanged, gate OFF/B1 OFF, zero fixtures.
 - [x] Recalculated 128-row final map: Oleiro26028, Chiado26029, next26030; folder/alias collisions explicitly listed. Final approval requested; no real-record renumbering or relinking.
