@@ -40,8 +40,8 @@ export function WorkIdentityControl({ kind, recordId, canRestart = false }: { ki
   const open = (next: 'number' | 'restart') => { setNumber(data.canonicalNumber ?? ''); setReason(''); setMode(next); };
   return <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" data-work-reference={data.reference}>
     <span className="font-mono tabular-nums" title={data.folder}>{restartReference ?? data.reference}</span>
-    {data.mapped && data.canEdit && <>
-      <Button variant="ghost" size="icon" className="h-7 w-7" title={t('workNumbering.edit')} aria-label={t('workNumbering.edit')} onClick={() => open('number')}><Pencil className="h-3.5 w-3.5" /></Button>
+    {data.mapped && <>
+      {data.canEdit && <Button variant="ghost" size="icon" className="h-7 w-7" title={t('workNumbering.edit')} aria-label={t('workNumbering.edit')} onClick={() => open('number')}><Pencil className="h-3.5 w-3.5" /></Button>}
       {canRestart && <Button variant="ghost" size="sm" onClick={() => open('restart')}><RotateCcw className="mr-1 h-3.5 w-3.5" />{t('workNumbering.restart')}</Button>}
     </>}
     <Dialog open={mode !== null} onOpenChange={(value) => { if (!value) setMode(null); }}>
