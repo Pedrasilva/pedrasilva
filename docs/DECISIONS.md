@@ -415,3 +415,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Estado:** Substitui apenas «cada Gantt numa página horizontal» de D45; resto de D45 mantém-se. Dados reais do Oleiro (plano guardado, faturação por subfases, papel de «Programa», dependência da avença) aguardam OK de Luis. B1 OFF.
 - **Motivo:** Evitar duplicar o programa e manter datas/valores iguais entre Gantt, plano e faturação.
 - **Relatório:** [Resultados e propostas de dados](proposal-gantt-roles-payments-2026-11-12.md).
+
+### D49 — Correções autorizadas no Oleiro e movimentos de avenças
+- **Data:** 12/11/2026, aprovação de Luis às 12:42 UTC.
+- **Área:** CRM / Oleiro / Gantt / pagamentos.
+- **Decisão:** Aplicar apenas faturação independente das subfases de Arquitectura, Programa como Arquitetura, e Avença fase de obra como segundo filho de Construção depois de Concurso de construção (apoio), com dependência FS do Projecto de Execução, início no primeiro dia útil do mês seguinte e 12 mensalidades de 3 000 €. Subir/descer e indentar/recuar funcionam também para avenças e atravessam grupos sem saltar para o topo. Preservar Monthly Assistance e restantes dados; apagar apenas a cópia 102948d5 autorizada. B1 OFF.
+- **Estado:** Confirma as correções reais pendentes em D48; não autoriza alterações editoriais ou outros projetos.
+- **Motivo:** Alinhar estrutura, vencimentos mensais e plano vivo, sem perder edições recentes de Luis.
+- **Relatório:** [Resultado, numeração, pagamentos e SQL](oleiro-authorized-corrections-2026-11-12.md).
