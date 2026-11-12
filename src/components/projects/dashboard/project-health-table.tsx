@@ -32,6 +32,7 @@ export interface HealthRow {
   statusReason: string;
   /** Total hours attributed through allocations. */
   plannedHours?: number;
+  hourOrigin?:string;
   /** Total hours logged against the project. */
   loggedHours?: number;
   /** Per-stage hours attributed vs used. */
@@ -173,10 +174,10 @@ export function ProjectHealthTable({
                   {(r.plannedHours ?? 0) > 0 || (r.loggedHours ?? 0) > 0 ? (
                     <span
                       className={cn(
-                        (r.loggedHours ?? 0) > (r.plannedHours ?? 0) && "text-destructive",
+                        Number.isFinite(r.plannedHours) && (r.loggedHours ?? 0) > (r.plannedHours ?? 0) && "text-destructive",
                       )}
                     >
-                      {Math.round(r.loggedHours ?? 0)} {i18n.t("projects:projectHealthTable.ui.hoursSlash")} {Math.round(r.plannedHours ?? 0)} {i18n.t("common:units.hoursShort")} </span>
+                      {Math.round(r.loggedHours ?? 0)} {i18n.t("projects:projectHealthTable.ui.hoursSlash")} {Number.isFinite(r.plannedHours)?Math.round(r.plannedHours??0):t(`hourBudget.${r.hourOrigin==='rateMissing'?'rateMissing':'feeMissing'}`)} {Number.isFinite(r.plannedHours)&&i18n.t("common:units.hoursShort")} {r.hourOrigin==='estimate'&&t('hourBudget.estimate')}</span>
                   ) : (
                     "—"
                   )}

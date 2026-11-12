@@ -16,6 +16,7 @@ export type EffortStatus = "ok" | "warn" | "bad" | "none";
 export interface EffortRow {
   project: Project;
   plannedHours: number;
+  hourOrigin?:string;
   loggedHours: number;
   remainingHours: number;
   efficiencyPct: number;
@@ -165,7 +166,7 @@ export function ProjectEffortTable({
                 </td>
 
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
-                  {r.plannedHours > 0 ? i18n.t("projects:projectEffortTable.ui.hoursValue", { value1: Math.round(r.plannedHours) }) : "—"}
+                  {Number.isFinite(r.plannedHours) ? i18n.t("projects:projectEffortTable.ui.hoursValue", { value1: Math.round(r.plannedHours) }) : t(`hourBudget.${r.hourOrigin==='rateMissing'?'rateMissing':'feeMissing'}`)} {r.hourOrigin==='estimate'&&t('hourBudget.estimate')}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
                   {Math.round(r.loggedHours)} {i18n.t("common:units.hoursShort")} </td>
