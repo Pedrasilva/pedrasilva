@@ -371,3 +371,13 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Estado:** Substitui apenas a interpretação provisória do primeiro mês descrita nos limites de D42; restante decisão preservada.
 - **Motivo:** Cumprir vencimento mensal sem faturar antes do início da avença.
 - **Relatórios:** [Resultados e limites](retainer-gantt-report.md).
+
+### D44 — Horas previstas a partir de honorários
+- **Data:** 12/11/2026, pedido de Luis às 00:01 UTC e clarificação posterior.
+- **Área:** Projetos / HR / horas / permissões.
+- **Estado:** Regra confirmada; investigação e plano apenas, implementação aguarda OK. Substitui somente a manutenção provisória do multiplicador 1,75 em Projetos de D09. Para estes indicadores de horas substitui os limiares anteriores; não altera avisos de margem/custo do Gantt.
+- **Decisão:** Custo horário HR inclui quota Backoffice; venda por defeito custo × 1,5, preservando overrides explícitos. Backoffice não integra média de pessoas faturáveis. Horas da fase = honorário / média de venda da equipa; avenças por mensalidade, projeto soma sem duplicar pais/filhos, contrato quando não há fases. Alvo manual explícito prevalece; estimativa marcada «est.». Sem honorários mostrar «Fee not set», não zero. Horas usadas continuam registadas; restantes = previstas − usadas; âmbar desde 85%, vermelho só acima do previsto. Luis confirmou alocações separadas da estimativa, nunca tratadas como alvo manual.
+- **Permissões:** Sem Financials por projeto devolver só horas, nunca valores monetários nem taxa média ao navegador. Com Financials permitir gasto/restante em euros e horas; manter proteção HR e B1 OFF.
+- **Por decidir no plano:** Média simples da equipa versus ponderação; recomendar média simples e fallback de pessoas faturáveis ativas do atelier.
+- **Motivo:** Orçamento de esforço útil sem confundir reservas de capacidade ou divulgar salários/taxas.
+- **Relatórios:** [Investigação e cálculos atuais](stage-hours-investigation.md).

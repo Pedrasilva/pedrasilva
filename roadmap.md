@@ -1,3 +1,7 @@
+## Current request — stage hours from fees
+- [x] Read-only investigation, four project comparisons, 75% markup inventory and scoped permission design; D44 records confirmed rule.
+- [ ] Build only after Luis approves the plan; allocations explicitly remain separate from hour budgets.
+
 ## Current request — retainer rows on shared Gantt
 - [x] Render retainer rows with distinct bars, shared settings/cards and Construction summary coverage.
 - [x] Relative/live creation, dependencies, month resize, monthly payments and value-confirmation history implemented; existing fiscal date evidence remains untouched.
