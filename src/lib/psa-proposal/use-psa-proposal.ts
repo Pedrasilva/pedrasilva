@@ -136,7 +136,8 @@ export function useCreateProposal() {
         .select("*")
         .order("sort_hint", { ascending: true });
       if (libErr) throw libErr;
-      const settings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
+      const storedSettings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
+      const settings = {...storedSettings,signatureData:storedSettings.signatureData??DEFAULT_LETTER_SETTINGS.signatureData};
       const editorialDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
       const lang=proposal.language==='en'?'en':'pt-PT';
       const [sources,live]=await Promise.all([loadLetterSources(proposal.quote_id),proposal.quote_id?fetchLiveQuoteSnapshot(proposal.quote_id,lang,supabase,true):Promise.resolve(undefined)]);

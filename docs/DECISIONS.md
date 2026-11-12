@@ -448,3 +448,4 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Preservação:** Sem edição de propostas reais nesta fase; testes apenas numa QUOTE copiada separada (D46/D47), sem documentos/revisões ligados ao original. B1 OFF. Nenhuma alteração de valores, Gantt, pagamentos, permissões, histórico ou exclusões documentais reais.
 - **Motivo:** Transformar o bloco atual numa carta profissional editável, sem inventar identidade, valores ou compromissos e sem alterar a paginação do restante documento.
 - **Plano/maquete:** [Plano aprovado](../.lovable/plan/carta-de-apresentação-e-master-carta-2026-11-12.md). [Implementação e limites](proposal-business-letter-result-2026-11-12.md).
+- **Assinatura fornecida (12/11/2026, 21:11 UTC):** Luis enviou Assinatura.jpg para a carta. Imagem guardada como predefinição para novas cartas e adoção explícita do formato; não substituir snapshots nem editar propostas reais existentes.
