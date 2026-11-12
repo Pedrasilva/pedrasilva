@@ -117,6 +117,7 @@ interface Props {
   onRenameStage?: (stageId: string, name: string) => Promise<unknown> | unknown;
   /** Reorder a stage within its siblings (1-based position). */
   onReorderStage?: (stageId: string, newPosition: number) => Promise<unknown> | unknown;
+  onMoveStage?: (id: string, direction: "up" | "down") => Promise<unknown> | unknown;
   /** Insert a stage relative to an anchor row. */
   onInsertStage?: (
     anchorId: string,
@@ -196,6 +197,7 @@ export function GanttChart({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onMoveStage,
   onInsertStage,
   onDeleteStage,
   onUpdateStageBounds,
@@ -885,6 +887,7 @@ export function GanttChart({
           onSelectStage={onSelectStage}
           onRenameStage={onRenameStage}
           onReorderStage={onReorderStage}
+          onMoveStage={onMoveStage}
           onInsertStage={onInsertStage}
           onDeleteStage={onDeleteStage}
           resourcesCollapsed={resourcesCollapsed}

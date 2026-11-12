@@ -11,6 +11,7 @@ import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import { quoteAllocationLine } from "./financial-rollups";
 import { topLevelBillableStages, getStageBillingTiming, effectiveBillingAmount } from "./stage-billing";
+import { sortStagesByWbs } from "./stage-numbering";
 
 export type GeneratorKind =
   | "milestones"
@@ -558,7 +559,8 @@ export function generateByStageBilling(
   };
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
-  const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
+  const billingIds = new Set(billable.map(s => s.id));
+  const sorted = sortStagesByWbs(stages).filter(s => billingIds.has(s.id));
   // Roll up parent stages: a parent's billable fee is the sum of its
   // descendant leaves (or its own fixed budget). Without this, an
   // architecture parent with supplier children resolves to 0 and disappears
