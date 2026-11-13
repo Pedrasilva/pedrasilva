@@ -32,63 +32,18 @@ export function QuoteWorkflowStepper({
   const { t } = useTranslation("crm");
 
   return (
-    <nav
-      aria-label={t("workspace.stepper.ariaLabel")}
-      className="no-print rounded-lg border bg-card p-2"
-    >
-      <ol className="flex flex-wrap items-stretch gap-1">
-        {QUOTE_STEPS.map((s, idx) => {
-          const isActive = s === step;
-          const isDone = completion[s];
-          return (
-            <li key={s} className="flex-1 min-w-[180px]">
-              <Button variant="ghost"
-                type="button"
-                onClick={() => onChange(s)}
-                aria-current={isActive ? "step" : undefined}
-                className={cn(
-                  "w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted text-foreground",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-                    isActive
-                      ? "border-primary-foreground/40 bg-primary-foreground/10"
-                      : isDone
-                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                        : "border-muted-foreground/30 bg-background text-muted-foreground",
-                  )}
-                  aria-hidden="true"
-                >
-                  {isDone && !isActive ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    idx + 1
-                  )}
-                </span>
-                <span className="flex flex-col min-w-0">
-                  <span className="text-sm font-semibold leading-tight truncate">
-                    {t(`workspace.stepper.${s}.title`)}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs leading-tight truncate",
-                      isActive
-                        ? "text-primary-foreground/80"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {t("quotes.flow.currentState", {state:t(`quotes.lifecycle.${lifecycle}`)})}
-                  </span>
-                </span>
-              </Button>
-            </li>
-          );
-        })}
+    <nav aria-label={t("workspace.stepper.ariaLabel")} className="no-print shrink-0">
+      <ol className="flex items-center gap-0.5">
+        {QUOTE_STEPS.map((s, idx) => (
+          <li key={s} className="flex items-center gap-0.5">
+            {idx > 0 && <span aria-hidden="true" className="text-muted-foreground">›</span>}
+            <Button variant="ghost" size="sm" onClick={() => onChange(s)} aria-current={s === step ? "step" : undefined}
+              className={cn("gap-1.5 whitespace-nowrap px-2", s === step ? "text-foreground font-semibold" : "text-muted-foreground")}>
+              {s === step ? <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" /> : completion[s] ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-primary" /> : <span aria-hidden="true" className="h-2 w-2 rounded-full border border-muted-foreground" />}
+              {t(`workspace.stepper.${s}.title`)}
+            </Button>
+          </li>
+        ))}
       </ol>
     </nav>
   );

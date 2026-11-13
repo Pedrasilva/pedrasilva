@@ -18,9 +18,11 @@ import {
 export function QuoteProposalComposerEmbed({
   quoteId,
   quoteTitle,
+  embedded = false,
 }: {
   quoteId: string;
   quoteTitle?: string | null;
+  embedded?: boolean;
 }) {
   useTranslation();
   const lookup = useMainProposal(quoteId);
@@ -50,6 +52,7 @@ export function QuoteProposalComposerEmbed({
       key={proposalId}
       proposalId={proposalId}
       quoteTitle={quoteTitle ?? null}
+      embedded={embedded}
     />
   ) : (
     <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
@@ -65,9 +68,11 @@ export function QuoteProposalComposerEmbed({
 function ProposalTitleSync({
   proposalId,
   quoteTitle,
+  embedded,
 }: {
   proposalId: string;
   quoteTitle: string | null;
+  embedded: boolean;
 }) {
   useTranslation();
   const proposal = useProposal(proposalId);
@@ -86,5 +91,5 @@ function ProposalTitleSync({
     update.mutate({ title: target });
   }, [proposal.data, quoteTitle, update]);
 
-  return <ComposerShell proposalId={proposalId} />;
+  return <ComposerShell proposalId={proposalId} embedded={embedded} />;
 }

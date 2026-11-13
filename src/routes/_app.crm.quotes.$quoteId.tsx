@@ -376,21 +376,23 @@ function QuoteDetail() {
         : [];
 
   return (
-    <div className="space-y-6">
+    <div className={cn(step === "content" ? "proposal-builder-workspace flex min-h-0 flex-col" : "space-y-6")}>
+      <div className="proposal-builder-header sticky top-14 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
       {quote.opportunity ? (
         <Link to="/crm/opportunities/$opportunityId" params={{ opportunityId: quote.opportunity.id }}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunity")}
+          className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3 w-3" /> {t("builderHeader.opportunity")}
         </Link>
       ) : (
         <Link to="/crm/opportunities"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunities")}
         </Link>
       )}
 
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
+      <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <WorkIdentityControl kind="quote" recordId={quoteId} />
           <InlineEditableTitle
             value={quote.titulo}
@@ -404,21 +406,15 @@ function QuoteDetail() {
               qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
               qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
             }}
-            className="text-2xl font-semibold tracking-tight"
+            showPencil title={t("builderHeader.rename")}
+            className="truncate text-sm font-semibold"
           />
-          <p className="text-sm text-muted-foreground">
-            {quote.company?.nome ?? "—"}
-            {quote.opportunity && (
-              <>{" · "}
-                <Link to="/crm/opportunities/$opportunityId"
-                  params={{ opportunityId: quote.opportunity.id }} className="hover:underline">
-                  {quote.opportunity.name}
-                </Link>
-              </>
-            )}
-          </p>
+          <span className="proposal-builder-client truncate text-xs text-muted-foreground">{quote.company?.nome ?? "—"}</span>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      </div>
+      </div>
+      <QuoteWorkflowStepper step={step} onChange={setStep} completion={completion} lifecycle={lifecycle.state} />
+        <div className="flex shrink-0 items-center gap-2">
           <QuoteStatusRail state={lifecycle.state} />
           <QuoteWorkflowActions
             quoteId={quoteId}
@@ -500,17 +496,10 @@ function QuoteDetail() {
         </div>
       </div>
 
-      <QuoteLockGuard quoteId={quoteId} hideRevisionAction />
+      {step !== "content" && <QuoteLockGuard quoteId={quoteId} hideRevisionAction />}
 
 
       <fieldset disabled={false} className="contents">
-
-      <QuoteWorkflowStepper
-        step={step}
-        onChange={setStep}
-        completion={completion}
-        lifecycle={lifecycle.state}
-      />
 
       {step === "publish" && (
         <QuotePublishStep
@@ -542,9 +531,9 @@ function QuoteDetail() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className={cn("w-full", step === "publish" && "hidden")}
+        className={cn("w-full", step === "publish" && "hidden", step === "content" && "flex min-h-0 flex-1 flex-col gap-0")}
       >
-        <TabsList className="no-print">
+        <TabsList className={cn("no-print", step === "content" && "hidden")}>
           {/* Planning (Gantt + stages) leads — the estimate is built here and
               the calculator sits right after it. External services and Payment
               schedule are project-only. */}
@@ -782,10 +771,11 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className={cn(step === "content" ? "mt-0" : "mt-4")}>
+        <TabsContent value="proposal" className={cn(step === "content" ? "mt-0 flex min-h-0 flex-1 flex-col" : "mt-4")}>
           <QuoteProposalComposerEmbed
             quoteId={quoteId}
             quoteTitle={form.titulo || quote.titulo}
+            embedded
           />
         </TabsContent>
       </Tabs>

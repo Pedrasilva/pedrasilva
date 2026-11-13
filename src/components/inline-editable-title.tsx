@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function InlineEditableTitle({
@@ -7,12 +9,14 @@ export function InlineEditableTitle({
   className,
   inputClassName,
   title = "Double-click to rename",
+  showPencil = false,
 }: {
   value: string;
   onSave: (next: string) => Promise<unknown> | unknown;
   className?: string;
   inputClassName?: string;
   title?: string;
+  showPencil?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -62,7 +66,7 @@ export function InlineEditableTitle({
   }
 
   return (
-    <h2
+    <div className="flex min-w-0 items-center gap-1"><h2
       onDoubleClick={() => {
         setDraft(value);
         setEditing(true);
@@ -71,6 +75,6 @@ export function InlineEditableTitle({
       className={cn("cursor-text", className)}
     >
       {value}
-    </h2>
+    </h2>{showPencil && <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" aria-label={title} title={title} onClick={() => { setDraft(value); setEditing(true); }}><Pencil className="h-3 w-3" /></Button>}</div>
   );
 }
