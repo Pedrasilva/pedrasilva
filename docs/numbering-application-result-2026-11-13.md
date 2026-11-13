@@ -28,6 +28,12 @@ A ação final voltou a conferir os126 registos e todas as referências; passou 
 
 ## Verificações
 
+### Nova tentativa autorizada às 11:13 UTC
+
+Confirmados 15 novos registos Gmail, cursor atualizado e 64 recolhas bem-sucedidas desde a salvaguarda; os três processos não consultam nem alteram a numeração estruturada. Migração0322 exclui exclusivamente os três hashes autorizados e mantém as comparações originais, acrescentando conferência exata de identidades, versões, aliases, reservas e auditoria.
+
+A tentativa de ativação foi novamente recusada: também diferem `financial_documents`, `financial_document_payments`, `marketing_settings` e `marketing_ig_comments`. Não investigar nem dispensar silenciosamente estas diferenças como sincronização autorizada: a numeração permanece OFF e B1 OFF. A salvaguarda original não foi alterada; reversão protegida permanece disponível, sujeita aos seus controlos de alterações posteriores. Nenhuma linha foi eliminada ou renumerada nesta tentativa.
+
 - 10 testes puros de referência e sequência passaram; 8 testes do mapa histórico v4 passaram (mapa v4 preservado como documento histórico, decisão Mint no mapa final JSON).
 - Teste transacional de criação numa lead copiada separada atribuiu26031 e reverteu tudo: não consumiu número nem deixou fixture.
 - Sessão autenticada na interface: quote descartável QA-016 apresentou a referência; pesquisa26117 devolveu a identidade26029 e os quatro registos associados. Nenhum formulário real foi editado no teste.
