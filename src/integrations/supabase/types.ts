@@ -2947,6 +2947,33 @@ export type Database = {
           },
         ]
       }
+      crm_work_mapping_backups: {
+        Row: {
+          approved_map: Json
+          batch: string
+          before_rows: Json
+          created_at: string
+          protected_hashes: Json
+          result: Json | null
+        }
+        Insert: {
+          approved_map: Json
+          batch: string
+          before_rows: Json
+          created_at?: string
+          protected_hashes: Json
+          result?: Json | null
+        }
+        Update: {
+          approved_map?: Json
+          batch?: string
+          before_rows?: Json
+          created_at?: string
+          protected_hashes?: Json
+          result?: Json | null
+        }
+        Relationships: []
+      }
       crm_work_number_counters: {
         Row: {
           last_sequence: number
@@ -15374,6 +15401,8 @@ export type Database = {
           title: string
           updated_at: string
           vat_mode: string | null
+          work_revision_ordinal: number | null
+          work_version_id: string | null
         }
         Insert: {
           client_snapshot?: Json
@@ -15392,6 +15421,8 @@ export type Database = {
           title?: string
           updated_at?: string
           vat_mode?: string | null
+          work_revision_ordinal?: number | null
+          work_version_id?: string | null
         }
         Update: {
           client_snapshot?: Json
@@ -15410,6 +15441,8 @@ export type Database = {
           title?: string
           updated_at?: string
           vat_mode?: string | null
+          work_revision_ordinal?: number | null
+          work_version_id?: string | null
         }
         Relationships: [
           {
@@ -15431,6 +15464,13 @@ export type Database = {
             columns: ["restored_from_snapshot_id"]
             isOneToOne: false
             referencedRelation: "psa_proposal_snapshots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "psa_proposals_work_version_id_fkey"
+            columns: ["work_version_id"]
+            isOneToOne: false
+            referencedRelation: "crm_work_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -18653,6 +18693,10 @@ export type Database = {
         Returns: Json
       }
       crm_work_can_read: { Args: { _work: string }; Returns: boolean }
+      crm_work_document_reference: {
+        Args: { _document: string }
+        Returns: string
+      }
       crm_work_edit_number: {
         Args: {
           _expected_revision: number
@@ -18672,6 +18716,7 @@ export type Database = {
         Args: { _source: string }
         Returns: Json
       }
+      crm_work_protected_hashes: { Args: never; Returns: Json }
       crm_work_reference: {
         Args: { _ordinal?: number; _version: string }
         Returns: string
