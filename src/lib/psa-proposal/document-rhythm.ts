@@ -12,7 +12,7 @@ export function letterParagraphHtml(source: string, plain = false): string {
   const escaped = plain ? source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : source;
   const document = parseDocument(escaped.replace(/\r\n?/g, "\n"));
   function lines(node: HtmlElement["children"][number]): string[] {
-    if (node.type === 'text') return node.data.split('\n').map(s => render(parseDocument(s).children));
+    if (node.type === 'text') return node.data.split('\n').map(s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
     if (!isTag(node)) return [render(node)];
     if (node.name === 'br') return ['', ''];
     const parts = [''];

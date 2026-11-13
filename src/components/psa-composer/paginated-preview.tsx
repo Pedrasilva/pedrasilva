@@ -215,18 +215,12 @@ export function PaginatedPreview({
         const master: MasterPage = masterNode?.dataset.masterPage ? JSON.parse(masterNode.dataset.masterPage) : resolveMaster();
         const clone = source.cloneNode(true) as HTMLDivElement;
         clone.innerHTML = normalizeProposalHtml(clone.innerHTML);
-        const letterFooters=new Map<string,HTMLElement>();
-        clone.querySelectorAll<HTMLElement>('.psa-letter-footer').forEach(footer=>{
-          const id=footer.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
-          if(id)letterFooters.set(id,footer.cloneNode(true) as HTMLElement);
-          footer.remove();
-        });
         clone.removeAttribute("id");
         // Never copy the hidden source state into Paged.js. The clone must be
         // ordinary document flow before the fragmentation engine measures it.
         clone.classList.remove("proposal-pagination-source", "proposal-preview-source");
         // Render-only normalization: never write legacy alignment back to data.
-        clone.querySelectorAll<HTMLElement>('[data-page-type="content"]').forEach(block => {
+        clone.querySelectorAll<HTMLElement>('[data-page-type="content"], [data-page-type="letter"]').forEach(block => {
           block.removeAttribute('data-page-aligned');
           block.removeAttribute('data-page-align-y');
           block.removeAttribute('data-page-align-x');
@@ -336,11 +330,6 @@ export function PaginatedPreview({
           pageBox.classList.add('proposal-master-document');
           pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
           const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
-          if(type==='letter'){
-            const id=pageBox.querySelector<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
-            const footer=id?letterFooters.get(id):undefined;
-            if(footer){const placed=frameDoc.importNode(footer,true);placed.classList.add('psa-letter-page-footer');pageBox.appendChild(placed);}
-          }
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
           const variant = type==='letter' ? master : type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');

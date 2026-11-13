@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { letterDateLine, letterSalutation, letterProgramme, letterFieldDefaults, LETTER_SIGNATORY, letterBodyUnchanged } from '../src/lib/psa-proposal/letter-fields';
 import type { LiveQuoteSnapshot } from '../src/lib/psa-proposal/live-data';
-import { resolveMaster } from '../src/lib/psa-proposal/master-page';
+import { resolveMaster, typeLayout } from '../src/lib/psa-proposal/master-page';
 
 describe('business letter rules', () => {
+  it('inherits normal master geometry even when legacy letter overrides differ', () => {
+    const master=resolveMaster();
+    master.pageTypes={cover:typeLayout(master,'cover'),letter:{margins:{left:24,right:24,top:22,bottom:22},logo:{...master.logo,x:24,y:22,width:20},bodyY:35,signatureWidth:45}};
+    const letter=typeLayout(master,'letter');
+    expect(letter.margins).toEqual({top:34,bottom:32,left:14,right:14});
+    expect(letter.logo.x).toBe(14); expect(letter.logo.y).toBe(8); expect(letter.logo.width).toBe(master.logo.width);
+    expect(letter.bodyY).toBe(34);
+  });
   it('Luis always signs', () => expect(LETTER_SIGNATORY).toBe('Luís Pedra Silva'));
   it('does not infer a treatment from a name', () => expect(letterSalutation({ primeiro_nome: 'Ana', apelido: 'Silva' }, 'pt-PT')).toContain('[tratamento e apelido]'));
   it('uses an explicit female treatment in PT', () => expect(letterSalutation({ titulo: 'Sra.', apelido: 'Silva' }, 'pt-PT')).toBe('Exma. Senhora Silva,'));

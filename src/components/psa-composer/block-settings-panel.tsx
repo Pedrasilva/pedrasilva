@@ -744,7 +744,7 @@ export function BlockSettingsPanel({
               })
             }
             placeholder={uiI18n.t("crm:quoteEditor.writeBlockHint")}
-            tokenEntries={block.block_type==='letter'?LETTER_TOKENS.map(token=>({token,label:token,group:'Projecto' as const})):buildTokenPickerEntries(liveQuery.data)}
+            tokenEntries={buildTokenPickerEntries(liveQuery.data)}
           />
           <p className="text-[10px] text-zinc-500">
              {uiI18n.t("crm:quoteEditor.richTextHint")} {" "}
