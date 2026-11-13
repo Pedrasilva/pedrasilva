@@ -322,6 +322,14 @@ export function PaginatedPreview({
         staging.className = "proposal-pagination-staging";
         frameDoc.body.appendChild(staging);
         const result = await previewer.preview(frameDoc.importNode(printRoot, true), styles, staging);
+        // Paged.js rewrites stylesheet rules; keep font-face definitions intact
+        // in the completed frame so the isolated PDF window inherits them.
+        const fontFaces=frameDoc.createElement('style');
+        fontFaces.textContent=Array.from(document.styleSheets).flatMap(sheet=>{
+          try{return Array.from(sheet.cssRules).filter(rule=>rule.type===CSSRule.FONT_FACE_RULE).map(rule=>rule.cssText.replace(/url\(["']?([^"')]+)["']?\)/g,(_match,url:string)=>`url("${new URL(url,sheet.href??document.baseURI).href}")`));}catch{return [];}
+        }).join('\n');
+        frameDoc.head.appendChild(fontFaces);
+        await Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]);
         if (cancelled) return;
         // Paged.js keeps a ResizeObserver on every generated sheet. Moving the
         // completed sheets out of the staging container otherwise triggers an
