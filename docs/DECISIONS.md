@@ -496,3 +496,9 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Preservação/resultado:** 57 blocos existentes alterados exclusivamente em texto/título/posição/tipo documental; quatro novos blocos Chiado; zero eliminações. Ambos Rev00Draft. Totais semIVA Oleiro221300€/Chiado332050€ inalterados; quotes/documentos completos idênticos e conferência transacional dos dados protegidos aprovada. Nenhum valor, mês, linha de pagamento, Gantt, numeração, contrato, permissão, hora, snapshot ou outra quote alterado; B1OFF e ativaçãoD53 intocada.
 - **Motivo:** Refletir o âmbito e a estrutura editorial expressamente aprovados sem alterar planeamento/comercial. Índices automáticos confirmados por leitura autenticada; seis testes existentes passaram. PDF/paginação final não certificados nesta tarefa.
 - **Relatório:** [Índices lado a lado, alterações e preservação](chiado-oleiro-followup-2026-11-13.md); imagens antes/depois na migração0324 espelhada, para recuperação revista.
+
+### D56 — Oleiro: seis CGI incluídos no conceito
+- **Data/área:** 13/11/2026, autorização de Luis às 15:52 UTC; texto da proposta Oleiro.
+- **Decisão/resultado:** Acrescentada «6 imagens 3D (CGI) ilustrativas do conceito de arquitetura.» aos entregáveis do Estudo Prévio; «Imagens 3D;» substituída por «Imagens 3D para além das 6 incluídas no Estudo prévio;» nas Exclusões (HTML e texto). Ambos encontrados e confirmados nas páginas pela sessão autenticada.
+- **Preservação:** Referências PIP de Oleiro/Chiado e todos os outros blocos idênticos; comparação transacional de todos os dados protegidos aprovada, sem exclusões de tabelas adicionais nem alteração da ativação D53. Total 221 300 € sem IVA, Rev00Draft e B1OFF preservados; nenhum valor, pagamento, Gantt, número, snapshot ou outra quote alterado.
+- **Motivo/evidência:** Alinhar exclusivamente o âmbito CGI com o aprovado por Luis; migração0325 espelhada contém imagens anteriores para recuperação revista.
