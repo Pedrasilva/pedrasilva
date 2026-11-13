@@ -60,3 +60,4 @@
 
 
 
+- Embedded proposal builders keep workflow actions in the quote header and document controls in ComposerTopBar; the canvas owns scrolling beneath two fixed-height rows. Why: avoid duplicated actions without changing lifecycle guards or document data.

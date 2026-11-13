@@ -2476,5 +2476,11 @@
     "overwrite": "Existing content will be replaced in: {{sections}}.",
     "blankConfirmation": "Import the selected sections into this blank quote?",
     "confirm": "Confirm replacement and import"
+  },
+  "builderHeader": {
+    "opportunity": "Opportunity",
+    "rename": "Rename proposal",
+    "refresh": "Refresh from estimate",
+    "estimateUpdated": "Estimate updated – refresh to pull changes"
   }
 }

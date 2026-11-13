@@ -34,7 +34,7 @@ import {
 } from "@/lib/psa-proposal/use-psa-proposal";
 
 
-export function ComposerShell({ proposalId }: { proposalId: string }) {
+export function ComposerShell({ proposalId, embedded = false }: { proposalId: string; embedded?: boolean }) {
   const { t } = useTranslation("common");
   const historical = useHistoricalRevision();
   const { user } = useAuth();
@@ -178,41 +178,29 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   };
 
   return (
-    <div className={`flex h-[calc(100vh-3.5rem)] flex-col ${previewMode ? "psa-preview-mode" : ""}`}>
+    <div className={`flex ${embedded ? "min-h-0 flex-1" : "h-[calc(100vh-3.5rem)]"} flex-col ${previewMode ? "psa-preview-mode" : ""}`}>
       <ComposerTopBar
         proposal={proposal.data}
         blocks={items}
+        embedded={embedded}
         previewMode={previewMode}
         onTogglePreview={() => setPreviewMode((v) => !v)}
-      />
-      <div className="proposal-preview-toolbar flex shrink-0 flex-wrap items-center gap-3 border-b bg-background px-4 py-2 print:hidden">
-        <div role="group" aria-label={t("proposalComposer.pagination.layout")} className="flex gap-1">
+        viewControls={<div className="flex shrink-0 items-center gap-2">
+        <div role="group" aria-label={t("proposalComposer.pagination.layout")} className="flex gap-0.5 rounded-md bg-muted p-0.5">
           {(["edit", "split", "pages"] as const).map((mode) => <Button key={mode} size="sm" variant={layout === mode ? "secondary" : "ghost"} onClick={() => setLayout(mode)}>{mode === "edit" ? t("edit") : t(`proposalComposer.pagination.${mode}`)}</Button>)}
         </div>
         <select aria-label={t("proposalComposer.pagination.zoom")} value={zoom} onChange={(e) => setZoom(e.target.value)} className="rounded border border-border bg-background p-1 text-sm">
           <option value="fit">{t("proposalComposer.pagination.fitWidth")}</option><option value="0.75">75%</option><option value="1">100%</option>
         </select>
-        {layout === "split" && !isReadOnly && <div className="ml-auto flex gap-1">
+        {layout === "split" && !isReadOnly && <div className="flex gap-1">
           {(["library", "settings"] as const).map((panel) => <Tooltip key={panel}>
-            <TooltipTrigger asChild><Button size="icon" variant={drawers[panel] ? "secondary" : "ghost"} aria-label={t(panel)} aria-expanded={drawers[panel]} aria-controls={`proposal-split-${panel}`} onClick={() => setDrawer(panel, !drawers[panel])}>
+            <TooltipTrigger asChild><Button size="icon" variant={drawers[panel] ? "secondary" : "ghost"} className="h-7 w-7" aria-label={t(panel)} aria-expanded={drawers[panel]} aria-controls={`proposal-split-${panel}`} onClick={() => setDrawer(panel, !drawers[panel])}>
               {panel === "library" ? <PanelLeft className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
             </Button></TooltipTrigger><TooltipContent>{t(panel)}</TooltipContent>
           </Tooltip>)}
         </div>}
-      </div>
-      {previewMode && (
-        <div className="proposal-preview-toolbar flex shrink-0 items-center border-b bg-background px-4 py-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setPreviewMode(false)}
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            {t("proposalComposer.pagination.backToBuilder")}
-          </Button>
-        </div>
-      )}
+      </div>}
+      />
       {historical && (
         <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           <span className="flex items-center gap-2">

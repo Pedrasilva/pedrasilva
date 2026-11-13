@@ -4,9 +4,13 @@ import uiI18n from "@/i18n/index";
  * Composer top bar — proposal title, status, Preview / Export PDF, and
  * immutable sent revisions and signature records.
  */
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLiveQuoteSnapshot, resolveProposalLang } from "@/lib/psa-proposal/live-data";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import {
+  RefreshCw,
   FileDown,
   Printer,
   FileSignature,
@@ -77,14 +81,32 @@ export function ComposerTopBar({
   blocks,
   previewMode = false,
   onTogglePreview,
+  embedded = false,
+  viewControls,
 }: {
   proposal: PsaProposal;
   blocks: PsaProposalBlock[];
   previewMode?: boolean;
   onTogglePreview?: () => void;
+  embedded?: boolean;
+  viewControls?: ReactNode;
 }) {
   const { t } = useTranslation("common");
   const update = useUpdateProposal(proposal.id);
+  const qc = useQueryClient();
+  const live = useLiveQuoteSnapshot(proposal.quote_id, resolveProposalLang(proposal.language), proposal.id);
+  const [refreshedSource, setRefreshedSource] = useState<string | null>(null);
+  const sourceSignature = live.data ? JSON.stringify(live.data) : null;
+  useEffect(() => { if (sourceSignature && refreshedSource === null) setRefreshedSource(sourceSignature); }, [sourceSignature, refreshedSource]);
+  const estimateChanged = refreshedSource !== null && sourceSignature !== null && refreshedSource !== sourceSignature;
+  const refreshEstimate = async () => {
+    try {
+      const result = await live.refetch();
+      if (result.error) throw result.error;
+      if (result.data) setRefreshedSource(JSON.stringify(result.data));
+      await qc.invalidateQueries({ queryKey: ["psa-proposal-blocks", proposal.id] });
+    } catch (error) { toast.error(error instanceof Error ? error.message : uiI18n.t("common:error")); }
+  };
   const lifecycleQ = useQuoteLifecycle(proposal.quote_id ?? undefined);
   const lifecycle = lifecycleQ.data;
   const [sendOpen, setSendOpen] = useState(false);
@@ -125,54 +147,22 @@ export function ComposerTopBar({
   }, [proposal.updated_at, blocks.length, autoSnap, isReadOnly]);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
-      <Input
-        value={proposal.title}
-        onChange={(e) => update.mutate({ title: e.target.value })}
-        className="h-8 max-w-md font-medium"
-        disabled={isReadOnly}
-      />
-      {lifecycle ? <Badge variant="secondary">{uiI18n.t(`crm:quotes.lifecycle.${lifecycle.state}`)}</Badge> : <Badge variant="secondary">{uiI18n.t(`crm:composer.status.${proposal.status}`)}</Badge>}
-
-      {/* Status strip — state, not actions */}
-      <div className="ml-1 flex items-center gap-1.5 rounded-md border border-dashed bg-muted/40 px-2 py-1">
-        {isFinalLocked && (
-          <Badge
-            variant="outline"
-            className={
-              proposal.outcome === "won"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                : proposal.outcome === "lost"
-                  ? "border-rose-300 bg-rose-50 text-rose-800"
-                  : "border-zinc-300 bg-zinc-50 text-zinc-700"
-            }
-          >
-            <Lock className="mr-1 h-3 w-3" />
-            {proposal.outcome === "won"
-              ? uiI18n.t("glossary:crm.won")
-              : proposal.outcome === "lost"
-                ? uiI18n.t("glossary:crm.lost")
-                : uiI18n.t("crm:quoteEditor.locked")}
-          </Badge>
-        )}
-        {isSentLocked && (
-          <Badge variant="outline" className="border-sky-300 bg-sky-50 text-sky-800">
-            <Lock className="mr-1 h-3 w-3" />  {uiI18n.t("crm:quotes.lifecycle.sent")} </Badge>
-        )}
+    <div className="proposal-document-toolbar sticky top-28 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 print:hidden">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         <VersionsPanel proposal={proposal} />
-        <ProposalSignatureStatus proposalId={proposal.id} />
+        {proposal.quote_id && <Tooltip><TooltipTrigger asChild>
+          <Button variant="outline" size="sm" disabled={!!historical || live.isFetching} onClick={() => void refreshEstimate()} className="gap-1.5 whitespace-nowrap">
+            <RefreshCw className={live.isFetching ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"} />
+            <span className="proposal-refresh-label">{uiI18n.t("crm:builderHeader.refresh")}</span>
+            {estimateChanged && <span className="h-2 w-2 rounded-full bg-warning" />}
+          </Button>
+        </TooltipTrigger><TooltipContent>{uiI18n.t(estimateChanged ? "crm:builderHeader.estimateUpdated" : "crm:builderHeader.refresh")}</TooltipContent></Tooltip>}
+        {!embedded && <Input value={proposal.title} onChange={(e) => update.mutate({ title: e.target.value })} className="h-8 max-w-48" disabled={isReadOnly} />}
       </div>
-      <div className="ml-auto flex items-center gap-2">
-        <ProposalMasterButton proposal={proposal} readOnly={isReadOnly} />
-        <Button
-          variant={previewMode ? "default" : "outline"}
-          size="sm"
-          onClick={() => onTogglePreview?.()}
-          title={uiI18n.t("crm:quoteEditor.previewPrintHint")}
-        >
-          <Printer className="mr-1 h-3.5 w-3.5" />
-          {previewMode ? uiI18n.t("crm:quoteEditor.exitPreview") : uiI18n.t("crm:workspace.proposal.previewMode")}
-        </Button>
+      {viewControls}
+      <div className="flex flex-1 justify-end items-center gap-2">
+        <ProposalMasterButton proposal={proposal} readOnly={isReadOnly} compactClassName="proposal-toolbar-secondary" />
+        <div className="proposal-toolbar-secondary">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -206,12 +196,8 @@ export function ComposerTopBar({
               <FileText className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.wordDoc")} </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {!isFinalLocked && !isSentLocked && (
-          <>
-            <Button size="sm" onClick={() => setSendOpen(true)}>
-              <Send className="mr-1 h-3.5 w-3.5" />  {uiI18n.t("crm:quoteEditor.sendProposal")} </Button>
-          </>
-        )}
+        </div>
+        {!embedded && !isFinalLocked && !isSentLocked && <Button size="sm" onClick={() => setSendOpen(true)}><Send className="mr-1 h-3.5 w-3.5" />{uiI18n.t("crm:quoteEditor.sendProposal")}</Button>}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" title={uiI18n.t("common:moreActions")}>
@@ -219,7 +205,17 @@ export function ComposerTopBar({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <div className="proposal-toolbar-overflow">
+              <ProposalMasterButton proposal={proposal} readOnly={isReadOnly} />
+              <DropdownMenuItem onSelect={() => {
+                const printWindow = window.open("", "_blank");
+                if (printWindow) void printProposalDocument(proposal, printWindow, { loading: t("proposalComposer.pagination.pdfLoading"), error: t("proposalComposer.pagination.pdfError") }, buildProposalFilename(proposal, revMeta));
+              }}><FileDown className="mr-2 h-3.5 w-3.5" />{uiI18n.t("common:download")} · PDF</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}><FileText className="mr-2 h-3.5 w-3.5" />{uiI18n.t("crm:quoteEditor.wordDoc")}</DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </div>
             {isSentLocked && !proposal.quote_id && <DropdownMenuItem onSelect={startNewRevision}>{uiI18n.t("crm:quoteEditor.newRevision")}</DropdownMenuItem>}
+            <div className="px-2 py-1"><ProposalSignatureStatus proposalId={proposal.id} /></div>
             {lifecycle?.state === "approved" && latestSnapshot && !hasSignatureForLatest && <DropdownMenuItem onSelect={()=>setSignExistingOpen(true)}>{uiI18n.t("crm:quoteEditor.sendSignature")}</DropdownMenuItem>}
             <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
               <Settings className="mr-2 h-3.5 w-3.5" />  {uiI18n.t("common:settings")} </DropdownMenuItem>

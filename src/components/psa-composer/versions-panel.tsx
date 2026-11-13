@@ -10,7 +10,7 @@ import uiI18n from "@/i18n/index";
  */
 import { useState } from "react";
 import { toast } from '@/lib/toast';
-import { Download, Eye, History, Lock, Pencil } from "lucide-react";
+import { Download, Eye, History, Lock, Pencil, ChevronDown } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,7 +98,7 @@ export function VersionsPanel({
           <span className="sr-only" aria-hidden tabIndex={-1} />
         ) : (
           <Button variant="outline" size="sm" title={uiI18n.t("crm:quoteEditor.revisionHistory")}>
-            <History className="mr-1 h-3.5 w-3.5" /> {workingLabel}
+            {workingLabel}<ChevronDown className="ml-1 h-3 w-3" />
           </Button>
         )}
       </DropdownMenuTrigger>
