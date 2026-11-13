@@ -2012,6 +2012,96 @@
 .proposal-print-document .proposal-toc-page { text-align: end; font-variant-numeric: tabular-nums; }
 
 /* Proposal workspace chrome: the canvas scrolls beneath two fixed-height rows. */
+/* One rhythm contract, collected unchanged by Paged.js and PDF export.
+   Spacing derives from the body line box, not the larger heading font. */
+.proposal-print-document {
+  --psa-body-leading: 1.5;
+  --psa-body-line: calc(var(--psa-body-size) * var(--psa-body-leading));
+  --psa-paragraph-gap: calc(var(--psa-body-line) * 0.5);
+  --psa-attached-gap: calc(var(--psa-body-line) * 0.2);
+  --psa-h2-before: calc(var(--psa-body-line) * 1.166666667);
+  --psa-h2-after: calc(var(--psa-body-line) / 3);
+  --psa-h3-before: calc(var(--psa-body-line) * 0.833333333);
+  --psa-h3-after: calc(var(--psa-body-line) * 0.266666667);
+  --psa-table-rule: 0.5pt;
+  --psa-table-inset: 0.5em;
+  --psa-note-scale: 0.85;
+  --psa-document-muted: #555;
+  --psa-document-rule: #b8b8b8;
+  line-height: var(--psa-body-leading);
+}
+.proposal-print-document .proposal-print-block[data-page-type="content"] {
+  margin-bottom: var(--psa-paragraph-gap) !important;
+}
+.proposal-print-document .proposal-print-block p,
+.proposal-print-document .proposal-print-block li,
+.proposal-print-document .proposal-print-block .psa-rich,
+.proposal-print-document .psa-general-terms-columns {
+  line-height: var(--psa-body-leading) !important;
+}
+.proposal-print-document .proposal-print-block p {
+  margin: 0 0 var(--psa-paragraph-gap) !important;
+}
+.proposal-print-document .proposal-print-block h2 {
+  margin: var(--psa-h2-before) 0 var(--psa-h2-after) !important;
+}
+.proposal-print-document .proposal-print-block h3 {
+  margin: var(--psa-h3-before) 0 var(--psa-h3-after) !important;
+}
+.proposal-print-document .proposal-print-block [data-proposal-heading-follows="true"] {
+  margin-top: 0 !important;
+}
+.proposal-print-document .proposal-print-block ul,
+.proposal-print-document .proposal-print-block ol {
+  margin-block: 0 var(--psa-paragraph-gap) !important;
+}
+.proposal-print-document .proposal-print-block li {
+  margin: 0 !important; padding-block: 0 !important; border-bottom: 0 !important;
+}
+.proposal-print-document .proposal-print-block li + li {
+  margin-top: var(--psa-attached-gap) !important;
+}
+.proposal-print-document .proposal-print-block li p,
+.proposal-print-document .proposal-print-block td p,
+.proposal-print-document .proposal-print-block th p {
+  margin: 0 !important;
+}
+.proposal-print-document .proposal-print-block p[data-list-lead-in="true"] {
+  margin-bottom: var(--psa-attached-gap) !important;
+}
+.proposal-print-document .proposal-print-block table {
+  margin: 0 0 var(--psa-paragraph-gap) !important;
+  line-height: var(--psa-body-leading) !important;
+}
+.proposal-print-document .proposal-print-block table th,
+.proposal-print-document .proposal-print-block table td {
+  padding: var(--psa-attached-gap) var(--psa-table-inset) !important;
+  border: 0 !important;
+  border-bottom: var(--psa-table-rule) solid var(--psa-document-rule) !important;
+  line-height: var(--psa-body-leading) !important;
+}
+.proposal-print-document .proposal-print-block table th {
+  color: var(--psa-document-muted) !important;
+  font-variant-caps: all-small-caps; background: transparent !important;
+}
+.proposal-print-document .proposal-print-block table [data-proposal-total="true"] > td,
+.proposal-print-document .proposal-print-block table tfoot td {
+  font-weight: 700 !important;
+  border-top: var(--psa-table-rule) solid var(--psa-document-rule) !important;
+}
+.proposal-print-document .proposal-print-block table [data-proposal-numeric="true"],
+.proposal-print-document .proposal-print-block table .proposal-num {
+  text-align: right !important; font-variant-numeric: tabular-nums lining-nums;
+}
+.proposal-print-document .proposal-print-block table[data-proposal-has-note="true"] {
+  margin-bottom: var(--psa-attached-gap) !important;
+}
+.proposal-print-document .proposal-print-block [data-proposal-note="true"],
+.proposal-print-document .proposal-print-block figcaption {
+  font-size: calc(var(--psa-body-size) * var(--psa-note-scale)) !important;
+  color: var(--psa-document-muted) !important; text-align: start;
+}
+
 .proposal-builder-workspace { height: calc(100dvh - 5.5rem); }
 .proposal-builder-header > div:first-child { overflow: hidden; }
 .proposal-toolbar-overflow { display: none; }

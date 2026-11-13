@@ -529,3 +529,9 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Decisão:** Duas linhas fixas de56/48px; oportunidade/referência/título editável/cliente e percurso compacto com estado e ações comerciais na primeira; revisão/atualização/modos/zoom/master/exportação na segunda. Remover duplicações e recolher primeiro master/exportação para o menu em larguras menores.
 - **Preservação:** Ações e guardas existentes, textos, valores, planeamento, numeração e propostas reais intactos; verificação autenticada com gravações bloqueadas. B1OFF.
 - **Motivo/relatório:** Recuperar espaço vertical sem perder controlos; [implementação e limites](proposal-builder-top-2026-11-13.md).
+
+### D61 — Ritmo vertical partilhado das propostas
+- **Data/área:** 13/11/2026, pedido de Luis às22:42UTC; apresentação/PDF.
+- **Decisão:** Corpo1,5; parágrafos/listas/tabelas0,75em; itens, introduções e notas0,3em; H2 antes1,75em/depois0,5em; H3 antes1,25em/depois0,4em; títulos consecutivos sem margem superior adicional. Células sem margens de parágrafo, padding vertical0,3em, filetes0,5pt, cabeçalhos em versaletes e totais/negrito, colunas numéricas alinhadas à direita. Tokens únicos derivados da linha do corpo.
+- **Preservação:** Limpeza de parágrafos vazios e quebras consecutivas apenas na apresentação, sem persistir HTML, valores, fases ou revisões; B1 intocado/OFF.
+- **Resultado/motivo:** Chiado35 páginas na pré-visualização e no PDF físico, sem erros de execução; corpo14px/linha21px, parágrafos10,5px, itens/células4,2px, nota11,9px. Onze testes existentes aprovados; compilação OK. [Relatório](proposal-vertical-rhythm-2026-11-13.md).
