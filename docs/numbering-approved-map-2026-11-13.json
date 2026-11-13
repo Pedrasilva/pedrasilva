@@ -1,0 +1,1436 @@
+[
+  {
+    "kind": "quote",
+    "id": "d0b54eee-3490-4f14-bc16-75af3abcc7a3",
+    "number": "26019",
+    "version": "",
+    "ordinal": 0,
+    "name": "Aethos ericeira",
+    "created": "2026-04-24T19:19:48.04936+00:00",
+    "aliases": [
+      "2601"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "d4a3090c-56a2-4784-9724-d36b9a9dfbdc",
+    "number": "QA-001",
+    "version": "",
+    "ordinal": 0,
+    "name": "356356y",
+    "created": "2026-04-24T19:29:55.004968+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "93701e4f-3c49-4bcf-8264-369668a858d2",
+    "number": "QA-002",
+    "version": "",
+    "ordinal": 0,
+    "name": "Velho Eurico",
+    "created": "2026-04-24T22:27:04.583271+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "cd35829e-6d16-472a-8a5b-400fbe10fccc",
+    "number": "2612",
+    "version": "",
+    "ordinal": 0,
+    "name": "Alojamento Rural - Costa Vincentina",
+    "created": "2026-04-27T08:13:12.979271+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "fb6314e2-2859-467d-895e-fbd205eab523",
+    "number": "2612",
+    "version": "",
+    "ordinal": 0,
+    "name": "Alojamento Rural - Costa Vincentina",
+    "created": "2026-04-27T13:02:01.361232+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "936b3ca5-6736-40ef-90f3-5381375beb7d",
+    "number": "2522",
+    "version": "",
+    "ordinal": 0,
+    "name": "2522 Escritórios Banco CTT - Atrium 2",
+    "created": "2026-05-03T19:31:37.757075+00:00",
+    "aliases": [
+      "2655"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "e27a851e-0765-4596-8cfe-2d23277724d8",
+    "number": "26020",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinic Cascais",
+    "created": "2026-05-05T21:41:20.996294+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "12960a08-0893-4d50-b07a-f769a0d5428f",
+    "number": "26021",
+    "version": "",
+    "ordinal": 0,
+    "name": "Renovação de Clinica",
+    "created": "2026-05-05T22:30:52.003321+00:00",
+    "aliases": [
+      "2626"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "30f1e184-27c2-4866-bc48-aec1c6ad2e00",
+    "number": "2521",
+    "version": "",
+    "ordinal": 0,
+    "name": "2521 Escritórios BCG",
+    "created": "2026-05-18T11:25:43.402058+00:00",
+    "aliases": [
+      "2656"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "22222222-2222-2222-2222-22222222a001",
+    "number": "QA-003",
+    "version": "",
+    "ordinal": 0,
+    "name": "PSA QA — Small Workplace Fit-out",
+    "created": "2026-05-20T14:56:46.345218+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "22222222-2222-2222-2222-22222222a002",
+    "number": "QA-004",
+    "version": "",
+    "ordinal": 0,
+    "name": "PSA QA — Medium Corporate Workplace",
+    "created": "2026-05-20T14:56:46.345218+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "fcaffe9e-b501-44f2-89cc-26c49ecb8dcf",
+    "number": "QA-005",
+    "version": "",
+    "ordinal": 0,
+    "name": "Chines Xadrez",
+    "created": "2026-05-20T20:09:31.862992+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "f5feb6ae-db5f-4880-91de-232149d96338",
+    "number": "26021",
+    "version": "",
+    "ordinal": 0,
+    "name": "Renovação de Clinica",
+    "created": "2026-05-20T21:25:04.770796+00:00",
+    "aliases": [
+      "2626"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "18139ab0-866a-4bc2-b174-a9648e9d8e98",
+    "number": "QA-006",
+    "version": "",
+    "ordinal": 0,
+    "name": "Office project",
+    "created": "2026-05-21T10:30:24.709293+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "e3660f26-9259-4ed8-a164-59678eddf4e6",
+    "number": "QA-006",
+    "version": "",
+    "ordinal": 0,
+    "name": "Office project",
+    "created": "2026-05-21T10:30:24.709293+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "72ef54b1-f386-45a7-89cd-d631f74ef739",
+    "number": "2613",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Miraflores",
+    "created": "2026-05-24T10:49:05.245082+00:00",
+    "aliases": [
+      "2638"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "a8190e49-5e78-4462-bb14-d0de2fe903fd",
+    "number": "2613",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Miraflores",
+    "created": "2026-06-06T08:33:17.784121+00:00",
+    "aliases": [
+      "2638"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "43d62ba8-c562-4d14-93d5-89caabee856e",
+    "number": "0410B",
+    "version": "",
+    "ordinal": 0,
+    "name": "Telheiras Obra",
+    "created": "2026-06-08T09:59:09.469205+00:00",
+    "aliases": [
+      "2648"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "fa160815-4960-4de6-9e8a-4efba744694e",
+    "number": "0410B",
+    "version": "",
+    "ordinal": 0,
+    "name": "0410B Telheiras Obra",
+    "created": "2026-06-11T10:44:13.204281+00:00",
+    "aliases": [
+      "2648"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "3775332d-48e7-4042-8ec2-8bde1d475d8e",
+    "number": "0410B",
+    "version": "",
+    "ordinal": 0,
+    "name": "0410B Telheiras Obra",
+    "created": "2026-06-11T12:27:33.325916+00:00",
+    "aliases": [
+      "2648"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "d67a633c-df1b-4d86-bbe9-50c535f8d79f",
+    "number": "2507",
+    "version": "",
+    "ordinal": 0,
+    "name": "Cabo Verde",
+    "created": "2026-06-12T10:57:40.609521+00:00",
+    "aliases": [
+      "2649"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "cfac36a3-1149-4984-9e7a-795326ae8d26",
+    "number": "2507",
+    "version": "",
+    "ordinal": 0,
+    "name": "Cabo Verde",
+    "created": "2026-06-12T10:58:04.87297+00:00",
+    "aliases": [
+      "2649"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "12dab0cf-c025-4374-86e4-571d3cab9c8d",
+    "number": "2609",
+    "version": "",
+    "ordinal": 0,
+    "name": "2609 Mastercard",
+    "created": "2026-06-22T13:39:20.895667+00:00",
+    "aliases": [
+      "2654"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "32810ca9-3c97-4eee-a6b7-a8385a19c972",
+    "number": "2502",
+    "version": "",
+    "ordinal": 0,
+    "name": "2502 Uralchem IV",
+    "created": "2026-06-24T08:22:58.291465+00:00",
+    "aliases": [
+      "2657"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "f2dce13f-cbe0-4b0a-8f6a-57641b504fbd",
+    "number": "2506",
+    "version": "",
+    "ordinal": 0,
+    "name": "2506 Apartamento Tiago Carreiras",
+    "created": "2026-06-24T21:49:00.741237+00:00",
+    "aliases": [
+      "2658"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "c3f3026e-f41a-4fac-894b-d243af8d3142",
+    "number": "2028",
+    "version": "",
+    "ordinal": 0,
+    "name": "2028 CTR Capital Towers Restaurant",
+    "created": "2026-06-24T21:58:46.625437+00:00",
+    "aliases": [
+      "2659"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "f6e19647-9456-44cf-b93d-5f172fdbe6d4",
+    "number": "26022",
+    "version": "",
+    "ordinal": 0,
+    "name": "Lagoa de Ericeira",
+    "created": "2026-06-26T21:51:07.44254+00:00",
+    "aliases": [
+      "2653"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "7b4403fc-016f-4d0b-9bc4-823b3c81547d",
+    "number": "2609",
+    "version": "",
+    "ordinal": 0,
+    "name": "2609 Mastercard",
+    "created": "2026-06-28T18:40:45.934384+00:00",
+    "aliases": [
+      "2654"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "a07f12ad-5033-4c38-b26b-2077d6ffd55b",
+    "number": "2609",
+    "version": "",
+    "ordinal": 0,
+    "name": "2609 Mastercard",
+    "created": "2026-06-28T23:24:40.65066+00:00",
+    "aliases": [
+      "2654"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "014ad6dd-b03d-49c8-831f-e940595e92ee",
+    "number": "2502",
+    "version": "",
+    "ordinal": 0,
+    "name": "2502 Uralchem IV",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2657"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "1bebe96c-fc98-4980-9d7b-ec1c944b8e30",
+    "number": "2028",
+    "version": "",
+    "ordinal": 0,
+    "name": "2028 CTR Capital Towers Restaurant",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2659"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "2e734d84-8083-4172-a0c7-33d53813467d",
+    "number": "2522",
+    "version": "",
+    "ordinal": 0,
+    "name": "2522 Escritórios Banco CTT - Atrium 2",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2655"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "39f6c151-afb8-426f-ba0c-8c595789a8ff",
+    "number": "2522",
+    "version": "",
+    "ordinal": 0,
+    "name": "2522 Escritórios Banco CTT - Atrium 2",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2655"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "3a491eae-5b89-4136-a270-16778889fe02",
+    "number": "2506",
+    "version": "",
+    "ordinal": 0,
+    "name": "2506 Apartamento Tiago Carreiras",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2658"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "441ed0f7-9922-4b4d-b7de-f49d30617519",
+    "number": "2521",
+    "version": "",
+    "ordinal": 0,
+    "name": "2521 BCG",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2656"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "778ed5b0-02ba-4bd6-b30a-d1aa72014640",
+    "number": "2502",
+    "version": "",
+    "ordinal": 0,
+    "name": "2502 Uralchem IV",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2657"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "90c10588-e239-4230-a624-a2536866cfa4",
+    "number": "2521",
+    "version": "",
+    "ordinal": 0,
+    "name": "2521 BCG",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2656"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "be1b0f0b-101a-41f3-9865-168840e4e950",
+    "number": "2506",
+    "version": "",
+    "ordinal": 0,
+    "name": "2506 Apartamento Tiago Carreiras",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2658"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "c582054f-4a37-4263-8eac-7b2b2a041a5b",
+    "number": "2028",
+    "version": "",
+    "ordinal": 0,
+    "name": "2028 CTR Capital Towers Restaurant",
+    "created": "2026-06-29T17:24:58.772566+00:00",
+    "aliases": [
+      "2659"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "820e465f-042d-42b4-a9c3-26d416ed3fd9",
+    "number": "2615",
+    "version": "",
+    "ordinal": 0,
+    "name": "2616 Hotel Alqueva",
+    "created": "2026-06-30T08:47:54.787973+00:00",
+    "aliases": [
+      "2660"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "b9603b4f-690a-4db6-9f5c-9df6930682ce",
+    "number": "2615",
+    "version": "",
+    "ordinal": 0,
+    "name": "2616 Hotel Alqueva",
+    "created": "2026-06-30T08:48:42.183539+00:00",
+    "aliases": [
+      "2660"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "3501237f-cdcf-4878-ad5b-e2ca2cb02a95",
+    "number": "2101",
+    "version": "",
+    "ordinal": 0,
+    "name": "2101 Colares",
+    "created": "2026-07-10T22:32:46.950045+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "5d02e289-d6e0-4265-bcbc-82d547376fe7",
+    "number": "0434",
+    "version": "",
+    "ordinal": 0,
+    "name": "0434 Sérgio Varanda",
+    "created": "2026-07-10T22:36:12.519468+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "97ffd61f-c9bb-43ee-84b6-2f20bf876c1e",
+    "number": "2616",
+    "version": "",
+    "ordinal": 0,
+    "name": "Premium Fitness Club",
+    "created": "2026-07-22T13:15:28.246956+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "4ee564b0-8581-46d7-94d6-56bf45d721ac",
+    "number": "2616",
+    "version": "",
+    "ordinal": 0,
+    "name": "Premium Fitness Club",
+    "created": "2026-07-22T13:15:40.291596+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "eaa3de97-0fdf-459e-add7-3fcbc4df52ee",
+    "number": "2608",
+    "version": "",
+    "ordinal": 0,
+    "name": "2608 Alcanena",
+    "created": "2026-07-29T15:33:43.801855+00:00",
+    "aliases": [
+      "2662"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "bb88d61a-ea23-44bf-9d02-e04b3612af09",
+    "number": "2608",
+    "version": "",
+    "ordinal": 0,
+    "name": "2608 Alcanena",
+    "created": "2026-07-29T15:33:50.721019+00:00",
+    "aliases": [
+      "2662"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "d1cb9b14-2361-4a1b-82c2-1d3097dec8ce",
+    "number": "2608",
+    "version": "",
+    "ordinal": 0,
+    "name": "2608 Alcanena",
+    "created": "2026-07-29T16:00:42.640946+00:00",
+    "aliases": [
+      "2662"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "9071aa48-2c99-44f7-87ab-ace1c3eec6ba",
+    "number": "2128",
+    "version": "",
+    "ordinal": 0,
+    "name": "DLMC Oral Surgery",
+    "created": "2026-07-30T09:08:58.157859+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "da627c44-aa0b-478c-95b6-06bec340b6be",
+    "number": "2614",
+    "version": "",
+    "ordinal": 0,
+    "name": "Alba y Ruben",
+    "created": "2026-08-07T09:02:03.573196+00:00",
+    "aliases": [
+      "2663"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "1743816f-122e-45aa-b7a3-e4dcdeba649d",
+    "number": "2614",
+    "version": "",
+    "ordinal": 0,
+    "name": "2663 Alteração de loteamento - Ericeira",
+    "created": "2026-08-07T09:02:07.758965+00:00",
+    "aliases": [
+      "2663"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "52920ef8-b5bc-436f-9578-5a1e6b0a9570",
+    "number": "QA-007",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 2",
+    "created": "2026-08-08T11:29:36.531313+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "4a416479-26ac-409b-ac06-ed95e6bba6fc",
+    "number": "QA-008",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 3",
+    "created": "2026-08-08T12:04:48.023844+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "39eb2656-62e8-4a4f-b71c-b3893abc0b3b",
+    "number": "QA-009",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 4",
+    "created": "2026-08-08T12:26:07.015297+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "966331c6-e5bc-4d71-9cb5-096741fa2f3e",
+    "number": "QA-010",
+    "version": "",
+    "ordinal": 0,
+    "name": "test",
+    "created": "2026-08-08T13:38:21.373478+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "3f820f1a-c78e-470e-92de-8d83127c2d87",
+    "number": "2614",
+    "version": "",
+    "ordinal": 0,
+    "name": "2663 Alteração de loteamento - Ericeira",
+    "created": "2026-08-24T12:43:50.749556+00:00",
+    "aliases": [
+      "2663"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "59f3a882-a593-42b1-a658-56bd9741f373",
+    "number": "2520",
+    "version": "",
+    "ordinal": 0,
+    "name": "2600 Quelhas",
+    "created": "2026-08-24T23:48:46.92977+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "56af3726-9ec4-4fde-ad02-84115b02a371",
+    "number": "26023",
+    "version": "",
+    "ordinal": 0,
+    "name": "Cavid HÜSEYİN",
+    "created": "2026-08-24T23:55:53.082368+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "5d3a6ee9-1f34-4b4b-86f0-dc1eee85c934",
+    "number": "2616",
+    "version": "",
+    "ordinal": 1,
+    "name": "Premium Fitness Club (rev 3)",
+    "created": "2026-08-25T15:49:21.851576+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "5f0369ef-a0f5-4c78-a04a-4fb4bdd48b61",
+    "number": "2616",
+    "version": "",
+    "ordinal": 2,
+    "name": "Premium Fitness Club (rev 4)",
+    "created": "2026-09-01T11:30:50.29338+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "91851d36-1689-4241-af4c-d47a6455481e",
+    "number": "2510",
+    "version": "",
+    "ordinal": 0,
+    "name": "Bolshaya",
+    "created": "2026-09-04T16:32:02.066051+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "550fabc6-1f65-4397-9b13-c5c1540c8fbe",
+    "number": "2616",
+    "version": "",
+    "ordinal": 3,
+    "name": "Premium Fitness Club (rev 5a)",
+    "created": "2026-09-04T17:16:29.042709+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "520ad4a4-c5f1-405e-82be-8180e17d68e2",
+    "number": "2128",
+    "version": "",
+    "ordinal": 0,
+    "name": "2128 Sandycove Road Dental Clinic",
+    "created": "2026-09-21T14:12:20.203943+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "ff0dcfe7-b4df-4d42-a680-00878952b16d",
+    "number": "2404",
+    "version": "",
+    "ordinal": 0,
+    "name": "2025 Clinica Mulher",
+    "created": "2026-10-01T09:24:31.22876+00:00",
+    "aliases": [
+      "2025"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "c55c5fe8-2226-4940-963b-d00ea888fc6e",
+    "number": "QA-011",
+    "version": "",
+    "ordinal": 0,
+    "name": "mariana teste",
+    "created": "2026-10-01T13:18:11.696531+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "51f4fc1c-4d2d-4c7f-b83b-e4d712f52a14",
+    "number": "2618",
+    "version": "",
+    "ordinal": 0,
+    "name": "Reabilitação de edifício de escritórios (fit-out de halls, lifts, unidades de escritório e estacionamento, renovação de sistemas técnicos) — Centro de Lisboa – Zona 2 (CBD)",
+    "created": "2026-10-07T13:35:32.089567+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "918d0074-0cd5-4340-a8a4-7a46df591c95",
+    "number": "26024",
+    "version": "",
+    "ordinal": 0,
+    "name": "Projeto de interiores e conceito estético para clínica de Medicina da Reprodução — Lisboa",
+    "created": "2026-10-07T13:35:45.958028+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "81dd4f3a-a686-4d22-9878-e1967bca9bb7",
+    "number": "26025",
+    "version": "",
+    "ordinal": 0,
+    "name": "Projecto de arquitectura para clínica médica (consultas de pediatria e psicologia pediátrica, sem componente cirúrgica)",
+    "created": "2026-10-07T13:36:31.549231+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "01583ee0-d302-460e-a76b-bd3d7871184b",
+    "number": "26026",
+    "version": "",
+    "ordinal": 0,
+    "name": "Design e gestão de obra (fit-out) de clínica de longevidade, incluindo licenciamento ERS — Rua/zona de Santos, Lisboa (loja de 482m² na Estrela)",
+    "created": "2026-10-07T13:36:40.485758+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "62bd9f5b-8bac-42d1-9f9b-66f13ab1a30d",
+    "number": "26027",
+    "version": "",
+    "ordinal": 0,
+    "name": "Construção de escritórios dentro de armazém industrial existente — Setúbal",
+    "created": "2026-10-07T13:36:45.617898+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "9cb13a62-d1a7-400a-ae88-53eec814e981",
+    "number": "2613",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clínica médica (Longevity Medicine / medicina estética) — Alameda Engenheiro José Mattos e Silva, nº9G, Miraflores - Condomínio Mirear Terrace",
+    "created": "2026-10-07T13:36:48.7345+00:00",
+    "aliases": [
+      "2638"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "a8e74883-c3c1-4c0b-ae92-151be57c9e75",
+    "number": "26028",
+    "version": "",
+    "ordinal": 0,
+    "name": "P2208 South Perth Clinic — Dental Implant Clinic HQ fit-out",
+    "created": "2026-10-17T09:31:09.293561+00:00",
+    "aliases": [
+      "2208",
+      "2675"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "4f78157a-334e-4756-83ea-a2613b19f3ae",
+    "number": "26028",
+    "version": "",
+    "ordinal": 0,
+    "name": "P2208 South Perth Implant Clinic",
+    "created": "2026-10-17T09:31:59.029287+00:00",
+    "aliases": [
+      "2208",
+      "2675"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "2c7d5ee6-ac17-4dcd-b28d-55e8cc35b1fe",
+    "number": "QA-012",
+    "version": "",
+    "ordinal": 0,
+    "name": "test",
+    "created": "2026-10-17T16:35:51.452813+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "5310378e-4f39-410e-bcbb-55d95b8279b5",
+    "number": "2530",
+    "version": "26",
+    "ordinal": 0,
+    "name": "Greg Freemon – novo projeto",
+    "created": "2026-10-18T18:58:08.623655+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "74d97e94-f9d9-49d7-b909-175b0bca8e76",
+    "number": "26029",
+    "version": "",
+    "ordinal": 0,
+    "name": "Hotel Travessa do Oleiro",
+    "created": "2026-10-18T18:58:08.623655+00:00",
+    "aliases": [
+      "26117"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "bbb638a0-ca2a-4236-87bd-38c68084874f",
+    "number": "26030",
+    "version": "",
+    "ordinal": 0,
+    "name": "Hotel Chiado",
+    "created": "2026-10-18T18:58:08.623655+00:00",
+    "aliases": [
+      "26103"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "a7190001-0000-4000-a000-000000000001",
+    "number": "2530",
+    "version": "",
+    "ordinal": 0,
+    "name": "Consultoria Greg Freeman",
+    "created": "2026-10-19T22:56:39.235488+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "a7190001-0000-4000-a000-000000000002",
+    "number": "2524",
+    "version": "",
+    "ordinal": 0,
+    "name": "Projeto histórico N10GLED",
+    "created": "2026-10-19T22:56:39.235488+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "a7190001-0000-4000-a000-000000000003",
+    "number": "2428",
+    "version": "",
+    "ordinal": 0,
+    "name": "Escritório Sakur Dubai",
+    "created": "2026-10-19T22:56:39.235488+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "project",
+    "id": "a7190001-0000-4000-a000-000000000004",
+    "number": "2315",
+    "version": "",
+    "ordinal": 0,
+    "name": "Projeto histórico Museu Zer0 / ILC",
+    "created": "2026-10-19T22:56:39.235488+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "lead",
+    "id": "848bc807-b763-4687-8fda-359152e4a58b",
+    "number": "2603",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Mint II",
+    "created": "2026-10-22T09:47:47.113106+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "b37ab9e5-2f64-4468-a1b7-9153a9c46543",
+    "number": "2603",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Mint II",
+    "created": "2026-10-22T09:51:35.369143+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "37ebfc12-6717-474f-a5f4-5887706f7250",
+    "number": "2603",
+    "version": "",
+    "ordinal": 1,
+    "name": "Clinica Mint II",
+    "created": "2026-10-22T09:51:40.714282+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "project",
+    "id": "da46fd5d-309f-4f9f-b0d6-107cd61dc907",
+    "number": "2603",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Mint II",
+    "created": "2026-11-03T14:25:29.016112+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "a9f08834-6fb2-4d4b-8bb1-730f59336da6",
+    "number": "26030",
+    "version": "",
+    "ordinal": 0,
+    "name": "Hotel Chiado",
+    "created": "2026-11-07T18:27:52.540351+00:00",
+    "aliases": [
+      "26103"
+    ]
+  },
+  {
+    "kind": "lead",
+    "id": "71a73e44-d090-4cd6-96ae-d12f51fc24b2",
+    "number": "26029",
+    "version": "",
+    "ordinal": 0,
+    "name": "Travessa do Oleiro",
+    "created": "2026-11-11T22:33:22.304097+00:00",
+    "aliases": [
+      "26117"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "d73deb33-a0f9-41bb-ad4d-637cd5d159b6",
+    "number": "26029",
+    "version": "",
+    "ordinal": 0,
+    "name": "Travessa do Oleiro",
+    "created": "2026-11-11T22:33:29.081299+00:00",
+    "aliases": [
+      "26117"
+    ]
+  },
+  {
+    "kind": "quote",
+    "id": "48070294-5ad9-4ddc-95f8-7b493b4138ec",
+    "number": "QA-013",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T12:19:17.798094+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "1fa468c4-7b80-4c5b-93d0-6a3767272fbb",
+    "number": "QA-014",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T16:31:48.956733+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "2e56f202-a5e2-4913-af20-c48b3499a237",
+    "number": "QA-015",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T16:40:28.156694+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "quote",
+    "id": "218c7ecc-9c19-4123-85ad-18b4f8a304c3",
+    "number": "QA-016",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] Letter Oleiro",
+    "created": "2026-11-12T20:57:41.079356+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "dfc52ff0-c7ed-45a8-86a6-ec391209d783",
+    "number": "2609",
+    "version": "",
+    "ordinal": 0,
+    "name": "Proposta — 2609 Mastercard",
+    "created": "2026-06-29T23:02:57.53376+00:00",
+    "aliases": [
+      "2654"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "a2bd7c72-ceed-450b-a643-a19cd275a2db",
+    "number": "2615",
+    "version": "",
+    "ordinal": 0,
+    "name": "2616 Hotel Alqueva",
+    "created": "2026-06-30T17:34:31.028415+00:00",
+    "aliases": [
+      "2660"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "b72c1eb9-36fc-4c6a-8715-7568424ed7e6",
+    "number": "26022",
+    "version": "",
+    "ordinal": 0,
+    "name": "Lagoa de Ericeira",
+    "created": "2026-07-01T10:50:54.250061+00:00",
+    "aliases": [
+      "2653"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "4bd18364-aee4-4676-81f7-0ab4d6889797",
+    "number": "2616",
+    "version": "",
+    "ordinal": 0,
+    "name": "Premium Fitness Club",
+    "created": "2026-07-22T21:09:01.020479+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "b22e633d-6bb3-4297-b075-6e19db3c3b81",
+    "number": "2614",
+    "version": "",
+    "ordinal": 0,
+    "name": "2663 Alteração de loteamento - Ericeira",
+    "created": "2026-08-07T09:11:17.040995+00:00",
+    "aliases": [
+      "2663"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "0e8df5d8-e311-44be-973d-51f9d337320a",
+    "number": "QA-017",
+    "version": "",
+    "ordinal": 0,
+    "name": "test",
+    "created": "2026-08-07T16:28:12.306355+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "2902035a-859d-4614-8f55-ef697e21119f",
+    "number": "QA-007",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 2",
+    "created": "2026-08-08T11:30:11.739645+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "81482f0b-eadb-4328-9471-2f2c105af2b9",
+    "number": "QA-008",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 3",
+    "created": "2026-08-08T12:05:27.794029+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "ad5b4a3b-aba2-4239-80b3-3a51688d2f26",
+    "number": "QA-009",
+    "version": "",
+    "ordinal": 0,
+    "name": "test 4",
+    "created": "2026-08-08T12:26:16.055814+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "d7a203a0-2e66-4bd8-b25d-21547d47fc99",
+    "number": "QA-010",
+    "version": "",
+    "ordinal": 0,
+    "name": "test",
+    "created": "2026-08-08T13:38:23.307641+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "7ad5f2d3-8cbf-4065-995e-5112218d0da6",
+    "number": "2616",
+    "version": "",
+    "ordinal": 1,
+    "name": "Premium Fitness Club (rev 3)",
+    "created": "2026-08-25T15:56:49.111401+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "7cd1f9a6-7c65-4b3a-88a0-8c61eb2bdeff",
+    "number": "2616",
+    "version": "",
+    "ordinal": 2,
+    "name": "Premium Fitness Club (rev 4)",
+    "created": "2026-09-01T11:30:50.29338+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "c5f04686-79fd-4d8b-81f2-c1ecf103d190",
+    "number": "2616",
+    "version": "",
+    "ordinal": 3,
+    "name": "Premium Fitness Club (rev 5a)",
+    "created": "2026-09-04T17:16:29.042709+00:00",
+    "aliases": [
+      "2661",
+      "2670",
+      "2671",
+      "2673"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "105c3e13-fe99-4c54-8966-72c8e78c2969",
+    "number": "QA-011",
+    "version": "",
+    "ordinal": 0,
+    "name": "mariana teste",
+    "created": "2026-10-01T13:25:54.341255+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "de92de2f-5fec-40c5-9482-5f9a73ee8668",
+    "number": "26028",
+    "version": "",
+    "ordinal": 0,
+    "name": "P2208 South Perth Implant Clinic",
+    "created": "2026-10-17T12:02:15.397821+00:00",
+    "aliases": [
+      "2208",
+      "2675"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "80e513e4-ee2c-477c-a694-0c8fa4ea2b96",
+    "number": "QA-012",
+    "version": "",
+    "ordinal": 0,
+    "name": "test",
+    "created": "2026-10-17T16:39:02.24374+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "20c4c8b3-c84b-4297-aabb-bc5d17414d84",
+    "number": "2603",
+    "version": "",
+    "ordinal": 1,
+    "name": "Clinica Mint II",
+    "created": "2026-10-22T10:01:32.705665+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "1241dbb8-e9bb-40c1-91c4-1a941e420187",
+    "number": "2613",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Miraflores",
+    "created": "2026-11-03T13:17:04.524854+00:00",
+    "aliases": [
+      "2638"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "96cc7000-26aa-485e-879d-a35d260c4fe3",
+    "number": "2603",
+    "version": "",
+    "ordinal": 0,
+    "name": "Clinica Mint II",
+    "created": "2026-11-03T13:18:07.659+00:00",
+    "aliases": [
+      "2678",
+      "2680"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "3d0db6b3-4bf5-4681-a875-c553f8c64656",
+    "number": "26030",
+    "version": "",
+    "ordinal": 0,
+    "name": "Hotel Chiado",
+    "created": "2026-11-07T18:55:18.599675+00:00",
+    "aliases": [
+      "26103"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "2bae2af9-36c5-4af4-8cea-f63bd130ca9e",
+    "number": "QA-018",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T12:39:52.540054+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "7aaff356-b081-429b-81db-c7ae2391cd26",
+    "number": "QA-019",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T12:40:18.860972+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "dc2da624-9071-47e9-8a89-a900514dbc90",
+    "number": "QA-020",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T12:40:43.207073+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "8a3aeb41-f544-4f8a-8fe6-f484282a9ccd",
+    "number": "QA-021",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T13:00:31.269945+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "6dff92d1-6f94-4a04-9b4a-019423772091",
+    "number": "QA-022",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T13:49:04.758811+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "8eb34295-286d-4c62-bf6a-2142f84f7b30",
+    "number": "QA-023",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T15:19:47.561057+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "6237a527-9708-42ce-aa4c-b26ecda58427",
+    "number": "QA-024",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T15:21:00.016139+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "7fc62faf-9d9e-4def-9659-a5dbe752ce6e",
+    "number": "QA-025",
+    "version": "",
+    "ordinal": 0,
+    "name": "Disposable synthetic",
+    "created": "2026-11-11T15:22:20.056467+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "84e54031-64db-41d8-aa30-b22d882a6017",
+    "number": "26029",
+    "version": "",
+    "ordinal": 0,
+    "name": "Travessa do Oleiro",
+    "created": "2026-11-11T22:33:36.01659+00:00",
+    "aliases": [
+      "26117"
+    ]
+  },
+  {
+    "kind": "document",
+    "id": "e72560a1-36e0-4505-8f42-42644ca42129",
+    "number": "QA-026",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] calculator template destination",
+    "created": "2026-11-11T23:17:30.138635+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "4580691e-e0a3-43d1-b095-412cb8b9faa9",
+    "number": "QA-013",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T12:19:19.451937+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "7a9010fc-f72f-4d27-8bfa-465fbc24493d",
+    "number": "QA-014",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T16:31:50.706112+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "9ad27de4-0c0a-47a1-9039-129ca1bcaff4",
+    "number": "QA-015",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] isolated composer",
+    "created": "2026-11-12T16:40:30.059512+00:00",
+    "aliases": []
+  },
+  {
+    "kind": "document",
+    "id": "14883ae1-184a-480c-9988-9ad897541532",
+    "number": "QA-016",
+    "version": "",
+    "ordinal": 0,
+    "name": "[QA DISPOSABLE] Letter Oleiro",
+    "created": "2026-11-12T20:57:43.334772+00:00",
+    "aliases": []
+  }
+]
