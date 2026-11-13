@@ -1,12 +1,24 @@
 import { parseDocument } from "htmlparser2";
 import render from "dom-serializer";
-import { getElementsByTagName, textContent, removeElement, isTag } from "domutils";
+import { getElementsByTagName, textContent, removeElement } from "domutils";
+
+type HtmlElement = ReturnType<typeof getElementsByTagName>[number];
+function isTag(node: HtmlElement["children"][number]): node is HtmlElement {
+  return "name" in node && "attribs" in node;
+}
 
 /** Presentation only: never pass this result to an editor save or snapshot. */
 export function normalizeProposalHtml(html: string): string {
   const document = parseDocument(html);
   const elements = getElementsByTagName("*", document.children, true);
   for (const element of elements) {
+    if (/^h[1-6]$/.test(element.name)) {
+      let previous = element.prev;
+      while (previous?.type === "text" && !previous.data.trim()) previous = previous.prev;
+      if (previous && isTag(previous) && /^h[1-6]$/.test(previous.name)) {
+        element.attribs["data-proposal-heading-follows"] = "true";
+      }
+    }
     if (element.name === "p" && !textContent(element).replace(/\u00a0/g, " ").trim()
       && !getElementsByTagName((name) => ["img", "svg", "input"].includes(name), element.children, true).length
       && !Object.keys(element.attribs).some(key => key === "id" || key.startsWith("data-"))) {
