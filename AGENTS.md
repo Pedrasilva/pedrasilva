@@ -59,3 +59,5 @@
 
 
 
+
+- Normalize prose to top-down flow only in document rendering, preserve Cover/Letter and explicit boundaries, and propagate document language into completed sheets and PDF; never save layout repairs to proposal data. Why: shared pagination must not race live editorial changes.

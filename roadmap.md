@@ -1,6 +1,6 @@
 ## Current request — shared proposal layout (Luis, 13 November 2026)
-- [ ] Correct top-down flow, headings/list lead-ins, splitting, column rules, Portuguese language and index alignment without proposal writes.
-- [ ] Read-only Chiado/Oleiro/Alqueva screen/Preview/PDF checks and before/after counts; record decisions and limitations; B1 OFF.
+- [x] Correct top-down flow, headings/list lead-ins, splitting, column rules, Portuguese language and index alignment without proposal writes.
+- [x] Read-only Chiado/Oleiro/Alqueva screen/Preview/PDF checks and before/after counts; record decisions and limitations; B1 OFF.
 
 ## Current request — Chiado building areas
 - [x] Approved placeholder replaced with exact paragraph/table/attribution; NOTA and remaining HTML identical; authenticated Pages table verified; protected transaction, 332050€, Rev00Draft and B1OFF. Mirrored0326, D57 and report recorded.
