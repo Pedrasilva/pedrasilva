@@ -71,9 +71,17 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       .proposal-paged-content .proposal-print-block { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
       .proposal-paged-content [data-visible-print="false"] { display: none !important; }
       /* Keep headings, not a chain of entire multi-page sections. */
-      .proposal-paged-content :is(h1,h2,h3,h4,h5,h6),
+      .proposal-paged-content h1,
+      .proposal-paged-content h2,
+      .proposal-paged-content h3,
+      .proposal-paged-content h4,
+      .proposal-paged-content h5,
+      .proposal-paged-content h6,
       .proposal-paged-content [data-list-lead-in="true"] { break-after: avoid; }
-      .proposal-paged-content [data-page-type="content"] :is(li,ul,ol,.psa-rich) {
+      .proposal-paged-content [data-page-type="content"] li,
+      .proposal-paged-content [data-page-type="content"] ul,
+      .proposal-paged-content [data-page-type="content"] ol,
+      .proposal-paged-content [data-page-type="content"] .psa-rich {
         break-inside: auto; page-break-inside: auto; orphans: 2; widows: 2;
       }
       .proposal-paged-content thead { display: table-header-group; }

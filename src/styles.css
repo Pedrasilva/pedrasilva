@@ -1986,8 +1986,16 @@
 .proposal-print-document [data-heading-level="1"]::after {
   max-width: 100%; margin-inline: 0; left: 0; right: 0;
 }
-.proposal-print-document :is(h1,h2,h3,h4,h5,h6) { break-after: avoid; break-inside: avoid; }
-.proposal-print-document [data-page-type="content"] :is(ul,ol,li,.psa-rich) {
+.proposal-print-document h1,
+.proposal-print-document h2,
+.proposal-print-document h3,
+.proposal-print-document h4,
+.proposal-print-document h5,
+.proposal-print-document h6 { break-after: avoid; break-inside: avoid; }
+.proposal-print-document [data-page-type="content"] ul,
+.proposal-print-document [data-page-type="content"] ol,
+.proposal-print-document [data-page-type="content"] li,
+.proposal-print-document [data-page-type="content"] .psa-rich {
   break-inside: auto; page-break-inside: auto; orphans: 2; widows: 2;
 }
 .proposal-print-document p:has(+ ul),
