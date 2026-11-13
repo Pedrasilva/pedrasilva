@@ -18706,6 +18706,10 @@ export type Database = {
         Args: { _actor: string; _source: string }
         Returns: Json
       }
+      crm_work_d53_hashes_match: {
+        Args: { _current: Json; _saved: Json }
+        Returns: boolean
+      }
       crm_work_document_reference: {
         Args: { _document: string }
         Returns: string
