@@ -13,6 +13,7 @@ export type MasterPage = {
 };
 export type PageTypeLayout = { margins: MasterPage['margins']; logo: MasterLogo; bodyY: number; signatureWidth: number };
 export function typeLayout(master: MasterPage, type: 'cover'|'letter'): PageTypeLayout {
+  if (type === 'letter') return {margins:{...master.margins},logo:{...master.logo},bodyY:master.margins.top,signatureWidth:master.pageTypes?.letter.signatureWidth??45};
   return master.pageTypes?.[type] ?? {margins:type==='cover'?{top:0,bottom:0,left:0,right:0}:{top:22,bottom:22,left:24,right:24},logo:{...master.logo},bodyY:type==='cover'?70:35,signatureWidth:45};
 }
 

@@ -2026,6 +2026,7 @@
   --psa-table-rule: 0.5pt;
   --psa-table-inset: 0.5em;
   --psa-note-scale: 0.85;
+  --psa-letter-date-gap: calc(var(--psa-body-line) * 1.333333333);
   --psa-document-muted: #555;
   --psa-document-rule: #b8b8b8;
   line-height: var(--psa-body-leading);

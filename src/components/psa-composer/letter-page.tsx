@@ -1,51 +1,33 @@
 import type { CSSProperties } from 'react';
 import { useProposal } from '@/lib/psa-proposal/use-psa-proposal';
-import { DEFAULT_LETTER_SETTINGS, letterTokenMap, type LetterSettings } from '@/lib/psa-proposal/letter';
+import { DEFAULT_LETTER_SETTINGS, letterTokenMap, resolveLetterFields, type LetterSettings } from '@/lib/psa-proposal/letter';
 import { resolveTokens } from '@/lib/psa-proposal/tokens';
 import { resolveMaster, typeLayout } from '@/lib/psa-proposal/master-page';
 import type { PsaProposalBlock } from '@/lib/psa-proposal/types';
 import type { LiveQuoteSnapshot, ProposalLang } from '@/lib/psa-proposal/live-data';
-import psaLogo from '@/assets/logotipo-psa.jpg.asset.json';
 import './letter.css';
-import { letterDateLine, letterSignoff, LETTER_SIGNATORY, type LetterFields } from '@/lib/psa-proposal/letter-fields';
+import { letterDateLine, type LetterFields } from '@/lib/psa-proposal/letter-fields';
+import { letterParagraphHtml } from '@/lib/psa-proposal/document-rhythm';
 export function LetterPage({block,live,lang}:{block:PsaProposalBlock;live?:LiveQuoteSnapshot;lang:ProposalLang}) {
   const query=useProposal(block.proposal_id);const proposal=query.data;
   if(!proposal)return null;
   const savedSettings=(block.content_rich.letterSettings as Partial<LetterSettings>|undefined)??proposal.style_settings.letterSettings;
   const settings={...DEFAULT_LETTER_SETTINGS,...savedSettings,templates:{...DEFAULT_LETTER_SETTINGS.templates,...savedSettings?.templates}};
   const map=letterTokenMap(live,proposal);const master=resolveMaster(proposal.style_settings);const layout=typeLayout(master,'letter');
-  const html=String(block.content_rich.html??settings.templates[lang]??DEFAULT_LETTER_SETTINGS.templates[lang]);
-  const fields=block.content_rich.letterFields as LetterFields | undefined;
-  if (block.content_rich.letterVersion === 2 && fields) {
-    const missing=(pt:string,en:string)=>lang==='en'?`[${en}]`:`[${pt}]`;
-    const body=resolveTokens(html,map).output;
-    return <section className="psa-letter-page psa-business-letter" data-letter-version="2" data-live-ready={query.isFetching?'false':'true'} style={{'--letter-logo-width':`${layout.logo.width}mm`,'--letter-logo-x':`${layout.logo.x-layout.margins.left}mm`,'--letter-logo-y':`${layout.logo.y-layout.margins.top}mm`,'--letter-signature-width':`${layout.signatureWidth}mm`,'--letter-body-y':`${Math.max(0,layout.bodyY-layout.margins.top)}mm`,'--letter-height':`${297-layout.margins.top-layout.margins.bottom}mm`} as CSSProperties}>
-      <div className="psa-business-logo"><img src={psaLogo.url} alt="Pedra Silva"/></div>
-      <div className="psa-letter-recipient">
-        <div>{fields.recipientCompany||missing('Empresa','Company')}</div>
-        <div>{fields.recipientContact||missing('Nome e cargo do contacto','Contact name and title')}</div>
-        <div>{fields.recipientAddress||missing('Morada','Street address')}</div>
-        <div>{fields.recipientPostalCode||missing('Código postal','Postcode')} {fields.recipientCity||missing('Cidade','City')}</div>
-      </div>
-      <div className="psa-letter-sender">{fields.sender}</div>
-      <p className="psa-letter-date">{letterDateLine(fields,lang)}</p>
-      <p className="psa-letter-subject"><strong>{fields.subject}</strong></p>
-      <p className="psa-letter-salutation">{fields.salutation}</p>
-      <div className="psa-rich psa-letter-body" dangerouslySetInnerHTML={{__html:body}}/>
-      <div className="psa-letter-signoff proposal-avoid-break">
-        <p>{letterSignoff(lang)}</p>
-        {settings.signatureData&&<img src={settings.signatureData} alt={LETTER_SIGNATORY}/>}
-        <div>{LETTER_SIGNATORY}</div><div>{fields.signatoryRole}</div><div>{fields.sender.split('\n')[0]}</div>
-      </div>
-      <div className="psa-letter-footer">{master.footer.address.replace(/\n/g,' · ')} · {master.contact.email} · {master.contact.website}</div>
-    </section>;
-  }
-  return <section className="psa-letter-page" data-live-ready={query.isFetching?'false':'true'}>
-    <div className="psa-letter-letterhead"><img src={psaLogo.url} alt="Pedra Silva" width={layout.logo.width*3.78}/><div className="whitespace-pre-line">{master.footer.address}</div></div>
-    <div className="my-8 text-right">{map.proposal_date}</div>
-    <div className="mb-6 whitespace-pre-line">{map.client_name}<br/>{String(proposal.client_snapshot.address??proposal.client_snapshot.morada??'')}</div>
-    {map.contact_salutation!=='—'&&<p className="mb-4">{map.contact_salutation}</p>}
-    <div className="psa-rich" dangerouslySetInnerHTML={{__html:resolveTokens(html,map).output}}/>
-    <div className="proposal-avoid-break mt-8">{settings.signatureData&&<img src={settings.signatureData} alt={settings.signatoryName} width={layout.signatureWidth*3.78}/>}<p>{settings.signatoryName}</p></div>
+  const html=String(block.content_rich.html??block.content_rich.text??settings.templates[lang]??DEFAULT_LETTER_SETTINGS.templates[lang]);
+  const fields=resolveLetterFields(block.content_rich.letterFields as Partial<LetterFields>|undefined,settings,live,proposal);
+  const body=letterParagraphHtml(resolveTokens(html,map).output,!block.content_rich.html&&!!block.content_rich.text);
+  const recipients=[fields.recipientCompany,fields.recipientContact,fields.recipientAddress,[fields.recipientPostalCode,fields.recipientCity].filter(Boolean).join(' ')].filter(value=>value?.trim());
+  return <section className="psa-letter-page psa-business-letter" data-letter-version="3" data-live-ready={query.isFetching?'false':'true'} style={{'--letter-signature-width':`${layout.signatureWidth}mm`} as CSSProperties}>
+    {fields.date&&<p className="psa-letter-date">{letterDateLine(fields,lang)}</p>}
+    {recipients.length>0&&<div className="psa-letter-recipient">{recipients.map((line,index)=><div key={index}>{line}</div>)}</div>}
+    {fields.subject&&<p className="psa-letter-subject"><strong>{/^(assunto|subject)\s*:/i.test(fields.subject)?fields.subject:`${lang==='en'?'Subject':'Assunto'}: ${fields.subject}`}</strong></p>}
+    {fields.salutation&&<p className="psa-letter-salutation">{fields.salutation}</p>}
+    <div className="psa-rich psa-letter-body" dangerouslySetInnerHTML={{__html:body}}/>
+    <div className="psa-letter-signoff proposal-avoid-break">
+      {fields.closing&&<p>{fields.closing}</p>}
+      {fields.signatureData&&<img src={fields.signatureData} alt={fields.signatoryName??''}/>}
+      {(fields.signatoryName||fields.signatoryRole)&&<p>{[fields.signatoryName,fields.signatoryRole].filter(Boolean).join(', ')}</p>}
+    </div>
   </section>;
 }
