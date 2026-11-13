@@ -5,6 +5,7 @@ import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayou
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 import { prepareExplicitPageBreaks } from "@/lib/psa-proposal/explicit-page-breaks";
 import { normalizeProposalHtml } from "@/lib/psa-proposal/document-rhythm";
+import { proposalFontAvailable } from "@/lib/psa-proposal/typography";
 
 const inlinedImages = new Map<string, Promise<string>>();
 function inlineImage(url: string): Promise<string> {
@@ -198,6 +199,8 @@ export function PaginatedPreview({
       let releasePages = () => {};
       try {
         await document.fonts?.ready;
+        const fontStyle=getComputedStyle(source);
+        await Promise.all([proposalFontAvailable(fontStyle.getPropertyValue('--psa-heading-font')),proposalFontAvailable(fontStyle.getPropertyValue('--psa-body-font'))]);
         const sourceImages = Array.from(source.querySelectorAll<HTMLImageElement>("img"));
         await Promise.all(
           sourceImages.map(async (image) => {
@@ -308,6 +311,7 @@ export function PaginatedPreview({
           frameDoc.head.appendChild(style);
         }
         await frameDoc.fonts?.ready;
+        await Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]);
         const previewer = new frameWindow.Paged.Previewer();
         const pagedInternals = previewer as unknown as PagedListeners;
         releasePages = () => pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());

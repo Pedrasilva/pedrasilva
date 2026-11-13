@@ -875,3 +875,7 @@
 ## Current request — letter master parity
 - [x] Share content master/header/typography; editable optional fields and rich body; allow letter continuation.
 - [x] Validate read-only preview/PDF and isolated long HTML continuation; fields visible, persisted edits not exercised on real data; D62 recorded, B1 OFF.
+
+## Current request — typography autosave
+- [ ] Diagnose and fix live typography, debounced confirmed saves/status/reset/master scope and PDF fonts.
+- [ ] Perform Luis-authorized Chiado body-font-only change/reload/PDF/restore; block all other writes; record results.
