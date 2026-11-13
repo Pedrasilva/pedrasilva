@@ -880,3 +880,7 @@
 - [x] Diagnose and implement live typography, confirmed autosave/status/reset/master scope and local PDF fonts.
 - [x] Chiado body font persisted/reloaded/Pages verified; original settings restored, other writes blocked; D63 recorded,14 tests passed.
 - [ ] PDF embedding validation remains incomplete: first export used fallback; subsequent export checks stalled. Do not certify selected-font PDF embedding.
+
+## Current request — adaptive Gantt header
+- [ ] Add width-based two-band labels, clustered payment markers and aligned gridlines; preserve data.
+- [ ] Verify Chiado at Week, Month and Fit, sticky scrolling and no writes; record decision.
