@@ -882,5 +882,5 @@
 - [ ] PDF embedding validation remains incomplete: first export used fallback; subsequent export checks stalled. Do not certify selected-font PDF embedding.
 
 ## Current request — adaptive Gantt header
-- [ ] Add width-based two-band labels, clustered payment markers and aligned gridlines; preserve data.
-- [ ] Verify Chiado at Week, Month and Fit, sticky scrolling and no writes; record decision.
+- [x] Shared width-based two-band labels, clustered payment markers and aligned gridlines; Fit minimum removed.
+- [x] Chiado verified at Week224px/week, Month70px/week and Fit10.74px/week; zero cell overflow/errors/writes, cluster tooltip and sticky scrolling confirmed;18 tests and i18n passed; D64 recorded.
