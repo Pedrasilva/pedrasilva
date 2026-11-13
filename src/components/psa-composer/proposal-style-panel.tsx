@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  * the whole proposal. Values are stored as JSON in psa_proposals.style_settings
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
 import { PSA_BRAND_TYPOGRAPHY, proposalFontAvailable } from "@/lib/psa-proposal/typography";
 import { useMasterDefault, useSaveMasterDefault } from "@/lib/psa-proposal/use-master-page";
@@ -76,6 +76,8 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   const [v,setValue]=useState<PsaProposalStyleSettings>(proposal.style_settings??{});
   const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
   const [fontWarning,setFontWarning]=useState(false);
+  const generation=useRef(0);
+  const saveQueue=useRef<Promise<unknown>>(Promise.resolve());
   const locked=!!proposal.locked_at||['sent','accepted'].includes(proposal.status);
   useEffect(()=>{if(saveStatus==='saved')setValue(proposal.style_settings??{});},[proposal.style_settings,saveStatus]);
   useEffect(()=>{
@@ -85,13 +87,15 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   },[v.headingFont,v.bodyFont]);
   useEffect(()=>{
     if(saveStatus!=='saving')return;
+    const version=generation.current;
     const timer=setTimeout(()=>{
-      void update.mutateAsync({style_settings:v}).then(()=>setSaveStatus('saved')).catch(error=>{setSaveStatus('error');toast.error(error instanceof Error?error.message:uiI18n.t('common:error'));});
+      saveQueue.current=saveQueue.current.catch(()=>{}).then(()=>update.mutateAsync({style_settings:v})).then(()=>{if(generation.current===version)setSaveStatus('saved');}).catch(error=>{if(generation.current===version)setSaveStatus('error');toast.error(error instanceof Error?error.message:uiI18n.t('common:error'));});
     },500);
     return ()=>clearTimeout(timer);
   },[v]);
   function patch(next:Partial<PsaProposalStyleSettings>){
     if(locked)return;
+    generation.current+=1;
     const merged={...v,...next};setValue(merged);setSaveStatus('saving');
     void qc.cancelQueries({queryKey:['psa-proposal',proposal.id]});
     qc.setQueryData<PsaProposal>(['psa-proposal',proposal.id],prev=>prev?{...prev,style_settings:merged}:prev);
