@@ -1,3 +1,6 @@
+## Current request — Hotel Chiado authorized text only
+- [x] All22 A–I corrections in9blocks;18unchanged; original structure reference; Rev00Draft and all commercial/operational/numbering data preserved transactionally; B1OFF. Per-item report: docs/chiado-authorized-text-edits-2026-11-13.md.
+
 ## Current request — lead / proposal / project numbering
 - [x] D53 final approval: v4+Mint applied to126 records with durable before-images;64 unique identities, QA001–026, next26031; all protected data unchanged within transaction, no deletions. UI alias search and separate lead rollback check passed; B1 OFF.
 - [ ] D53 activation remains OFF: Luis-authorized sync-only exclusion verified, but final check now also detects financial_documents, financial_document_payments, marketing_settings and marketing_ig_comments changes against original backup. Stopped without further exclusions; awaits Luis's decision on those differences. B1 OFF, backup unchanged, next26031.
