@@ -24,6 +24,9 @@
       "date": "Data da carta",
       "subject": "Assunto",
       "salutation": "Saudação",
+      "closing": "Despedida",
+      "signatureData": "Endereço da imagem da assinatura",
+      "signatoryName": "Nome do signatário",
       "signatoryRole": "Cargo do signatário"
     },
     "adoptLayout": "Usar formato de carta formal",

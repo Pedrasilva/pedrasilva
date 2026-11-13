@@ -155,12 +155,10 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
     const margin=(m:typeof letter.margins)=>`${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm`;
     styles.push({'page-types.css':`
       @page psa-cover {size:A4;margin:${margin(cover.margins)};@top-center{content:none}@bottom-left{content:none}@bottom-right{content:none}}
-      @page psa-letter {size:A4;margin:${margin(letter.margins)};@top-center{content:none}@bottom-left{content:none}@bottom-right{content:none}}
+      @page psa-letter {size:A4;margin:${margin(letter.margins)};@top-center{content:"";width:100%}@bottom-left{content:""}@bottom-right{content:none}}
       [data-page-type="cover"]{page:psa-cover;break-before:page;break-after:page}
       [data-page-type="letter"]{page:psa-letter;break-before:page;break-after:page}
       [data-page-type="cover"] .proposal-cover{min-height:${297-cover.margins.top-cover.margins.bottom}mm;box-sizing:border-box;padding-top:${cover.bodyY}mm}
-      .psa-letter-letterhead{display:flex;justify-content:space-between;align-items:start;font-size:9pt}
-      .psa-letter-page{font-size:11pt;line-height:1.55}
     `});
   }
   return styles;
@@ -305,7 +303,7 @@ export function PaginatedPreview({
         frameDoc.documentElement.lang = printRoot.lang;
         const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
         if (!frameTarget) throw new Error("Pagination target unavailable");
-        const typed = !!masterNode?.dataset.pageTypesEnabled || !!source.querySelector('[data-letter-version="2"]');
+        const typed = !!masterNode?.dataset.pageTypesEnabled || !!source.querySelector('.psa-letter-page');
         const styles = collectDocumentStyles(source, {
           header: runningElements.some((element) => element.classList.contains("proposal-page-header")),
           footer: runningElements.some((element) => element.classList.contains("proposal-page-footer")),
@@ -344,7 +342,7 @@ export function PaginatedPreview({
             if(footer){const placed=frameDoc.importNode(footer,true);placed.classList.add('psa-letter-page-footer');pageBox.appendChild(placed);}
           }
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
-          const variant = type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
+          const variant = type==='letter' ? master : type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-orientation',landscape?'landscape':'portrait');
           const adapted=landscape?{...variant,logo:{...variant.logo,x:variant.logo.x+(variant.logo.alignment==='right'?87:variant.logo.alignment==='centre'?43.5:0)},contact:{...variant.contact,x:variant.contact.x+87}}:variant;
@@ -353,7 +351,7 @@ export function PaginatedPreview({
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
-            if (typed && type !== "content") return;
+            if (typed && type === "cover") return;
             const selector = element.classList.contains("proposal-page-header")
               ? ".pagedjs_margin-top-center .pagedjs_margin-content"
               : ".pagedjs_margin-bottom-left .pagedjs_margin-content";
@@ -362,6 +360,14 @@ export function PaginatedPreview({
               margin.classList.add("proposal-margin-furniture");
               const furnitureClone = element.cloneNode(true) as HTMLElement;
               furnitureClone.removeAttribute('data-first-hidden');
+              if (type === 'letter' && element.classList.contains('proposal-page-header')) {
+                const contact = furnitureClone.querySelector('.proposal-letterhead-contact');
+                if (contact) {
+                  contact.replaceChildren(...master.footer.address.split('\n').map(line => {
+                    const row = frameDoc.createElement('div'); row.textContent = line; return row;
+                  }));
+                }
+              }
               margin.appendChild(furnitureClone);
             }
           });
@@ -382,15 +388,8 @@ export function PaginatedPreview({
         }
         frameTarget.replaceChildren(completedPages.cloneNode(true));
         staging.remove();
-        let letterOverflow=false;
-        const letters=Array.from(frameTarget.querySelectorAll<HTMLElement>('[data-letter-version="2"]'));
-        for(const letterNode of letters){
-          const id=letterNode.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;
-          const fragments=letters.filter(n=>n.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId===id);
-          const footer=letterNode.closest('.pagedjs_pagebox')?.querySelector<HTMLElement>('.psa-letter-page-footer');
-          const signature=letterNode.querySelector<HTMLElement>('.psa-letter-signoff');
-          if(fragments.length!==1||letterNode.scrollHeight>letterNode.clientHeight+2||(footer&&signature&&signature.getBoundingClientRect().bottom>footer.getBoundingClientRect().top))letterOverflow=true;
-        }
+        // Letters fragment normally; a second page is not an export error.
+        const letterOverflow=false;
         const reset = frameDoc.createElement("style");
         const rootStyle = getComputedStyle(document.documentElement);
         const sheetGap = rootStyle.getPropertyValue("--muted").trim() || "#e5e5e5";
