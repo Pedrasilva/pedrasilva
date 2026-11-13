@@ -37,7 +37,7 @@ export function resolveQuoteLifecycle(args: {
 export function QuoteStatusRail({ state }: { state: QuoteLifecycleState }) {
   const { t } = useTranslation("crm");
 
-  const currentIdx = ORDER.indexOf(state);
+  const currentIdx = state === "lost" ? -1 : ORDER.indexOf(state);
   return <DropdownMenu>
     <DropdownMenuTrigger asChild><Button variant="secondary" size="sm" className="gap-1.5 rounded-full whitespace-nowrap"><span className="h-1.5 w-1.5 rounded-full bg-primary" />{t(`quotes.lifecycle.${state}`)}<ChevronDown className="h-3 w-3" /></Button></DropdownMenuTrigger>
     <DropdownMenuContent align="end">
