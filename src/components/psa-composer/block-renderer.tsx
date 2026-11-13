@@ -1,5 +1,6 @@
 import { compareStageDisplay, isConstructionStage, sortStagesByWbs } from "@/lib/quotes/stage-numbering";
 import { ProposalImageEditorHint } from "./document-editor-hints";
+import { normalizeProposalHtml } from "@/lib/psa-proposal/document-rhythm";
 import uiI18n from "@/i18n/index";
 import { LetterPage } from './letter-page';
 import { DocumentGantt } from './document-gantt';
@@ -155,7 +156,7 @@ function RichContent({
   );
   if (html && html.trim() && html !== "<p></p>" && html !== "<p><br></p>") {
     const resolved = tokenMap ? resolveTokens(html, tokenMap).output : html;
-    return <div className={wrapClass} dangerouslySetInnerHTML={{ __html: resolved }} />;
+    return <div className={wrapClass} dangerouslySetInnerHTML={{ __html: normalizeProposalHtml(resolved) }} />;
   }
   if (text && text.trim()) {
     const resolved = tokenMap
@@ -165,7 +166,7 @@ function RichContent({
       : text;
     return (
       <div className={wrapClass}>
-        {resolved.split("\n\n").map((para, i) => (
+        {resolved.split("\n\n").filter(para => para.trim()).map((para, i) => (
           <p key={i} className="mb-2">
             {para}
           </p>
@@ -2333,7 +2334,7 @@ function BlockBody({
           <div
             className="psa-general-terms-columns text-[11px] leading-snug text-zinc-800 [column-count:2] [column-gap:2rem] [column-rule:1px_solid_theme(colors.zinc.200)] [&_h3]:break-after-avoid [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-zinc-900 [&_h3:first-child]:mt-0 [&_p]:mb-2 [&_p]:break-inside-avoid [&_strong]:font-semibold"
             dangerouslySetInnerHTML={{
-              __html: tokenMap ? resolveTokens(body, tokenMap).output : body,
+              __html: normalizeProposalHtml(tokenMap ? resolveTokens(body, tokenMap).output : body),
             }}
           />
         </div>

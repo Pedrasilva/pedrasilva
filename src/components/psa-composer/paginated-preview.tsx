@@ -4,6 +4,7 @@ import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
 import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayout } from '@/lib/psa-proposal/master-page';
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 import { prepareExplicitPageBreaks } from "@/lib/psa-proposal/explicit-page-breaks";
+import { normalizeProposalHtml } from "@/lib/psa-proposal/document-rhythm";
 
 const inlinedImages = new Map<string, Promise<string>>();
 function inlineImage(url: string): Promise<string> {
@@ -215,6 +216,7 @@ export function PaginatedPreview({
         const masterNode = source.matches('[data-master-page]') ? source : source.querySelector<HTMLElement>('[data-master-page]');
         const master: MasterPage = masterNode?.dataset.masterPage ? JSON.parse(masterNode.dataset.masterPage) : resolveMaster();
         const clone = source.cloneNode(true) as HTMLDivElement;
+        clone.innerHTML = normalizeProposalHtml(clone.innerHTML);
         const letterFooters=new Map<string,HTMLElement>();
         clone.querySelectorAll<HTMLElement>('.psa-letter-footer').forEach(footer=>{
           const id=footer.closest<HTMLElement>('[data-proposal-block-id]')?.dataset.proposalBlockId;

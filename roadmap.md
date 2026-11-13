@@ -867,3 +867,7 @@
 ## Current request — compact Proposal Builder
 - [x] Consolidate workflow header and document toolbar, preserve existing actions.
 - [x] Validate authenticated read-only desktop/narrow navigation, refresh, status/revision menus and modes; D60 and report recorded.
+
+## Current request — shared proposal vertical rhythm
+- [ ] Apply body-line spacing tokens and render-only HTML cleanup to preview/PDF.
+- [ ] Verify read-only document renders and export; preserve all proposal data and B1 OFF.
