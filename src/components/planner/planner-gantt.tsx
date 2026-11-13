@@ -1,3 +1,4 @@
+import { programmeFitWidth } from "@/lib/projects/timeline-header";
 import { outlineMove } from "@/lib/quotes/outline-moves";
 import {RetainerSettings} from "./retainer-settings";
 import {retainerEnd,retainerPaymentDates} from "@/lib/projects/retainer-schedule";
@@ -126,9 +127,7 @@ const GANTT_RESIZER_WIDTH = 6;
 const GANTT_SCROLLBAR_GUARD = 24;
 
 function fittedDayWidth(chartWidth: number, outlineWidth: number, totalDays: number): number {
-  const timelineWidth = Math.max(240, chartWidth - outlineWidth - GANTT_RESIZER_WIDTH - GANTT_SCROLLBAR_GUARD);
-  const fitWidth = timelineWidth / Math.max(1, totalDays);
-  return Math.max(0.35, Math.min(32, fitWidth));
+  return programmeFitWidth(chartWidth, outlineWidth, totalDays);
 }
 
 export function QuoteGantt(props: Props | ProjectGanttProps) {
