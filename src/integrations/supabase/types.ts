@@ -18702,6 +18702,10 @@ export type Database = {
         Returns: Json
       }
       crm_work_can_read: { Args: { _work: string }; Returns: boolean }
+      crm_work_d53_creation_check: {
+        Args: { _actor: string; _source: string }
+        Returns: Json
+      }
       crm_work_document_reference: {
         Args: { _document: string }
         Returns: string
