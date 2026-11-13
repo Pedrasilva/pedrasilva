@@ -1,3 +1,6 @@
+## Current request — Chiado building areas
+- [x] Approved placeholder replaced with exact paragraph/table/attribution; NOTA and remaining HTML identical; authenticated Pages table verified; protected transaction, 332050€, Rev00Draft and B1OFF. Mirrored0326, D57 and report recorded.
+
 ## Current request — Oleiro CGI text only
 - [x] Both approved phrases applied and visible in authenticated Pages; transaction protected all other blocks/data including PIP, 221300€ total, Rev00Draft and B1OFF. Mirrored0325 includes before-images; D56 recorded.
 
