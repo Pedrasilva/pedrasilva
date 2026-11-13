@@ -82,11 +82,11 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
   </div>;
 }
 
-export function ProposalMasterButton({ proposal, readOnly = false }: { proposal: PsaProposal; readOnly?: boolean }) {
+export function ProposalMasterButton({ proposal, readOnly = false, compactClassName }: { proposal: PsaProposal; readOnly?: boolean; compactClassName?: string }) {
   const { t } = useTranslation('common'); const [open, setOpen] = useState(false);
   const update = useUpdateProposal(proposal.id); const defaults = useMasterDefault();
   const save = async (master: MasterPage, customized = true) => { await update.mutateAsync({ style_settings: { ...proposal.style_settings, pageTypesEnabled:true, masterPage: master, masterRevision: defaults.data?.revision ?? 0, masterCustomized: customized } }); setOpen(false); };
-  return <><Button variant="outline" size="sm" disabled={readOnly} onClick={() => setOpen(true)}><LayoutTemplate className="mr-2 h-4 w-4" />{t('masterPage.title')}</Button><Dialog open={open} onOpenChange={setOpen}><DialogContent className="master-dialog"><DialogHeader><DialogTitle>{t('masterPage.title')}</DialogTitle></DialogHeader>{open && <MasterPageEditor initial={resolveMaster(proposal.style_settings)} customized={proposal.style_settings.masterCustomized !== false} saving={update.isPending} onSave={m => save(m)} onReset={defaults.data ? () => void save(defaults.data.template, false).catch(e => toast.error(e.message)) : undefined} />}</DialogContent></Dialog></>;
+  return <><Button className={compactClassName} variant="outline" size="sm" disabled={readOnly} onClick={() => setOpen(true)}><LayoutTemplate className="mr-2 h-4 w-4" />{t('masterPage.title')}</Button><Dialog open={open} onOpenChange={setOpen}><DialogContent className="master-dialog"><DialogHeader><DialogTitle>{t('masterPage.title')}</DialogTitle></DialogHeader>{open && <MasterPageEditor initial={resolveMaster(proposal.style_settings)} customized={proposal.style_settings.masterCustomized !== false} saving={update.isPending} onSave={m => save(m)} onReset={defaults.data ? () => void save(defaults.data.template, false).catch(e => toast.error(e.message)) : undefined} />}</DialogContent></Dialog></>;
 }
 
 export function PracticeMasterPage() {

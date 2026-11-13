@@ -2476,5 +2476,15 @@
     "overwrite": "O conteúdo existente será substituído em: {{sections}}.",
     "blankConfirmation": "Importar as secções selecionadas para esta proposta vazia?",
     "confirm": "Confirmar substituição e importar"
+  },
+  "builderHeader": {
+    "downloadPdf": "Descarregar PDF",
+    "estimate": "Estimativa",
+    "content": "Proposta",
+    "publish": "Assinar e converter",
+    "opportunity": "Oportunidade",
+    "rename": "Renomear proposta",
+    "refresh": "Atualizar da estimativa",
+    "estimateUpdated": "Estimativa atualizada – atualize para obter as alterações"
   }
 }

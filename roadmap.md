@@ -863,3 +863,7 @@
 - [x] Delete only quote 7d7accd8-706b-424d-8e91-14feae419d30 and its documents; audit test-to-real links.
 - [x] Confirm Oleiro's existing 18 monthly invoices of €3,000 and totals without editing months/value.
 - [x] Apply uploaded signature to the existing Oleiro Letter block; preserve prose, snapshots and B1 OFF.
+
+## Current request — compact Proposal Builder
+- [x] Consolidate workflow header and document toolbar, preserve existing actions.
+- [x] Validate authenticated read-only desktop/narrow navigation, refresh, status/revision menus and modes; D60 and report recorded.

@@ -2010,3 +2010,19 @@
   width: auto; min-width: 0; font-variant-numeric: tabular-nums;
 }
 .proposal-print-document .proposal-toc-page { text-align: end; font-variant-numeric: tabular-nums; }
+
+/* Proposal workspace chrome: the canvas scrolls beneath two fixed-height rows. */
+.proposal-builder-workspace { height: calc(100dvh - 5.5rem); }
+.proposal-builder-header > div:first-child { overflow: hidden; }
+.proposal-toolbar-overflow { display: none; }
+@media (max-width: 1250px) {
+  .proposal-toolbar-secondary { display: none; }
+  .proposal-toolbar-overflow { display: block; }
+  .proposal-builder-client { display: none; }
+}
+@media (max-width: 950px) {
+  .proposal-refresh-label { display: none; }
+  .proposal-builder-header { gap: 0.25rem; }
+  .proposal-builder-header nav button { padding-inline: 0.25rem; font-size: 0.75rem; }
+  .proposal-builder-header > div:first-child > a { font-size: 0; gap: 0; }
+}

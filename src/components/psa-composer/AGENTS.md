@@ -14,3 +14,5 @@
 - Document Gantts share a non-mutating WBS model: body Gantt blocks render one compact inline monthly summary in portrait flow; only the programme appendix renders named A4 landscape sheets (bounded rows, design/construction split, adapted furniture, mixed export sizes). Proposal payment plans synthesize monthly retainer invoices with the Gantt's retainer payment-date helper. Why: no duplicated programmes and identical payment dates across Gantt and document.
 
 - Normalize prose to top-down flow only in document rendering, preserve Cover/Letter and explicit boundaries, and propagate document language into completed sheets and PDF; never save layout repairs to proposal data. Why: shared pagination must not race live editorial changes.
+
+- Embedded proposal builders keep workflow actions in the quote header and document controls in ComposerTopBar; the canvas owns scrolling beneath two fixed-height rows. Why: avoid duplicated actions without changing lifecycle guards or document data.
