@@ -99,7 +99,7 @@
 - Os 18 outros blocos e os metadados dos 27 blocos permanecem iguais. Quote e metadados do documento rigorosamente iguais, Rev 00/Draft; nenhuma nova letra.
 - A transação comparou os restantes dados protegidos antes/depois: nenhum valor, mês, pagamento, Gantt, permissão, identidade, alias ou outra proposta alterado. B1 OFF.
 - Snapshots existentes não foram editados; a sessão do editor criou entretanto uma gravação automática sem nova revisão. As referências antigas continuam no histórico, não no texto atual.
-- Conferência autenticada do editor: descrição reparada e honorários atualizados visíveis. As fases mostraram temporariamente a indicação de ausência de dados vivos; não se alterou o Gantt nem se certificou exportação PDF nesta tarefa.
+- Conferência autenticada do editor: descrição reparada visível com parágrafos, listas e rótulos corretos; após carregar os dados vivos, fases com nomes e texto atualizado. Rev 00 visível. Não se alterou o Gantt nem se certificou exportação PDF nesta tarefa.
 
 ## Ficheiros
 - `supabase/migrations/0323_chiado_authorized_text_only.sql` e espelho em `drizzle/migrations`: antes/depois exatos da correção de dados já aplicada; não reexecutar.
