@@ -1,3 +1,6 @@
+## Current request — Chiado / Oleiro approved document follow-up
+- [x] Six Chiado CGI deliverables, both measurement inclusions, top-level indices 1–22/1–24, Chiado tender/new construction opener, existing payment moved to Annex A and programme B; exact transactional commercial/metadata protection, Rev00Draft, B1OFF. Read-only authenticated checks and six existing index tests passed. Report: docs/chiado-oleiro-followup-2026-11-13.md. PDF final pagination not certified in this editorial task.
+
 ## Current request — Hotel Chiado authorized text only
 - [x] All22 A–I corrections in9blocks;18unchanged; original structure reference; Rev00Draft and all commercial/operational/numbering data preserved transactionally; B1OFF. Per-item report: docs/chiado-authorized-text-edits-2026-11-13.md.
 
