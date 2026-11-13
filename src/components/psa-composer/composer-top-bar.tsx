@@ -97,13 +97,23 @@ export function ComposerTopBar({
   const live = useLiveQuoteSnapshot(proposal.quote_id, resolveProposalLang(proposal.language), proposal.id);
   const [refreshedSource, setRefreshedSource] = useState<string | null>(null);
   const sourceSignature = live.data ? JSON.stringify(live.data) : null;
-  useEffect(() => { if (sourceSignature && refreshedSource === null) setRefreshedSource(sourceSignature); }, [sourceSignature, refreshedSource]);
+  useEffect(() => {
+    if (!sourceSignature || refreshedSource !== null) return;
+    let previous: string | null = null;
+    try { previous = sessionStorage.getItem(`psa.proposalRefresh.${proposal.id}`); } catch { /* Storage may be unavailable. */ }
+    setRefreshedSource(previous ?? sourceSignature);
+    if (!previous) { try { sessionStorage.setItem(`psa.proposalRefresh.${proposal.id}`, sourceSignature); } catch { /* Keep the in-memory baseline. */ } }
+  }, [sourceSignature, refreshedSource, proposal.id]);
   const estimateChanged = refreshedSource !== null && sourceSignature !== null && refreshedSource !== sourceSignature;
   const refreshEstimate = async () => {
     try {
       const result = await live.refetch();
       if (result.error) throw result.error;
-      if (result.data) setRefreshedSource(JSON.stringify(result.data));
+      if (result.data) {
+        const signature = JSON.stringify(result.data);
+        setRefreshedSource(signature);
+        try { sessionStorage.setItem(`psa.proposalRefresh.${proposal.id}`, signature); } catch { /* Keep the in-memory baseline. */ }
+      }
       await qc.invalidateQueries({ queryKey: ["psa-proposal-blocks", proposal.id] });
     } catch (error) { toast.error(error instanceof Error ? error.message : uiI18n.t("common:error")); }
   };

@@ -523,3 +523,9 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Causa/resultado:** O filtro comparava o enum Projecto com a tradução common:projectTeam (Project team/Equipa Projeto); excluía11 pessoas. Filtro por enum corrigido; leitura autenticada confirma Projeto371090,57€, Backoffice26090,80€, pessoas397181,37€, atelier657181,38€; híbrido9,70FTE preservado. Seleção de snapshots inalterada (8 efetivos Projecto,3 com fallback existente).
 - **Limites:** Nenhuma escrita de dados, salários, históricos, permissões ou numeração. Catálogo/preços apenas investigados; eventual página e divergências de markup aguardam decisão de Luis.
 - **Motivo/relatório:** Idioma não pode alterar os totais; [Causa, validação e categorias](hr-summary-rank-rates-2026-11-13.md).
+
+### D60 — Topo compacto do Proposal Builder
+- **Data/área:** 13/11/2026, autorização de Luis às22:34UTC; CRM/apresentação do construtor.
+- **Decisão:** Duas linhas fixas de56/48px; oportunidade/referência/título editável/cliente e percurso compacto com estado e ações comerciais na primeira; revisão/atualização/modos/zoom/master/exportação na segunda. Remover duplicações e recolher primeiro master/exportação para o menu em larguras menores.
+- **Preservação:** Ações e guardas existentes, textos, valores, planeamento, numeração e propostas reais intactos; verificação autenticada com gravações bloqueadas. B1OFF.
+- **Motivo/relatório:** Recuperar espaço vertical sem perder controlos; [implementação e limites](proposal-builder-top-2026-11-13.md).
