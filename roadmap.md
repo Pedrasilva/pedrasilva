@@ -1,3 +1,7 @@
+## Current request — HR summary and rank rates
+- [x] Fixed stored-enum filter; Luis read-only UI confirms11 Projecto +1 Backoffice and371090,57€/26090,80€,2 regressions and salary tests pass; no payroll/snapshot writes; B1 OFF.
+- [x] Catalog /admin/proposal-roles, collaborator Função comercial, HR-derived costs and per-quote sale overrides reported; consolidated page proposed only. ×2 document fallback and0,02€ catalog Partner cost need separate Luis decision, no pricing changes.
+
 ## Current request — shared proposal layout (Luis, 13 November 2026)
 - [x] Correct top-down flow, headings/list lead-ins, splitting, column rules, Portuguese language and index alignment without proposal writes.
 - [x] Read-only Chiado/Oleiro/Alqueva screen/Preview/PDF checks and before/after counts; record decisions and limitations; B1 OFF.
