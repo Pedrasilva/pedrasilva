@@ -1998,8 +1998,7 @@
 .proposal-print-document [data-page-type="content"] .psa-rich {
   break-inside: auto; page-break-inside: auto; orphans: 2; widows: 2;
 }
-.proposal-print-document p:has(+ ul),
-.proposal-print-document p:has(+ ol) { break-after: avoid; }
+.proposal-print-document [data-list-lead-in="true"] { break-after: avoid; }
 .proposal-print-document table { break-inside: auto; }
 .proposal-print-document .psa-rich table thead { display: table-header-group !important; }
 .proposal-print-document table tr { break-inside: avoid; }
