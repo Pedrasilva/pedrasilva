@@ -311,7 +311,7 @@ export function PaginatedPreview({
           frameDoc.head.appendChild(style);
         }
         await frameDoc.fonts?.ready;
-        await Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]);
+        await Promise.race([Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]),new Promise(resolve=>setTimeout(resolve,8000))]);
         const previewer = new frameWindow.Paged.Previewer();
         const pagedInternals = previewer as unknown as PagedListeners;
         releasePages = () => pagedInternals.chunker?.pages?.forEach((page) => page.removeListeners());
@@ -329,7 +329,7 @@ export function PaginatedPreview({
           try{return Array.from(sheet.cssRules).filter(rule=>rule.type===CSSRule.FONT_FACE_RULE).map(rule=>rule.cssText.replace(/url\(["']?([^"')]+)["']?\)/g,(_match,url:string)=>`url("${new URL(url,sheet.href??document.baseURI).href}")`));}catch{return [];}
         }).join('\n');
         frameDoc.head.appendChild(fontFaces);
-        await Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]);
+        await Promise.race([Promise.all([frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-heading-font')}`),frameDoc.fonts.load(`14px ${fontStyle.getPropertyValue('--psa-body-font')}`)]),new Promise(resolve=>setTimeout(resolve,8000))]);
         if (cancelled) return;
         // Paged.js keeps a ResizeObserver on every generated sheet. Moving the
         // completed sheets out of the staging container otherwise triggers an

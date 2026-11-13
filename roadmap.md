@@ -877,5 +877,6 @@
 - [x] Validate read-only preview/PDF and isolated long HTML continuation; fields visible, persisted edits not exercised on real data; D62 recorded, B1 OFF.
 
 ## Current request — typography autosave
-- [ ] Diagnose and fix live typography, debounced confirmed saves/status/reset/master scope and PDF fonts.
-- [ ] Perform Luis-authorized Chiado body-font-only change/reload/PDF/restore; block all other writes; record results.
+- [x] Diagnose and implement live typography, confirmed autosave/status/reset/master scope and local PDF fonts.
+- [x] Chiado body font persisted/reloaded/Pages verified; original settings restored, other writes blocked; D63 recorded,14 tests passed.
+- [ ] PDF embedding validation remains incomplete: first export used fallback; subsequent export checks stalled. Do not certify selected-font PDF embedding.

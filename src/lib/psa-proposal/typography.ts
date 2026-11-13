@@ -20,7 +20,7 @@ export async function proposalFontAvailable(font: string): Promise<boolean> {
   const family=font.split(',')[0]?.trim().replace(/^['"]|['"]$/g,'');
   if (!family) return false;
   try {
-    const faces=await document.fonts.load(`14px "${family}"`);
+    const faces=await Promise.race([document.fonts.load(`14px "${family}"`),new Promise<FontFace[]>(resolve=>setTimeout(()=>resolve([]),8000))]);
     return faces.length>0;
   } catch { return false; }
 }
