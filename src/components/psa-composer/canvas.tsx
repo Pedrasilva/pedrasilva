@@ -349,6 +349,7 @@ export function ComposerCanvas({
     >
       <div
         className="proposal-print-document proposal-master-document"
+        lang={lang === "pt" ? "pt-PT" : "en"}
         data-master-page={JSON.stringify(master)}
         data-page-types-enabled={styleSettings?.pageTypesEnabled ? "true" : undefined}
         style={styleVars}
