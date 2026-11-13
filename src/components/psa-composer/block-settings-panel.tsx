@@ -131,7 +131,7 @@ export function BlockSettingsPanel({
   // Imported templates can carry a quote id from their source proposal.
   // Only accept a block-level reference when it belongs to this proposal.
   const effectiveQuoteId = sourceRef.quote_id === quoteIdHint ? sourceRef.quote_id : quoteIdHint ?? "";
-  const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null);
+  const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null, 'pt-PT', proposalId);
 
   // Number stages with the WBS/Gantt scheme and sort by that number so the
   // dropdown mirrors the Gantt outline exactly.

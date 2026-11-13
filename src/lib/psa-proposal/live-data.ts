@@ -1274,15 +1274,22 @@ export async function fetchLiveQuoteSnapshot(
 export function useLiveQuoteSnapshot(
   quoteId: string | null | undefined,
   lang: ProposalLang = "pt-PT",
+  documentId?: string,
 ) {
   const frozen = useFrozenQuoteSnapshot(lang);
   const query = useQuery({
-    enabled: !!quoteId && !frozen,
-    queryKey: ["psa-live-quote", quoteId, lang],
+    enabled: (!!quoteId || !!documentId) && !frozen,
+    queryKey: ["psa-live-quote", quoteId, lang, documentId],
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
-    queryFn: () => fetchLiveQuoteSnapshot(quoteId!, lang),
+    queryFn: async () => {
+      const snapshot = await fetchLiveQuoteSnapshot(quoteId ?? '', lang);
+      if (!documentId) return snapshot;
+      const { data, error } = await supabase.rpc('crm_work_document_reference', { _document: documentId });
+      if (error) throw error;
+      return data ? { ...snapshot, projectNumber: data, proposalRevision: 0 } : snapshot;
+    },
   });
   if (frozen) {
     return {

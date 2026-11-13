@@ -1,9 +1,11 @@
 ## Current request — lead / proposal / project numbering
+- [x] D53 final approval: v4+Mint applied to126 records with durable before-images;64 unique identities, QA001–026, next26031; all protected data unchanged within transaction, no deletions. UI alias search and separate lead rollback check passed; B1 OFF.
+- [ ] D53 activation remains OFF: final global check detects subsequent email_events/email_sync_state/intake_source_runs changes; separate temporal verification is required before activation, without replacing backup or weakening guards.
 - [x] D53 round 3: v4 126-record map matches exact 26019–26030 sequence, next26031; ten orphan documents proposed QA-017–026 without aliases; authorized Moradia XXL alone deleted, dependent rows verified absent, D53 recorded; no real renumbering, B1 OFF.
 - [x] Read-only inventory: 31 leads, 41 quotes, 21 projects, 35 documents; current counter 129; options A/B next provisional 26034/26143; D53 and full Markdown/CSV reports. B1 OFF revision 10 confirmed; no writes to real data.
 - [x] D53 additive identity/registry/versions/counters/gate/guarded actions and detail controls prepared, mapped document letters; mirrored 0313–0315. Eight pure tests and seven copied-quote rollback checks pass, original rows unchanged, gate OFF/B1 OFF, zero fixtures.
 - [x] Recalculated 128-row final map: Oleiro26028, Chiado26029, next26030; folder/alias collisions explicitly listed. Final approval requested; no real-record renumbering or relinking.
-- [ ] Wait for Luis's final v4 map approval before activation/backfill; only Mint2678/2680 alternatives/revisions remains an identity decision. Complete mapped UI lifecycle, concurrent/denied-user and conversion verification before certification.
+- [x] Luis final v4+Mint approval received13 November2026; no unresolved identity mapping decisions. Application and verified limits recorded in numbering-application-result-2026-11-13.md.
 
 ## Current request — business letter and Letter master (D51)
 - [x] Read decisions and letter/master code; read-only Oleiro recipient, stages and document scope audit; prepare PT mock-up and plan.

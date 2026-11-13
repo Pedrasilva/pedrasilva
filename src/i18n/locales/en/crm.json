@@ -1,5 +1,6 @@
 {
   "workNumbering": {
+    "search": "Search work number or alias",
     "edit": "Edit work number",
     "restart": "Restart / revive",
     "number": "Work number",

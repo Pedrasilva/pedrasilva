@@ -1,5 +1,6 @@
 {
   "workNumbering": {
+    "search": "Pesquisar número do trabalho ou alias",
     "edit": "Editar número do trabalho",
     "restart": "Retomar / Reativar",
     "number": "Número do trabalho",

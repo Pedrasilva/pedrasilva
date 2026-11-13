@@ -71,6 +71,7 @@ const NON_NUMBERED: PsaBlockType[] = ["cover", "letter", "index", "acceptance", 
 
 function SortableRow({
   block,
+  proposalId,
   chapter,
   toc,
   selected,
@@ -83,6 +84,7 @@ function SortableRow({
   readOnly,
 }: {
   block: PsaProposalBlock;
+  proposalId: string;
   chapter: string | null;
   toc: SectionTocEntry[];
   selected: boolean;
@@ -108,7 +110,7 @@ function SortableRow({
     block.block_type === "index" ||
     block.block_type === "letter" ||
     block.block_type === "travel_expenses";
-  const liveQuery = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang);
+  const liveQuery = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang, useLive ? proposalId : undefined);
   const live = liveQuery.data;
   const liveReady = !useLive || !resolvedQuoteId || (!!live && !liveQuery.isFetching && !liveQuery.isError);
 
@@ -274,7 +276,7 @@ export function ComposerCanvas({
     }
     return null;
   }, [blocks, quoteIdHint]);
-  const liveForToc = useLiveQuoteSnapshot(firstQuoteRef ?? quoteIdHint, lang).data;
+  const liveForToc = useLiveQuoteSnapshot(firstQuoteRef ?? quoteIdHint, lang, proposalId).data;
 
   const { chapterByIndex, toc } = useMemo(() => {
     const tocTitle = (b: PsaProposalBlock) => {
@@ -377,6 +379,7 @@ export function ComposerCanvas({
               {blocks.map((b, i) => (
                 <SortableRow
                   key={b.id}
+                  proposalId={proposalId}
                   block={b}
                   chapter={chapterByIndex[i]}
                   toc={toc}

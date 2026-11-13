@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from '@/lib/toast';
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
-import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useLiveQuoteSnapshot, resolveProposalLang } from "@/lib/psa-proposal/live-data";
 import { RelevanceBadge } from "./relevance-badge";
 import type { PsaProposalBlock, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 
@@ -36,7 +36,7 @@ export function BlockLibraryPanel({
   const proposal = useProposal(proposalId);
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
-  const live = useLiveQuoteSnapshot(quoteIdHint ?? null);
+  const live = useLiveQuoteSnapshot(quoteIdHint ?? null, resolveProposalLang(proposal.data?.language), proposalId);
   const [q, setQ] = useState("");
 
   const items =
