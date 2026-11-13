@@ -866,4 +866,4 @@
 
 ## Current request — compact Proposal Builder
 - [x] Consolidate workflow header and document toolbar, preserve existing actions.
-- [ ] Validate read-only desktop/narrow navigation, menus and modes; record outcome.
+- [x] Validate authenticated read-only desktop/narrow navigation, refresh, status/revision menus and modes; D60 and report recorded.
