@@ -556,7 +556,13 @@
 .proposal-print-document p,
 .proposal-print-document li {
   text-align: var(--psa-body-align);
+  text-align-last: start;
+  word-spacing: normal;
+  letter-spacing: 0;
   hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+  hyphenate-limit-chars: 6 3 3;
 }
 
 .proposal-print-document .proposal-print-block {
@@ -1960,3 +1966,47 @@
 @media screen {
   body:has(.master-dialog[data-state="open"]) .proposal-preview-toolbar { display:none!important; }
 }
+
+/* Shared document flow: stored prose alignment never creates full-height flex
+   fragments. Cover and Letter keep their independent master-page composition. */
+.proposal-print-document .proposal-print-block[data-page-type="content"] {
+  display: block; min-height: 0; height: auto; width: 100%; max-width: 100%;
+  box-sizing: border-box; break-inside: auto; page-break-inside: auto;
+}
+.proposal-print-document .proposal-print-block[data-page-type="content"][data-page-aligned="true"] {
+  break-before: auto; break-after: auto; page-break-before: auto; page-break-after: auto;
+}
+.proposal-print-document .proposal-print-block[data-page-type="content"].proposal-page-break-before { break-before: page; page-break-before: always; }
+.proposal-print-document .proposal-print-block[data-page-type="content"].proposal-page-break-after { break-after: page; page-break-after: always; }
+.proposal-print-document [data-page-type="content"] > *:not(.proposal-anchor) { max-width: 100%; }
+.proposal-print-document [data-heading-level="1"] {
+  box-sizing: border-box; width: 100%; max-width: 100%; margin-inline: 0;
+}
+.proposal-print-document [data-heading-level="1"]::before,
+.proposal-print-document [data-heading-level="1"]::after {
+  max-width: 100%; margin-inline: 0; left: 0; right: 0;
+}
+.proposal-print-document h1,
+.proposal-print-document h2,
+.proposal-print-document h3,
+.proposal-print-document h4,
+.proposal-print-document h5,
+.proposal-print-document h6 { break-after: avoid; break-inside: avoid; }
+.proposal-print-document [data-page-type="content"] ul,
+.proposal-print-document [data-page-type="content"] ol,
+.proposal-print-document [data-page-type="content"] li,
+.proposal-print-document [data-page-type="content"] .psa-rich {
+  break-inside: auto; page-break-inside: auto; orphans: 2; widows: 2;
+}
+.proposal-print-document [data-list-lead-in="true"] { break-after: avoid; }
+.proposal-print-document table { break-inside: auto; }
+.proposal-print-document .psa-rich table thead { display: table-header-group !important; }
+.proposal-print-document table tr { break-inside: avoid; }
+.proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link {
+  display: grid; grid-template-columns: 3.5em minmax(0, 1fr) 2.5em;
+  gap: 0.5em; width: 100%; text-align: start;
+}
+.proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link > :first-child {
+  width: auto; min-width: 0; font-variant-numeric: tabular-nums;
+}
+.proposal-print-document .proposal-toc-page { text-align: end; font-variant-numeric: tabular-nums; }

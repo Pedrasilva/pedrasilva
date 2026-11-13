@@ -70,11 +70,20 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
       .proposal-paged-content { display: flow-root; }
       .proposal-paged-content .proposal-print-block { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
       .proposal-paged-content [data-visible-print="false"] { display: none !important; }
-      .proposal-paged-content [data-keep-with-next="true"] { break-after: avoid; }
-      .proposal-paged-content h1, .proposal-paged-content h2, .proposal-paged-content h3 { break-after: avoid; }
-      .proposal-paged-content [data-keep-with-next="false"] h1,
-      .proposal-paged-content [data-keep-with-next="false"] h2,
-      .proposal-paged-content [data-keep-with-next="false"] h3 { break-after: auto; }
+      /* Keep headings, not a chain of entire multi-page sections. */
+      .proposal-paged-content h1,
+      .proposal-paged-content h2,
+      .proposal-paged-content h3,
+      .proposal-paged-content h4,
+      .proposal-paged-content h5,
+      .proposal-paged-content h6,
+      .proposal-paged-content [data-list-lead-in="true"] { break-after: avoid; }
+      .proposal-paged-content [data-page-type="content"] li,
+      .proposal-paged-content [data-page-type="content"] ul,
+      .proposal-paged-content [data-page-type="content"] ol,
+      .proposal-paged-content [data-page-type="content"] .psa-rich {
+        break-inside: auto; page-break-inside: auto; orphans: 2; widows: 2;
+      }
       .proposal-paged-content thead { display: table-header-group; }
       .proposal-paged-content tbody tr { break-inside: avoid; }
       .proposal-paged-source { width: auto !important; max-width: none !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; }
@@ -84,7 +93,6 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
         orphans: 2;
         widows: 2;
       }
-      .proposal-paged-content li,
       .proposal-paged-content .proposal-avoid-break,
       .proposal-paged-content .proposal-phase-summary-card {
         break-inside: avoid;
@@ -217,6 +225,15 @@ export function PaginatedPreview({
         // Never copy the hidden source state into Paged.js. The clone must be
         // ordinary document flow before the fragmentation engine measures it.
         clone.classList.remove("proposal-pagination-source", "proposal-preview-source");
+        // Render-only normalization: never write legacy alignment back to data.
+        clone.querySelectorAll<HTMLElement>('[data-page-type="content"]').forEach(block => {
+          block.removeAttribute('data-page-aligned');
+          block.removeAttribute('data-page-align-y');
+          block.removeAttribute('data-page-align-x');
+        });
+        clone.querySelectorAll<HTMLElement>('p').forEach(paragraph => {
+          if (paragraph.nextElementSibling?.matches('ul,ol')) paragraph.dataset.listLeadIn='true';
+        });
         clone.querySelectorAll(
           '[data-editor-toolbar="true"], button, .print\\:hidden, [contenteditable="true"] .ProseMirror-menu',
         ).forEach((node) => node.remove());
@@ -268,6 +285,7 @@ export function PaginatedPreview({
 
         const printRoot = document.createElement("div");
         printRoot.className = "proposal-print-area proposal-print-document proposal-paged-source";
+        printRoot.lang = source.lang || "pt-PT";
         printRoot.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
         Object.entries(masterVariables(master)).forEach(([key,value]) => printRoot.style.setProperty(key,value));
         const content = document.createElement("div");
@@ -282,6 +300,7 @@ export function PaginatedPreview({
         const frameWindow = installPagedFrame(frame);
         const frameDoc = frame.contentDocument;
         if (!frameDoc || !frameWindow.Paged) throw new Error("Pagination frame unavailable");
+        frameDoc.documentElement.lang = printRoot.lang;
         const frameTarget = frameDoc.querySelector<HTMLElement>(".proposal-paginated-preview");
         if (!frameTarget) throw new Error("Pagination target unavailable");
         const typed = !!masterNode?.dataset.pageTypesEnabled || !!source.querySelector('[data-letter-version="2"]');
@@ -392,7 +411,7 @@ export function PaginatedPreview({
             }
           }
         });
-        if(typed) frameTarget.querySelectorAll<HTMLAnchorElement>('.proposal-toc-link').forEach(a=>{const n=anchorPages.get(a.hash.slice(1));if(n){const label=frameDoc.createElement('span');label.textContent=String(n);label.className='ml-auto';a.appendChild(label);}});
+        frameTarget.querySelectorAll<HTMLAnchorElement>('.proposal-toc-link').forEach(a=>{const n=anchorPages.get(a.hash.slice(1));if(n){const label=frameDoc.createElement('span');label.textContent=String(n);label.className='proposal-toc-page';a.appendChild(label);}});
         reset.textContent = `
           html,body{margin:0!important;padding:0!important;width:297mm!important;overflow:hidden!important}
           .proposal-paginated-preview{display:block!important}

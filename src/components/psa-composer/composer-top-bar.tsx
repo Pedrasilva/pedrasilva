@@ -356,7 +356,7 @@ export async function printProposalDocument(
     const baseUrl = new URL(".", document.baseURI).href;
     printWindow.document.open();
     printWindow.document.write(
-      `<!doctype html><html><head><meta charset="utf-8"><base href="${escapeHtml(baseUrl)}"><title>${escapeHtml(filename)}</title>${styles}<style>
+      `<!doctype html><html lang="${escapeHtml(pagedDocument?.documentElement.lang || "pt-PT")}"><head><meta charset="utf-8"><base href="${escapeHtml(baseUrl)}"><title>${escapeHtml(filename)}</title>${styles}<style>
         @media print {
           @page { size: A4; margin: 0; }
           @page proposal-export-landscape { size: A4 landscape; margin: 0; }

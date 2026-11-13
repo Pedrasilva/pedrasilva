@@ -508,3 +508,11 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Decisão/resultado:** Substituído exclusivamente o parágrafo reservado da Descrição do Projeto pela redação fornecida, tabela de dois campos (480/1840/435/210 m², total2965 m² a negrito) e indicação de áreas aproximadas pelo promotor. Encontrado/aplicado; tabela confirmada nas Páginas com sessão autenticada e estilo partilhado do documento.
 - **Preservação:** NOTA, listas e todo o HTML fora da substituição idênticos; restantes blocos e dados protegidos iguais dentro da transação. Apenas content_rich e updated_at automático do bloco alterados. Total332050€ semIVA, Rev00Draft, PIP, pagamentos, Gantt, numeração e outras quotes preservados; B1OFF. Primeira tentativa revertida integralmente pelo controlo de updated_at; segunda passou sem alargar exclusões de dados comerciais.
 - **Motivo/evidência:** Completar apenas o espaço reservado autorizado; [relatório](chiado-building-areas-2026-11-13.md), migração0326 espelhada com imagem anterior para recuperação revista.
+
+
+### D58 — Fluxo gráfico partilhado de propostas
+- **Data/área:** 13/11/2026, aprovação de Luis às18:58UTC; apresentação/PDF.
+- **Decisão:** Prosa sempre pelo topo; títulos com início do texto, frase introdutória com lista, viúvas/órfãs mínimas2; longos blocos/listas divisíveis e tabelas por linha com cabeçalhos repetidos. Título limitado à coluna, pt-PT/hifenização/última linha ao início, índice com colunas fixas. Mesmo conjunto paginado para Páginas/Preview/PDF.
+- **Preservação:** Normalização só na apresentação, sem guardar propostas, texto, valores, pagamentos, Gantt, números ou ordem; Capa/Carta e quebras explícitas mantidas. B1 intocado/OFF.
+- **Resultado/motivo:** Chiado36→36, Oleiro37→37, Alqueva32→32 no mesmo conteúdo capturado; contagens físicas PDF e paridade confirmadas. Eliminar conteúdo indevidamente deslocado ao fundo, sem concorrer com as edições de Luis. PDF histórico38 páginas não fornecido; não usado como base idêntica.
+- **Relatório:** [Verificação e limites](proposal-layout-flow-report-2026-11-13.md).
