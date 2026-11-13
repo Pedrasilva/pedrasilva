@@ -18692,6 +18692,10 @@ export type Database = {
         }
         Returns: Json
       }
+      crm_work_apply_d53: {
+        Args: { _actor: string; _map: Json }
+        Returns: Json
+      }
       crm_work_can_read: { Args: { _work: string }; Returns: boolean }
       crm_work_document_reference: {
         Args: { _document: string }
