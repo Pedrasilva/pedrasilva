@@ -18693,6 +18693,10 @@ export type Database = {
         Returns: Json
       }
       crm_work_activate_d53: { Args: { _actor: string }; Returns: Json }
+      crm_work_alias_match: {
+        Args: { _query: string; _work: string }
+        Returns: boolean
+      }
       crm_work_apply_d53: {
         Args: { _actor: string; _map: Json }
         Returns: Json
@@ -18734,6 +18738,15 @@ export type Database = {
           _year: number
         }
         Returns: string
+      }
+      crm_work_search: {
+        Args: { _query: string }
+        Returns: {
+          kind: string
+          name: string
+          record_id: string
+          reference: string
+        }[]
       }
       crm_work_view: { Args: { _kind: string; _record: string }; Returns: Json }
       current_finance_entity: { Args: never; Returns: string }
