@@ -29,6 +29,13 @@ export function letterParagraphHtml(source: string, plain = false): string {
   }
   if (plain || !getElementsByTagName('p', document.children, true).length) {
     if (plain) return normalizeProposalHtml(escaped.split('\n').filter(s => s.trim()).map(s => `<p>${s}</p>`).join(''));
+    if (!getElementsByTagName(name => ['ul','ol','table','div','section','h1','h2','h3'].includes(name), document.children, true).length) {
+      const parts=[''];
+      for (const child of document.children) {
+        const pieces=lines(child); parts[parts.length-1]+=pieces[0]??''; parts.push(...pieces.slice(1));
+      }
+      return normalizeProposalHtml(parts.map(piece=>`<p>${piece}</p>`).join(''));
+    }
   }
   for (const paragraph of getElementsByTagName('p', document.children, true)) {
     const pieces = [''];

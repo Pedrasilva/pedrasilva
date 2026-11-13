@@ -1973,6 +1973,9 @@
   display: block; min-height: 0; height: auto; width: 100%; max-width: 100%;
   box-sizing: border-box; break-inside: auto; page-break-inside: auto;
 }
+.proposal-print-document .proposal-print-block[data-page-type="letter"] {
+  display:block; width:100%; min-height:0; height:auto; break-inside:auto;
+}
 .proposal-print-document .proposal-print-block[data-page-type="content"][data-page-aligned="true"] {
   break-before: auto; break-after: auto; page-break-before: auto; page-break-after: auto;
 }
