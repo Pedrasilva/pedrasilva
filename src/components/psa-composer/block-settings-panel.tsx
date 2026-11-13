@@ -730,7 +730,7 @@ export function BlockSettingsPanel({
 
       {block.block_type==='cover'&&<div className="space-y-2"><Label>{uiI18n.t('common:name')}</Label><Input value={String(block.content_rich.cover_title??liveQuery.data?.projectName??'')} onChange={e=>update.mutate({id:block.id,patch:{content_rich:{...block.content_rich,cover_title:e.target.value}}})}/></div>}
       {block.block_type==='letter'&&<LetterControls proposal={proposal} block={block} live={liveQuery.data}/>}
-      {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
+      {supportsRich && block.block_type !== "letter" && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
           <Label className="text-xs"> {uiI18n.t("common:content")} </Label>
           <RichTextEditor
@@ -744,7 +744,7 @@ export function BlockSettingsPanel({
               })
             }
             placeholder={uiI18n.t("crm:quoteEditor.writeBlockHint")}
-            tokenEntries={block.block_type==='letter'?LETTER_TOKENS.map(token=>({token,label:token,group:'Projecto' as const})):buildTokenPickerEntries(liveQuery.data)}
+            tokenEntries={buildTokenPickerEntries(liveQuery.data)}
           />
           <p className="text-[10px] text-zinc-500">
              {uiI18n.t("crm:quoteEditor.richTextHint")} {" "}

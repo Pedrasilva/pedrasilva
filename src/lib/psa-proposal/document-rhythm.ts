@@ -7,6 +7,56 @@ function isTag(node: HtmlElement["children"][number]): node is HtmlElement {
   return "name" in node && "attribs" in node;
 }
 
+/** Split source line breaks into paragraphs while preserving inline formatting. */
+export function letterParagraphHtml(source: string, plain = false): string {
+  const escaped = plain ? source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : source;
+  const document = parseDocument(escaped.replace(/\r\n?/g, "\n"));
+  function lines(node: HtmlElement["children"][number]): string[] {
+    if (node.type === 'text') return node.data.split('\n').map(s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+    if (!isTag(node)) return [render(node)];
+    if (node.name === 'br') return ['', ''];
+    const parts = [''];
+    for (const child of node.children) {
+      const pieces = lines(child);
+      parts[parts.length - 1] += pieces[0] ?? '';
+      parts.push(...pieces.slice(1));
+    }
+    return parts.map(part => {
+      const copy = node.cloneNode(false);
+      const shell = render(copy);
+      return shell.replace(`</${node.name}>`, `${part}</${node.name}>`);
+    });
+  }
+  if (plain || !getElementsByTagName('p', document.children, true).length) {
+    if (plain) return normalizeProposalHtml(escaped.split('\n').filter(s => s.trim()).map(s => `<p>${s}</p>`).join(''));
+    if (!getElementsByTagName(name => ['ul','ol','table','div','section','h1','h2','h3'].includes(name), document.children, true).length) {
+      const parts=[''];
+      for (const child of document.children) {
+        const pieces=lines(child); parts[parts.length-1]+=pieces[0]??''; parts.push(...pieces.slice(1));
+      }
+      return normalizeProposalHtml(parts.map(piece=>`<p>${piece}</p>`).join(''));
+    }
+  }
+  for (const paragraph of getElementsByTagName('p', document.children, true)) {
+    const pieces = [''];
+    for (const child of paragraph.children) {
+      const fragments = lines(child);
+      pieces[pieces.length - 1] += fragments[0] ?? '';
+      pieces.push(...fragments.slice(1));
+    }
+    if (pieces.length > 1) {
+      const replacement = parseDocument(pieces.map(piece => `<p>${piece}</p>`).join('')).children;
+      const parent = paragraph.parent;
+      if (parent && 'children' in parent) {
+        const index = parent.children.indexOf(paragraph);
+        parent.children.splice(index, 1, ...replacement);
+        replacement.forEach(node => { node.parent = parent; });
+      }
+    }
+  }
+  return normalizeProposalHtml(render(document));
+}
+
 /** Presentation only: never pass this result to an editor save or snapshot. */
 export function normalizeProposalHtml(html: string): string {
   const document = parseDocument(html);

@@ -1,7 +1,7 @@
 import type { LiveQuoteSnapshot, ProposalLang } from './live-data';
 import { formatCurrencyEUR, formatDatePT } from './live-data';
 import type { PsaProposal } from './types';
-import { letterProgramme } from './letter-fields';
+import { letterProgramme, letterSignoff, type LetterFields } from './letter-fields';
 import signatureAsset from '@/assets/luis-pedra-silva-signature.jpg.asset.json';
 export interface LetterSettings { templates: Record<string,string>; signatoryName: string; signatureData?: string | null }
 export const DEFAULT_LETTER_SETTINGS: LetterSettings = {
@@ -11,6 +11,24 @@ export const DEFAULT_LETTER_SETTINGS: LetterSettings = {
   },
 };
 export const LETTER_TOKENS = ['client_name','contact_salutation','project_name','total_fee','stage_count','estimated_duration','proposal_number','proposal_date'] as const;
+/** Resolve editable legacy defaults without saving or replacing deliberately empty fields. */
+export function resolveLetterFields(saved: Partial<LetterFields> | undefined, settings: LetterSettings, live: LiveQuoteSnapshot | undefined, proposal: Pick<PsaProposal,'client_snapshot'|'title'|'language'|'created_at'>): LetterFields {
+  const map = letterTokenMap(live, proposal);
+  const client = proposal.client_snapshot ?? {};
+  const lang = proposal.language === 'en' ? 'en' : 'pt-PT';
+  return {
+    recipientCompany: map.client_name === '—' ? '' : map.client_name,
+    recipientContact: String(client.contact_name ?? ''),
+    recipientAddress: String(client.address ?? client.morada ?? ''),
+    recipientPostalCode: String(client.postal_code ?? ''), recipientCity: String(client.city ?? ''),
+    sender: '', place: '', date: (live?.date ?? proposal.created_at).slice(0, 10),
+    subject: '', salutation: map.contact_salutation === '—' ? (lang === 'en' ? 'Dear Sirs,' : 'Exmos. Senhores,') : map.contact_salutation,
+    closing: letterSignoff(lang), signatoryName: settings.signatoryName,
+    signatoryRole: lang === 'en' ? 'Architect — Pedra Silva Arquitectos' : 'Arquitecto — Pedra Silva Arquitectos',
+    signatureData: settings.signatureData ?? '',
+    ...saved,
+  };
+}
 export function letterTokenMap(live: LiveQuoteSnapshot | undefined, proposal: Pick<PsaProposal,'client_snapshot'|'title'|'language'|'created_at'>): Record<string,string> {
   const lang: ProposalLang = proposal.language === 'en' ? 'en' : 'pt-PT';
   const programme = letterProgramme(live?.stages ?? []);

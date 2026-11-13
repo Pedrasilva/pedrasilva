@@ -1973,6 +1973,9 @@
   display: block; min-height: 0; height: auto; width: 100%; max-width: 100%;
   box-sizing: border-box; break-inside: auto; page-break-inside: auto;
 }
+.proposal-print-document .proposal-print-block[data-page-type="letter"] {
+  display:block; width:100%; min-height:0; height:auto; break-inside:auto;
+}
 .proposal-print-document .proposal-print-block[data-page-type="content"][data-page-aligned="true"] {
   break-before: auto; break-after: auto; page-break-before: auto; page-break-after: auto;
 }
@@ -2026,6 +2029,7 @@
   --psa-table-rule: 0.5pt;
   --psa-table-inset: 0.5em;
   --psa-note-scale: 0.85;
+  --psa-letter-date-gap: calc(var(--psa-body-line) * 1.333333333);
   --psa-document-muted: #555;
   --psa-document-rule: #b8b8b8;
   line-height: var(--psa-body-leading);

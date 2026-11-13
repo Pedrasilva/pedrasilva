@@ -7,6 +7,7 @@ export type LetterFields = {
   recipientCompany: string; recipientContact: string; recipientAddress: string;
   recipientPostalCode: string; recipientCity: string; sender: string;
   place: string; date: string; subject: string; salutation: string; signatoryRole: string;
+  closing?: string; signatoryName?: string; signatureData?: string;
 };
 export type LetterSources = {
   company?: { nome?: string | null; morada?: string | null; postal_code?: string | null; city?: string | null } | null;

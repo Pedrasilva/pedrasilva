@@ -24,6 +24,9 @@
       "date": "Letter date",
       "subject": "Subject",
       "salutation": "Salutation",
+      "closing": "Closing",
+      "signatureData": "Signature image URL",
+      "signatoryName": "Signatory name",
       "signatoryRole": "Signatory title"
     },
     "adoptLayout": "Use business letter layout",
