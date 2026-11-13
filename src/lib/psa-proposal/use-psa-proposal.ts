@@ -175,7 +175,7 @@ export function useUpdateProposal(id: string | undefined) {
   return useMutation({
     mutationFn: async (patch: Partial<PsaProposal>) => {
       if (!id) throw new Error("No proposal id");
-      const { error } = await sb.from("psa_proposals").update(patch).eq("id", id);
+      const { error } = await sb.from("psa_proposals").update(patch).eq("id", id).select('id').single();
       if (error) throw error;
     },
     onSuccess: () => {
