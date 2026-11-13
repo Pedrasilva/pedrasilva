@@ -873,5 +873,5 @@
 - [x] Verify authenticated read-only Chiado render and 35-page PDF parity, 11 tests; preserve proposal data and B1 OFF; D61/report recorded.
 
 ## Current request — letter master parity
-- [ ] Share content master/header/typography; editable optional fields and rich body; allow letter continuation.
-- [ ] Validate read-only preview/PDF and isolated field edits; record decision and preserve real data/B1 OFF.
+- [x] Share content master/header/typography; editable optional fields and rich body; allow letter continuation.
+- [x] Validate read-only preview/PDF and isolated long HTML continuation; fields visible, persisted edits not exercised on real data; D62 recorded, B1 OFF.
