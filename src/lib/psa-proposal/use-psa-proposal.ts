@@ -136,6 +136,13 @@ export function useCreateProposal() {
         .select("*")
         .order("sort_hint", { ascending: true });
       if (libErr) throw libErr;
+      const {data:masterDefault}=await sb.from('psa_master_page_defaults').select('template').eq('id',true).maybeSingle();
+      if(masterDefault?.template?.typography){
+        const style_settings={...masterDefault.template.typography,...proposal.style_settings};
+        const {error:styleError}=await sb.from('psa_proposals').update({style_settings}).eq('id',proposal.id).select('id').single();
+        if(styleError)throw styleError;
+        proposal.style_settings=style_settings;
+      }
       const storedSettings = proposal.style_settings.letterSettings ?? DEFAULT_LETTER_SETTINGS;
       const settings = {...storedSettings,signatureData:storedSettings.signatureData??DEFAULT_LETTER_SETTINGS.signatureData};
       const editorialDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -175,7 +182,7 @@ export function useUpdateProposal(id: string | undefined) {
   return useMutation({
     mutationFn: async (patch: Partial<PsaProposal>) => {
       if (!id) throw new Error("No proposal id");
-      const { error } = await sb.from("psa_proposals").update(patch).eq("id", id);
+      const { error } = await sb.from("psa_proposals").update(patch).eq("id", id).select('id').single();
       if (error) throw error;
     },
     onSuccess: () => {

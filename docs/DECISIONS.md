@@ -542,3 +542,9 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Substitui parcialmente D51:** deixa de exigir uma única página rígida ou bloquear exportação por continuação; uma página quando cabe, continua normalmente quando necessário. Overrides antigos de geometria da Carta permanecem guardados, mas deixam de controlar a apresentação.
 - **Preservação:** Nenhuma escrita em propostas, valores, revisões ou snapshots; B1 intocado/OFF.
 - **Validação/limites:** Chiado Carta1 página; documento/PDF35 páginas. Logo e coluna geometricamente idênticos às páginas normais; corpo14px/linha21px/espaço10,5px; data28px abaixo. Teste HTML isolado longo produziu3 páginas/3 cabeçalhos e último parágrafo presente. Campos visíveis, guardas de bloqueio preservadas; gravação de campos não exercida para não modificar a proposta real. [Relatório](letter-master-parity-2026-11-13.md).
+
+### D63 — Tipografia com gravação confirmada
+- **Data/área:** 13/11/2026, pedido de Luis às23:18UTC; apresentação.
+- **Diagnóstico:** Seleção emitia PATCH e atualizava cache, mas erros eram engolidos e UPDATE não confirmava linha alterada. Tipografia predefinida mostrada no painel não era aplicada integralmente quando ausente no JSON; folhas de fontes externas não eram legíveis pelo coletor PDF. Primeiro PDF de Inter incorporou LiberationSans, não Inter.
+- **Alterações:** Estado local, debounce500ms, fila de gravações, indicador Saving/Saved/erro, retorno confirmado, reposição PSA, âmbito proposta/predefinição explícito, fontes locais e cópia intacta de font-face para exportação; aviso quando fonte indisponível.
+- **Validação/limites:** Chiado Inter guardado/recarregado/Páginas confirmado; fonte e restante JSON originais restaurados.14 testes e auditoria i18n aprovados. PDF Inter incorporado não certificado: tentativas finais de exportação não concluíram; não publicar esta capacidade como validada. B1 intocado/OFF; outras escritas bloqueadas.

@@ -44,6 +44,7 @@ import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 import { resolveMaster, masterVariables, pageVariant } from '@/lib/psa-proposal/master-page';
+import { typographyVariables } from '@/lib/psa-proposal/typography';
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
 const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
@@ -332,13 +333,7 @@ export function ComposerCanvas({
   const headerWebsite = master.contact.website;
   const footerAddress = master.footer.address;
 
-  const styleVars: React.CSSProperties = masterVariables(firstMaster);
-  if (styleSettings?.headingFont) (styleVars as Record<string, string>)["--psa-heading-font"] = styleSettings.headingFont;
-  if (styleSettings?.bodyFont) (styleVars as Record<string, string>)["--psa-body-font"] = styleSettings.bodyFont;
-  if (styleSettings?.headingWeight) (styleVars as Record<string, string>)["--psa-heading-weight"] = String(styleSettings.headingWeight);
-  if (styleSettings?.bodyAlign) (styleVars as Record<string, string>)["--psa-body-align"] = styleSettings.bodyAlign;
-  if (styleSettings?.bodySize) (styleVars as Record<string, string>)["--psa-body-size"] = `${styleSettings.bodySize}pt`;
-  if (styleSettings?.headingScale) (styleVars as Record<string, string>)["--psa-heading-scale"] = String(styleSettings.headingScale);
+  const styleVars: React.CSSProperties = {...masterVariables(firstMaster),...typographyVariables({...master.typography,...styleSettings})};
 
   return (
     <div
