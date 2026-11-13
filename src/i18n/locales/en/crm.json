@@ -2478,6 +2478,10 @@
     "confirm": "Confirm replacement and import"
   },
   "builderHeader": {
+    "downloadPdf": "Download PDF",
+    "estimate": "Estimate",
+    "content": "Proposal",
+    "publish": "Sign & Convert",
     "opportunity": "Opportunity",
     "rename": "Rename proposal",
     "refresh": "Refresh from estimate",

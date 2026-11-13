@@ -210,7 +210,7 @@ export function ComposerTopBar({
               <DropdownMenuItem onSelect={() => {
                 const printWindow = window.open("", "_blank");
                 if (printWindow) void printProposalDocument(proposal, printWindow, { loading: t("proposalComposer.pagination.pdfLoading"), error: t("proposalComposer.pagination.pdfError") }, buildProposalFilename(proposal, revMeta));
-              }}><FileDown className="mr-2 h-3.5 w-3.5" />{uiI18n.t("common:download")} {"· PDF"}</DropdownMenuItem>
+              }}><FileDown className="mr-2 h-3.5 w-3.5" />{uiI18n.t("crm:builderHeader.downloadPdf")}</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => downloadAsWord(buildProposalFilename(proposal, revMeta))}><FileText className="mr-2 h-3.5 w-3.5" />{uiI18n.t("crm:quoteEditor.wordDoc")}</DropdownMenuItem>
               <DropdownMenuSeparator />
             </div>

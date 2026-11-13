@@ -2478,6 +2478,10 @@
     "confirm": "Confirmar substituição e importar"
   },
   "builderHeader": {
+    "downloadPdf": "Descarregar PDF",
+    "estimate": "Estimativa",
+    "content": "Proposta",
+    "publish": "Assinar e converter",
     "opportunity": "Oportunidade",
     "rename": "Renomear proposta",
     "refresh": "Atualizar da estimativa",

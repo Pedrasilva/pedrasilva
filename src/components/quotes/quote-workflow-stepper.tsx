@@ -40,7 +40,7 @@ export function QuoteWorkflowStepper({
             <Button variant="ghost" size="sm" onClick={() => onChange(s)} aria-current={s === step ? "step" : undefined}
               className={cn("gap-1.5 whitespace-nowrap px-2", s === step ? "text-foreground font-semibold" : "text-muted-foreground")}>
               {s === step ? <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" /> : completion[s] ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-primary" /> : <span aria-hidden="true" className="h-2 w-2 rounded-full border border-muted-foreground" />}
-              {t(`workspace.stepper.${s}.title`)}
+              {t(`builderHeader.${s}`)}
             </Button>
           </li>
         ))}
