@@ -18692,6 +18692,7 @@ export type Database = {
         }
         Returns: Json
       }
+      crm_work_activate_d53: { Args: { _actor: string }; Returns: Json }
       crm_work_apply_d53: {
         Args: { _actor: string; _map: Json }
         Returns: Json

@@ -2227,6 +2227,13 @@
       "when": 1794561732442,
       "tag": "0317_d53_atomic_mapping_action",
       "breakpoints": true
+    },
+    {
+      "idx": 318,
+      "version": "7",
+      "when": 1794561889182,
+      "tag": "0318_d53_verified_activation",
+      "breakpoints": true
     }
   ]
 }
