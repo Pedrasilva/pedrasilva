@@ -36,7 +36,7 @@ export function useTimelineHeader(origin: Date, days: number, dayWidth: number, 
       }
       return out;
     };
-    return { top: cells(density.top), bottom: cells(density.bottom), ...density };
+    return { top: cells(density.top), bottom: cells(density.bottom), topUnit: density.top, bottomUnit: density.bottom };
   }, [origin, days, dayWidth, relative, locale, t]);
 }
 
@@ -50,7 +50,7 @@ export function TimelineHeader({ model, dayWidth, origin, relative, milestones =
   const clusters = clusterTimelineMarkers(milestones.map(item => ({ ...item, x: differenceInCalendarDays(new Date(item.date), origin) * dayWidth })).filter(item => item.x >= 0 && item.x <= total));
   return <div data-timeline-header data-pixels-per-week={dayWidth * 7} className="sticky top-0 z-20 border-b border-border bg-background">
     {([model.top, model.bottom] as Cell[][]).map((cells, row) => <div key={row} data-timeline-band={row} className="relative flex h-7 border-b border-border/40">
-      <span className="pointer-events-none absolute left-1 top-0 z-10 bg-background px-1 text-[9px] leading-3 text-muted-foreground">{t(`common:${row === 0 ? model.top : model.bottom}`)}</span>
+      <span className="pointer-events-none absolute left-1 top-0 z-10 bg-background px-1 text-[9px] leading-3 text-muted-foreground">{t(`common:${row === 0 ? model.topUnit : model.bottomUnit}`)}</span>
       {cells.map(cell => <div key={cell.start} title={cell.title} onClick={() => setSelected(cell.week)} className={`flex shrink-0 items-center justify-center overflow-hidden whitespace-nowrap border-l border-border/40 pt-2 text-[10px] tabular-nums ${row === 0 ? 'font-semibold text-foreground' : selected === cell.week || current === cell.week ? 'bg-primary/15 font-semibold text-primary' : 'text-muted-foreground'}`} style={{ width: cell.days * dayWidth }}>{cell.label}</div>)}
     </div>)}
     {milestones.length > 0 && <div data-timeline-milestones className="relative h-8 bg-muted/30">

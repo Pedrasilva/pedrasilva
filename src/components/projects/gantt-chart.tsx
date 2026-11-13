@@ -4,7 +4,7 @@ import { marginPercentage, marginLabel } from '@/lib/projects/financial-calculat
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
+import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { NO_HOLIDAYS, allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
@@ -31,6 +31,7 @@ import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import {dependencySlack,scheduleCalendar,RELATIVE_ORIGIN} from "@/lib/projects/schedule-engine";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { TimelineHeader, useTimelineHeader } from "@/components/planner/timeline-header";
 import { GanttOutlineColumn, type GanttHierarchyNode } from "@/components/projects/gantt-outline-column";
 
 export type { GanttHierarchyNode };
@@ -372,48 +373,7 @@ export function GanttChart({
     return out;
   }, [origin, totalDays, dateLocale]);
 
-  // Aggregate cells for adaptive header bands (quarters + years).
-  const quarters = useMemo(() => {
-    const out: { label: string; days: number; startIdx: number }[] = [];
-    for (let i = 0; i < totalDays; ) {
-      const d = addDays(origin, i);
-      const q = Math.floor(d.getMonth() / 3) + 1;
-      const y = d.getFullYear();
-      let span = 0;
-      while (i + span < totalDays) {
-        const dd = addDays(origin, i + span);
-        if (Math.floor(dd.getMonth() / 3) + 1 !== q || dd.getFullYear() !== y) break;
-        span++;
-      }
-      out.push({ label: `Q${q} ${y}`, days: span, startIdx: i });
-      i += span;
-    }
-    return out;
-  }, [origin, totalDays]);
-
-  const years = useMemo(() => {
-    const out: { label: string; days: number; startIdx: number }[] = [];
-    for (let i = 0; i < totalDays; ) {
-      const d = addDays(origin, i);
-      const y = d.getFullYear();
-      let span = 0;
-      while (i + span < totalDays) {
-        if (addDays(origin, i + span).getFullYear() !== y) break;
-        span++;
-      }
-      out.push({ label: `${y}`, days: span, startIdx: i });
-      i += span;
-    }
-    return out;
-  }, [origin, totalDays]);
-
-  // Adaptive tiered header:
-  //  - dayWidth >= 14: [Month YYYY] top, [day-of-month] bottom
-  //  - 5 <= dayWidth < 14: [Quarter YYYY] top, [MMM abbrev] bottom
-  //  - 2 <= dayWidth < 5: [Year] top, [Quarter] bottom
-  //  - dayWidth < 2: [Year] only
-  const headerTier: "monthDay" | "quarterMonth" | "yearQuarter" | "yearOnly" =
-    dayWidth >= 14 ? "monthDay" : dayWidth >= 5 ? "quarterMonth" : dayWidth >= 2 ? "yearQuarter" : "yearOnly";
+  const timelineHeader = useTimelineHeader(origin, totalDays, dayWidth, relative);
 
   const today = new Date();
   const todayX = differenceInCalendarDays(today, origin) * dayWidth;
@@ -806,8 +766,7 @@ export function GanttChart({
   }
 
   // Header band heights — top tier (h-7 = 28) + bottom tier when present.
-  const bottomBandH = headerTier === "monthDay" ? 36 : headerTier === "yearOnly" ? 0 : 20;
-  const headerHeight = 28 + bottomBandH;
+  const headerHeight = 56;
   const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
 
   // Dependency labels for the WBS "Dep." column: "<predWbs>FS+2d".
@@ -936,199 +895,11 @@ export function GanttChart({
         commitLinkDrag();
       }}
     >
-      <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        {(() => {
-          // Top tier cells (aggregated) — always readable, never crammed.
-          const relativeGroups = Array.from({length:Math.ceil(totalDays/28)},(_,i)=>({label:t("gantt.relative.month",{number:i+1}),days:Math.min(28,totalDays-i*28),startIdx:i*28,title:t("gantt.relative.monthHint")}));
-          const topCells = relative ? relativeGroups :
-            headerTier === "monthDay"
-              ? months.map((m) => {
-                  const d = addDays(origin, m.startIdx);
-                  const cellW = m.days * dayWidth;
-                  const label =
-                    cellW >= 110
-                      ? format(d, "MMMM yyyy", { locale: dateLocale })
-                      : cellW >= 70
-                      ? format(d, "MMM yyyy", { locale: dateLocale })
-                      : cellW >= 44
-                      ? format(d, "MMM ''yy", { locale: dateLocale })
-                      : format(d, "MMM", { locale: dateLocale });
-                  return { label, days: m.days, startIdx: m.startIdx, title: format(d, "MMMM yyyy", { locale: dateLocale }) };
-                })
-              : headerTier === "quarterMonth"
-              ? quarters.map((q) => ({ label: q.label, days: q.days, startIdx: q.startIdx, title: q.label }))
-              : years.map((y) => ({ label: y.label, days: y.days, startIdx: y.startIdx, title: y.label }));
-          return (
-            <div className="flex h-7 items-stretch border-b border-border/60">
-              {topCells.map((c, i) => {
-                const cellW = c.days * dayWidth;
-                return (
-                  <div
-                    key={i}
-                    className="flex items-center justify-center border-l border-border/40 px-1 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 overflow-hidden whitespace-nowrap"
-                    style={{
-                      width: cellW,
-                      minWidth: cellW,
-                      backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
-                    }}
-                    title={c.title}
-                  >
-                    {cellW >= 20 ? c.label : ""}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-        {relative && <div className="flex h-9">{Array.from({length:Math.ceil(totalDays/7)},(_,i)=><div key={i} className="flex items-center justify-center border-l border-border text-[10px] text-muted-foreground" style={{width:Math.min(7,totalDays-i*7)*dayWidth,minWidth:Math.min(7,totalDays-i*7)*dayWidth}}>{t("gantt.relative.week",{number:i+1})}</div>)}</div>}
-        {!relative && headerTier === "monthDay" && (
-          <div className="flex h-9">
-            {Array.from({ length: totalDays }).map((_, i) => {
-              const d = addDays(origin, i);
-              const isWeek = isWeekend(d);
-              const iso = format(d, "yyyy-MM-dd");
-              const isHol = holidaySet?.has(iso) ?? false;
-              const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
-              const isToday = differenceInCalendarDays(d, today) === 0;
-              const weekday = format(d, "EEEEE", { locale: dateLocale });
-              return (
-                <div
-                  key={i}
-                  className={`relative flex flex-col items-center justify-center gap-0 leading-none ${
-                    isHol
-                      ? "bg-muted-foreground/25 text-muted-foreground/70"
-                      : isWeek
-                        ? "bg-muted/40 text-muted-foreground/60"
-                        : "text-muted-foreground"
-                  } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
-                  style={{ width: dayWidth, minWidth: dayWidth }}
-                  title={isHol ? i18n.t("projects:ganttChart.ui.holidayLabel", { value1: iso }) : undefined}
-                >
-                  <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
-                  <span
-                    className={`mt-0.5 font-mono text-[11px] ${
-                      isToday
-                        ? "flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
-                        : ""
-                    }`}
-                  >
-                    {d.getDate()}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        {!relative && headerTier === "quarterMonth" && (
-          <div className="flex h-5">
-            {months.map((m, i) => {
-              const cellW = m.days * dayWidth;
-              const d = addDays(origin, m.startIdx);
-              const label =
-                cellW >= 40
-                  ? format(d, "MMM", { locale: dateLocale })
-                  : cellW >= 18
-                  ? format(d, "MMM", { locale: dateLocale }).slice(0, 3)
-                  : cellW >= 10
-                  ? format(d, "M", { locale: dateLocale })
-                  : "";
-              return (
-                <div
-                  key={i}
-                  className="flex items-center justify-center border-l border-border/30 text-[9px] uppercase text-muted-foreground overflow-hidden whitespace-nowrap"
-                  style={{ width: cellW, minWidth: cellW }}
-                  title={format(d, "MMMM yyyy", { locale: dateLocale })}
-                >
-                  {label}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        {!relative && headerTier === "yearQuarter" && (
-          <div className="flex h-5">
-            {quarters.map((q, i) => {
-              const cellW = q.days * dayWidth;
-              return (
-                <div
-                  key={i}
-                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground overflow-hidden whitespace-nowrap"
-                  style={{ width: cellW, minWidth: cellW }}
-                  title={q.label}
-                >
-                  {cellW >= 24 ? q.label.split(" ")[0] : ""}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        {!relative && todayInRange && (
-          <div
-            className="pointer-events-none absolute bottom-0 z-10 h-full w-px bg-primary/60"
-            style={{ left: todayX }}
-          />
-        )}
-      </div>
+      <TimelineHeader model={timelineHeader} dayWidth={dayWidth} origin={origin} relative={relative} milestones={milestones} financials={adapter.mode === 'quote' || !!showFinancials} />
 
-      {milestones && milestones.length > 0 && (
-        <div className="relative h-8 border-b border-border/40 bg-background/40">
-          <div className="absolute left-1 top-1/2 -translate-y-1/2 rounded-sm bg-muted px-1.5 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
-            {t("gantt.milestones.laneLabel", { defaultValue: "Payments" })}
-          </div>
-          {milestones.map((m) => {
-            const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
-            if (x < 0 || x > totalDays * dayWidth) return null;
-            const color =
-              m.status === "paid"
-                ? "bg-emerald-600"
-                : m.status === "invoiced"
-                  ? "bg-amber-500"
-                  : "bg-foreground/70";
-            return (
-              <TooltipProvider key={m.id} delayDuration={120}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-                      style={{ left: x }}
-                    >
-                      <div
-                        className={`h-3 w-3 rotate-45 ${color} shadow ring-2 ring-background`}
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    <div className="font-semibold">{m.label}</div>
-                    <div className="font-mono">
-                      {(adapter?.mode === 'quote' || showFinancials) && <>{euros(m.amount)} ·{" "}</>}
-                      {format(parseISO(m.date), "d MMM yyyy", { locale: dateLocale })}
-                    </div>
-                    {m.status && (
-                      <div className="capitalize text-muted-foreground">{m.status}</div>
-                    )}
-                    {m.note && (
-                      <div className="mt-1 max-w-xs text-muted-foreground">{m.note}</div>
-                    )}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-        </div>
-      )}
-
-      <div ref={canvasRef} className="relative gantt-canvas-bg gantt-week-marker" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
-        {months.map((m, i) => (
-          <div
-            key={`mb-${i}`}
-            className="pointer-events-none absolute top-0 h-full"
-            style={{
-              left: m.startIdx * dayWidth,
-              width: m.days * dayWidth,
-              backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.05)" : "oklch(0 0 0 / 0.01)",
-            }}
-          />
-        ))}
+      <div ref={canvasRef} className="relative" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
+        {timelineHeader.top.map(cell => <div key={`major-${cell.start}`} className="pointer-events-none absolute top-0 h-full border-l border-canvas-line-strong" style={{ left: cell.start * dayWidth }} />)}
+        {timelineHeader.bottom.filter(cell => cell.days * dayWidth >= 8).map(cell => <div key={`minor-${cell.start}`} className="pointer-events-none absolute top-0 h-full border-l border-border/30" style={{ left: cell.start * dayWidth }} />)}
         {milestones?.map((m) => {
           const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
           if (x < 0 || x > totalDays * dayWidth) return null;
