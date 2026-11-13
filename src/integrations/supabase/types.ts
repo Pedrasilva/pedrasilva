@@ -18739,6 +18739,7 @@ export type Database = {
         }
         Returns: string
       }
+      crm_work_rollback_d53: { Args: { _actor: string }; Returns: Json }
       crm_work_search: {
         Args: { _query: string }
         Returns: {
