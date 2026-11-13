@@ -516,3 +516,10 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Preservação:** Normalização só na apresentação, sem guardar propostas, texto, valores, pagamentos, Gantt, números ou ordem; Capa/Carta e quebras explícitas mantidas. B1 intocado/OFF.
 - **Resultado/motivo:** Chiado36→36, Oleiro37→37, Alqueva32→32 no mesmo conteúdo capturado; contagens físicas PDF e paridade confirmadas. Eliminar conteúdo indevidamente deslocado ao fundo, sem concorrer com as edições de Luis. PDF histórico38 páginas não fornecido; não usado como base idêntica.
 - **Relatório:** [Verificação e limites](proposal-layout-flow-report-2026-11-13.md).
+
+### D59 — Resumo HR e investigação de categorias/valores horários
+- **Data/área:** 13/11/2026, pedido de Luis às19:21UTC; HR/compensação.
+- **Decisão:** Corrigir o resumo Geral para incluir Backoffice e todos os colaboradores do departamento Projecto, preservando salários, snapshots e cálculos; B1 OFF. Investigar categorias, atribuições individuais e valores horários; apresentar proposta de consolidação sem construir nova página ou alterar preços.
+- **Causa/resultado:** O filtro comparava o enum Projecto com a tradução common:projectTeam (Project team/Equipa Projeto); excluía11 pessoas. Filtro por enum corrigido; leitura autenticada confirma Projeto371090,57€, Backoffice26090,80€, pessoas397181,37€, atelier657181,38€; híbrido9,70FTE preservado. Seleção de snapshots inalterada (8 efetivos Projecto,3 com fallback existente).
+- **Limites:** Nenhuma escrita de dados, salários, históricos, permissões ou numeração. Catálogo/preços apenas investigados; eventual página e divergências de markup aguardam decisão de Luis.
+- **Motivo/relatório:** Idioma não pode alterar os totais; [Causa, validação e categorias](hr-summary-rank-rates-2026-11-13.md).
