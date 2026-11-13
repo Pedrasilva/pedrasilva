@@ -9,7 +9,7 @@ PERFORM 1 FROM public.psa_proposals WHERE id='3d0db6b3-4bf5-4681-a875-c553f8c646
 IF NOT FOUND THEN RAISE EXCEPTION 'Expected document Rev00Draft'; END IF;
 protected_before:=public.crm_work_protected_hashes()-'psa_proposal_blocks';
 SELECT jsonb_agg(to_jsonb(b) ORDER BY id) INTO other_blocks FROM public.psa_proposal_blocks b WHERE id<>'865c7a9f-fe66-4f62-8898-d08a8d80cbe6';
-SELECT to_jsonb(b)-'content_rich' INTO target_before FROM public.psa_proposal_blocks b WHERE id='865c7a9f-fe66-4f62-8898-d08a8d80cbe6' FOR UPDATE;
+SELECT to_jsonb(b)-'content_rich'-'updated_at' INTO target_before FROM public.psa_proposal_blocks b WHERE id='865c7a9f-fe66-4f62-8898-d08a8d80cbe6' FOR UPDATE;
 UPDATE public.psa_proposal_blocks SET content_rich=jsonb_set(jsonb_set(content_rich,'{html}',to_jsonb(replace(content_rich->>'html',$old$<p><strong>[Descrição do edifício existente e quadro de áreas – a completar.]</strong></p>$old$,$html$<p>O edifício existente desenvolve-se em 7 pisos acima do solo (piso 0 a piso 6), com uma área bruta de construção aproximada de 2 965 m², distribuída da seguinte forma:</p><table class="proposal-print-table"><thead><tr><th><p>Piso</p></th><th><p>Área bruta aproximada</p></th></tr></thead><tbody><tr><td><p>Piso 0</p></td><td><p>480 m²</p></td></tr><tr><td><p>Pisos 1 a 4 (460 m² por piso)</p></td><td><p>1 840 m²</p></td></tr><tr><td><p>Piso 5</p></td><td><p>435 m²</p></td></tr><tr><td><p>Piso 6</p></td><td><p>210 m²</p></td></tr><tr><td><p><strong>Total</strong></p></td><td><p><strong>2 965 m²</strong></p></td></tr></tbody></table><p>Áreas brutas aproximadas, indicadas pelo promotor.</p>$html$))),'{text}',to_jsonb(replace(content_rich->>'text',$old$[Descrição do edifício existente e quadro de áreas – a completar.]$old$,$text$O edifício existente desenvolve-se em 7 pisos acima do solo (piso 0 a piso 6), com uma área bruta de construção aproximada de 2 965 m², distribuída da seguinte forma:
 
 Piso | Área bruta aproximada
@@ -23,7 +23,7 @@ Total | 2 965 m²
 GET DIAGNOSTICS n=ROW_COUNT; IF n<>1 THEN RAISE EXCEPTION 'Placeholder not found or before-image mismatch'; END IF;
 IF protected_before IS DISTINCT FROM (public.crm_work_protected_hashes()-'psa_proposal_blocks') THEN RAISE EXCEPTION 'Protected data changed'; END IF;
 IF other_blocks IS DISTINCT FROM (SELECT jsonb_agg(to_jsonb(b) ORDER BY id) FROM public.psa_proposal_blocks b WHERE id<>'865c7a9f-fe66-4f62-8898-d08a8d80cbe6') THEN RAISE EXCEPTION 'Other blocks changed'; END IF;
-IF target_before IS DISTINCT FROM (SELECT to_jsonb(b)-'content_rich' FROM public.psa_proposal_blocks b WHERE id='865c7a9f-fe66-4f62-8898-d08a8d80cbe6') THEN RAISE EXCEPTION 'Block metadata changed'; END IF;
+IF target_before IS DISTINCT FROM (SELECT to_jsonb(b)-'content_rich'-'updated_at' FROM public.psa_proposal_blocks b WHERE id='865c7a9f-fe66-4f62-8898-d08a8d80cbe6') THEN RAISE EXCEPTION 'Block metadata changed'; END IF;
 IF (SELECT sum(amount_value) FROM public.quote_payment_schedule_items WHERE quote_id='a9f08834-6fb2-4d4b-8bb1-730f59336da6' AND direction='inflow')<>332050 THEN RAISE EXCEPTION 'Expected total 332050'; END IF;
 END $areas$;
 COMMIT;
