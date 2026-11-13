@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Building2, Users, LayoutDashboard, Target, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WorkNumberSearch } from './work-number-search';
 
 
 export function CrmShell({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
     <div className="space-y-6">
       <div className="space-y-2">
         <nav className="flex flex-wrap items-center gap-1 border-b">
+          <WorkNumberSearch />
 
           {tabs.map((tab) => {
             const Icon = tab.icon;

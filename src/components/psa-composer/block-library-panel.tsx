@@ -36,7 +36,7 @@ export function BlockLibraryPanel({
   const proposal = useProposal(proposalId);
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
-  const live = useLiveQuoteSnapshot(quoteIdHint ?? null);
+  const live = useLiveQuoteSnapshot(quoteIdHint ?? null, resolveProposalLang(proposal.data?.language), proposalId);
   const [q, setQ] = useState("");
 
   const items =

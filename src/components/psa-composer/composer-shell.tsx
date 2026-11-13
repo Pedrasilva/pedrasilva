@@ -71,7 +71,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const [source, setSource] = useState<HTMLDivElement | null>(null);
   const [revision, setRevision] = useState(0);
   const observedEditRef = useRef("");
-  const liveQuery = useLiveQuoteSnapshot(proposal.data?.quote_id, resolveProposalLang(proposal.data?.language));
+  const liveQuery = useLiveQuoteSnapshot(proposal.data?.quote_id, resolveProposalLang(proposal.data?.language), proposalId);
   const dataReady = proposalPaginationReady(proposal, blocks, liveQuery, !!proposal.data?.quote_id);
   const sourceRef = useRef<HTMLDivElement | null>(null);
   useSmartPagination(sourceRef, revision);

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { annualWorkNumber, restartKey, revisionLetters, workReference } from '../src/lib/crm/work-numbering';
 describe('Luis D53 numbering', () => {
+  it('applies Luis final Mint first proposal and revision', () => {
+    expect(workReference('2603', '', 0)).toBe('2603');
+    expect(workReference('2603', '', 1)).toBe('2603A');
+  });
+  it('starts the next new identity at 26031', () => expect(annualWorkNumber(2026, 31)).toBe('26031'));
   it('uses two year digits and three sequence digits', () => {
     expect(annualWorkNumber(2026, 1)).toBe('26001');
     expect(annualWorkNumber(2026, 19)).toBe('26019');
