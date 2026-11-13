@@ -1,3 +1,6 @@
+## Current request — Oleiro CGI text only
+- [x] Both approved phrases applied and visible in authenticated Pages; transaction protected all other blocks/data including PIP, 221300€ total, Rev00Draft and B1OFF. Mirrored0325 includes before-images; D56 recorded.
+
 ## Current request — Chiado / Oleiro approved document follow-up
 - [x] Six Chiado CGI deliverables, both measurement inclusions, top-level indices 1–22/1–24, Chiado tender/new construction opener, existing payment moved to Annex A and programme B; exact transactional commercial/metadata protection, Rev00Draft, B1OFF. Read-only authenticated checks and six existing index tests passed. Report: docs/chiado-oleiro-followup-2026-11-13.md. PDF final pagination not certified in this editorial task.
 
