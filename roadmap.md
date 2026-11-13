@@ -869,5 +869,5 @@
 - [x] Validate authenticated read-only desktop/narrow navigation, refresh, status/revision menus and modes; D60 and report recorded.
 
 ## Current request — shared proposal vertical rhythm
-- [ ] Apply body-line spacing tokens and render-only HTML cleanup to preview/PDF.
-- [ ] Verify read-only document renders and export; preserve all proposal data and B1 OFF.
+- [x] Apply body-line spacing tokens and render-only HTML cleanup to preview/PDF.
+- [x] Verify authenticated read-only Chiado render and 35-page PDF parity, 11 tests; preserve proposal data and B1 OFF; D61/report recorded.
