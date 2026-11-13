@@ -8,7 +8,10 @@ import uiI18n from "@/i18n/index";
  * the whole proposal. Values are stored as JSON in psa_proposals.style_settings
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "@/lib/toast";
+import { PSA_BRAND_TYPOGRAPHY, proposalFontAvailable } from "@/lib/psa-proposal/typography";
+import { useMasterDefault, useSaveMasterDefault } from "@/lib/psa-proposal/use-master-page";
 import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -48,14 +51,7 @@ const BODY_FONTS = [
   { label: "crm:composer.typography.manropeSans", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
 ];
 
-const PSA_BRAND_PRESET: PsaProposalStyleSettings = {
-  headingFont: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif',
-  bodyFont: '"Signifier", "Source Serif 4", Georgia, serif',
-  headingWeight: 700,
-  bodyAlign: "justify",
-  bodySize: 10.5,
-};
-
+const PSA_BRAND_PRESET = PSA_BRAND_TYPOGRAPHY;
 
 const WEIGHTS = [
   { label: "crm:composer.typography.regular400", value: 400 },
@@ -71,61 +67,35 @@ const ALIGNMENTS: { label: string; value: NonNullable<PsaProposalStyleSettings["
   { label: "crm:composer.typography.right", value: "right" },
 ];
 
-type StyleEditState = { latest: PsaProposalStyleSettings | null; timer: ReturnType<typeof setTimeout> | null; inFlight: number };
-const styleEdits = new Map<string, StyleEditState>();
-function styleEditState(id: string): StyleEditState {
-  let state = styleEdits.get(id);
-  if (!state) { state = { latest: null, timer: null, inFlight: 0 }; styleEdits.set(id, state); }
-  return state;
-}
-
 export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   useTranslation();
   const update = useUpdateProposal(proposal.id);
   const qc = useQueryClient();
-  const s = proposal.style_settings ?? {};
-  // Edit state lives per proposal outside the component: the panel can remount
-  // while the paged view repaginates, and a refetch of an older save must not
-  // snap sliders (or the paged view) back mid-drag.
-  const edit = styleEditState(proposal.id);
-  useEffect(() => {
-    const latest = edit.latest;
-    if (!latest || JSON.stringify(latest) === JSON.stringify(proposal.style_settings ?? {})) return;
-    qc.setQueryData<PsaProposal | undefined>(["psa-proposal", proposal.id], (prev) => (prev ? { ...prev, style_settings: latest } : prev));
-  }, [proposal.style_settings, proposal.id, qc, edit]);
-
-  function patch(next: Partial<PsaProposalStyleSettings>) {
-    // Merge onto the newest local settings to avoid overwrites between ticks.
-    const merged = { ...(edit.latest ?? s), ...next } as PsaProposalStyleSettings;
-    edit.latest = merged;
-    void qc.cancelQueries({ queryKey: ["psa-proposal", proposal.id] });
-
-    // Optimistic cache update so the canvas re-renders instantly.
-    qc.setQueryData<PsaProposal | undefined>(
-      ["psa-proposal", proposal.id],
-      (prev) => (prev ? { ...prev, style_settings: merged } : prev),
-    );
-
-    // Debounce the network write so dragging a slider doesn't fire a
-    // request per tick.
-    if (edit.timer) clearTimeout(edit.timer);
-    edit.timer = setTimeout(() => {
-      edit.timer = null;
-      const toSave = edit.latest;
-      if (!toSave) return;
-      edit.inFlight += 1;
-      void update.mutateAsync({ style_settings: toSave } as Partial<PsaProposal>).catch(() => {}).finally(() => {
-        edit.inFlight -= 1;
-        // Keep guarding until the last save has settled and its refetch landed.
-        window.setTimeout(() => {
-          if (edit.inFlight === 0 && !edit.timer) edit.latest = null;
-        }, 1500);
-      });
-    }, 250);
+  const defaults = useMasterDefault();
+  const saveMaster = useSaveMasterDefault();
+  const [v,setValue]=useState<PsaProposalStyleSettings>(proposal.style_settings??{});
+  const [saveStatus,setSaveStatus]=useState<'saved'|'saving'|'error'>('saved');
+  const [fontWarning,setFontWarning]=useState(false);
+  const locked=!!proposal.locked_at||['sent','accepted'].includes(proposal.status);
+  useEffect(()=>{if(saveStatus==='saved')setValue(proposal.style_settings??{});},[proposal.style_settings,saveStatus]);
+  useEffect(()=>{
+    let cancelled=false;
+    Promise.all([proposalFontAvailable(v.headingFont??PSA_BRAND_PRESET.headingFont??''),proposalFontAvailable(v.bodyFont??PSA_BRAND_PRESET.bodyFont??'')]).then(results=>{if(!cancelled)setFontWarning(results.some(result=>!result));});
+    return ()=>{cancelled=true;};
+  },[v.headingFont,v.bodyFont]);
+  useEffect(()=>{
+    if(saveStatus!=='saving')return;
+    const timer=setTimeout(()=>{
+      void update.mutateAsync({style_settings:v}).then(()=>setSaveStatus('saved')).catch(error=>{setSaveStatus('error');toast.error(error instanceof Error?error.message:uiI18n.t('common:error'));});
+    },500);
+    return ()=>clearTimeout(timer);
+  },[v]);
+  function patch(next:Partial<PsaProposalStyleSettings>){
+    if(locked)return;
+    const merged={...v,...next};setValue(merged);setSaveStatus('saving');
+    void qc.cancelQueries({queryKey:['psa-proposal',proposal.id]});
+    qc.setQueryData<PsaProposal>(['psa-proposal',proposal.id],prev=>prev?{...prev,style_settings:merged}:prev);
   }
-
-  // Sliders read the newest local value so rapid ticks never compute from a stale save.
-  const v = edit.latest ?? s;
   const bodySize = v.bodySize ?? 10.5;
   const headingScale = v.headingScale ?? 1;
   const marginTop = v.marginTop ?? 34;
@@ -150,8 +120,10 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <p className="text-[11px] text-zinc-500">
          {uiI18n.t("crm:quoteEditor.documentLanguageHint")} </p>
 
-      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mt-2">
-         {uiI18n.t("crm:quoteEditor.proposalTypography")} </div>
+      <div className="mt-2 flex items-center justify-between gap-2"><span className="text-xs font-semibold uppercase">{uiI18n.t("crm:quoteEditor.proposalTypography")}</span><span role="status" className="text-xs text-muted-foreground">{uiI18n.t(saveStatus==='error'?'common:error':saveStatus==='saving'?'common:saving':'common:saved')}</span></div>
+      <p className="text-xs text-muted-foreground">{uiI18n.t('crm:quoteEditor.typographyScopeHint')}</p>
+      {fontWarning&&<p role="alert" className="text-xs text-destructive">{uiI18n.t('crm:quoteEditor.fontEmbedWarning')}</p>}
+      <fieldset disabled={locked} className="contents">
       <p className="text-[11px] text-zinc-500">
          {uiI18n.t("crm:quoteEditor.typographyHint")} </p>
 
@@ -162,9 +134,11 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           variant="default"
           size="sm"
           className="w-full"
-          onClick={() => update.mutate({ style_settings: { ...s, ...PSA_BRAND_PRESET } } as Partial<PsaProposal>)}
+          onClick={() => patch(PSA_BRAND_PRESET)}
         >
            {uiI18n.t("crm:quoteEditor.applyBrand")} </Button>
+        <Button size="sm" variant="outline" onClick={()=>patch(PSA_BRAND_PRESET)}>{uiI18n.t('crm:quoteEditor.resetBrand')}</Button>
+        <Button size="sm" variant="outline" disabled={!defaults.data||saveMaster.isPending} onClick={()=>{if(!defaults.data)return;void saveMaster.mutateAsync({template:{...defaults.data.template,typography:{headingFont:v.headingFont,bodyFont:v.bodyFont,headingWeight:v.headingWeight,bodyAlign:v.bodyAlign,bodySize:v.bodySize,headingScale:v.headingScale,paragraphGap:v.paragraphGap}},revision:defaults.data.revision}).then(()=>toast.success(uiI18n.t('common:masterPage.saved'))).catch(error=>toast.error(error.message));}}>{uiI18n.t('crm:quoteEditor.saveTypographyMaster')}</Button>
         <p className="text-[10px] text-zinc-500 leading-snug">
            {uiI18n.t("crm:quoteEditor.brandFontsHint")} </p>
       </div>
@@ -174,7 +148,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="space-y-1">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.headingFont")} </Label>
         <Select
-          value={s.headingFont ?? HEADING_FONTS[0].value}
+          value={v.headingFont ?? HEADING_FONTS[0].value}
           onValueChange={(v) => patch({ headingFont: v })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -189,7 +163,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="space-y-1">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.headingWeight")} </Label>
         <Select
-          value={String(s.headingWeight ?? 700)}
+          value={String(v.headingWeight ?? 700)}
           onValueChange={(v) => patch({ headingWeight: Number(v) })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -204,7 +178,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="space-y-1">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodyFont")} </Label>
         <Select
-          value={s.bodyFont ?? BODY_FONTS[0].value}
+          value={v.bodyFont ?? BODY_FONTS[0].value}
           onValueChange={(v) => patch({ bodyFont: v })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -219,7 +193,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       <div className="space-y-1">
         <Label className="text-xs"> {uiI18n.t("crm:quoteEditor.bodyAlignment")} </Label>
         <Select
-          value={s.bodyAlign ?? "justify"}
+          value={v.bodyAlign ?? "justify"}
           onValueChange={(v) => patch({ bodyAlign: v as PsaProposalStyleSettings["bodyAlign"] })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -258,6 +232,8 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
 
+      <div className="space-y-1"><Label>{uiI18n.t('crm:quoteEditor.paragraphSpacing')}</Label><Slider aria-label={uiI18n.t('crm:quoteEditor.paragraphSpacing')} min={0} max={1.5} step={0.05} value={[v.paragraphGap??0.75]} onValueChange={([value])=>patch({paragraphGap:value})}/></div>
+      </fieldset>
       <div className="border-t pt-3"><ProposalMasterButton proposal={proposal} readOnly={!!proposal.locked_at || proposal.status === "sent" || proposal.status === "accepted"} /></div>
     </div>
   );
