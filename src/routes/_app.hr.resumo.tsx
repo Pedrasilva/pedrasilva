@@ -52,6 +52,7 @@ import { cn } from "@/lib/utils";
 import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
 import type { BenefitExpense } from "@/lib/benefits";
 import { aggregateResourceSplit } from "@/lib/finance/hybrid-resource-cost";
+import { summaryDepartments } from "@/lib/hr/summary-departments";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
   head: () => ({ meta: [{ title: "Resumo da equipa | PSA Hub" }, { name: "description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:title", content: "Resumo da equipa | PSA Hub" }, { property: "og:description", content: "PSA Hub — resumo da equipa do atelier." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -150,8 +151,7 @@ function ResumoPage() {
     return { collab: c, effective, proposed };
   });
 
-  const projecto = rows.filter((r) => r.collab.departamento === uiI18n.t("common:projectTeam"));
-  const backoffice = rows.filter((r) => r.collab.departamento === uiI18n.t("common:backoffice"));
+  const { projecto, backoffice } = summaryDepartments(rows);
 
   const totalProjecto = sumVBG(projecto);
   const totalBackoffice = sumVBG(backoffice);

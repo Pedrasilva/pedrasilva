@@ -1,3 +1,7 @@
+## Current request — HR summary and rank rates
+- [ ] Fix General summary department filter; validate read-only team totals and regression tests, no payroll/snapshot changes; B1 OFF.
+- [ ] Report rank catalog, per-collaborator assignment/cost sources and propose consolidated page without building it.
+
 ## Current request — shared proposal layout (Luis, 13 November 2026)
 - [x] Correct top-down flow, headings/list lead-ins, splitting, column rules, Portuguese language and index alignment without proposal writes.
 - [x] Read-only Chiado/Oleiro/Alqueva screen/Preview/PDF checks and before/after counts; record decisions and limitations; B1 OFF.
