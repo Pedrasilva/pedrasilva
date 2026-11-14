@@ -34,6 +34,26 @@
     "overflow": "A carta excede uma página. Encurte o texto antes de exportar ou registar uma versão."
   },
   "masterPage": {
+    "selectedElement": "Elemento selecionado",
+    "elementX": "Posição X",
+    "elementY": "Posição Y",
+    "elementWidth": "Largura",
+    "footerDistance": "Distância à margem inferior",
+    "showFooterLogo": "Mostrar logótipo no rodapé",
+    "resizeElement": "Redimensionar {{element}}",
+    "elements": {
+        "header": "Cabeçalho",
+        "logo": "Logótipo",
+        "contact": "Bloco de contactos",
+        "footer": "Rodapé",
+        "footerAddress": "Contactos do rodapé",
+        "footerNumber": "Número de página",
+        "footerLogo": "Logótipo do rodapé"
+    },
+    "hideFooter": {
+        "cover": "Ocultar rodapé na capa",
+        "letter": "Ocultar rodapé na carta"
+    },
     "title": "Página-mestre",
     "allPages": "Todas as páginas",
     "firstPage": "Primeira página",

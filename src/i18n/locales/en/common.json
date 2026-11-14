@@ -34,6 +34,26 @@
     "overflow": "The letter exceeds one page. Shorten the text before exporting or recording a revision."
   },
   "masterPage": {
+    "selectedElement": "Selected element",
+    "elementX": "Position X",
+    "elementY": "Position Y",
+    "elementWidth": "Width",
+    "footerDistance": "Distance from bottom edge",
+    "showFooterLogo": "Show footer logo",
+    "resizeElement": "Resize {{element}}",
+    "elements": {
+        "header": "Header",
+        "logo": "Logo",
+        "contact": "Contact block",
+        "footer": "Footer",
+        "footerAddress": "Footer contact text",
+        "footerNumber": "Page number",
+        "footerLogo": "Footer logo"
+    },
+    "hideFooter": {
+        "cover": "Hide footer on cover",
+        "letter": "Hide footer on letter"
+    },
     "title": "Master page",
     "allPages": "All pages",
     "firstPage": "First page",
