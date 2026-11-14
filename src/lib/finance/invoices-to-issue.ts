@@ -1,5 +1,5 @@
 import type {IncomingTimingRow} from '@/lib/projects/payment-timing';
-import {buildStageNumberMap,formatStageLabel,isConstructionStage,type NumberableStage} from '@/lib/quotes/stage-numbering';
+import {buildStageNumberMap,formatStageLabel,stageOrderRanks,type NumberableStage} from '@/lib/quotes/stage-numbering';
 
 export type InvoiceWorkflow = {confirmed_at:string|null; confirmed_by:string|null; note:string|null; confirmation_current:boolean; invoice_number:string|null; issue_date:string|null};
 export type IssueRow = IncomingTimingRow & {member_ids?:string[];project_name:string; client_name:string|null; workflow:InvoiceWorkflow; pm_date_moves:number;project_stages?:NumberableStage[]};
@@ -34,7 +34,8 @@ export function monthlyIncoming(rows:IssueRow[]){
   }
   return {months:[...months].sort(([a],[b])=>a.localeCompare(b)).map(([month,amount])=>({month,amount})),undated};
 }
-/** Cross-project urgency stays chronological; construction last only breaks equal-date ties. */
+/** Preserve cross-project urgency; equal-date stages follow their own Gantt. */
 export function sortInvoiceQueue(rows: IssueRow[]): IssueRow[] {
-  return [...rows].sort((a,b) => (a.planned_invoice_date ?? "9999").localeCompare(b.planned_invoice_date ?? "9999") || Number(isConstructionStage(a.project_stages?.find(s=>s.id===a.stage_id) ?? {id:a.stage_id??"",name:a.stage_name??""})) - Number(isConstructionStage(b.project_stages?.find(s=>s.id===b.stage_id) ?? {id:b.stage_id??"",name:b.stage_name??""})) || a.project_id.localeCompare(b.project_id) || a.id.localeCompare(b.id));
+  const rank = (row:IssueRow) => stageOrderRanks(row.project_stages ?? []).get(row.stage_id ?? '') ?? Infinity;
+  return [...rows].sort((a,b) => (a.planned_invoice_date ?? "9999").localeCompare(b.planned_invoice_date ?? "9999") || a.project_id.localeCompare(b.project_id) || rank(a)-rank(b) || a.id.localeCompare(b.id));
 }

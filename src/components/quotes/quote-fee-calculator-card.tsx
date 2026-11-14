@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import {Plus,Trash2,Undo2} from 'lucide-react';
 import {CalculatorApplyDialog} from './calculator-apply-dialog';
 import {calculatorHasConflicts,type CalculatorPreview} from '@/lib/quotes/calculator-planning';
+import { useQuoteStages } from '@/lib/quotes/use-quote-stages';
+import { stageOrderRanks, sortRowsByStageRank } from '@/lib/quotes/stage-numbering';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -61,6 +63,7 @@ function numInput(value: number | null): string {
 export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
+  const ganttStages = useQuoteStages(quoteId);
   const [preview,setPreview]=useState<CalculatorPreview|null>(null);
   const [undoId,setUndoId]=useState<string|null>(null);
 
@@ -75,6 +78,10 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
   }, [quoteId]);
 
   const result = useMemo(() => computeFeeCalculator(inputs), [inputs]);
+  const displayInputs = sortRowsByStageRank(inputs.stages.map((stage,index) => ({stage,index})), stageOrderRanks(ganttStages.data ?? []), row => {
+    const matched = (ganttStages.data ?? []).find(stage => (stage as unknown as {calculator_row_key?:string}).calculator_row_key === row.stage.id);
+    return matched?.id;
+  });
 
   const stageTotal = useMemo(
     () => inputs.stages.reduce((sum, s) => sum + (Number(s.percentage) || 0), 0),
@@ -305,10 +312,10 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
             </span>
           </div>
           <div className="rounded-md border divide-y">
-            {inputs.stages.map((s, idx) => (
+            {displayInputs.map(({stage:s,index:idx}, displayIndex) => (
               <div key={s.id??idx} className="grid grid-cols-12 gap-2 items-center p-2 text-sm">
                 <div className="col-span-1 text-xs text-muted-foreground">
-                  {idx + 1}
+                  {displayIndex + 1}
                 </div>
                 <Input
                   className="col-span-5 h-8"

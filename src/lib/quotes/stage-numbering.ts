@@ -106,6 +106,15 @@ export function sortStagesByWbs<T extends NumberableStage>(stages: T[]): T[] {
   return numberStages(stages).map(n => n.stage);
 }
 
+/** Full-tree ranks survive flattening groups and filtering subsets. */
+export function stageOrderRanks<T extends NumberableStage>(stages: T[]): Map<string, number> {
+  return new Map(sortStagesByWbs(stages).map((stage,index) => [stage.id,index]));
+}
+
+export function sortRowsByStageRank<T>(rows: T[], ranks: Map<string,number>, stageId: (row:T) => string | null | undefined): T[] {
+  return [...rows].sort((a,b) => (ranks.get(stageId(a) ?? '') ?? Infinity) - (ranks.get(stageId(b) ?? '') ?? Infinity));
+}
+
 /** Narrow legacy-label fallback for projections/snapshots without kind fields. */
 export function isConstructionStage(stage: {
   name?: string | null; stage_name?: string | null; stageName?: string | null;
@@ -142,8 +151,7 @@ export function sortStageLinkedRows<T extends {
   stage_id?: string | null; stage_name?: string | null; stageName?: string | null;
   name?: string | null; sort_order?: number | null;
 }>(rows: T[], stages: NumberableStage[] = []): T[] {
-  const ordered = sortStagesByWbs(stages);
-  const rank = new Map(ordered.map((s, i) => [s.id, i]));
+  const rank = stageOrderRanks(stages);
   return [...rows].sort((a, b) => {
     const ar = a.stage_id ? rank.get(a.stage_id) : undefined;
     const br = b.stage_id ? rank.get(b.stage_id) : undefined;
