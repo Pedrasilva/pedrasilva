@@ -403,8 +403,9 @@ function BlockBody({
   // Self stages only — PSA-facing tables must exclude supplier rows. The
   // consultants block is the place where suppliers appear.
   const displayStage = (s: LiveStage) => ({...s, sort_order:s.sortOrder, parent_stage_id:s.parentStageId});
-  const stageDisplayOrder = (a: LiveStage,b: LiveStage) => compareStageDisplay(displayStage(a),displayStage(b));
   const selfStages = sortStagesByWbs((live?.stages ?? []).map(displayStage)).filter((s) => s.isSelf);
+  const stageRanks = new Map(selfStages.map((s, index) => [s.id, index]));
+  const stageDisplayOrder = (a: LiveStage,b: LiveStage) => (stageRanks.get(a.id) ?? Infinity) - (stageRanks.get(b.id) ?? Infinity);
 
   function fallback(blockType: string) {
     const dict = lang === "en" ? DEFAULT_TEXT_EN : DEFAULT_TEXT_PT;
@@ -558,62 +559,20 @@ function BlockBody({
 
     case "stage_list": {
       const nonMilestone = selfStages.filter((s) => !s.isMilestone);
-      const byParent = new Map<string | null, LiveStage[]>();
-      for (const s of nonMilestone) {
-        const k = s.parentStageId ?? null;
-        const arr = byParent.get(k) ?? [];
-        arr.push(s);
-        byParent.set(k, arr);
-      }
-      const knownIds = new Set(nonMilestone.map((s) => s.id));
-      // Orphans (parent missing or filtered out) → treat as root.
-      const roots: LiveStage[] = [];
-      for (const s of nonMilestone) {
-        if (!s.parentStageId || !knownIds.has(s.parentStageId)) roots.push(s);
-      }
+      const parentIds = new Set(nonMilestone.map(s => s.parentStageId).filter(Boolean));
+      const leaves = nonMilestone.filter(s => !parentIds.has(s.id) && s.stageKind !== 'retainer_month');
       const stageLabel = (s: LiveStage) => (
         <span>{s.code ? `${s.code} — ` : ""}{s.name}</span>
       );
-
-      const renderNode = (s: LiveStage, depth: number): React.ReactNode => {
-        const kids = byParent.get(s.id) ?? [];
-        if (!kids.length) {
-          return <ul key={s.id} className="list-disc"><li>{stageLabel(s)}</li></ul>;
-        }
-        const HeadingTag = depth === 0 ? "h3" : "h4";
-        const headingCls =
-          depth === 0
-            ? "proposal-print-heading mb-1 text-base font-semibold tracking-tight text-zinc-900"
-            : "proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900";
-        const leafKids = kids.filter((k) => !(byParent.get(k.id)?.length));
-        const branchKids = kids.filter((k) => (byParent.get(k.id)?.length ?? 0) > 0);
-        return (
-          <div key={s.id} className={depth === 0 ? "" : "ml-4"}>
-            <HeadingTag className={headingCls}>{stageLabel(s)}</HeadingTag>
-            {branchKids.length > 0 && (
-              <div className="space-y-2">
-                {branchKids.map((k) => renderNode(k, depth + 1))}
-              </div>
-            )}
-            {leafKids.length > 0 && (
-              <ol className="ml-5 list-decimal space-y-1 text-sm text-zinc-800">
-                {leafKids.map((k) => (
-                  <li key={k.id}>{stageLabel(k)}</li>
-                ))}
-              </ol>
-            )}
-          </div>
-        );
-      };
 
       return (
         <div>
           <H>{num}{block.title}</H>
           {richHas && <div className="mb-3">{rich}</div>}
-          {nonMilestone.length ? (
-            <div className="space-y-3">
-              {roots.map((r) => renderNode(r, 0))}
-            </div>
+          {leaves.length ? (
+            <ol className="list-decimal">
+              {leaves.map(s => <li key={s.id}>{stageLabel(s)}</li>)}
+            </ol>
           ) : (
             <Empty>{L.noPhasesDefined}</Empty>
           )}
@@ -1659,8 +1618,6 @@ function BlockBody({
         for (const n of r.resourceNames ?? []) b.resourceNames.add(n);
       }
       const stageRollup = Array.from(buckets.values()).sort((a, b) => {
-        const tail = Number(isConstructionStage(a)) - Number(isConstructionStage(b));
-        if(tail) return tail;
         const av = a.stageNumber ?? "\uffff";
         const bv = b.stageNumber ?? "\uffff";
         return av.localeCompare(bv, undefined, { numeric: true, sensitivity: "base" });

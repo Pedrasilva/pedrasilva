@@ -209,12 +209,12 @@ function SortableRow({
           <GripVertical className="h-4 w-4" />
         </button>
       </div>
-      <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500 print:hidden">
+      {!readOnly && <div data-editor-only className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500 print:hidden">
         <RelevanceBadge value={block.contract_relevance} />
         <span className="uppercase tracking-widest">{uiI18n.t(BLOCK_UI_KEYS[block.block_type])}</span>
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
-      </div>
+      </div>}
       {/* Stable anchor for internal PDF links (used by TOC / appendix index). */}
       <span id={`proposal-block-${block.id}`} className="proposal-anchor" aria-hidden="true" />
       <BlockBody

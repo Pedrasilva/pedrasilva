@@ -145,7 +145,7 @@ export function BlockSettingsPanel({
     }));
     const numMap = buildStageNumberMap(numberable);
     return [...raw]
-      .sort((a, b) => Number(isConstructionStage(a))-Number(isConstructionStage(b)) || compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
+      .sort((a, b) => compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
       .map((s) => ({ stage: s, number: numMap.get(s.id) }));
   })();
 
