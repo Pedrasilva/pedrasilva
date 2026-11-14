@@ -53,6 +53,13 @@ async function ixFetch(env: IXEnv, path: string, init: RequestInit = {}) {
   return json as Record<string, unknown> | null;
 }
 
+async function requireFiscalActor(supabase: {
+  rpc: (fn: "pm_billing_can_act_fiscal") => PromiseLike<{ data: unknown; error: unknown }>;
+}) {
+  const { data, error } = await supabase.rpc("pm_billing_can_act_fiscal");
+  if (error || data !== true) throw new Error("Fiscal access required");
+}
+
 /**
  * Issue a financial_documents row as a certified invoice on InvoiceXpress.
  * Creates the invoice as draft, finalises it, then writes the ATCUD,
@@ -65,6 +72,7 @@ export const issueFiscalInvoice = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    await requireFiscalActor(supabase as never);
     const env = getEnv();
 
     // 1) Load doc + lines + client
@@ -230,6 +238,7 @@ export const sendFiscalInvoiceByEmail = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    await requireFiscalActor(supabase as never);
     const env = getEnv();
 
     const { data: doc, error } = await supabase
