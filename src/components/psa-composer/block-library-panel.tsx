@@ -8,7 +8,7 @@ import uiI18n from "@/i18n/index";
  * Shows all library entries grouped by canonical PSA order; click to append
  * a new block to the proposal.
  */
-import { Plus, Search, ChevronDown, ChevronRight, GripVertical, MoreHorizontal, Copy, Eye, EyeOff, Trash2, FileText, ArrowRight } from "lucide-react";
+import { Plus, Search, ChevronDown, ChevronRight, GripVertical, MoreHorizontal, Copy, Eye, EyeOff, Trash2, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 
@@ -241,7 +241,7 @@ export function BlockLibraryPanel({
   const label = (entry: PsaLibraryEntry) => libraryEntryKey(entry)==='description' ? t('crm:quoteEditor.library.description') : libraryEntryKey(entry)==='table' ? t('crm:quoteEditor.library.table') : t(BLOCK_UI_KEYS[entry.kind]);
   const matches=(text:string)=>text.toLocaleLowerCase().includes(q.toLocaleLowerCase());
   const documentType = blocks.some(b=>b.source_type==='contract_clause') ? 'contract' : 'proposal';
-  const available=entries.filter(entry=>matches(label(entry)) && (allTypes || appliesToDocument(entry.default_contract_relevance,documentType)));
+  const available=entries.filter(entry=>matches(label(entry)) && (allTypes || appliesToDocument(entry.default_contract_relevance,documentType))).sort((a,b)=>{const order=['cover','letter','index','about'];return (order.indexOf(libraryEntryKey(a))<0?99:order.indexOf(libraryEntryKey(a)))-(order.indexOf(libraryEntryKey(b))<0?99:order.indexOf(libraryEntryKey(b)));});
   const usedSingles=available.filter(entry=>!isRepeatable(libraryEntryKey(entry)) && counts.has(libraryEntryKey(entry))).length;
   const visibleEntries=available.filter(entry=>showAll || isRepeatable(libraryEntryKey(entry)) || !counts.has(libraryEntryKey(entry)));
 
@@ -322,7 +322,7 @@ export function BlockLibraryPanel({
                 const key=libraryEntryKey(entry); const count=counts.get(key)??0; const used=!isRepeatable(key)&&count>0;
                 return <HoverCard key={key} openDelay={350}><HoverCardTrigger asChild><Button variant="ghost" disabled={add.isPending} className={`h-8 w-full justify-start gap-2 px-2 text-xs ${used?'text-muted-foreground':''}`} onClick={()=>{if(used){const block=sorted.find(b=>blockLibraryKey(b)===key);if(block)onSelect(block.id);}else addBlock(entry);}} data-library-key={key}>
                   {used?<ArrowRight className="h-3 w-3 shrink-0"/>:<Plus className="h-3 w-3 shrink-0"/>}<span className="truncate">{label(entry)}</span>{count>0 && <span className="ml-auto shrink-0 text-[10px] tabular-nums">{used?t('crm:quoteEditor.library.inUse'):`×${count}`}</span>}
-                </Button></HoverCardTrigger><HoverCardContent side="right" align="start" className="w-64 p-3"><div className="flex gap-3"><div className="flex h-14 w-10 shrink-0 items-center justify-center border border-border bg-muted"><FileText className="h-6 w-6 text-muted-foreground"/></div><div className="min-w-0"><p className="truncate text-xs font-medium">{label(entry)}</p><p className="mt-1 text-xs text-muted-foreground">{t(`crm:quoteEditor.library.descriptions.${group}`)}</p></div></div></HoverCardContent></HoverCard>;
+                </Button></HoverCardTrigger><HoverCardContent side="right" align="start" className="w-64 p-3"><div className="flex gap-3"><div className="flex h-14 w-10 shrink-0 items-center justify-center border border-border bg-muted"><div className="w-7 space-y-1" aria-hidden="true"><div className="h-1 w-5 bg-muted-foreground/50"/>{group==='fees' || key==='table' ? <div className="grid grid-cols-2 gap-px border border-border">{[0,1,2,3,4,5].map(i=><div key={i} className="h-1.5 bg-muted-foreground/20"/>)}</div> : group==='phases' ? <div className="space-y-1"><div className="h-1 w-3 bg-muted-foreground/30"/><div className="ml-2 h-1 w-4 bg-muted-foreground/30"/><div className="ml-4 h-1 w-3 bg-muted-foreground/30"/></div> : key==='image' ? <div className="h-6 border border-border bg-muted-foreground/20"/> : <><div className="h-px w-7 bg-muted-foreground/30"/><div className="h-px w-7 bg-muted-foreground/30"/><div className="h-px w-5 bg-muted-foreground/30"/></>}</div></div><div className="min-w-0"><p className="truncate text-xs font-medium">{label(entry)}</p><p className="mt-1 truncate text-xs text-muted-foreground">{t(`crm:quoteEditor.library.descriptions.${group}`)}</p></div></div></HoverCardContent></HoverCard>;
               })}
             </section>;
           })}
