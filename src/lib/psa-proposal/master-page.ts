@@ -3,6 +3,7 @@ import type { PsaProposalStyleSettings } from './types';
 export type MasterLogo = { alignment: 'left' | 'centre' | 'right'; x: number; y: number; width: number };
 export type MasterPage = {
   version: 1;
+  textSpacing?: Partial<import('./text-spacing').TextSpacing>;
   typography?: Pick<PsaProposalStyleSettings,'headingFont'|'bodyFont'|'headingWeight'|'bodyAlign'|'bodySize'|'headingScale'|'paragraphGap'>;
   pageTypes?: { cover: PageTypeLayout; letter: PageTypeLayout };
   margins: { top: number; bottom: number; left: number; right: number };

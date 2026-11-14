@@ -14,8 +14,11 @@ import { resolveMaster, pageVariant, masterVariables, snapMm, validMaster, type 
 import { useMasterDefault, useSaveMasterDefault } from '@/lib/psa-proposal/use-master-page';
 import { useUpdateProposal } from '@/lib/psa-proposal/use-psa-proposal';
 import type { PsaProposal } from '@/lib/psa-proposal/types';
+import { TextSpacingControls } from './text-spacing-controls';
+import { resolveTextSpacing, textSpacingVariables } from '@/lib/psa-proposal/text-spacing';
+import { useQueryClient } from '@tanstack/react-query';
 
-export function MasterPageEditor({ initial, onSave, onReset, saving = false, customized = false }: { initial: MasterPage; onSave: (m: MasterPage) => Promise<unknown>; onReset?: () => void; saving?: boolean; customized?: boolean }) {
+export function MasterPageEditor({ initial, onSave, onReset, onPreview, saving = false, customized = false }: { initial: MasterPage; onSave: (m: MasterPage) => Promise<unknown>; onReset?: () => void; onPreview?: (m: MasterPage) => void; saving?: boolean; customized?: boolean }) {
   const { t } = useTranslation('common');
   const [m, setM] = useState(() => structuredClone(initial));
   const [pageType,setPageType]=useState<'content'|'cover'|'letter'>('content');
@@ -53,7 +56,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
     </div>
     <div className="master-workspace">
       <div className="master-sheet-scroll"><div className="master-sheet-size" style={{ width: `${210 * Number(zoom)}mm`, height: `${297 * Number(zoom)}mm` }}>
-        <div ref={sheet} className="master-sheet proposal-print-document proposal-master-document" style={{ ...masterVariables(current), transform: `scale(${zoom})` }}>
+        <div ref={sheet} className="master-sheet proposal-print-document proposal-master-document" style={{ ...masterVariables(current), ...textSpacingVariables(resolveTextSpacing(m.textSpacing)), transform: `scale(${zoom})` }}>
           <div className="master-margin-guides" style={{ top: `${current.margins.top}mm`, bottom: `${current.margins.bottom}mm`, left: `${current.margins.left}mm`, right: `${current.margins.right}mm` }} />
           <div className="master-header-guide" style={{ height: `${m.header.height}mm` }} /><div className="master-footer-guide" style={{ height: `${m.footer.height}mm` }} />
           {current.header.show && <div className="proposal-page-header"><div role="img" aria-label={t('masterPage.logo')} className="proposal-letterhead-brand master-draggable" onPointerDown={e => startDrag(e, 'logo')}><img draggable={false} src={psaLogo.url} className="proposal-letterhead-logo" alt="Pedra Silva" /></div><div role="group" aria-label={t('masterPage.contact')} className="proposal-letterhead-contact master-draggable" onPointerDown={e => startDrag(e, 'contact')}>{pageType==='letter'?m.footer.address.split('\n').map((line,index)=><div key={index}>{line}</div>):<><div>{m.contact.email}</div><div>{m.contact.website}</div></>}</div></div>}
@@ -61,6 +64,7 @@ export function MasterPageEditor({ initial, onSave, onReset, saving = false, cus
         </div>
       </div></div>
       <div className="master-controls space-y-4">
+        <TextSpacingControls value={resolveTextSpacing(m.textSpacing)} onChange={textSpacing=>{const next={...m,textSpacing};setM(next);onPreview?.(next);}}/>
         {layout&&<><h3>{t('masterPage.margins')}</h3><div className="grid grid-cols-2 gap-2">{(['top','bottom','left','right'] as const).map(k=><div key={k}>{field(k,layout.margins[k],v=>patchLayout({margins:{...layout.margins,[k]:v}}))}</div>)}</div><Label>{t('letter.bodyY')}</Label><Input type="number" value={layout.bodyY} onChange={e=>patchLayout({bodyY:Number(e.target.value)})}/><Label>{t('letter.signatureWidth')}</Label><Input type="number" value={layout.signatureWidth} onChange={e=>patchLayout({signatureWidth:Number(e.target.value)})}/></>}
         {first && <div className="flex items-center justify-between"><Label>{t('masterPage.useFirstPage')}</Label><Switch checked={m.firstPage?.enabled ?? false} onCheckedChange={enabled => setM(prev => ({ ...prev, firstPage: { enabled, showHeader: prev.firstPage?.showHeader ?? prev.header.show, showFooter: prev.firstPage?.showFooter ?? prev.footer.show, logo: prev.firstPage?.logo ?? { ...prev.logo } } }))} /></div>}
         <fieldset disabled={first && !m.firstPage?.enabled} className="space-y-4">

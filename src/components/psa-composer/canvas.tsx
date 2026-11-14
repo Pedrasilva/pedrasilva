@@ -45,6 +45,8 @@ import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 import { resolveMaster, masterVariables, pageVariant } from '@/lib/psa-proposal/master-page';
 import { typographyVariables } from '@/lib/psa-proposal/typography';
+import { useMasterDefault } from '@/lib/psa-proposal/use-master-page';
+import { resolveTextSpacing, textSpacingVariables } from '@/lib/psa-proposal/text-spacing';
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
 const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
@@ -257,6 +259,7 @@ export function ComposerCanvas({
 }) {
   useTranslation();
   const lang = resolveProposalLang(language);
+  const spacingMaster = useMasterDefault();
   // System headings follow the proposal language; user-written ones stay.
   const blocks = useMemo(
     () => rawBlocks.map((b) => ({ ...b, title: resolveBlockTitle(b.block_type, b.title, lang) })),
@@ -333,7 +336,7 @@ export function ComposerCanvas({
   const headerWebsite = master.contact.website;
   const footerAddress = master.footer.address;
 
-  const styleVars: React.CSSProperties = {...masterVariables(firstMaster),...typographyVariables({...master.typography,...styleSettings})};
+  const styleVars: React.CSSProperties = {...masterVariables(firstMaster),...typographyVariables({...master.typography,...styleSettings}),...textSpacingVariables(resolveTextSpacing(spacingMaster.data?.template.textSpacing,styleSettings?.textSpacing,styleSettings?.textSpacingOverride))};
 
   return (
     <div
