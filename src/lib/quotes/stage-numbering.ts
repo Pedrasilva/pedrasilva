@@ -152,11 +152,13 @@ export function sortStageLinkedRows<T extends {
   name?: string | null; sort_order?: number | null;
 }>(rows: T[], stages: NumberableStage[] = []): T[] {
   const rank = stageOrderRanks(stages);
-  return [...rows].sort((a, b) => {
+  const linked = rows.filter(row => !!row.stage_id && rank.has(row.stage_id)).sort((a, b) => {
     const ar = a.stage_id ? rank.get(a.stage_id) : undefined;
     const br = b.stage_id ? rank.get(b.stage_id) : undefined;
     // Unlinked lines (e.g. advance) retain their slots; instalments remain stable.
     return ar !== undefined && br !== undefined ? ar - br : 0;
   });
+  let index = 0;
+  return rows.map(row => row.stage_id && rank.has(row.stage_id) ? linked[index++] ?? row : row);
 }
 

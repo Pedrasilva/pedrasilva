@@ -79,7 +79,7 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
 
   const result = useMemo(() => computeFeeCalculator(inputs), [inputs]);
   const displayInputs = sortRowsByStageRank(inputs.stages.map((stage,index) => ({stage,index})), stageOrderRanks(ganttStages.data ?? []), row => {
-    const matched = (ganttStages.data ?? []).find(stage => (stage as unknown as {calculator_row_key?:string}).calculator_row_key === row.stage.id);
+    const matched = row.stage.id ? (ganttStages.data ?? []).find(stage => (stage as unknown as {calculator_row_id?:string}).calculator_row_id === row.stage.id) : undefined;
     return matched?.id;
   });
 
