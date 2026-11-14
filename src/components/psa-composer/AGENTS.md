@@ -17,3 +17,4 @@
 
 - Embedded proposal builders keep workflow actions in the quote header and document controls in ComposerTopBar; the canvas owns scrolling beneath two fixed-height rows. Why: avoid duplicated actions without changing lifecycle guards or document data.
 - Letter pages inherit the normal content master geometry and running furniture, replacing only header contact text with office address; overflow fragments normally and never blocks export. Why: letters must align with the document and preserve long editorial content.
+- Master furniture uses shared page-edge mm geometry and relative child coordinates, with footer clearance reserved before pagination; completed sheets retain those same tokens for export. Why: drag/keyboard controls must never compete with fixed print coordinates.

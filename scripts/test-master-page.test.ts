@@ -1,6 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { resolveMaster, masterVariables, logoLeft, snapMm, pageVariant, validMaster } from '../src/lib/psa-proposal/master-page';
+import { resolveMaster, masterVariables, logoLeft, snapMm, pageVariant, validMaster,masterElement,moveMasterElement,nudgeMasterElement,safeBottomMargin,furnitureVariant } from '../src/lib/psa-proposal/master-page';
 describe('Master page rules', () => {
+  it('moves footer with 1pt keys and 10pt shift keys without mutating source',()=>{
+    const m=resolveMaster(),p=masterElement(m,'footer');
+    expect(masterElement(nudgeMasterElement(m,'footer','ArrowUp'),'footer').y).toBeCloseTo(p.y-25.4/72);
+    expect(masterElement(nudgeMasterElement(m,'footer','ArrowUp',true),'footer').y).toBeCloseTo(p.y-10*25.4/72);
+    expect(m.footer.position).toBeUndefined();
+  });
+  it('reserves text clearance above a moved footer',()=>{
+    const m=moveMasterElement(resolveMaster(),'footer',{y:240});
+    expect(safeBottomMargin(m)).toBe(60);
+    expect(masterVariables(m)['--psa-margin-bottom']).toBe('60mm');
+  });
+  it('reserves clearance for a footer child moved above its group',()=>{
+    const m=moveMasterElement(moveMasterElement(resolveMaster(),'footer',{y:250}),'footerAddress',{y:-10});
+    expect(safeBottomMargin(m)).toBe(60);
+  });
+  it('controls cover and letter footer visibility independently',()=>{
+    const m=resolveMaster();m.footer.hideOnCover=false;m.footer.hideOnLetter=true;
+    expect(furnitureVariant(m,'cover').footer.show).toBe(true);
+    expect(furnitureVariant(m,'letter').footer.show).toBe(false);
+    expect(furnitureVariant(m,'content').footer.show).toBe(true);
+  });
   it('preserves legacy margins and independent logo coordinates without changing input', () => {
     const input = { marginLeft: 30, showFooter: false }; const m = resolveMaster(input);
     expect(m.margins).toEqual({ top: 34, bottom: 32, left: 30, right: 14 }); expect(m.logo.x).toBe(14); expect(m.footer.show).toBe(false); expect(input).toEqual({ marginLeft: 30, showFooter: false });

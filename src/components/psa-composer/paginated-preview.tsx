@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { REPAGINATION_DELAY_MS } from "@/lib/psa-proposal/page-layout";
-import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayout } from '@/lib/psa-proposal/master-page';
+import { resolveMaster, pageVariant, masterVariables, type MasterPage, typeLayout, furnitureVariant, safeBottomMargin } from '@/lib/psa-proposal/master-page';
 import { installPagedFrame } from "@/lib/psa-proposal/paged-frame";
 import { prepareExplicitPageBreaks } from "@/lib/psa-proposal/explicit-page-breaks";
 import { normalizeProposalHtml } from "@/lib/psa-proposal/document-rhythm";
@@ -153,10 +153,10 @@ function collectDocumentStyles(source: HTMLDivElement, furniture: { header: bool
 
   if (typedMaster) {
     const cover=typeLayout(typedMaster,'cover'),letter=typeLayout(typedMaster,'letter');
-    const margin=(m:typeof letter.margins)=>`${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm`;
+    const margin=(m:typeof letter.margins,type:'cover'|'letter')=>`${m.top}mm ${m.right}mm ${safeBottomMargin({...furnitureVariant(typedMaster,type),margins:m})}mm ${m.left}mm`;
     styles.push({'page-types.css':`
-      @page psa-cover {size:A4;margin:${margin(cover.margins)};@top-center{content:none}@bottom-left{content:none}@bottom-right{content:none}}
-      @page psa-letter {size:A4;margin:${margin(letter.margins)};@top-center{content:"";width:100%}@bottom-left{content:""}@bottom-right{content:none}}
+      @page psa-cover {size:A4;margin:${margin(cover.margins,'cover')};@top-center{content:none}@bottom-left{content:""}@bottom-right{content:none}}
+      @page psa-letter {size:A4;margin:${margin(letter.margins,'letter')};@top-center{content:"";width:100%}@bottom-left{content:""}@bottom-right{content:none}}
       [data-page-type="cover"]{page:psa-cover;break-before:page;break-after:page}
       [data-page-type="letter"]{page:psa-letter;break-before:page;break-after:page}
       [data-page-type="cover"] .proposal-cover{min-height:${297-cover.margins.top-cover.margins.bottom}mm;box-sizing:border-box;padding-top:${cover.bodyY}mm}
@@ -343,7 +343,7 @@ export function PaginatedPreview({
           pageBox.setAttribute("style", (masterNode ?? source).getAttribute("style") ?? "");
           const type = typed ? (pageBox.querySelector('[data-page-type]')?.getAttribute('data-page-type') ?? 'content') : 'content';
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-page-type',type);
-          const variant = type==='letter' ? master : type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false},footer:{...master.footer,show:false}};
+          const variant = furnitureVariant(type==='letter' ? master : type==='content' ? pageVariant(master, !typed && index === 0) : {...master,header:{...master.header,show:false}},type==='cover'?'cover':type==='letter'?'letter':'content');
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-orientation',landscape?'landscape':'portrait');
           const adapted=landscape?{...variant,logo:{...variant.logo,x:variant.logo.x+(variant.logo.alignment==='right'?87:variant.logo.alignment==='centre'?43.5:0)},contact:{...variant.contact,x:variant.contact.x+87}}:variant;
@@ -352,7 +352,7 @@ export function PaginatedPreview({
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);
           runningElements.forEach((element) => {
-            if (typed && type === "cover") return;
+            if (typed && type === "cover" && element.classList.contains('proposal-page-header')) return;
             const selector = element.classList.contains("proposal-page-header")
               ? ".pagedjs_margin-top-center .pagedjs_margin-content"
               : ".pagedjs_margin-bottom-left .pagedjs_margin-content";
@@ -404,6 +404,8 @@ export function PaginatedPreview({
         pages.forEach((page) => {
           page.setAttribute("data-page-label", `${page.dataset.contentNumber ?? page.dataset.pageType ?? ""}${page.dataset.contentNumber ? ` / ${contentTotal}` : ""}`);
           const footerNumber = page.querySelector<HTMLElement>(".pagedjs_margin-bottom-right .pagedjs_margin-content");
+          const positionedNumber=page.querySelector<HTMLElement>('.proposal-footer-number');
+          if(positionedNumber)positionedNumber.textContent=page.dataset.contentNumber?`${page.dataset.contentNumber} / ${contentTotal}`:'';
           if (footerNumber && runningElements.some((element) => element.classList.contains("proposal-page-footer"))) {
             if (page.dataset.contentNumber) {
               footerNumber.setAttribute("data-footer-page", `${page.dataset.contentNumber} / ${contentTotal}`);
@@ -437,13 +439,14 @@ export function PaginatedPreview({
           /* Master geometry is page-edge based, not margin-box-edge based. */
           .proposal-master-document .pagedjs_margin-top {position:static!important}
           .proposal-master-document .pagedjs_margin-top-center {left:0!important;right:0!important;top:0!important;bottom:auto!important;width:var(--psa-page-width,210mm)!important;height:var(--psa-header-height)!important}
-          .proposal-master-document .proposal-margin-furniture .proposal-page-header {position:relative!important;left:0!important;right:auto!important;top:0!important;width:var(--psa-page-width,210mm)!important;height:var(--psa-header-height)!important;display:block!important}
+          .proposal-master-document .proposal-margin-furniture .proposal-page-header {position:relative!important;left:var(--psa-header-x)!important;right:auto!important;top:var(--psa-header-y)!important;width:var(--psa-header-width)!important;height:var(--psa-header-height)!important;display:block!important}
           .proposal-master-document .proposal-letterhead-brand {position:absolute!important;left:var(--psa-logo-x)!important;top:var(--psa-logo-y)!important;transform:var(--psa-logo-transform)!important}
           .proposal-master-document .proposal-letterhead-logo {width:var(--psa-logo-width)!important;height:var(--psa-logo-height)!important;max-width:none!important}
-          .proposal-master-document .proposal-letterhead-contact {position:absolute!important;left:var(--psa-contact-x)!important;top:var(--psa-contact-y)!important;width:var(--psa-contact-width)!important;margin:0!important}
+          .proposal-master-document .proposal-letterhead-contact {position:absolute!important;left:var(--psa-contact-x)!important;top:var(--psa-contact-y)!important;width:var(--psa-contact-width)!important;margin:0!important;text-align:var(--psa-contact-align)!important}
           .proposal-master-document .pagedjs_margin-bottom {position:static!important}
-          .proposal-master-document .pagedjs_margin-bottom-left {left:14mm!important;right:44mm!important;bottom:6mm!important}
-          .proposal-master-document .pagedjs_margin-bottom-right {right:14mm!important;bottom:6mm!important}
+          .proposal-master-document .pagedjs_margin-bottom-left {left:var(--psa-footer-x)!important;right:auto!important;top:var(--psa-footer-y)!important;bottom:auto!important;width:var(--psa-footer-width)!important;height:var(--psa-footer-height)!important}
+          .proposal-master-document .proposal-margin-furniture .proposal-page-footer {position:relative!important;left:0!important;top:0!important;bottom:auto!important;width:var(--psa-footer-width)!important;height:var(--psa-footer-height)!important}
+          .proposal-master-document .pagedjs_margin-bottom-right {display:none!important}
           .proposal-master-document .proposal-page-footer,.proposal-master-document .pagedjs_margin-bottom-right,.proposal-master-document .pagedjs_margin-bottom-right *,.proposal-master-document .pagedjs_margin-bottom-right > .pagedjs_margin-content::after {font-size:var(--psa-footer-size)!important}
           .proposal-master-document[data-header-hidden="true"] .pagedjs_margin-top-center,.proposal-master-document[data-footer-hidden="true"] .pagedjs_margin-bottom-left,.proposal-master-document[data-footer-hidden="true"] .pagedjs_margin-bottom-right {visibility:hidden!important}
           /* Screen-only sheet presentation; print never sees these rules. */
