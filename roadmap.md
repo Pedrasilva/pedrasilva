@@ -1,6 +1,6 @@
 ## Current request — Luis corrections 14 November 10:22
-- [ ] Correct six Oleiro new-revision document prices and new-proposal defaults only; preserve fees/margins/previous revision/Chiado.
-- [ ] Verify canonical Gantt helper and dynamic reorder regression; explain branch-first/local-order cause; B1 OFF.
+- [x] Correct six Oleiro new-revision document prices and new-proposal defaults only; preserve fees/margins/previous revision/Chiado.
+- [x] Verify canonical Gantt helper and dynamic reorder regression; explain branch-first/local-order cause; B1 OFF.
 
 ## Current request — Oleiro designer revision and category sale defaults
 - [x] Create genuine new Oleiro revision with designer scope adapted from all Chiado blocks; preserve source, Chiado, PIP and tourism regime.
