@@ -1,3 +1,7 @@
+## Current request — movable master footer
+- [ ] Await approval of the master-footer plan: shared selectable/draggable/resizable furniture, mm controls, keyboard steps, snapping, safe text margin and cover/letter visibility.
+- [ ] Verify isolated save/reload and read-only Chiado Pages/PDF, restore original position, report cause and limitations; no content writes, B1 OFF.
+
 ## Current request — master text spacing
 - [x] Shared spacing controls, presets, inheritance/explicit overrides and current-block live preview.
 - [x] Approved PSA master saved revision2; Chiado/Oleiro inherit with no proposal writes, content/B1 preserved.
