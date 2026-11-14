@@ -22,6 +22,11 @@ describe('Master page rules', () => {
     expect(furnitureVariant(m,'letter').footer.show).toBe(false);
     expect(furnitureVariant(m,'content').footer.show).toBe(true);
   });
+  it('preserves bottom and right edge distances on landscape sheets',()=>{
+    const m=moveMasterElement(resolveMaster(),'footer',{y:240});
+    expect(masterVariables(m,297,210)['--psa-footer-y']).toBe('153mm');
+    expect(masterVariables(m,297,210)['--psa-footer-number-x']).toBe('239mm');
+  });
   it('preserves legacy margins and independent logo coordinates without changing input', () => {
     const input = { marginLeft: 30, showFooter: false }; const m = resolveMaster(input);
     expect(m.margins).toEqual({ top: 34, bottom: 32, left: 30, right: 14 }); expect(m.logo.x).toBe(14); expect(m.footer.show).toBe(false); expect(input).toEqual({ marginLeft: 30, showFooter: false });

@@ -347,7 +347,7 @@ export function PaginatedPreview({
           const landscape=!!pageBox.querySelector('[data-gantt-sheet]');
           pageBox.closest<HTMLElement>('.pagedjs_page')?.setAttribute('data-orientation',landscape?'landscape':'portrait');
           const adapted=landscape?{...variant,logo:{...variant.logo,x:variant.logo.x+(variant.logo.alignment==='right'?87:variant.logo.alignment==='centre'?43.5:0)},contact:{...variant.contact,x:variant.contact.x+87}}:variant;
-          Object.entries(masterVariables(adapted)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
+          Object.entries(masterVariables(adapted,landscape?297:210,landscape?210:297)).forEach(([key,value]) => pageBox.style.setProperty(key,value));
           pageBox.style.setProperty('--psa-page-width',landscape?'297mm':'210mm');
           pageBox.dataset.headerHidden = String(!variant.header.show);
           pageBox.dataset.footerHidden = String(!variant.footer.show);

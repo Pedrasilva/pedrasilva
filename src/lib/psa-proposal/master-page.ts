@@ -89,7 +89,7 @@ export function safeBottomMargin(m: MasterPage): number {
   return Math.max(m.margins.bottom,297-top+3);
 }
 
-export function masterVariables(m: MasterPage): Record<string, string> {
+export function masterVariables(m: MasterPage, pageWidth = 210, pageHeight = 297): Record<string, string> {
   const header=masterElement(m,'header'),footer=masterElement(m,'footer');
   const address=masterElement(m,'footerAddress'),number=masterElement(m,'footerNumber'),logo=masterElement(m,'footerLogo');
   return {
@@ -102,9 +102,9 @@ export function masterVariables(m: MasterPage): Record<string, string> {
     '--psa-header-x': `${header.x}mm`, '--psa-header-y': `${header.y}mm`, '--psa-header-width': `${header.width}mm`,
     '--psa-contact-x': `${m.contact.x}mm`, '--psa-contact-y': `${m.contact.y}mm`, '--psa-contact-width': `${m.contact.width}mm`, '--psa-contact-align': m.contact.alignment??'right',
     '--psa-footer-size': `${m.footer.fontSize}pt`, '--psa-footer-bottom': `${297-footer.y-m.footer.height}mm`,
-    '--psa-footer-x':`${footer.x}mm`, '--psa-footer-y':`${footer.y}mm`, '--psa-footer-width':`${footer.width}mm`,
+    '--psa-footer-x':`${footer.x}mm`, '--psa-footer-y':`${footer.y+pageHeight-297}mm`, '--psa-footer-width':`${footer.width+pageWidth-210}mm`,
     '--psa-footer-address-x':`${address.x}mm`, '--psa-footer-address-y':`${address.y}mm`, '--psa-footer-address-width':`${address.width}mm`, '--psa-footer-address-align':address.alignment,
-    '--psa-footer-number-x':`${number.x}mm`, '--psa-footer-number-y':`${number.y}mm`, '--psa-footer-number-width':`${number.width}mm`, '--psa-footer-number-align':number.alignment,
+    '--psa-footer-number-x':`${number.x+pageWidth-210}mm`, '--psa-footer-number-y':`${number.y}mm`, '--psa-footer-number-width':`${number.width}mm`, '--psa-footer-number-align':number.alignment,
     '--psa-footer-logo-x':`${logo.x}mm`, '--psa-footer-logo-y':`${logo.y}mm`, '--psa-footer-logo-width':`${logo.width}mm`, '--psa-footer-logo-align':logo.alignment,
   };
 }
