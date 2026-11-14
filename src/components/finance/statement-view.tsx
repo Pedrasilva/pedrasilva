@@ -1,3 +1,4 @@
+import { csvSafeCell } from "@/lib/csv-safe";
 import { translateError } from '@/lib/translate-error';
 /**
  * Statement view — one component for bank accounts, clients and suppliers.
@@ -176,7 +177,7 @@ export function StatementView({
       ["", "", t("finance:statements.openingBalance"), "", st.openingBalance]
         .join(";"),
       ...st.entries.map((e) =>
-        [e.date, e.reference, e.description.replace(/;/g, ","), e.amount, e.running].join(
+        [e.date, e.reference, e.description.replace(/;/g, ","), e.amount, e.running].map(csvSafeCell).join(
           ";",
         ),
       ),

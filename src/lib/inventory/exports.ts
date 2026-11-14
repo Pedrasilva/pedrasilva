@@ -1,3 +1,4 @@
+import { csvSafeCell } from "@/lib/csv-safe";
 /**
  * Inventory exports — XLSX / CSV report builders.
  *
@@ -131,7 +132,15 @@ export function exportRows(
   filename: string,
   format: "xlsx" | "csv",
 ) {
-  const sheet = XLSX.utils.json_to_sheet(rows);
+  const sheet = XLSX.utils.json_to_sheet(
+    format === "csv"
+      ? rows.map((r) =>
+          Object.fromEntries(
+            Object.entries(r).map(([k, v]) => [k, typeof v === "string" ? csvSafeCell(v) : v]),
+          ),
+        )
+      : rows,
+  );
   if (format === "csv") {
     const csv = XLSX.utils.sheet_to_csv(sheet);
     download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${filename}.csv`);
