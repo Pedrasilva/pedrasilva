@@ -592,3 +592,10 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Padrão aprovado:** corpo/listas1,4; parágrafos6pt; itens3pt; lista antes/depois3/6pt; H2 antes/depois18/6pt; H3 antes/depois12/4pt. Avanço14pt, marcador4pt, padding de tabela3pt e antes/depois6/6pt, notas3pt como valores iniciais ajustáveis.
 - **Preservação:** modelo guardado com revisão1→2; Chiado/Oleiro sem overrides de espaçamento herdam-no sem escritas nas propostas; conteúdo, fees, pagamentos e B1 intactos.
 - **Verificação/limites:** Páginas/PDF físico35folhas Chiado e36Oleiro; corpo/lista19,6px, parágrafo8px, item3pt. Diálogo mostra bloco real e alterações em memória, canceladas; sem erros.19 testes e auditoria i18n aprovados. Botão nativo PDF e ciclo persistente de override não certificados nesta tarefa. [Relatório](proposal-text-spacing-2026-11-14.md).
+
+### D71 — Rodapé móvel na página-mestre
+- **Data/área:** 14/11/2026 às12:58UTC; pedido de Luis, página-mestre/PDF.
+- **Decisão:** Cabeçalho, rodapé e respetivos elementos usam a mesma geometria em mm: seleção, arrasto, redimensionamento, setas de 1pt e Shift de 10pt, encaixe nas margens/coluna, X/Y/largura/alinhamento e distância do rodapé ao fundo. Opções independentes ocultam o rodapé na Capa e na Carta.
+- **Causa:** Arrasto existia só no logo/contactos; o rodapé não tinha posições guardadas e a paginação forçava 14mm laterais e 6mm do fundo.
+- **Preservação:** Valores antigos resolvem-se sem escrita; a margem inferior reserva o rodapé deslocado. Nenhum conteúdo, valor, fase, numeração ou dado Chiado gravado; B1OFF.
+- **Validação/limites:** Chiado em cópia de memória: 36→40 folhas com rodapé a240mm, margem60mm e PDF físico40; reposto36/36. Gravação/reabertura exercida com escrita intercetada; persistência em fixture separado e botão PDF nativo não certificados. [Relatório](proposal-master-footer-2026-11-14.md).

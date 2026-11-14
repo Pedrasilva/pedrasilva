@@ -1,6 +1,7 @@
 ## Current request — movable master footer
-- [ ] Await approval of the master-footer plan: shared selectable/draggable/resizable furniture, mm controls, keyboard steps, snapping, safe text margin and cover/letter visibility.
-- [ ] Verify isolated save/reload and read-only Chiado Pages/PDF, restore original position, report cause and limitations; no content writes, B1 OFF.
+- [x] Shared selectable/draggable/resizable furniture, mm controls, 1/10 pt keys, snapping, safe text margin and cover/letter visibility.
+- [x] Chiado memory copy Pages/physical PDF 36→40→36 and intercepted save/reopen; no real writes, B1 OFF.
+- [ ] Persisted separate-quote save and native PDF button remain uncertified.
 
 ## Current request — master text spacing
 - [x] Shared spacing controls, presets, inheritance/explicit overrides and current-block live preview.
