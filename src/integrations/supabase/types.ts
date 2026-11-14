@@ -14976,6 +14976,7 @@ export type Database = {
           archived_at: string | null
           code: string
           created_at: string
+          default_sale_rate: number | null
           default_seniority: number | null
           hourly_rate: number
           id: string
@@ -14988,6 +14989,7 @@ export type Database = {
           archived_at?: string | null
           code: string
           created_at?: string
+          default_sale_rate?: number | null
           default_seniority?: number | null
           hourly_rate?: number
           id?: string
@@ -15000,6 +15002,7 @@ export type Database = {
           archived_at?: string | null
           code?: string
           created_at?: string
+          default_sale_rate?: number | null
           default_seniority?: number | null
           hourly_rate?: number
           id?: string
@@ -15562,6 +15565,7 @@ export type Database = {
       quote_billable_hourly_rates: {
         Row: {
           created_at: string
+          default_inherited: boolean
           id: string
           notes: string | null
           quote_id: string
@@ -15571,6 +15575,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          default_inherited?: boolean
           id?: string
           notes?: string | null
           quote_id: string
@@ -15580,6 +15585,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          default_inherited?: boolean
           id?: string
           notes?: string | null
           quote_id?: string

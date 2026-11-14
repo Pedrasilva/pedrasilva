@@ -94,6 +94,7 @@ function ProposalRolesAdminPage() {
           label_pt: r.label_pt,
           default_seniority: r.default_seniority,
           hourly_rate: r.hourly_rate,
+          default_sale_rate: r.default_sale_rate ?? null,
           sort_order: r.sort_order,
         })
         .eq("id", r.id);
@@ -204,6 +205,7 @@ function ProposalRolesAdminPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">{uiI18n.t("crm:quoteEditor.catalogue")}</CardTitle>
+            <CardDescription>{uiI18n.t("crm:quoteEditor.categorySaleDefaultsHint")}</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -217,6 +219,7 @@ function ProposalRolesAdminPage() {
                     <TableHead>{uiI18n.t("crm:quoteEditor.titlePt")}</TableHead>
                     <TableHead className="w-28">{uiI18n.t("crm:quoteEditor.seniority")}</TableHead>
                     <TableHead className="w-32 text-right">{uiI18n.t("glossary:financial.costRate")}</TableHead>
+                    <TableHead className="w-32 text-right">{uiI18n.t("glossary:financial.saleRate")}</TableHead>
                     <TableHead className="w-40 text-right">{uiI18n.t("common:actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -232,7 +235,7 @@ function ProposalRolesAdminPage() {
                   ))}
                   {roles.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
+                      <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
                         {uiI18n.t("crm:quoteEditor.noTitlesYet")}
                       </TableCell>
                     </TableRow>
@@ -266,6 +269,7 @@ function RoleRow({
     draft.label_pt !== role.label_pt ||
     draft.default_seniority !== role.default_seniority ||
     Number(draft.hourly_rate) !== Number(role.hourly_rate) ||
+    draft.default_sale_rate !== role.default_sale_rate ||
     draft.sort_order !== role.sort_order;
   const archived = !!role.archived_at;
 
@@ -333,6 +337,17 @@ function RoleRow({
           />
           <span className="text-muted-foreground text-xs">€</span>
         </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <Input
+          type="number"
+          min={0}
+          step="0.01"
+          className="h-8 w-24 tabular-nums text-right"
+          aria-label={uiI18n.t("glossary:financial.saleRate")}
+          value={draft.default_sale_rate ?? ""}
+          onChange={(e) => setDraft({ ...draft, default_sale_rate: e.target.value === "" ? null : Number(e.target.value) })}
+        />
       </TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-1">

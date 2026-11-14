@@ -2029,6 +2029,7 @@
     "titleInUse": "Em uso — arquive em vez de eliminar.",
     "backAdmin": "Voltar à administração",
     "commercialTitles": "Títulos / Funções comerciais",
+    "categorySaleDefaultsHint": "Os valores de venda são padrões apenas para novas propostas. Propostas existentes e valores introduzidos manualmente permanecem inalterados. Campos vazios não têm padrão de categoria.",
     "commercialTitlesHint": "Catálogo de títulos usados nas fichas dos colaboradores e nas propostas. As horas e valores no editor de propostas são apresentados por título, nunca pelo nome do colaborador.",
     "titleEn": "Título (EN)",
     "titleEnHint": "Ex.: líder de projeto",

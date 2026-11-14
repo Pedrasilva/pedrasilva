@@ -2029,6 +2029,7 @@
     "titleInUse": "In use — archive instead of deleting.",
     "backAdmin": "Back to administration",
     "commercialTitles": "Titles / Commercial roles",
+    "categorySaleDefaultsHint": "Sale rates are defaults for new proposals only. Existing proposals and manually entered rates remain unchanged. Empty values have no category default.",
     "commercialTitlesHint": "Catalogue of titles used in collaborator profiles and proposals. Hours and sale values in the Proposal Builder are shown by title, never by collaborator name.",
     "titleEn": "Title (EN)",
     "titleEnHint": "e.g. Project lead",
