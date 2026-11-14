@@ -2262,6 +2262,13 @@
       "when": 1794568515864,
       "tag": "0322_d53_sync_scoped_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 323,
+      "version": "7",
+      "when": 1794651233759,
+      "tag": "0323_proposal_category_sale_defaults",
+      "breakpoints": true
     }
   ]
 }
