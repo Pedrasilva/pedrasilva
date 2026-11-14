@@ -21,6 +21,7 @@ describe('block library rules',()=>{
   });
   it('recognizes existing description blocks as single use without rewriting content',()=>{
     expect(blockLibraryKey({block_type:'custom_text',title:'3. Descrição do Projeto',content_rich:{}})).toBe('description');
+    expect(blockLibraryKey({block_type:'scope',title:'Descrição do Projeto',content_rich:{}})).toBe('description');
     expect(isRepeatable('description')).toBe(false);
   });
 });

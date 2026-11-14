@@ -64,8 +64,8 @@ export function BlockLibraryPanel({
   const ranks = stageOrderRanks((live.data?.stages ?? []).map(s=>({id:s.id,name:s.name,parent_stage_id:s.parentStageId,sort_order:s.sortOrder})));
   const sorted = outlineBlocks(blocks,ranks);
   useEffect(()=>{
-    const frame = source?.closest('[data-composer-layout]')?.querySelector<HTMLIFrameElement>('iframe.proposal-pagination-frame');
     const refresh = () => {
+      const frame = source?.closest('[data-composer-layout]')?.querySelector<HTMLIFrameElement>('iframe.proposal-pagination-frame');
       const result: Record<string,string> = {};
       frame?.contentDocument?.querySelectorAll<HTMLElement>('.pagedjs_page').forEach((page,index)=>{
         page.querySelectorAll<HTMLElement>('[data-proposal-block-id]').forEach(node=>{
@@ -237,7 +237,7 @@ export function BlockLibraryPanel({
     {...manualEntries[1], id:'table', default_title:'Tabela', default_content_rich:{html:'<table><tbody><tr><td></td><td></td></tr></tbody></table>',libraryRole:'table'}});
   const entries = [...new Map([...(lib.data ?? []),...manualEntries].map(entry=>[libraryEntryKey(entry),entry])).values()];
   const counts=new Map<string,number>();
-  blocks.forEach(block=>{const key=blockLibraryKey(block); counts.set(key,(counts.get(key)??0)+1);});
+  blocks.forEach(block=>{const key=blockLibraryKey(block); counts.set(key,(counts.get(key)??0)+1); if(key!==block.block_type && block.block_type!=='custom_text') counts.set(block.block_type,(counts.get(block.block_type)??0)+1);});
   const label = (entry: PsaLibraryEntry) => libraryEntryKey(entry)==='description' ? t('crm:quoteEditor.library.description') : libraryEntryKey(entry)==='table' ? t('crm:quoteEditor.library.table') : t(BLOCK_UI_KEYS[entry.kind]);
   const matches=(text:string)=>text.toLocaleLowerCase().includes(q.toLocaleLowerCase());
   const documentType = blocks.some(b=>b.source_type==='contract_clause') ? 'contract' : 'proposal';

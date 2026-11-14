@@ -12,8 +12,8 @@ const groups: Record<PsaBlockType, LibraryGroup> = {
   custom_text:'general', image:'general', page_break:'general', appendix_index:'opening', appendix_gantt:'phases',
 };
 export function blockLibraryKey(block: Pick<PsaProposalBlock, 'block_type'|'title'|'content_rich'>): string {
-  if (block.block_type !== 'custom_text') return block.block_type;
   if (block.content_rich.libraryRole === 'description' || /descri[çc][aã]o (?:do )?proje[ct]o|project description/i.test(block.title)) return 'description';
+  if (block.block_type !== 'custom_text') return block.block_type;
   if (block.content_rich.libraryRole === 'table') return 'table';
   return 'custom_text';
 }
