@@ -1,3 +1,4 @@
+import { csvSafeCell } from "@/lib/csv-safe";
 import { fmtEUR } from "@/lib/hr/ui-format";
 import uiI18n from "@/i18n/index";
 import { useEffect, useMemo, useState } from "react";
@@ -258,7 +259,7 @@ function exportExpensesCsv(
   },
 ) {
   const esc = (v: unknown) => {
-    const s = v == null ? "" : String(v);
+    const s = csvSafeCell(v);
     return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const lines = [i18n.headers.join(";")].concat(

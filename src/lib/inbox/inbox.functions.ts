@@ -349,6 +349,24 @@ export const forwardEmailEvent = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     await assertCanTriage(context.userId);
+    // Forwarding is limited to internal addresses: the domains of the
+    // studio's connected inboxes or a registered collaborator email.
+    const to = data.to.toLowerCase();
+    const domains = new Set(
+      (await activeInboxes())
+        .map((i) => String(i.inbox_address ?? "").toLowerCase().split("@")[1])
+        .filter(Boolean),
+    );
+    let allowed = domains.has(to.split("@")[1] ?? "");
+    if (!allowed) {
+      const { data: collab } = await supabaseAdmin
+        .from("collaborators")
+        .select("id")
+        .ilike("email", to)
+        .limit(1);
+      allowed = (collab?.length ?? 0) > 0;
+    }
+    if (!allowed) throw new Error("Forwarding is limited to internal addresses");
     const { ctx, gmailMessageId } = await ctxForEvent(data.id);
     const { forwardMessage } = await import("./gmail.server");
     await forwardMessage(ctx, {

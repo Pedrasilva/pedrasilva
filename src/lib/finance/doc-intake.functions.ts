@@ -45,7 +45,7 @@ export const ingestFinancialDocument = createServerFn({ method: "POST" })
     z
       .object({
         storagePath: z.string().min(1).max(1024),
-        bucket: z.string().min(1).max(64).default("financial-documents"),
+        bucket: z.literal("financial-documents").default("financial-documents"),
         originalFilename: z.string().max(512).nullable().optional(),
         source: z.enum(["manual_upload", "email_ingestion"]).default("manual_upload"),
       })
@@ -54,6 +54,15 @@ export const ingestFinancialDocument = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<IngestResult> => {
     const { supabase, userId } = context;
     await assertFinanceAccess(supabase, userId);
+    if (data.storagePath.includes("..") || data.storagePath.startsWith("/")) {
+      throw new Error("Invalid storage path");
+    }
+    // The caller must be able to read the object under their own storage
+    // permissions before the privileged extraction downloads it.
+    const { error: accessErr } = await supabase.storage
+      .from(data.bucket)
+      .createSignedUrl(data.storagePath, 30);
+    if (accessErr) throw new Error("File not accessible");
 
     // Manual uploads go to the company chosen in the entity switcher
     // (previously every upload defaulted to PSA).
