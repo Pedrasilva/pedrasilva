@@ -585,3 +585,10 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Data/área:**14/11/2026; editor de propostas, aprovação de Luis.
 - **Decisão:** Interface dividida em estrutura e adicionar, compacta/recolhível, agrupada e pesquisável; usos únicos desaparecem quando existentes, repetíveis mantêm contadores. Navegação/páginas usam o render concluído; ordem de fases usa o helper do Gantt. Ações reutilizam as existentes; nenhum dado documental migrado, B1OFF.
 - **Verificação/limites:** Chiado31/Oleiro36 blocos, páginas38/40, seleção/rolagem/filtros autenticados sem gravações;17 testes aprovados. Ações persistentes não executadas em propostas reais; contrato usa os metadados existentes, sem criar modelo novo. [Lista de tipos e relatório](proposal-block-library-2026-11-14.md).
+
+### D70 — Espaçamento configurável do modelo e da proposta
+- **Data/área:**14/11/2026 às12:38UTC; aprovação de Luis, tipografia documental.
+- **Decisão:** Controlos partilhados para entrelinha, parágrafos, listas, avanços/marcadores, H2/H3, tabelas e notas; presets Compacto/Padrão/Arejado e reposições PSA/modelo. Espaçamento herda o modelo vivo, salvo override explícito; fontes e geometria mantêm os snapshots existentes. Substitui D68 apenas no acoplamento dos intervalos das listas aos parágrafos.
+- **Padrão aprovado:** corpo/listas1,4; parágrafos6pt; itens3pt; lista antes/depois3/6pt; H2 antes/depois18/6pt; H3 antes/depois12/4pt. Avanço14pt, marcador4pt, padding de tabela3pt e antes/depois6/6pt, notas3pt como valores iniciais ajustáveis.
+- **Preservação:** modelo guardado com revisão1→2; Chiado/Oleiro sem overrides de espaçamento herdam-no sem escritas nas propostas; conteúdo, fees, pagamentos e B1 intactos.
+- **Verificação/limites:** Páginas/PDF físico35folhas Chiado e36Oleiro; corpo/lista19,6px, parágrafo8px, item3pt. Diálogo mostra bloco real e alterações em memória, canceladas; sem erros.19 testes e auditoria i18n aprovados. Botão nativo PDF e ciclo persistente de override não certificados nesta tarefa. [Relatório](proposal-text-spacing-2026-11-14.md).

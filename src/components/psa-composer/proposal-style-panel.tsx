@@ -16,6 +16,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ProposalMasterButton } from "./master-page-editor";
+import { TextSpacingControls } from './text-spacing-controls';
+import { resolveTextSpacing } from '@/lib/psa-proposal/text-spacing';
 
 import {
   Select,
@@ -236,7 +238,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
 
-      <div className="space-y-1"><Label>{uiI18n.t('crm:quoteEditor.paragraphSpacing')}</Label><Slider aria-label={uiI18n.t('crm:quoteEditor.paragraphSpacing')} min={0} max={1.5} step={0.05} value={[v.paragraphGap??0.75]} onValueChange={([value])=>patch({paragraphGap:value})}/></div>
+      <TextSpacingControls value={resolveTextSpacing(defaults.data?.template.textSpacing,v.textSpacing,v.textSpacingOverride)} override={v.textSpacingOverride??false} onOverride={enabled=>patch({textSpacingOverride:enabled,textSpacing:enabled?resolveTextSpacing(defaults.data?.template.textSpacing,v.textSpacing,true):v.textSpacing})} onChange={textSpacing=>patch({textSpacing,textSpacingOverride:true})} onReset={()=>patch({textSpacingOverride:false,textSpacing:undefined})} disabled={locked}/>
       </fieldset>
       <div className="border-t pt-3"><ProposalMasterButton proposal={proposal} readOnly={!!proposal.locked_at || proposal.status === "sent" || proposal.status === "accepted"} /></div>
     </div>

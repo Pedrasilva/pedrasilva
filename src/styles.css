@@ -593,7 +593,6 @@
 /* Keep small atomic units together so they don't split mid-line, but allow
    larger blocks to flow naturally across pages — otherwise whole sections
    get pushed to a new page leaving large white gaps. */
-.proposal-print-document .proposal-print-block li,
 .proposal-print-document .proposal-print-block p {
   orphans: 2;
   widows: 2;
@@ -637,12 +636,13 @@
 .proposal-print-document .psa-rich li,
 .proposal-print-document .psa-rich span,
 .proposal-print-document .proposal-print-block p,
-.proposal-print-document .proposal-print-block li,
 .proposal-print-document .proposal-print-block dd,
 .proposal-print-document .proposal-print-block dt,
 .proposal-print-document .proposal-print-block td,
 .proposal-print-document .proposal-print-block th {
   font-size: var(--psa-body-size) !important;
+  line-height: var(--psa-list-leading) !important;
+  padding-inline-start: var(--psa-marker-gap) !important;
 }
 .proposal-print-document .proposal-print-block h2.proposal-print-heading {
   font-size: calc(12.5pt * var(--psa-heading-scale, 1)) !important;
@@ -1968,6 +1968,7 @@
 .master-sheet { width:210mm; height:297mm; transform-origin:top left; box-shadow:0 0 0 1px var(--border); overflow:hidden; }
 .master-controls { overflow:auto; max-height:72dvh; padding-right:8px; }
 .master-margin-guides { position:absolute; border:1px dashed var(--primary); pointer-events:none; }
+.master-text-preview { position:absolute; overflow:hidden; pointer-events:none; font-size:var(--psa-body-size,10.5pt); }
 .master-header-guide,.master-footer-guide {position:absolute;left:0;right:0;border-bottom:1px dotted var(--border);pointer-events:none;}
 .master-header-guide{top:0}.master-footer-guide{bottom:0;border-top:1px dotted var(--border);border-bottom:0}
 .master-draggable {cursor:move;touch-action:none;outline:1px dashed var(--primary);}
@@ -2047,14 +2048,18 @@
 /* One rhythm contract, collected unchanged by Paged.js and PDF export.
    Spacing derives from the body line box, not the larger heading font. */
 .proposal-print-document {
-  --psa-body-leading: 1.5;
+  --psa-body-leading: 1.4;
   --psa-body-line: calc(var(--psa-body-size) * var(--psa-body-leading));
-  --psa-paragraph-gap: calc(var(--psa-body-line) * 0.5);
+  --psa-paragraph-gap: 6pt;
+  --psa-list-leading: 1.4; --psa-list-item-gap: 3pt;
+  --psa-list-before: 3pt; --psa-list-after: 6pt;
+  --psa-list-indent: 14pt; --psa-marker-gap: 4pt;
+  --psa-table-padding: 3pt; --psa-table-before: 6pt; --psa-table-after: 6pt; --psa-table-note-before: 3pt;
   --psa-attached-gap: calc(var(--psa-body-line) * 0.2);
-  --psa-h2-before: calc(var(--psa-body-line) * 1.166666667);
-  --psa-h2-after: calc(var(--psa-body-line) / 3);
-  --psa-h3-before: calc(var(--psa-body-line) * 0.833333333);
-  --psa-h3-after: calc(var(--psa-body-line) * 0.266666667);
+  --psa-h2-before: 18pt;
+  --psa-h2-after: 6pt;
+  --psa-h3-before: 12pt;
+  --psa-h3-after: 4pt;
   --psa-table-rule: 0.5pt;
   --psa-table-inset: 0.5em;
   --psa-note-scale: 0.85;
@@ -2068,7 +2073,6 @@
   margin-bottom: var(--psa-paragraph-gap) !important;
 }
 .proposal-print-document .proposal-print-block p,
-.proposal-print-document .proposal-print-block li,
 .proposal-print-document .proposal-print-block .psa-rich,
 .proposal-print-document .psa-general-terms-columns {
   line-height: var(--psa-body-leading) !important;
@@ -2083,25 +2087,34 @@
   margin: var(--psa-h3-before) 0 var(--psa-h3-after) !important;
 }
 .proposal-print-document .proposal-print-block [data-proposal-heading-follows="true"] {
-  margin-top: 0 !important;
+  margin-top: var(--psa-h2-before) !important;
 }
+.proposal-print-document .proposal-print-block h3[data-proposal-heading-follows="true"] { margin-top: var(--psa-h3-before) !important; }
 .proposal-print-document .proposal-print-block ul,
 .proposal-print-document .proposal-print-block ol {
-  margin-block: 0 var(--psa-paragraph-gap) !important;
+  margin-block: var(--psa-list-before) var(--psa-list-after) !important;
+  padding-inline-start: var(--psa-list-indent) !important;
 }
 .proposal-print-document .proposal-print-block li {
   margin: 0 !important; padding-block: 0 !important; border-bottom: 0 !important;
 }
 .proposal-print-document .proposal-print-block li + li {
-  margin-top: var(--psa-paragraph-gap) !important;
+  margin-top: var(--psa-list-item-gap) !important;
 }
 .proposal-print-document .proposal-print-block li {
   font-size: var(--psa-body-size) !important;
+  line-height: var(--psa-list-leading) !important;
+  padding-inline-start: var(--psa-marker-gap) !important;
 }
 .proposal-print-document .proposal-print-block ul,
 .proposal-print-document .proposal-print-block ol {
   list-style-position: outside !important;
 }
+.proposal-print-document .proposal-print-block li p { line-height: var(--psa-list-leading) !important; }
+.proposal-print-document [data-proposal-block-type="index"] ul,
+.proposal-print-document [data-proposal-block-type="index"] ol { padding-inline-start: 0 !important; margin-block: 0 var(--psa-paragraph-gap) !important; }
+.proposal-print-document [data-proposal-block-type="index"] li { padding-inline-start: 0 !important; line-height: var(--psa-body-leading) !important; }
+.proposal-print-document [data-proposal-block-type="index"] li + li { margin-top: var(--psa-paragraph-gap) !important; }
 /* The generic li margin reset previously erased the index's ml-8 hierarchy.
    Keep hierarchy explicit and independent from body-list spacing. */
 .proposal-print-document [data-proposal-block-type="index"] li[data-toc-level="1"] {
@@ -2119,15 +2132,15 @@
   margin: 0 !important;
 }
 .proposal-print-document .proposal-print-block p[data-list-lead-in="true"] {
-  margin-bottom: var(--psa-paragraph-gap) !important;
+  margin-bottom: var(--psa-list-before) !important;
 }
 .proposal-print-document .proposal-print-block table {
-  margin: 0 0 var(--psa-paragraph-gap) !important;
+  margin: var(--psa-table-before) 0 var(--psa-table-after) !important;
   line-height: var(--psa-body-leading) !important;
 }
 .proposal-print-document .proposal-print-block table th,
 .proposal-print-document .proposal-print-block table td {
-  padding: var(--psa-attached-gap) var(--psa-table-inset) !important;
+  padding: var(--psa-table-padding) var(--psa-table-inset) !important;
   border: 0 !important;
   border-bottom: var(--psa-table-rule) solid var(--psa-document-rule) !important;
   line-height: var(--psa-body-leading) !important;
@@ -2146,8 +2159,10 @@
   text-align: right !important; font-variant-numeric: tabular-nums lining-nums;
 }
 .proposal-print-document .proposal-print-block table[data-proposal-has-note="true"] {
-  margin-bottom: var(--psa-attached-gap) !important;
+  margin-bottom: var(--psa-table-note-before) !important;
 }
+.proposal-print-document .proposal-print-block p:has(+ table) { margin-bottom: var(--psa-table-before) !important; }
+.proposal-print-document .proposal-print-block table + [data-proposal-note="true"] { margin-top: 0 !important; }
 .proposal-print-document .proposal-print-block [data-proposal-note="true"],
 .proposal-print-document .proposal-print-block figcaption {
   font-size: calc(var(--psa-body-size) * var(--psa-note-scale)) !important;

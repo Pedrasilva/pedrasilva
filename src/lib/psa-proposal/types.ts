@@ -63,6 +63,8 @@ export type PsaContractRelevance =
   | "internal_only";
 
 export interface PsaProposalStyleSettings {
+  textSpacing?: Partial<import('./text-spacing').TextSpacing>;
+  textSpacingOverride?: boolean;
   pageTypesEnabled?: boolean;
   letterSettings?: import('./letter').LetterSettings;
   masterPage?: import('./master-page').MasterPage;
