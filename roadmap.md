@@ -1,3 +1,7 @@
+## Current request — block library redesign
+- [x] Compact outline with page navigation, guarded existing actions and Gantt stage order; grouped available blocks, use counters and independent scrolling.
+- [x] Read-only Chiado31/Oleiro36 blocks,38/40 pages, selection/scroll/use filtering and17 rule tests verified; no proposal data writes; B1 OFF. Existing write actions not exercised on real documents; report documents limitations.
+
 ## Current request — index hierarchy and paragraph-matched lists
 - [x] Restore 0/1.5em/3em index hierarchy and hanging text with leaders/page columns in shared CSS; global important li reset was the cause.
 - [x] Match list font/leading/item and colon lead-in gaps to the paragraph slider; Chiado38 Pages/physical PDF sheets,12 tests pass; no content writes/B1 OFF.

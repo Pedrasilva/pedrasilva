@@ -1768,6 +1768,12 @@
     "perMonthDot": "/ mês ·",
     "blockAdded": "Bloco «{{value1}}» adicionado",
     "blockLibrary": "Biblioteca de blocos",
+    "library": {
+      "outline": "Nesta proposta", "add": "Adicionar bloco", "otherTypes": "Mostrar outros tipos de documento", "description": "Descrição do Projeto", "table": "Tabela",
+      "showAll_one": "Mostrar todos ({{count}} em uso)", "showAll_other": "Mostrar todos ({{count}} em uso)", "inUse": "Em uso – ir para", "actions": "Ações: {{title}}", "hide": "Ocultar no documento", "show": "Mostrar no documento",
+      "groups": { "opening": "Abertura", "project": "Projeto", "phases": "Fases", "fees": "Honorários e pagamento", "contract": "Contrato", "general": "Geral" },
+      "descriptions": { "opening": "Abertura e apresentação do documento.", "project": "Âmbito e responsabilidades do projeto.", "phases": "Fases e programa definidos no Gantt.", "fees": "Honorários e condições de pagamento.", "contract": "Termos, exclusões e aceitação.", "general": "Texto, imagens e disposição editáveis." }
+    },
     "searchBlocks": "Procurar blocos…",
     "noResults": "Sem resultados.",
     "selectImageHint": "Selecione uma imagem no painel de definições",
