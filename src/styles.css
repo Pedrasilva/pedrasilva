@@ -2025,8 +2025,18 @@
 .proposal-print-document .psa-rich table thead { display: table-header-group !important; }
 .proposal-print-document table tr { break-inside: avoid; }
 .proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link {
-  display: grid; grid-template-columns: 3.5em minmax(0, 1fr) 2.5em;
+  display: grid; grid-template-columns: 3.5em minmax(0, auto) minmax(1em, 1fr) 2.5em;
   gap: 0.5em; width: 100%; text-align: start;
+}
+.proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link > :nth-child(2) {
+  min-width: 0; overflow-wrap: break-word;
+}
+.proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link::after {
+  content: ""; grid-column: 3; grid-row: 1; align-self: end;
+  border-bottom: 1px dotted var(--psa-document-rule); margin-bottom: 0.35em;
+}
+.proposal-print-document [data-proposal-block-type="index"] .proposal-toc-page {
+  grid-column: 4; grid-row: 1; align-self: end;
 }
 .proposal-print-document [data-proposal-block-type="index"] .proposal-toc-link > :first-child {
   width: auto; min-width: 0; font-variant-numeric: tabular-nums;
@@ -2048,6 +2058,7 @@
   --psa-table-rule: 0.5pt;
   --psa-table-inset: 0.5em;
   --psa-note-scale: 0.85;
+  --psa-toc-indent: 1.5em;
   --psa-letter-date-gap: calc(var(--psa-body-line) * 1.333333333);
   --psa-document-muted: #555;
   --psa-document-rule: #b8b8b8;
@@ -2082,7 +2093,25 @@
   margin: 0 !important; padding-block: 0 !important; border-bottom: 0 !important;
 }
 .proposal-print-document .proposal-print-block li + li {
-  margin-top: var(--psa-attached-gap) !important;
+  margin-top: var(--psa-paragraph-gap) !important;
+}
+.proposal-print-document .proposal-print-block li {
+  font-size: var(--psa-body-size) !important;
+}
+.proposal-print-document .proposal-print-block ul,
+.proposal-print-document .proposal-print-block ol {
+  list-style-position: outside !important;
+}
+/* The generic li margin reset previously erased the index's ml-8 hierarchy.
+   Keep hierarchy explicit and independent from body-list spacing. */
+.proposal-print-document [data-proposal-block-type="index"] li[data-toc-level="1"] {
+  margin-inline-start: 0 !important;
+}
+.proposal-print-document [data-proposal-block-type="index"] li[data-toc-level="2"] {
+  margin-inline-start: var(--psa-toc-indent) !important;
+}
+.proposal-print-document [data-proposal-block-type="index"] li[data-toc-level="3"] {
+  margin-inline-start: calc(var(--psa-toc-indent) * 2) !important;
 }
 .proposal-print-document .proposal-print-block li p,
 .proposal-print-document .proposal-print-block td p,
@@ -2090,7 +2119,7 @@
   margin: 0 !important;
 }
 .proposal-print-document .proposal-print-block p[data-list-lead-in="true"] {
-  margin-bottom: var(--psa-attached-gap) !important;
+  margin-bottom: var(--psa-paragraph-gap) !important;
 }
 .proposal-print-document .proposal-print-block table {
   margin: 0 0 var(--psa-paragraph-gap) !important;

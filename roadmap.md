@@ -1,3 +1,7 @@
+## Current request — index hierarchy and paragraph-matched lists
+- [ ] Restore 0/1.5em/3em index hierarchy and hanging text with leaders/page columns in shared CSS.
+- [ ] Match list font/leading/item and colon lead-in gaps to the paragraph slider; verify Chiado Pages/PDF read-only; B1 OFF.
+
 ## Current request — Luis corrections 14 November 10:22
 - [x] Correct six Oleiro new-revision document prices and new-proposal defaults only; preserve fees/margins/previous revision/Chiado.
 - [x] Verify canonical Gantt helper and dynamic reorder regression; explain branch-first/local-order cause; B1 OFF.
