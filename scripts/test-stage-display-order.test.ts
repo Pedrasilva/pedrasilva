@@ -32,6 +32,14 @@ describe('manual Gantt stage order', () => {
     const rows=[{id:'execution',stage_id:'execution',amount:50},{id:'advance',stage_id:null,amount:100},{id:'design',stage_id:'design',amount:20}];
     expect(sortStageLinkedRows(rows,stages).map(r=>[r.id,r.amount])).toEqual([['design',20],['advance',100],['execution',50]]);
   });
+  it('updates every ranked phase list when Gantt siblings are moved, without a fixed chronology', () => {
+    const tree=[{id:'design',name:'Projeto',sort_order:1},{id:'programme',name:'Programa',parent_stage_id:'design',sort_order:1},{id:'execution',name:'PE',parent_stage_id:'design',sort_order:2},{id:'construction',name:'Obra',sort_order:2},{id:'tender',name:'Concurso',parent_stage_id:'construction',sort_order:1},{id:'retainer',name:'Avença',parent_stage_id:'construction',sort_order:2}];
+    const rows=[{stage_id:'retainer'},{stage_id:'tender'},{stage_id:'execution'},{stage_id:'programme'}];
+    expect(sortRowsByStageRank(rows,stageOrderRanks(tree),r=>r.stage_id).map(r=>r.stage_id)).toEqual(['programme','execution','tender','retainer']);
+    const moved=tree.map(s=>s.id==='construction'?{...s,sort_order:0}:s);
+    expect(sortRowsByStageRank(rows,stageOrderRanks(moved),r=>r.stage_id).map(r=>r.stage_id)).toEqual(['tender','retainer','programme','execution']);
+    expect(sortStageLinkedRows(rows,moved).map(r=>r.stage_id)).toEqual(['tender','retainer','programme','execution']);
+  });
   it.each(['Assistencia Tecnica a Obra','Assistência Técnica à Obra','retainer','avença','Construction technical assistance'])('recognizes legacy assistance label %s', name => {
     expect(isConstructionStage({name})).toBe(true);
   });
