@@ -1,7 +1,7 @@
 ## Current request — master text spacing
-- [ ] Shared spacing controls, presets, inheritance/explicit overrides and live preview.
-- [ ] Save approved PSA master spacing; preserve existing overrides and all content/B1.
-- [ ] Verify Chiado/Oleiro completed Pages and physical PDFs; regression tests and report.
+- [x] Shared spacing controls, presets, inheritance/explicit overrides and current-block live preview.
+- [x] Approved PSA master saved revision2; Chiado/Oleiro inherit with no proposal writes, content/B1 preserved.
+- [x] Chiado35/Oleiro36 completed Pages and physical PDFs;19 tests, i18n and report. Native PDF and persistent override browser cycle not certified.
 
 ## Current request — block library redesign
 - [x] Compact outline with page navigation, guarded existing actions and Gantt stage order; grouped available blocks, use counters and independent scrolling.
