@@ -244,3 +244,14 @@ Estão excluídos da proposta: IVA à taxa legal em vigor; Despesas de deslocaç
 **Depois**
 
 Nesta proposta, o conceito e o projeto de design de interiores são da responsabilidade do designer de interiores indicado pelo Cliente. A PSA integra as suas soluções no projeto de arquitetura e assegura a articulação com as especialidades; esta integração está incluída no âmbito de arquitetura e não corresponde à prestação do serviço opcional de design de interiores. Qualquer contratação adicional de design de interiores à PSA dependerá de acordo separado e não substitui o âmbito do designer indicado pelo Cliente.
+
+## Resultado e valores
+- Nova quote/revisão real: b8a53c48-e55a-4c5b-8a91-92a1e8e02e70; documento 59a30496-130f-432e-9539-0b8a634c0c32. revision_number=2 (revisão impressa 1), work_revision_ordinal=1. Fonte Rev00 preservada, sem substituição do documento principal original.
+- Foram adaptados 10 blocos. O texto genérico Porquê PSA já existe no Oleiro; não foi duplicado. Anteprojeto/PIP, especialidades, calendário e restantes blocos do Chiado foram auditados sem copiar referências hoteleiras indevidas.
+- Luis confirmou usar os preços atuais do Chiado, em vez dos valores iniciais do pedido: Sócio120€/h, Diretor90€/h, Sénior75€/h, Arquiteto65€/h, Lead Designer75€/h, Júnior50€/h. São valores explícitos de venda da nova revisão; custos/salários/snapshots intocados.
+- Total atual confirmado pelo cálculo canónico autenticado: **189000€ antes →189000€ depois, sem IVA**. O valor histórico221300€ não corresponde aos dados atuais: a fonte já tinha12 meses de avença, não18; não foi alterada. O campo legado valor=151956,2754808188 não é o total do Gantt.
+- Padrões guardados em proposal_roles.default_sale_rate, editáveis em /admin/proposal-roles na coluna Sale Rate/Valor de venda, ícone Guardar da linha. Campos de custo não foram alterados. Novas quotes recebem cópia no momento de criação; revisões copiam a fonte e valores manuais prevalecem. Propostas existentes não leem o padrão em direto.
+- Verificação autenticada: 67 blocos originais de Chiado/Oleiro iguais às leituras iniciais;10 novos blocos exatamente iguais às adaptações aprovadas; pagamentos copiados conservam campos comerciais/quantidades/valores/datas. B1=false.
+- Causa das tentativas anuladas: o copiador existente disparava12 mensalidades automáticas além das25 linhas copiadas. A operação final utilizou as guardas existentes pm.retainer_conversion/pm.invoice_regroup durante a cópia, conservando os25 pagamentos, sem alterar a função global.
+- Teste descartável: seis padrões herdados; substituição manual123€/h preservada; quote de teste eliminada.3 testes da regra, agregação de categorias e auditoria de traduções passam; compilação OK.
+- Carta e páginas renderizam; PDF não foi exportado nesta tarefa. A etiqueta da barra continua«Rev00» por representar o histórico de envio, não revision_number da quote; capa impressa mostra rev1. Não se inventou envio de revisão.

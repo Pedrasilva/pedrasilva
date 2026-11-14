@@ -1,7 +1,7 @@
 ## Current request — Oleiro designer revision and category sale defaults
-- [ ] Create genuine new Oleiro revision with designer scope adapted from all Chiado blocks; preserve source, Chiado, PIP and tourism regime.
-- [ ] Apply confirmed current Chiado sale values; add editable defaults copied only into new quotes without replacing manual values.
-- [ ] Verify revision, unchanged fee/schedules, authenticated UI and disposable default inheritance; report every before/after and record decision; B1 OFF.
+- [x] Create genuine new Oleiro revision with designer scope adapted from all Chiado blocks; preserve source, Chiado, PIP and tourism regime.
+- [x] Apply confirmed current Chiado sale values; add editable defaults copied only into new quotes without replacing manual values.
+- [x] Verify revision, unchanged fee/schedules, authenticated UI and disposable default inheritance; report every before/after and record decision; B1 OFF.
 
 ## Current request — HR summary and rank rates
 - [x] Fixed stored-enum filter; Luis read-only UI confirms11 Projecto +1 Backoffice and371090,57€/26090,80€,2 regressions and salary tests pass; no payroll/snapshot writes; B1 OFF.
