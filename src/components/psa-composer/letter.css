@@ -2,5 +2,5 @@
 .psa-letter-recipient { width:100%; margin:0 0 var(--psa-paragraph-gap); white-space:pre-line; overflow-wrap:break-word; }
 .proposal-print-document .psa-business-letter .psa-letter-date { text-align:right; margin-bottom:var(--psa-letter-date-gap) !important; }
 .psa-business-letter .psa-letter-signoff { margin-top:var(--psa-paragraph-gap); }
-.psa-letter-signoff img { display:block; width:var(--letter-signature-width); height:auto; max-height:12mm; object-fit:contain; object-position:left; margin:var(--psa-attached-gap) 0; }
+.psa-letter-signoff img { display:block; width:calc(var(--letter-signature-width) * 1.3); height:auto; max-height:15.6mm; object-fit:contain; object-position:left; margin:var(--psa-attached-gap) 0; }
 .proposal-print-document .psa-business-letter p { margin:0 0 var(--psa-paragraph-gap) !important; line-height:var(--psa-body-leading) !important; }
