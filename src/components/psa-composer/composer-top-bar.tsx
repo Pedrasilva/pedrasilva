@@ -380,6 +380,7 @@ export async function printProposalDocument(
           .proposal-export-sheets .pagedjs_page_content, .proposal-export-sheets .pagedjs_page_content * { break-before: auto !important; break-after: auto !important; }
           .proposal-export-sheets .proposal-print-document { min-height: 0 !important; width: auto !important; padding: 0 !important; margin: 0 !important; }
           .proposal-export-sheets .proposal-page-header, .proposal-export-sheets .proposal-page-footer { position: static !important; }
+          .proposal-export-sheets .proposal-master-document .proposal-margin-furniture .proposal-page-footer { position: relative !important; }
           .proposal-export-sheets .proposal-page-break-before, .proposal-export-sheets .proposal-page-break-after { break-before: auto !important; break-after: auto !important; }
 
           html, body { width: auto !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: white !important; }
