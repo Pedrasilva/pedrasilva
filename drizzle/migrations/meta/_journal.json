@@ -2269,6 +2269,13 @@
       "when": 1794651233759,
       "tag": "0323_proposal_category_sale_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 324,
+      "version": "7",
+      "when": 1794655170171,
+      "tag": "0324_security_scoped_storage_reads_and_quote_stage",
+      "breakpoints": true
     }
   ]
 }
