@@ -1968,6 +1968,7 @@
 .master-sheet { width:210mm; height:297mm; transform-origin:top left; box-shadow:0 0 0 1px var(--border); overflow:hidden; }
 .master-controls { overflow:auto; max-height:72dvh; padding-right:8px; }
 .master-margin-guides { position:absolute; border:1px dashed var(--primary); pointer-events:none; }
+.master-text-preview { position:absolute; overflow:hidden; pointer-events:none; font-size:var(--psa-body-size,10.5pt); }
 .master-header-guide,.master-footer-guide {position:absolute;left:0;right:0;border-bottom:1px dotted var(--border);pointer-events:none;}
 .master-header-guide{top:0}.master-footer-guide{bottom:0;border-top:1px dotted var(--border);border-bottom:0}
 .master-draggable {cursor:move;touch-action:none;outline:1px dashed var(--primary);}
@@ -2160,6 +2161,8 @@
 .proposal-print-document .proposal-print-block table[data-proposal-has-note="true"] {
   margin-bottom: var(--psa-table-note-before) !important;
 }
+.proposal-print-document .proposal-print-block p:has(+ table) { margin-bottom: var(--psa-table-before) !important; }
+.proposal-print-document .proposal-print-block table + [data-proposal-note="true"] { margin-top: 0 !important; }
 .proposal-print-document .proposal-print-block [data-proposal-note="true"],
 .proposal-print-document .proposal-print-block figcaption {
   font-size: calc(var(--psa-body-size) * var(--psa-note-scale)) !important;
