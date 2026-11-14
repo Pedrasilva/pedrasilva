@@ -1,3 +1,7 @@
+## Current request — index formatting controls
+- [ ] Approval and implementation of independent master/proposal index inheritance, controls and shared rendering tokens.
+- [ ] Save approved PSA index default; verify read-only Chiado/Oleiro Pages/physical PDF and override preservation; record decision/report, B1 OFF.
+
 ## Current request — movable master footer
 - [x] Shared selectable/draggable/resizable furniture, mm controls, 1/10 pt keys, snapping, safe text margin and cover/letter visibility.
 - [x] Chiado memory copy Pages/physical PDF 36→40→36 and intercepted save/reopen; no real writes, B1 OFF.
