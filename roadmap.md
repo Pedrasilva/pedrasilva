@@ -884,3 +884,9 @@
 ## Current request — adaptive Gantt header
 - [x] Shared width-based two-band labels, clustered payment markers and aligned gridlines; Fit minimum removed.
 - [x] Chiado verified at Week224px/week, Month70px/week and Fit10.74px/week; zero cell overflow/errors/writes, cluster tooltip and sticky scrolling confirmed;18 tests and i18n passed; D64 recorded.
+
+## Current request — canonical stage order
+- [x] Shared manual Gantt hierarchy; construction-last overrides removed, full-tree financial ranks and continuous phase list.
+- [x] Audit financial/payment/report/conversion consumers; remove rendered editor tags; preserve data/prose; D65 and before/after report recorded.
+- [x] Read-only Chiado/Oleiro/Alqueva source/Pages verified,7/7/8 phases;31 tests/i18n/build pass.
+- [ ] PDF validation blocked: all three export windows remain empty while pagination stays loading; no PDF certified. Existing D63 export blocker remains unresolved.

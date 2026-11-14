@@ -19,7 +19,10 @@ export function documentGanttRows(stages: LiveStage[], kind: string, parentId?: 
   const descendants = new Set(parentId ? [parentId] : []);
   if (parentId) for (let i = 0; i < mapped.length; i++) for (const s of mapped) if (s.parentStageId && descendants.has(s.parentStageId)) descendants.add(s.id);
   const relative = relativeProgrammeRows(override);
-  if (relative.length) return relative.map(r => ({ id:r.stageId, name:r.label, number:ordered.find(n=>n.stage.id===r.stageId)?.number ?? '', start:(r.start-1)*(r.unit==='week'?7:30)*86400000, end:r.end*(r.unit==='week'?7:30)*86400000, duration:r.durationLabel, construction:r.unit==='constructionMonth', group:false, depth:0 }));
+  if (relative.length) {
+    const ranks = new Map(ordered.map((n,index) => [n.stage.id,index]));
+    return [...relative].sort((a,b) => (ranks.get(a.stageId) ?? Infinity) - (ranks.get(b.stageId) ?? Infinity)).map(r => ({ id:r.stageId, name:r.label, number:ordered.find(n=>n.stage.id===r.stageId)?.number ?? '', start:(r.start-1)*(r.unit==='week'?7:30)*86400000, end:r.end*(r.unit==='week'?7:30)*86400000, duration:r.durationLabel, construction:r.unit==='constructionMonth', group:false, depth:0 }));
+  }
   const children = new Set(mapped.map(s=>s.parentStageId).filter(Boolean));
   const rows = ordered.filter(({stage:s}) => !optional.has(s.id) && s.startDate && s.endDate).map(({stage:s,number,depth}) => ({id:s.id,name:s.name,number,depth,start:Date.parse(s.startDate ?? ''),end:Date.parse(s.endDate ?? ''),duration:s.durationDays ?? 0,construction:construction.has(s.id),group:children.has(s.id)})).filter(r=>Number.isFinite(r.start)&&Number.isFinite(r.end));
   // Roll up copied numeric ranges only, not the caller's shared snapshot.
@@ -33,6 +36,5 @@ export function documentGanttRows(stages: LiveStage[], kind: string, parentId?: 
 
 export function documentGanttSheets(rows: DocumentGanttRow[]) {
   if(rows.length<=GANTT_ROWS_PER_SHEET) return [rows];
-  const groups=[rows.filter(r=>!r.construction),rows.filter(r=>r.construction)].filter(g=>g.length);
-  return groups.flatMap(g=>Array.from({length:Math.ceil(g.length/GANTT_ROWS_PER_SHEET)},(_,i)=>g.slice(i*GANTT_ROWS_PER_SHEET,(i+1)*GANTT_ROWS_PER_SHEET)));
+  return Array.from({length:Math.ceil(rows.length/GANTT_ROWS_PER_SHEET)},(_,i)=>rows.slice(i*GANTT_ROWS_PER_SHEET,(i+1)*GANTT_ROWS_PER_SHEET));
 }
