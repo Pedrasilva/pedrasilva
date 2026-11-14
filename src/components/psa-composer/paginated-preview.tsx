@@ -232,7 +232,7 @@ export function PaginatedPreview({
           if (paragraph.nextElementSibling?.matches('ul,ol')) paragraph.dataset.listLeadIn='true';
         });
         clone.querySelectorAll(
-          '[data-editor-toolbar="true"], button, .print\\:hidden, [contenteditable="true"] .ProseMirror-menu',
+          '[data-editor-only], [data-editor-toolbar="true"], button, .print\\:hidden, [contenteditable="true"] .ProseMirror-menu',
         ).forEach((node) => node.remove());
         clone.querySelectorAll<HTMLElement>("[contenteditable]").forEach((node) => {
           node.removeAttribute("contenteditable");

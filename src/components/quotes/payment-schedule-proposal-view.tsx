@@ -422,6 +422,7 @@ export function PaymentScheduleProposalView({
         };
 
         const nodes = stages as StageNode[];
+        const stageRanks = new Map(sortStagesByWbs(nodes).map((stage, index) => [stage.id, index]));
         const stageById = new Map(nodes.map((s) => [s.id, s]));
         const isOptional = (s: StageNode) =>
           isOptionalStage(s, stageById as unknown as Map<string, QuoteStage>);
@@ -474,7 +475,7 @@ export function PaymentScheduleProposalView({
         };
 
         const compareStages = (a: StageNode, b: StageNode): number => {
-          return compareStageDisplay(a,b);
+          return (stageRanks.get(a.id) ?? Infinity) - (stageRanks.get(b.id) ?? Infinity);
         };
         // Contract sections exclude optional stages entirely. Optional trees
         // are rendered in their own section below and don't count towards
