@@ -249,10 +249,10 @@ export function ComposerShell({ proposalId, embedded = false }: { proposalId: st
       )}
       <div className="relative flex min-h-0 flex-1 overflow-hidden print:block" data-composer-layout={layout}>
         {!isReadOnly && (
-          <div id="proposal-split-library" hidden={layout === "split" && !drawers.library} className={layout === "split" ? "absolute inset-y-0 left-0 z-30 flex max-w-full flex-col border-r border-border bg-background shadow-lg print:hidden" : "shrink-0 print:hidden"}>
+          <div id="proposal-split-library" hidden={layout === "split" && !drawers.library} className={layout === "split" ? "absolute inset-y-0 left-0 z-30 flex max-w-full flex-col border-r border-border bg-background shadow-lg print:hidden" : "flex min-h-0 shrink-0 flex-col print:hidden"}>
             {layout === "split" && <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-1"><span className="text-sm font-medium">{t("library")}</span><Button size="icon" variant="ghost" aria-label={t("close")} onClick={() => setDrawer("library", false)}><X className="h-4 w-4" /></Button></div>}
-            <div className="min-h-0 flex-1 overflow-auto">
-            <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
+            <div className="min-h-0 flex-1 overflow-hidden">
+            <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} onSelect={selectBlock} onReorder={next=>reorder.mutate(next)} source={source} />
             </div>
           </div>
         )}

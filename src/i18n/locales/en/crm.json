@@ -1768,6 +1768,12 @@
     "perMonthDot": "/ mo ·",
     "blockAdded": "Block “{{value1}}” added",
     "blockLibrary": "Block library",
+    "library": {
+      "outline": "In this proposal", "add": "Add block", "otherTypes": "Show other document types", "description": "Project description", "table": "Table",
+      "showAll_one": "Show all ({{count}} in use)", "showAll_other": "Show all ({{count}} in use)", "inUse": "In use – go to", "actions": "Actions: {{title}}", "hide": "Hide from document", "show": "Show in document",
+      "groups": { "opening": "Opening", "project": "Project", "phases": "Phases", "fees": "Fees & payment", "contract": "Contract", "general": "General" },
+      "descriptions": { "opening": "Document opening and introduction.", "project": "Project scope and responsibilities.", "phases": "Stages and programme from the Gantt.", "fees": "Fees and payment conditions.", "contract": "Terms, exclusions and acceptance.", "general": "Editable text, media and layout." }
+    },
     "searchBlocks": "Search blocks…",
     "noResults": "No results.",
     "selectImageHint": "Select an image in the settings panel",
