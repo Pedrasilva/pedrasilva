@@ -415,6 +415,8 @@ export function ComposerCanvas({
                 </span>
               ))}
             </div>
+            <div className="proposal-footer-number" />
+            {master.footer.showLogo && <div className="proposal-footer-logo"><img src={psaLogo.url} alt={headerBrand} /></div>}
           </div>
         )}
       </div>

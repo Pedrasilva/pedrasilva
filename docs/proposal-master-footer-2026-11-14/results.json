@@ -1,0 +1,39 @@
+{
+  "before": {
+    "pages": 36,
+    "physical": 36,
+    "stats": {
+      "footerY": "265mm",
+      "margin": "32mm",
+      "footerTop": 3306.59375,
+      "contentBottom": 3306.59375,
+      "footerText": "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal\n1 / 34"
+    }
+  },
+  "moved": {
+    "pages": 40,
+    "physical": 40,
+    "stats": {
+      "footerY": "240mm",
+      "margin": "60mm",
+      "footerTop": 3212.109375,
+      "contentBottom": 3200.765625,
+      "footerText": "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal\n1 / 38"
+    }
+  },
+  "restored": {
+    "pages": 36,
+    "physical": 36,
+    "stats": {
+      "footerY": "265mm",
+      "margin": "32mm",
+      "footerTop": 3306.59375,
+      "contentBottom": 3306.59375,
+      "footerText": "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal\n1 / 34"
+    }
+  },
+  "errors": [],
+  "writes": [
+    "browser-only proposal copy"
+  ]
+}
