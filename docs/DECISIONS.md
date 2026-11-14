@@ -580,3 +580,8 @@ Usar um identificador novo e os campos acima. Se a decisão substituir outra, ma
 - **Substitui parcialmente D61:** deixa de aplicar0,3em a itens e introduções; células/notas mantêm a regra anterior.
 - **Causa/preservação:** Reset global `li { margin:0 !important }` de D61 anulou `ml-8` do índice. Correção só em CSS partilhado; nenhum conteúdo/dado comercial ou operacional guardado; B1OFF.
 - **Verificação/limite:** Chiado Páginas38 folhas, níveis0/21/42px, corpo14px/linha21px/intervalo10,5px; token1,2 produz16,8px em listas e parágrafos. PDF físico38 folhas a partir das mesmas folhas/estilos concluídos. Botão PDF continua a abrir janela vazia; validação física por captura direta, sem contornar guardas no código.12 testes existentes aprovados. [Relatório](proposal-index-list-rhythm-2026-11-14.md).
+
+### D69 — Biblioteca de blocos com estrutura e disponibilidade
+- **Data/área:**14/11/2026; editor de propostas, aprovação de Luis.
+- **Decisão:** Interface dividida em estrutura e adicionar, compacta/recolhível, agrupada e pesquisável; usos únicos desaparecem quando existentes, repetíveis mantêm contadores. Navegação/páginas usam o render concluído; ordem de fases usa o helper do Gantt. Ações reutilizam as existentes; nenhum dado documental migrado, B1OFF.
+- **Verificação/limites:** Chiado31/Oleiro36 blocos, páginas38/40, seleção/rolagem/filtros autenticados sem gravações;17 testes aprovados. Ações persistentes não executadas em propostas reais; contrato usa os metadados existentes, sem criar modelo novo. [Lista de tipos e relatório](proposal-block-library-2026-11-14.md).

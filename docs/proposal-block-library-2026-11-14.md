@@ -1,0 +1,10 @@
+# Biblioteca de blocos — 14 novembro 2026
+
+- Interface apenas; nenhuma alteração guardada em Chiado/Oleiro, sem migração e B1 OFF.
+- Estrutura aberta por defeito, linhas de32px, seleção/navegação e páginas do iframe concluído; ocultos esbatidos. Menu reutiliza Duplicate/visibilidade/Delete existentes, com confirmação de eliminação e respeito por bloqueios. Arrastar reorganiza apenas quando solicitado; fases permanecem na ordem do helper do Gantt.
+- Grupos: Abertura, Projeto, Fases, Honorários e pagamento, Contrato, Geral. Pesquisa, secções recolhíveis, filtro de outros documentos, mostrar usados e rolagem nativa independente.
+- Repetíveis: Fase, Texto, Imagem, Tabela, Quebra de página e Gantt parcial. Restantes tipos existentes são únicos: Capa, Carta, Índice, Sobre PSA, Descrição, Âmbito, Lista de fases, Cronograma, Gantt projeto/obra, Consultores, tabelas de honorários/fornecedores/opcionais, honorários de obra, deslocações, valores hora, condições/plano de pagamentos, serviços adicionais, considerações, suspensão, exclusões, aceitação e quatro blocos de anexos. Ocultos continuam a contar como existentes; duplicados antigos não são removidos.
+- Descrição reconhece o bloco scope histórico, sem o reclassificar na base de dados. Tabela é variante de texto já suportada; não foi inventado tipo persistido.
+- Os documentos não têm campo próprio proposal/contract: o filtro usa contract_clause quando presente e otherwise proposal, com os metadados de relevância existentes. Blocos internos só aparecem ao mostrar outros tipos. Não se criou um novo modelo de contratos.
+- Verificação autenticada, só leitura: Chiado31 blocos/38 páginas, Oleiro revisão01 36 blocos/40 páginas; páginas e seleção lidas na interface, usados ocultados, capa acessível via Mostrar todos, roda desloca apenas a biblioteca. Sem erros de execução.17 testes de regras/ordem aprovados; auditoria i18n sem novos candidatos; compilação aprovada.
+- Ações que gravam não foram executadas nos documentos reais. Arrastar tem cobertura pura; duplicação/ocultação/eliminação reutilizam ações existentes, sem teste persistido nesta tarefa. PDF nativo não foi revalidado.
