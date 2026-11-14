@@ -1,4 +1,27 @@
-# Numeração de leads, propostas e projetos
+# Rodapé editável da página-mestre
+
+## Causa encontrada
+O rodapé não tem seleção nem eventos de arrastar: estes existem apenas no logo e nos contactos do cabeçalho. O modelo guarda altura, texto e tamanho da letra, mas não posições dos elementos do rodapé. A apresentação paginada impõe ainda posições fixas de 14 mm nas laterais e 6 mm do fundo, anulando qualquer deslocação. Não é um bloqueio de permissões nem uma sobreposição a intercetar o rato.
+
+## Correção proposta
+- Tornar cabeçalho, rodapé e respetivos elementos selecionáveis, arrastáveis e redimensionáveis, com os mesmos controlos.
+- Setas deslocam 1 pt; Shift + seta desloca 10 pt. Ajuste às margens e aos limites da coluna de texto.
+- Painel do elemento selecionado: X/Y e largura em mm, alinhamento esquerda/centro/direita; rodapé com distância ao fundo. Preservar os valores antigos até edição explícita.
+- Acrescentar opções independentes para ocultar rodapé na Capa e na Carta, sem alterar os restantes comportamentos da Carta.
+- Usar as posições guardadas nos estilos comuns do editor, Páginas e PDF. A margem inferior do texto reserva automaticamente o espaço ocupado pelo rodapé, incluindo a folga de segurança.
+
+## Verificação e preservação
+- Testes pequenos para geometria, passos de teclado, encaixe, margem inferior e visibilidade por tipo de página.
+- Exercitar seleção, arrasto, redimensionamento e gravação/reabertura numa cópia isolada; nunca gravar no Hotel Chiado nem criar documentos ligados à quote real.
+- Renderizar o Hotel Chiado em leitura, usando alterações temporárias em memória, comparar Páginas e PDF das folhas concluídas e repor a posição original. Reportar separadamente qualquer limitação do botão PDF existente.
+- Não alterar conteúdo, valores, fases, numeração ou ordem de blocos. B1 permanece OFF. Registar a decisão e entregar a causa, ficheiros alterados e resultados.
+
+## Detalhes técnicos
+Estender aditivamente o JSON da página-mestre, com resolução não mutável dos valores legados; centralizar geometria e ajustes num helper partilhado. Remover coordenadas fixas concorrentes da paginação e adaptar as posições também nas folhas horizontais. Reutilizar as gravações e permissões existentes, sem mudanças de segurança ou de dados comerciais.
+
+<!-- Plano anterior conservado abaixo como contexto histórico; não integra esta aprovação. -->
+
+# Numeração de leads, propostas e projetos (plano anterior)
 
 ## Aprovação pedida
 Escolher **A ou B**, confirmar os casos de identidade abaixo e aprovar o mapa por registo antes de qualquer implementação ou alteração real. As regras de Luis estão registadas em **D53**. B1 confirmado **OFF, revisão 10**; investigação exclusivamente de leitura.
